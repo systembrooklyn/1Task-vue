@@ -229,7 +229,7 @@ const t = (key) => {
                 <div class="px-1 pt-0 text-center card-footer px-lg-2">
                   <p class="mx-auto mb-4 text-sm">
                     {{ t("dontHaveAccount") }}
-                    <a href="/start" class="text-success text-gradient font-weight-bold">{{ t("signUp") }}</a>
+                    <a href="/" class="text-success text-gradient font-weight-bold">{{ t("signUp") }}</a>
                   </p>
                 </div>
               </div>

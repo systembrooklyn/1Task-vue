@@ -20,6 +20,11 @@ const currentDirectory = computed(() => {
   return dir.charAt(0).toUpperCase() + dir.slice(1);
 });
 
+const userName = computed(() => store.getters.userName);
+
+
+
+
 const minimizeSidebar = () => store.commit("sidebarMinimize");
 const toggleConfigurator = () => store.commit("toggleConfigurator");
 
@@ -66,13 +71,13 @@ const closeMenu = () => {
         <ul class="navbar-nav justify-content-end">
           <li class="nav-item d-flex align-items-center">
             <router-link
-              :to="{ name: 'Signin' }"
+              :to="'#'"
               class="px-0 nav-link font-weight-bold "
               :class="darkMode ? 'text-white' : 'text-dark'"
-              target="_blank"
             >
               <i class="fa fa-user" :class="isRTL ? 'ms-sm-2' : 'me-sm-2'"></i>
-              <span v-if="isRTL" class="d-sm-inline d-none">يسجل دخول</span>
+              <span v-if="userName" class="d-sm-inline d-none">Hi, {{ userName }}</span>
+              <span v-else-if="isRTL" class="d-sm-inline d-none">يسجل دخول</span>
               <span v-else class="d-sm-inline d-none">Sign In</span>
             </router-link>
           </li>

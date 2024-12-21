@@ -47,7 +47,7 @@
                 <div v-if="employee.roles.length" class="selected-options">
                   <span v-for="roleName in employee.roles" :key="roleName" class="selected-option">
                     {{ roleName }}
-                    <button type="button" class="btn-remove" @click="confirmRemoveRole(employee, roleName)">
+                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove" @click="confirmRemoveRole(employee, roleName)">
                       ×
                     </button>
                   </span>
@@ -58,7 +58,7 @@
                 <div v-if="employee.departments.length" class="selected-options">
                   <span v-for="departmentName in employee.departments" :key="departmentName" class="selected-option">
                     {{ departmentName }}
-                    <button type="button" class="btn-remove" @click="confirmRemoveDepartment(employee, departmentName)">
+                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove" @click="confirmRemoveDepartment(employee, departmentName)">
                       ×
                     </button>
                   </span>

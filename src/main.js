@@ -6,7 +6,12 @@ import "./assets/css/nucleo-icons.css";
 import "./assets/css/nucleo-svg.css";
 import ArgonDashboard from "./argon-dashboard";
 
-
+if (process.env.NODE_ENV === 'production') {
+    appInstance.config.errorHandler = () => {
+      console.error('An error occurred. Please try again later.');
+    };
+  }
+  
 
 
 
