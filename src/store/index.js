@@ -119,6 +119,7 @@ export default createStore({
       state.dataFromApi = state.dataFromApi.filter(role => role.id !== roleId);
       // يمكنك أيضًا تحديث `state.user` إذا كان ذلك مطلوبًا
     },
+    
 
     UPDATE_DEPARTMENT(state, department) {
       const index = state.departments.findIndex(d => d.id === department.id);
