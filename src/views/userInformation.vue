@@ -6,7 +6,7 @@ import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";
-// import Swal from "sweetalert2"; // استيراد SweetAlert2
+import Swal from "sweetalert2"; // استيراد SweetAlert2
 import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 
 const store = useStore();
@@ -20,6 +20,20 @@ const token = ref(route.query.token ? route.query.token : '');
 // const id = ref(route.query.id ? Number(atob(decodeURIComponent(route.query.id))) : 0);
 // const pageTime = ref(route.query.pageTime ? Number(atob(decodeURIComponent(route.query.pageTime))) : 0);
 // const email = ref("");
+
+const hash = window.location.hash.substring(1); // إزالة الهاش (#)
+console.log("hash:", hash);
+const pageTime = new URLSearchParams(hash);
+console.log("pageTime:", pageTime);
+const expiresAt = pageTime.get('expires_at');
+console.log("expiresAt:", expiresAt);
+const currentTime = new Date();
+const timestamp = Math.floor(currentTime.getTime() / 1000);
+console.log("timestamp:", timestamp);
+
+
+
+
 const name = ref("");
 const password = ref("");
 const confirmPassword = ref("");
@@ -35,7 +49,7 @@ const passwordsMatch = ref(false);
 
 // تحميل الأدوار من Vuex عند تحميل المكون
 onBeforeMount(async () => {
-  // checkSessionExpiration()
+  checkSessionExpiration()
   store.state.showSidenav = false;
 
   await store.dispatch("fetchRoles"); // جلب الأدوار من Vuex
@@ -97,26 +111,29 @@ const currentLanguage = computed(() => store.getters.currentLanguage);
 const t = (key) => translations[currentLanguage.value][key];
 
 // تحقق من انتهاء مدة الجلسة
-// const checkSessionExpiration = () => {
-//   const currentTime = Date.now();
-//   const oneHour = 60 * 60 * 1000; // ساعة واحدة بالمللي ثانية
-
-//   if (currentTime - pageTime.value >= oneHour) {
-//     Swal.fire({
-//       title: t("sessionExpired"),
-//       icon: "warning",
-//       confirmButtonText: t("ok"),
-//     }).then(() => {
-//       // يمكنك هنا اتخاذ الإجراء المناسب، مثل إعادة توجيه المستخدم
-//       router.push("/addUser");
-//     });
-//   }
-// };
+const checkSessionExpiration = () => {
+  // const currentTime = Date.now();
+  const oneHour = 2* 60 * 60; // ساعة واحدة بالمللي ثانية
+  // const x = 1*60*60;
+console.log("expiresAt:", expiresAt + 200);
+console.log(typeof(expiresAt));
+console.log("oneHour:", oneHour);
+  if (timestamp > expiresAt) {
+    Swal.fire({
+      title: t("sessionExpired"),
+      icon: "warning",  
+      confirmButtonText: t("ok"),
+    }).then(() => {
+      // يمكنك هنا اتخاذ الإجراء المناسب، مثل إعادة توجيه المستخدم
+      router.push("/addUser");
+    });
+  }
+};
 
 // راقب المتغير pageTime للتحقق من انتهاء الجلسة
-// watch(pageTime, () => {
-//   checkSessionExpiration();
-// });
+watch(pageTime, () => {
+  checkSessionExpiration();
+});
 
 // دالة للتحقق من كلمة المرور
 const validatePassword = (password) => {

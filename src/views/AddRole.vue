@@ -26,7 +26,6 @@ const userData = computed(() => store.getters.user);
 const isOwner = computed(() => store.getters.isOwner);
 const isLoadingData = ref(false);
 
-
 // استدعاء الصلاحيات من localStorage بناءً على المستخدم الحالي
 const permissions = ref(loadPermissionsFromLocalStorage(userData.value?.user?.id) || {});
 
