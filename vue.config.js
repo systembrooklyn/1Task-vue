@@ -1,11 +1,9 @@
-// vue.config.js
-module.exports = {
-  publicPath: "/", // غير "my-app" للمسار الفرعي اللي محتاجه، أو خليها '/' لو على المسار الرئيسي
-};
+// // vue.config.js
+// module.exports = {
+//   publicPath: "/",
+// };
 
 // // vite.config.js
-// export default {
-//   build: {
-//     minify: "esbuild", // أو terser للحصول على حماية أقوى
-//   },
-// };
+export default {
+  publicPath: "/",
+};
