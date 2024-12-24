@@ -295,6 +295,19 @@ const config = {
 
   // end roles----------------
 
+  // srart projects--------------------------------------------------------------------
+  getProjects() {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get("/projects", config);
+  },
+
+  //end projects
+
   //end
 
   // PUT: تحديث بيانات موجودة
@@ -351,9 +364,7 @@ const config = {
       },
     }); // تأكد من أن الـ API يتوقع البيانات بهذا الشكل
   },
-  getProjects() {
-    return apiClient.get("/projects");
-  },
+
   updateProject(project) {
     return apiClient.put(`/projects/${project.id}`, {
       data: { neme: project.neme },

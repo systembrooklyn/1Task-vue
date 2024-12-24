@@ -908,8 +908,14 @@ export default createStore({
     async fetchProjects({ commit }) {
       try {
         const response = await apiClient.getProjects();
-        commit("SET_PROJECT", response.data.data);
-        console.log("response.data", response.data.data);
+        if (response.status === 200) {
+          commit("SET_PROJECT", response.data);
+          console.log("response", response);
+          console.log("response.data", response.data);
+          return response;
+        } else {
+          return response;
+        }
       } catch (error) {
         console.error("Error fetching projects:", error);
       }

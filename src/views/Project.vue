@@ -9,6 +9,38 @@ import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import ProjectsTable from "@/views/components/ProjectsTable.vue";
 import Swal from "sweetalert2";
 const store = useStore();
+
+
+const userData = computed(() => store.getters.user);
+
+
+import {
+  savePermissionsToLocalStorage,
+  extractPermissionsFromAPI,
+  loadPermissionsFromLocalStorage,
+  hasPermission,
+} from "@/utils/permissions.js";
+
+
+const permissions = ref(
+  loadPermissionsFromLocalStorage(userData.value?.id) || {}
+);
+
+// عند تحميل الصفحة لأول مرة، حفظ الصلاحيات في localStorage
+onBeforeMount(() => {
+  if (!permissions.value || Object.keys(permissions.value).length === 0) {
+    const extractedPermissions = extractPermissionsFromAPI(userData.value?.roles);
+    permissions.value = extractedPermissions;
+    savePermissionsToLocalStorage(permissions.value, userData.value?.id);
+  }
+});
+
+const isOwner = computed(() => store.getters.isOwner);
+
+const canCreateProject = computed(() =>
+  hasPermission(permissions.value, "create-project")
+);
+
 const showAlert = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
@@ -47,15 +79,15 @@ const userName = computed(() => store.getters.userName);
 
 const fetchProjects = async () => {
   isLoading.value = true;
+
   try {
-    await store.dispatch("fetchProjects");
-    projects.value = store.getters.projects.filter(
-      (project) =>
-        (project.companyID == currentCompanyId.value ||
-          project.companyID == currentUserId.value) &&
-        project.companyID != null
-    );
-    componentKey.value += 1;
+    const response = await store.dispatch("fetchProjects");
+    console.log("response:", response);
+    if (response.status === 200) {
+      projects.value = store.getters.projects;
+      console.log("projects:", projects.value);
+      componentKey.value += 1;
+    }
   } catch (error) {
     showAlert.value = true;
     errorMessage.value = t("generalError");
@@ -186,7 +218,7 @@ const translations = {
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
               <p class="mb-0">{{ t("projectsTable") }}</p>
-              <argon-button class="ml-auto mx-2" @click="openPopup">
+              <argon-button v-show="canCreateProject || isOwner" class="ml-auto mx-2" @click="openPopup">
                 <i class="fas fa-plus"></i>
               </argon-button>
             </div>
@@ -217,7 +249,11 @@ const translations = {
                 aria-hidden="true"
               ></span>
             </div>
-            <projects-table v-else :projects="projects" :key="componentKey" />
+            <projects-table
+              v-else
+              :projects="projects"
+              :key="componentKey"
+            />
           </div>
         </div>
       </div>
