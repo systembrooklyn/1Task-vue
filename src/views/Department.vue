@@ -257,8 +257,7 @@ const translations = {
         <div v-else-if="departments.length === 0" class="d-flex justify-content-center py-5 flex-column align-items-center">
           <h5>{{ t("noDepartments") }}</h5>
           <p>
-            {{ t("inviteDepartments") }}
-            <a href="/addUser" class="text-primary">{{ t("here") }}</a>
+            {{ t("createDepartments") }}
           </p>
         </div>
             <departments-table
