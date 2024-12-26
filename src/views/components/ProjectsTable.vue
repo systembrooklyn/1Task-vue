@@ -215,14 +215,18 @@
             <div v-if="activeTab === 'log'">
   <div v-if="projectLogs.length > 0">
     <ul class="log-list">
-      <li v-for="log in projectLogs" :key="log.id" class="log-item">
-        {{ t("changedBy") }}: <strong>{{ log.changed_by }}</strong>,
-        {{ t("field") }}: <strong>{{ log.field }}</strong>,
-        {{ t("oldValue") }}: <strong>{{ log.old_value }}</strong>,
-        {{ t("newValue") }}: <strong>{{ log.new_value }}</strong>,
-        {{ t("changedAt") }}: <strong>{{ formatDate(log.changed_at) }}</strong>
-      </li>
-    </ul>
+  <li v-for="log in projectLogs" :key="log.id" class="log-item">
+    {{ t("onDate") }} <strong>{{ formatDate(log.changed_at) }}</strong>,
+    <strong>{{ log.changed_by }}</strong>
+    {{ t("changedTheField") }} 
+    "<strong>{{ log.field }}</strong>"
+    {{ t("from") }}
+    "<strong>{{ log.old_value }}</strong>"
+    {{ t("to") }}
+    "<strong>{{ log.new_value }}</strong>".
+  </li>
+</ul>
+
   </div>
   <div v-else>
     <p>{{ t("noLogsAvailable") }}</p>
@@ -567,6 +571,12 @@ const translations = {
     oldValue: "Old Value",
     newValue: "New Value",
     changedAt: "Changed At",
+    // مثال ترجمة بالإنجليزية
+onDate: "On",
+changedTheField: "changed the field",
+from: "from",
+to: "to",
+
 
   },
   ar: {
@@ -610,6 +620,11 @@ const translations = {
     oldValue: "القيمة القديمة",
     newValue: "القيمة الجديدة",
     changedAt: "تم التعديل في",
+    onDate: "في تاريخ",
+changedTheField: "قام بتغيير الحقل",
+from: "من",
+to: "إلى",
+
   },
 };
 </script>
@@ -773,9 +788,10 @@ td:hover .hover-icon {
 }
 
 .log-list {
-  list-style-type: none;
   padding: 0;
   margin: 0;
+  list-style-type: disc; /* أو circle، أو square، إلخ */
+  padding-left: 1rem; /* لتظهر النقط يسارًا */
 }
 
 .log-item {
