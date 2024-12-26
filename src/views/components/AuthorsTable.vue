@@ -5,11 +5,22 @@
     </div>
     <div class="card-body px-0 pt-0 pb-2">
       <div class="table-responsive p-3" :key="componentKey">
-        <!-- Spinner عند عدم وجود بيانات -->
-        <div v-if="!dataFromApi || dataFromApi.length === 0" class="d-flex justify-content-center py-5">
+        <!-- حالة "جاري التحميل" -->
+        <div v-if="isLoading" class="d-flex justify-content-center py-5">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
+        </div>
+
+        <div v-else-if="!dataFromApi || dataFromApi.length === 0"
+          class="d-flex justify-content-center py-5 flex-column align-items-center">
+          <h5>لا يوجد أي موظفين حالياً</h5>
+          <p>
+            يلا ادعو موظفين جداد من هنا
+            <a href="/invite" class="text-primary" >
+              اضغط هنا
+            </a>
+          </p>
         </div>
 
         <!-- عرض الجدول -->
@@ -47,7 +58,8 @@
                 <div v-if="employee.roles.length" class="selected-options">
                   <span v-for="roleName in employee.roles" :key="roleName" class="selected-option">
                     {{ roleName }}
-                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove" @click="confirmRemoveRole(employee, roleName)">
+                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove"
+                      @click="confirmRemoveRole(employee, roleName)">
                       ×
                     </button>
                   </span>
@@ -58,7 +70,8 @@
                 <div v-if="employee.departments.length" class="selected-options">
                   <span v-for="departmentName in employee.departments" :key="departmentName" class="selected-option">
                     {{ departmentName }}
-                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove" @click="confirmRemoveDepartment(employee, departmentName)">
+                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove"
+                      @click="confirmRemoveDepartment(employee, departmentName)">
                       ×
                     </button>
                   </span>
@@ -66,12 +79,12 @@
                 <p v-else class="text-xs font-weight-bold mb-0">No Department</p>
               </td>
               <td class="align-middle">
-                <a v-show="canEditUser || isOwner" href="javascript:;" class="text-secondary font-weight-bold text-xs me-2"
-                  @click="openEditModal(employee)">
+                <a v-show="canEditUser || isOwner" href="javascript:;"
+                  class="text-secondary font-weight-bold text-xs me-2" @click="openEditModal(employee)">
                   {{ t("edit") }}
                 </a>
-                <a v-show="canDeleteUser || isOwner" href="javascript:;"
-                  class="text-danger font-weight-bold text-xs" @click="confirmDelete(employee)">
+                <a v-show="canDeleteUser || isOwner" href="javascript:;" class="text-danger font-weight-bold text-xs"
+                  @click="confirmDelete(employee)">
                   {{ t("delete") }}
                 </a>
               </td>
@@ -92,18 +105,19 @@
           <input v-model="selectedEmployee.name" class="form-control mb-3" />
 
           <label class="form-label">{{ t("roles") }}:</label>
-          <argon-multiple-select v-model="selectedEmployee.rolesIds" :model-names="selectedEmployee.rolesNames" :options="formattedRoles"
-            :placeholder="t('roles')" class="form-control mb-3" />
+          <argon-multiple-select v-model="selectedEmployee.rolesIds" :model-names="selectedEmployee.rolesNames"
+            :options="formattedRoles" :placeholder="t('roles')" class="form-control mb-3" />
 
           <label class="form-label">{{ t("department") }}:</label>
-          <argon-multiple-select v-model="selectedEmployee.departmentId" :model-names="selectedEmployee.departmentNames" :options="formattedDepartments"
-            :placeholder="t('department')" class="form-control" />
+          <argon-multiple-select v-model="selectedEmployee.departmentId" :model-names="selectedEmployee.departmentNames"
+            :options="formattedDepartments" :placeholder="t('department')" class="form-control" />
         </template>
 
         <template #footer>
           <argon-button variant="secondary" @click="closeModal">{{ t("close") }}</argon-button>
           <argon-button variant="success" @click="saveChanges" :disabled="isLoading">
-            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+              aria-hidden="true"></span>
             {{ isLoading ? t("saving") : t("saveChanges") }}
           </argon-button>
         </template>
@@ -123,15 +137,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useStore } from "vuex"; 
+import { useStore } from "vuex";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
-import Swal from "sweetalert2"; 
-import { savePermissionsToLocalStorage, loadPermissionsFromLocalStorage, hasPermission } from "@/utils/permissions.js"; 
+import Swal from "sweetalert2";
+import { savePermissionsToLocalStorage, loadPermissionsFromLocalStorage, hasPermission } from "@/utils/permissions.js";
 
-const store = useStore(); 
+const store = useStore();
 
 const userData = computed(() => store.getters.user);
 const isOwner = computed(() => store.getters.isOwner);
@@ -276,7 +290,7 @@ const openEditModal = async (employee) => {
   console.log("Roles from store:", store.getters.roles);
   console.log("Mapped roleIds:", roleIds);
 
-  selectedEmployee.value = { 
+  selectedEmployee.value = {
     ...employee,
     rolesIds: roleIds,
     rolesNames: roleNames,
@@ -290,12 +304,12 @@ const openEditModal = async (employee) => {
 // دالة إغلاق الـ Modal
 const closeModal = () => {
   isModalOpen.value = false;
-  selectedEmployee.value = { 
-    name: "", 
-    departmentId: [], 
-    rolesIds: [], 
-    departmentNames: [], 
-    rolesNames: [] 
+  selectedEmployee.value = {
+    name: "",
+    departmentId: [],
+    rolesIds: [],
+    departmentNames: [],
+    rolesNames: []
   };
 };
 
@@ -392,10 +406,10 @@ const unassignDepartment = async (employee, departmentId) => {
     console.log("data:", data);
     // إرسال البيانات كـ Array من معرفات الأدوار
     await store.dispatch("unassignDepartment", data);
-    
+
     // جلب البيانات المحدثة بعد الإزالة
     await store.dispatch("getCompanyUsers");
-    
+
     // إظهار رسالة النجاح
     successMessage.value = t("updateSuccess");
     setTimeout(() => {
@@ -455,10 +469,10 @@ const unassignRole = async (employee, roleId) => {
     };
     // إرسال البيانات كـ Array من معرفات الأدوار
     await store.dispatch("unassignRole", data);
-    
+
     // جلب البيانات المحدثة بعد الإزالة
     await store.dispatch("getCompanyUsers");
-    
+
     // إظهار رسالة النجاح
     successMessage.value = t("updateSuccess");
     setTimeout(() => {
@@ -502,21 +516,21 @@ const deleteEmployee = async (employeeId) => {
 
     if (res.status === 200) {
 
-    Swal.fire({
-      icon: 'success',
-      title: t("deleteSuccess"),
-      showConfirmButton: false,
-      timer: 1500
-    });
+      Swal.fire({
+        icon: 'success',
+        title: t("deleteSuccess"),
+        showConfirmButton: false,
+        timer: 1500
+      });
 
-    await store.dispatch("getCompanyUsers"); // جلب البيانات الجديدة بعد الحذف
-  } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: t("deleteError"),
-    });
-  }
+      await store.dispatch("getCompanyUsers"); // جلب البيانات الجديدة بعد الحذف
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: t("deleteError"),
+      });
+    }
 
   } catch (error) {
     console.error("Error deleting employee:", error);
@@ -551,10 +565,13 @@ onMounted(async () => {
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
 }
+
 .table tbody tr:hover {
   background: #f1f1f1;
 }
-.table td, .table th {
+
+.table td,
+.table th {
   vertical-align: middle;
 }
 
@@ -565,6 +582,7 @@ onMounted(async () => {
   gap: 5px;
   margin-top: 5px;
 }
+
 .selected-option {
   display: inline-flex;
   align-items: center;
@@ -575,9 +593,11 @@ onMounted(async () => {
   font-size: 11px;
   color: #333;
 }
+
 .selected-option:hover {
   background-color: #dee2e6;
 }
+
 .btn-remove {
   margin-left: 5px;
   background: transparent;
@@ -587,6 +607,7 @@ onMounted(async () => {
   color: #dc3545;
   padding: 0;
 }
+
 .btn-remove:hover {
   color: #a71d2a;
 }
@@ -596,6 +617,7 @@ onMounted(async () => {
 .modal-fade-leave-active {
   transition: ease-in-out opacity 0.5s;
 }
+
 .modal-fade-enter,
 .modal-fade-leave-to {
   opacity: 0;

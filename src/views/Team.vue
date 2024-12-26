@@ -12,15 +12,22 @@ const showSuccess = ref(false); // التحكم في عرض النجاح
 const employees = ref([]); // لتخزين بيانات الموظفين
 const componentKey = ref(0); // متغير لتغيير المفتاح وإعادة تحميل المكون
 const body = document.getElementsByTagName("body")[0];
+const isLoading = ref(false);    // <-- نضيف هذا لتتبع حالة التحميل
+
 
 // دالة جلب بيانات الموظفين
 const fetchEmployees = async () => {
   try {
+
+    isLoading.value = true; // بدأ التحميل
+
     // جلب بيانات الموظفين من الـ Vuex store
     await store.dispatch("getCompanyUsers");
     
     employees.value = store.getters.dataFromApi; // تخزين بيانات الموظفين في المتغير employees
     console.log("Employees Data:", employees.value.users);
+    isLoading.value = false;
+
     componentKey.value += 1; // تحديث المفتاح لإعادة تحميل المكون
 
     // عرض رسالة نجاح بناءً على اللغة
@@ -33,6 +40,9 @@ const fetchEmployees = async () => {
     showSuccess.value = true; // إظهار التنبيه بالنجاح
   } catch (error) {
     console.error("Error fetching employees data:", error);
+
+    isLoading.value = false;
+
 
     // عرض رسالة خطأ بناءً على اللغة
     if (store.getters.currentLanguage === "ar") {
@@ -92,9 +102,33 @@ watch(
   <div class="py-4 container-fluid">
     <div class="row">
       <div class="col-12">
-        <!-- تمرير بيانات الموظفين إلى authors-table -->
-        <authors-table :key="componentKey" :employees="employees" />
+
+        <!-- نستخدم شرط ثلاثي المستويات: -->
+        <!-- 1) لو isLoading=true نعرض Spinner -->
+        <!-- 2) لو !isLoading و employees.length === 0 نعرض رسالة "لا يوجد موظفين" -->
+        <!-- 3) خلاف ذلك نعرض AuthorsTable -->
+
+        <div v-if="isLoading" class="d-flex justify-content-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div v-else-if="employees.length === 0" class="d-flex justify-content-center py-5 flex-column align-items-center">
+          <h5>لا يوجد أي موظفين حالياً</h5>
+          <p>
+            يلا ادعو موظفين جداد من هنا
+            <a href="/invite" class="text-primary" target="_blank">اضغط هنا</a>
+          </p>
+        </div>
+
+        <authors-table 
+          v-else
+          :key="componentKey"
+          :employees="employees"
+        />
       </div>
     </div>
   </div>
 </template>
+
