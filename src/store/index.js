@@ -601,7 +601,7 @@ export default createStore({
           commit("SET_USER", response.data);
           console.log("response.data.token", response.data.token);
           // commit("SET_USER_ID", response.data.user.id);
-          // commit("SET_COMPANY_ID", response.data.user.companyId);
+          commit("SET_COMPANY_ID", response.data.user.company.id);
           // commit("SET_EMAIL", response.data.user.email);
           commit("SET_USER_Name", response.data.user.name);
 

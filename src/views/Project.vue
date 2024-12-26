@@ -12,6 +12,7 @@ import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import Swal from "sweetalert2";
 const store = useStore();
 
+
 const userData = computed(() => store.getters.user);
 
 import {
@@ -225,6 +226,8 @@ const translations = {
     enterProjectName: "Enter Project Name",
     createProject: "Create Project",
     saving: "Saving...",
+    noProjects: "No projects found.",
+    createee: "Create your project from the button above",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -255,6 +258,8 @@ const translations = {
     enterProjectName: "ادخال اسم المشروع",
     createProject: "اضافة مشروع",
     saving: "يتم الحفظ...",
+    noProjects: "لا يوجد مشاريع.",
+    createee: "انشئ مشروعك من الزر المتواجد بالاعلي",
   },
 };
 </script>
@@ -296,13 +301,18 @@ const translations = {
                 {{ successMessage }}
               </argon-alert>
             </form>
-            <div v-if="isLoading" class="text-center">
-              <span
-                class="spinner-border"
-                role="status"
-                aria-hidden="true"
-              ></span>
-            </div>
+            <div v-if="isLoading" class="d-flex justify-content-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div v-else-if="projects.length === 0" class="d-flex justify-content-center py-5 flex-column align-items-center">
+          <h5>{{ t("noProjects") }}</h5>
+          <p>
+            {{ t("createee") }}
+          </p>
+        </div>
             <projects-table v-else :projects="projects" :key="componentKey" />
           </div>
         </div>
