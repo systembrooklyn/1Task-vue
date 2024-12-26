@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeMount, onBeforeUnmount, watch } from "vue";
+import { ref, onBeforeMount, onBeforeUnmount, watch, computed } from "vue";
 import { useStore } from "vuex";
 import AuthorsTable from "./components/AuthorsTable.vue";
 import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
@@ -62,6 +62,25 @@ const fetchEmployees = async () => {
   }
 };
 
+const translations = {
+  en: {
+    noEmployees: "No employees found",
+    inviteEmployees: "Invite employees to your company",
+    employeesTable: "Employees Table",
+    here: "here",
+  },
+  ar: {
+    noEmployees: "لا يوجد موظفين",
+    inviteEmployees: " ادعو الموظفين لشركتك",
+    employeesTable: "جدول الموظفين",
+    here: "هنا",
+  },
+};
+
+const currentLanguage = computed(() => store.getters.currentLanguage);
+const t = (key) => translations[currentLanguage.value][key];
+
+
 // استدعاء جلب البيانات عند تحميل المكون
 onBeforeMount(async () => {
   body.classList.remove("bg-gray-100");
@@ -103,11 +122,6 @@ watch(
     <div class="row">
       <div class="col-12">
 
-        <!-- نستخدم شرط ثلاثي المستويات: -->
-        <!-- 1) لو isLoading=true نعرض Spinner -->
-        <!-- 2) لو !isLoading و employees.length === 0 نعرض رسالة "لا يوجد موظفين" -->
-        <!-- 3) خلاف ذلك نعرض AuthorsTable -->
-
         <div v-if="isLoading" class="d-flex justify-content-center py-5">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -115,10 +129,10 @@ watch(
         </div>
 
         <div v-else-if="employees.length === 0" class="d-flex justify-content-center py-5 flex-column align-items-center">
-          <h5>لا يوجد أي موظفين حالياً</h5>
+          <h5>{{ t("noEmployees") }}</h5>
           <p>
-            يلا ادعو موظفين جداد من هنا
-            <a href="/invite" class="text-primary" target="_blank">اضغط هنا</a>
+            {{ t("inviteEmployees") }}
+            <a href="/addUser" class="text-primary">{{ t("here") }}</a>
           </p>
         </div>
 
