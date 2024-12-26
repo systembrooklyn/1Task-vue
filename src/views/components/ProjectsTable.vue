@@ -135,9 +135,7 @@
           </template>
 
           <template #footer>
-            <argon-button variant="secondary" @click="closeEditPopup">
-              {{ t("close") }}
-            </argon-button>
+            
             <argon-button
               variant="success"
               @click="updateProject"
@@ -151,11 +149,14 @@
               ></span>
               {{ isLoading ? t("saving") : t("update") }}
             </argon-button>
+            <argon-button variant="secondary" @click="closeEditPopup">
+              {{ t("close") }}
+            </argon-button>
           </template>
 
           <template #title>
             <i class="fas fa-user-edit me-2"></i>
-            {{ t("editDepartment") }}
+            {{ t("editProject") }}
           </template>
         </ArgonModal>
       </transition>

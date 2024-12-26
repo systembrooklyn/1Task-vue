@@ -68,11 +68,11 @@
           </template>
 
           <template #footer>
-            <argon-button variant="secondary" @click="closeEditPopup">{{ t("close") }}</argon-button>
             <argon-button variant="success" @click="updateDepartment" :disabled="isLoading">
               <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
               {{ isLoading ? t("saving") : t("update") }}
             </argon-button>
+            <argon-button variant="secondary" @click="closeEditPopup">{{ t("close") }}</argon-button>
           </template>
 
           <template #title>

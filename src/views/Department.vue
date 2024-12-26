@@ -135,20 +135,23 @@ const addDepartment = async () => {
     };
     try {
       await store.dispatch("addDepartment", department);
-      showSuccess.value = true;
-      setTimeout(() => {
-        showSuccess.value = false;
-      }, 3000);
-      successMessage.value = t("departmentAdded");
+      Swal.fire({
+        icon: "success",
+        title: t("departmentAdded"),
+        showConfirmButton: false,
+        timer: 1500,
+      });
       closePopup();
       await fetchDepartments();
       componentKey.value += 1;
     } catch (error) {
-      showAlert.value = true;
-      setTimeout(() => {
-        showAlert.value = false;
-      }, 3000);
-      errorMessage.value = t("departmentAddedError");
+      Swal.fire({
+        icon: "error",
+        title: t("departmentAddedError"),
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      closePopup();
     } finally {
       isLoading.value = false;
     }
@@ -183,6 +186,8 @@ const translations = {
     departmentNameRequired: "Please enter the department name.",
     departmentAddedError:
       "An error occurred while adding the department. Please try again later.",
+      noDepartments: "No Departments",
+      createDepartments: "Create Departments from the button above",
   },
   ar: {
     addMember: "إضافة عضو",
@@ -204,6 +209,8 @@ const translations = {
     departmentNameRequired: "يرجى إدخال اسم القسم",
     departmentAddedError:
       "حدث خطأ أثناء إضافة القسم. يرجى المحاولة مرة أخرى لاحقًا.",
+      noDepartments: "لا يوجد اقسام",
+      createDepartments: "انشاءالافسام من خلال الزر المتواجد فى الاعلي",
   },
 };
 </script>
@@ -241,13 +248,19 @@ const translations = {
                 {{ successMessage }}
               </argon-alert>
             </form>
-            <div v-if="isLoading" class="text-center">
-              <span
-                class="spinner-border"
-                role="status"
-                aria-hidden="true"
-              ></span>
-            </div>
+            <div v-if="isLoading" class="d-flex justify-content-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div v-else-if="departments.length === 0" class="d-flex justify-content-center py-5 flex-column align-items-center">
+          <h5>{{ t("noDepartments") }}</h5>
+          <p>
+            {{ t("inviteDepartments") }}
+            <a href="/addUser" class="text-primary">{{ t("here") }}</a>
+          </p>
+        </div>
             <departments-table
               v-else
               :departments="departments"
@@ -272,6 +285,7 @@ const translations = {
         </template>
 
         <template #footer>
+          
           <argon-button @click="addDepartment" :disabled="isLoading">
             <span
             v-if="isLoading"

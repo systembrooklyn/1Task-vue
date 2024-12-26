@@ -101,11 +101,11 @@
         </template>
 
         <template #footer>
-          <argon-button variant="secondary" @click="closeModal">{{ t("close") }}</argon-button>
           <argon-button variant="success" @click="saveChanges" :disabled="isLoading">
             <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             {{ isLoading ? t("saving") : t("saveChanges") }}
           </argon-button>
+          <argon-button variant="secondary" @click="closeModal">{{ t("close") }}</argon-button>
         </template>
 
         <template #title>
