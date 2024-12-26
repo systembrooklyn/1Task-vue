@@ -306,7 +306,63 @@ const config = {
     return apiClient.get("/projects", config);
   },
 
-  //end projects
+
+  addProject(projectData) {
+    console.log("Adding project:", projectData);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post("/projects", projectData, config);
+  },
+
+  updateProjectStatus(project) {
+    console.log("Updating project status:", project);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    console.log("config:", config);
+
+    return apiClient.post(`/projects/${project.id}/status`, project, config);
+  },
+
+  getProjectLogs(projectId) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get(`/projects/${projectId}/revisions`, config);
+  },
+
+  updateProject(project) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.put(`/projects/${project.id}`, project, config);
+  },
+
+  deleteProject(projectId) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.delete(`/projects/${projectId}`, config);
+  },
+
+  //end projects-------------------------------------------------
 
   //end
 
@@ -354,23 +410,6 @@ const config = {
       return response;
     });
   },
-  addProject(projectData) {
-    console.log("Adding project:", projectData);
-    return apiClient.post("/projects", {
-      data: {
-        neme: projectData.neme,
-        companyID: projectData.companyId,
-        createdOwner: projectData.createdOwner,
-      },
-    }); // تأكد من أن الـ API يتوقع البيانات بهذا الشكل
-  },
-
-  updateProject(project) {
-    return apiClient.put(`/projects/${project.id}`, {
-      data: { neme: project.neme },
-    });
-  },
-  deleteProject(projectId) {
-    return apiClient.delete(`/projects/${projectId}`);
-  },
+  
+  
 };

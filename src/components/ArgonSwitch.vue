@@ -27,6 +27,7 @@ const props = defineProps({
 
 // تعريف قيمة محلية لحالة الـ switch
 const isChecked = ref(props.checked);
+console.log(isChecked.value);
 
 // tooltip ديناميكي
 const tooltipText = ref(isChecked.value ? "Close" : "Open");
@@ -40,6 +41,7 @@ watch(isChecked, (newVal) => {
 watch(
   () => props.checked,
   (newVal) => {
+    console.log("newVal:", newVal);
     isChecked.value = newVal;
   }
 );
@@ -84,7 +86,7 @@ watch(
 }
 
 .custom-switch-input:checked {
-  background-color: #4caf50;
+  background-color: #A9CA5C;
 }
 
 .custom-switch-input::before {

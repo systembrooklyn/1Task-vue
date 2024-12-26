@@ -4,32 +4,18 @@
       <table class="table align-items-center table-hover mb-0">
         <thead class="thead-light">
           <tr>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("status") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("projectName") }}
             </th>
-            <!-- <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                {{ t("discription") }}
-              </th> -->
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("assignManager") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("taskOwner") }}
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+              {{ t("projectCreatedBy") }}
             </th>
-            <!-- <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                {{ t("viceManager") }}
-              </th> -->
             <th class="text-secondary opacity-7"></th>
           </tr>
         </thead>
@@ -37,12 +23,11 @@
           <tr v-for="Project in props.projects" :key="Project.id">
             <td>
               <div class="px-2 py-1">
-                <div class="d-flex justify-content-center text-sm">
+                <div  class="d-flex justify-content-center text-sm" >
                   <argon-switch
+                    v-if="isOwner"
                     :checked="Boolean(Project.status)"
-                    @update:checked="
-                      (newStatus) => toggleStatus(Project.id, newStatus)
-                    "
+                    @update:checked="() => toggleStatus(Project.id)"
                   >
                     {{ Project.status ? t("active") : t("inactive") }}
                   </argon-switch>
@@ -66,13 +51,6 @@
               </div>
             </td>
 
-            <!-- <td>
-                <div class=" px-2 py-1">
-                  <div class="d-flex flex-column justify-content-center text-sm">
-                    <h6 class="mb-0 text-sm ">{{ Project.desc }}</h6>
-                  </div>
-                </div>
-              </td> -->
             <td>
               <p class="text-xs font-weight-bold mb-0">
                 {{ Project.leader_name || "No Manager" }}
@@ -80,14 +58,9 @@
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ Project.created_by_name }}
+                {{ Project.created_by_name  }}
               </p>
             </td>
-            <!-- <td>
-                <p class="text-xs font-weight-bold mb-0">
-                  {{ Project.vice_manager_name || 'No Vice Manager' }}
-                </p>
-              </td> -->
             <td class="align-middle">
               <a
                 href="javascript:;"
@@ -117,36 +90,54 @@
           @close="closeEditPopup"
         >
           <template #default>
-            <label class="form-label">{{ t("departmentName") }}:</label>
+            <label class="form-label">{{ t("projectName") }}:</label>
             <input
-              v-model="selectedDepartment.name"
+              v-model="selectedProject.name"
+              class="form-control mb-3"
+            />
+
+            <label class="form-label">{{ t("description") }}:</label>
+            <input
+              v-model="selectedProject.desc"
               class="form-control mb-3"
             />
 
             <div v-if="employeeOptions.length > 0" class="mb-3">
               <label class="form-label">{{ t("assignManager") }}:</label>
               <argon-select
-                v-model="selectedManager"
+                v-model="selectedProject.leader_id"
                 :options="employeeOptions"
                 :placeholder="t('assignManager')"
                 class="form-control"
               />
             </div>
-            <div v-if="employees.length > 0" class="mb-3">
-              <label class="form-label">{{ t("viceManager") }}:</label>
-              <argon-select
-                v-model="selectedViceManager"
-                :options="employeeOptions"
-                :placeholder="t('viceManager')"
-                class="form-control"
-              />
-            </div>
+
+            <label class="form-label">{{ t("startDate") }}:</label>
+            <input
+              v-model="selectedProject.start_date"
+              type="date"
+              class="form-control mb-3"
+            />
+
+            <label class="form-label">{{ t("deadline") }}:</label>
+            <input
+              v-model="selectedProject.deadline"
+              type="date"
+              class="form-control mb-3"
+            />
+
+            <label style="display: none;" class="form-label">{{ t("status") }}:</label>
+            <argon-switch style="display: none;"
+              v-model:checked="selectedProject.status"
+            >
+              {{ selectedProject.status ? t("active") : t("inactive") }}
+            </argon-switch>
           </template>
 
           <template #footer>
-            <argon-button variant="secondary" @click="closeEditPopup">{{
-              t("close")
-            }}</argon-button>
+            <argon-button variant="secondary" @click="closeEditPopup">
+              {{ t("close") }}
+            </argon-button>
             <argon-button
               variant="success"
               @click="updateProject"
@@ -169,71 +160,99 @@
         </ArgonModal>
       </transition>
     </div>
+
+    <!-- مودال الوصف المعدل -->
+    <ArgonModal
+      v-if="showDescriptionModal"
+      :title="selectedProjectName"
+      @close="closeDescriptionModal"
+    >
+      <template #default>
+        <div class="modal-body">
+          <!-- التبويبات -->
+          <ul class="nav nav-tabs custom-tabs" role="tablist">
+            <li class="nav-item">
+              <argon-button
+                class="nav-link"
+                :class="{ active: activeTab === 'info' }"
+                @click="activeTab = 'info'"
+              >
+                {{ t("info") }}
+              </argon-button>
+            </li>
+            <li class="nav-item">
+              <argon-button
+                class="nav-link"
+                
+                :class="{ active: activeTab === 'log' }"
+                @click="activeTab = 'log'"
+              >
+                {{ t("log") }}
+              </argon-button>
+            </li>
+          </ul>
+          <div class="tab-content ">
+            <div v-if="activeTab === 'info'">
+              <!-- <h5>{{ t('projectDetails') }}</h5> -->
+              <dl class="row">
+
+                <dt class="col-sm-3">{{ t('description') }}:</dt>
+                <dd class="col-sm-9">{{ selectedDescription || 'N/A' }}</dd>
+
+                <dt class="col-sm-3">{{ t('createdAt') }}:</dt>
+                <dd class="col-sm-9">{{ formatDate(selectedProjectCreationDate) || 'N/A' }}</dd>
+
+
+                <dt class="col-sm-3">{{ t('startDate') }}:</dt>
+                <dd class="col-sm-9">{{ formatDate(selectedProjectStartDate) || 'N/A' }}</dd>
+
+                <dt class="col-sm-3">{{ t('deadline') }}:</dt>
+                <dd class="col-sm-9">{{ formatDate(selectedProjectDeadline) || ' N/A' }}</dd>
+
+              </dl>
+            </div>
+            <div v-if="activeTab === 'log'">
+  <div v-if="projectLogs.length > 0">
+    <ul class="log-list">
+      <li v-for="log in projectLogs" :key="log.id" class="log-item">
+        {{ t("changedBy") }}: <strong>{{ log.changed_by }}</strong>,
+        {{ t("field") }}: <strong>{{ log.field }}</strong>,
+        {{ t("oldValue") }}: <strong>{{ log.old_value }}</strong>,
+        {{ t("newValue") }}: <strong>{{ log.new_value }}</strong>,
+        {{ t("changedAt") }}: <strong>{{ formatDate(log.changed_at) }}</strong>
+      </li>
+    </ul>
   </div>
-  <ArgonModal
-    v-if="showDescriptionModal"
-    :title="selectedProjectName"
-    @close="closeDescriptionModal"
-    style="width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden;"
-  >
-    <template #default>
-      <div class="modal-body">
-        <!-- التبويبات -->
-        <ul class="nav nav-tabs custom-tabs" role="tablist">
-          <li class="nav-item">
-            <argon-button
-              class="nav-link"
-              :class="{ active: activeTab === 'info' }"
-              @click="activeTab = 'info'"
-            >
-              Info
-            </argon-button>
-          </li>
-          <li class="nav-item">
-            <argon-button
-              class="nav-link"
-              :class="{ active: activeTab === 'log' }"
-              @click="activeTab = 'log'"
-            >
-              Log
-            </argon-button>
-          </li>
-        </ul>
-        <div class="tab-content mt-3">
-          <div v-if="activeTab === 'info'">
-            <h5>Project Description</h5>
-            <p>{{ selectedDescription }}</p>
-          </div>
-          <div v-if="activeTab === 'log'">
-            <p>No Log available yet.</p>
+  <div v-else>
+    <p>{{ t("noLogsAvailable") }}</p>
+  </div>
+</div>
+
           </div>
         </div>
-      </div>
-    </template>
-    <template #footer>
-      <argon-button variant="secondary" @click="closeDescriptionModal">
-        Close
-      </argon-button>
-    </template>
-  </ArgonModal>
+      </template>
+      <template #footer>
+        <argon-button variant="secondary" @click="closeDescriptionModal">
+          {{ t("close") }}
+        </argon-button>
+      </template>
+    </ArgonModal>
+  </div>
 </template>
 
 <script setup>
-import { computed, ref, onBeforeMount } from "vue";
+import { computed, ref, onBeforeMount, watch } from "vue";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonSwitch from "@/components/ArgonSwitch.vue";
-// import ArgonAlert from "@/components/ArgonAlert.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
 import {
   savePermissionsToLocalStorage,
   extractPermissionsFromAPI,
   loadPermissionsFromLocalStorage,
-  // hasPermission,
 } from "@/utils/permissions.js";
-// import Project from "@/views/Project.vue";
 
 const store = useStore();
 const currentCompanyId = computed(() => store.getters.companyId);
@@ -249,8 +268,10 @@ const props = defineProps({
   },
 });
 
+console.log("props.projects:", props.projects);
+
 const userData = computed(() => store.getters.user);
-// console.log(userData.value);
+const isOwner = computed(() => store.getters.isOwner);
 
 // استدعاء الصلاحيات من localStorage بناءً على المستخدم الحالي
 const permissions = ref(
@@ -268,141 +289,67 @@ onBeforeMount(() => {
     permissions.value = extractedPermissions;
     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
+  store.dispatch("getCompanyUsers");
 });
-// onMounted(() => {
-//   store.dispatch("fetchPositions");
-// });
 
-const selectedDescription = ref(false); // لتخزين وصف المشروع
-const showDescriptionModal = ref(false);
+// تعريف المتغيرات الجديدة لتخزين بيانات المشروع
 const selectedProjectName = ref("");
-
-const openDescriptionModal = (Project) => {
-  selectedDescription.value = Project.desc; // تعيين الوصف
-  selectedProjectName.value = Project.name; // تعيين اسم المشروع
-  showDescriptionModal.value = true; // إظهار المودال
-};
-
-const closeDescriptionModal = () => {
-  showDescriptionModal.value = false; // إغلاق المودال
-};
+const selectedDescription = ref(""); // لتخزين وصف المشروع
+const selectedProjectStartDate = ref(null);
+const selectedProjectDeadline = ref(null);
+const selectedProjectCreationDate = ref(null);  
+const selectedProjectId = ref(null);
+const showDescriptionModal = ref(false);
+const projectLogs = ref([]); // غير مستخدم حالياً
 
 const activeTab = ref("info"); // علامة تبويب البداية
 
-const employees = ref([]);
-// const componentKey = ref(0); // متغير لتغيير المفتاح وإعادة تحميل المكون
-// const showEditPopup = ref(false);
-// const editDepartmentName = ref("");
-// const currentEditingDepartmentId = ref(null);
-// const isLoading = ref(false);
-// const successMessage = ref("");
-// const errorMessage = ref("");
-// const showSuccess = ref(false);
-// const showAlert = ref(false);
-// const selectedEmployeeId = ref(null);  // متغير لتحديد ID الموظف
-// const selectedPosition = ref(null);  // متغير لتحديد المنصب الجديد
+// const employees = ref([]); // غير مستخدم حالياً
 
-// const fetchEmployees = async () => {
-//   try {
-//     // جلب بيانات الموظفين من الـ Vuex store
-//     await store.dispatch("fetchDataFromApi");
-
-//     console.log("Employees Data:", employees.value);
-
-//     componentKey.value += 1; // تحديث المفتاح لإعادة تحميل المكون
-//     return (employees.value = store.getters.dataFromApi.filter(
-//       (employee) =>
-//         (employee.companyId == currentCompanyId.value ||
-//           employee.companyId == currentUserId.value) &&
-//         employee.companyId != null
-//     ));
-//   } catch (error) {
-//     console.error("Error fetching employees data:", error);
-
-//     // عرض رسالة خطأ بناءً على اللغة
-//     if (store.getters.currentLanguage === "ar") {
-//       errorMessage.value =
-//         "حدث خطأ أثناء جلب بيانات الموظفين. حاول مرة أخرى لاحقًا.";
-//     } else {
-//       errorMessage.value =
-//         "An error occurred while fetching employees data. Please try again later.";
-//     }
-
-//     showAlert.value = true; // إظهار التنبيه بالخطأ
-
-//     // إخفاء التنبيه بعد 3 ثوانٍ
-//     setTimeout(() => {
-//       showAlert.value = false;
-//     }, 3000);
-//   }
-// };
-const toggleStatus = async (projectId, newStatus) => {
+const toggleStatus = async (projectId) => {
   try {
-    console.log(`Project ID: ${projectId}, New Status: ${newStatus}`);
+    console.log(`Project ID: ${projectId}`);
     // قم بتنفيذ تحديث الحالة هنا (إرسال الطلب إلى الـ API أو تحديث Vuex)
+    // مثال على تحديث الحالة في Vuex:
+    const project = {
+      id: projectId,
+      company_id: 0, // استخدم الشركة الحالية
+    };
+    const response = await store.dispatch("updateProjectStatus", project);
+
+    console.log("result:", response);
+    // عرض إشعار النجاح
+    if (response.status === 200) {
+      Swal.fire({
+        icon: "success",
+        title: t("statusUpdatedSuccessfully"),
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      await store.dispatch("fetchProjects");
+    }
   } catch (error) {
     console.error("Error updating status:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error updating status",
+      text: error.message,
+    });
   }
 };
 
 const componentKey = ref(0);
 
-onBeforeMount(async () => {
-  savePermissionsToLocalStorage(permissions.value, userData.value?.user?.id);
-  // fetchEmployees();
-  await store.dispatch("getCompanyUsers");
-});
-
 const showEditPopup = ref(false);
-// const editDepartmentName = ref("");
 const currentEditingProjectId = ref(null);
 const selectedManager = ref(null);
-//   const selectedViceManager = ref(null);
+const selectedViceManager = ref(null);
 
-const selectedProject = ref(null);
-// const selectedPosition = ref(null);
-
-console.log("props.projects:", props.projects);
+const selectedProject = ref(null); // غير مستخدم حالياً
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
 const t = (key) => translations[currentLanguage.value][key];
-
-// const canEditDepartment = computed(() =>
-//   hasPermission(permissions.value, "canEditDepartment")
-// );
-// const canDeleteDepartment = computed(() =>
-//   hasPermission(permissions.value, "canDeleteDepartment")
-// );
-
-// const openEditModal = (department) => {
-//   selectedDepartment.value = department;
-
-//   // تأكد من أن department.employees غير فارغة
-//   if (department.employees && department.employees.length > 0) {
-//     const manager = department.employees.find(
-//       (emp) => emp.position.name === "Manager"
-//     );
-//     const viceManager = department.employees.find(
-//       (emp) => emp.position.name === "Vice Manager"
-//     );
-
-//     // console.log("manager:", manager);
-//     // console.log("viceManager:", viceManager);
-
-//     // تحديد المدير ونائب المدير
-//     selectedManager.value = manager ? manager.id : null;
-//     selectedViceManager.value = viceManager ? viceManager.id : null;
-
-//     console.log("selectedManager:", selectedManager.value);
-//     console.log("selectedViceManager:", selectedViceManager.value);
-//   } else {
-//     // في حالة عدم وجود موظفين
-//     selectedManager.value = null;
-//     selectedViceManager.value = null;
-//   }
-
-//   showEditPopup.value = true;
-// };
 
 const dataFromApi = computed(() => store.getters.dataFromApi);
 
@@ -414,9 +361,10 @@ const employeeOptions = computed(() => {
 });
 
 const openEditModal = (Project) => {
-  selectedProject.value = Project;
-  // selectedManager.value = department.managerId;
-  // selectedViceManager.value = department.viceManagerId;
+  selectedProject.value = { ...Project };
+  selectedManager.value = Project.leader_id || null; // تأكد من أن الخاصية صحيحة
+  console.log("selectedManager.value:", selectedManager.value);
+  console.log("Project:", Project);
 
   showEditPopup.value = true;
 };
@@ -425,6 +373,8 @@ const closeEditPopup = () => {
   showEditPopup.value = false;
   selectedProject.value = null;
   currentEditingProjectId.value = null;
+  selectedManager.value = null;
+  selectedViceManager.value = null;
 };
 
 const isLoading = ref(false);
@@ -434,26 +384,16 @@ const updateProject = async () => {
 
   // تجهيز البيانات التي سيتم إرسالها
   const ProjectData = {
-    id: selectedProject.value.id,
-    name: selectedProject.value.name,
+    ...selectedProject.value,
+    // leader_id: selectedManager.value,
   };
 
   try {
-    const ProjectManagerId = {
-      user_id: selectedManager.value,
-      Project_id: selectedProject.value.id,
-    };
-
-    // if (departmentManagerId) {
-    //   departmentData.managerId = departmentManagerId;
-    // }
-    console.log("ProjectManagerId:", ProjectManagerId);
+  
+    console.log("ProjectData:", ProjectData);
 
     const result = await store.dispatch("updateProject", ProjectData);
 
-    if (ProjectManagerId !== null) {
-      await store.dispatch("assignManager", ProjectManagerId);
-    }
 
     if (result.status === 200) {
       // تحديث بيانات الموظفين
@@ -486,10 +426,6 @@ const updateProject = async () => {
   }
 };
 
-// const saveChanges = async () => {
-//     componentKey.value += 1;
-// }
-
 const confirmDelete = (Project) => {
   Swal.fire({
     title: t("deleteConfirmationTitle"),
@@ -511,9 +447,81 @@ const deleteProject = async (projectId) => {
     await store.dispatch("deleteProject", projectId);
     await store.dispatch("fetchProjects");
     componentKey.value += 1;
+    Swal.fire({
+      icon: "success",
+      title: t("projectDeletedSuccessfully"),
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
   } catch (error) {
     console.error("Error deleting project:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error deleting project",
+      text: error.message,
+    });
   }
+};
+
+
+const getProjectLogs = async (ProjectId) => {
+  try {
+    const response = await store.dispatch("fetchProjectLogs", ProjectId);
+    if (response.status === 200) {
+      console.log("Project logs fetched successfully:", response.data);
+      projectLogs.value = response.data.revisions;
+    } else {
+      console.error("Failed to fetch logs, status:", response.status);
+    }
+  } catch (error) {
+    console.error("Error fetching project logs:", error);
+  }
+};
+
+
+const openDescriptionModal = async(Project) => {
+  // if (!Project || typeof Project !== 'object') {
+  //   console.error("Invalid project data:", Project);
+  //   return;
+  // }
+  selectedProjectName.value = Project.name; // تعيين اسم المشروع
+  selectedDescription.value = Project.desc; // تعيين وصف المشروع
+  selectedProjectStartDate.value = Project.start_date; // تعيين تاريخ بدء المشروع
+  selectedProjectDeadline.value = Project.deadline; // تعيين تاريخ انتهاء المشروع
+  selectedProjectCreationDate.value = Project.created_at; // تعيين تاريخ إنشاء المشروع
+  selectedProjectId.value = Project.id;
+  await getProjectLogs(Project.id);
+  showDescriptionModal.value = true; // إظهار المودال
+};
+
+watch(
+  () => projectLogs.value,
+  (newLogs) => {
+    console.log("Updated logs:", newLogs);
+  }
+);
+
+
+const closeDescriptionModal = () => {
+  showDescriptionModal.value = false; // إغلاق المودال
+  selectedProjectName.value = "";
+  selectedDescription.value = "";
+  selectedProjectStartDate.value = null;
+  selectedProjectDeadline.value = null;
+  selectedProjectCreationDate.value = null;
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  const options = { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric', 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  };
+  return new Date(dateString).toLocaleDateString(currentLanguage.value, options);
 };
 
 const translations = {
@@ -524,15 +532,41 @@ const translations = {
     delete: "Delete",
     deleteConfirmationTitle: "Delete Project",
     deleteConfirmationText: "Are you sure you want to delete this project?",
+    deleteConfirmationSuccess: "Project deleted successfully.",
     close: "Close",
     saving: "Saving...",
     update: "Update",
     assignManager: "Project Manager",
     viceManager: "Vice Manager",
     projectUpdatedSuccessfully: "Project updated successfully",
+    projectDeletedSuccessfully: "Project deleted successfully",
     status: "Status",
-    taskOwner: "Task Owner",
-    discription: "Discription",
+    projectCreatedBy: "created by",
+    description: "Description",
+    projectDetails: "Project Details",
+    companyName: "Company Name",
+    createdAt: "Created At",
+    createdBy: "Created By",
+    deadline: "Deadline",
+    departmentName: "Department Name",
+    editedBy: "Edited By",
+    id: "ID",
+    leaderName: "Leader Name",
+    name: "Name",
+    startDate: "Start Date",
+    updatedAt: "Updated At",
+    active: "Active",
+    inactive: "Inactive",
+    log: "Log",
+    info: "Info",
+    statusUpdatedSuccessfully: "Status updated successfully",
+    noLogsAvailable: "No logs available",
+    changedBy: "Changed By",
+    field: "Field",
+    oldValue: "Old Value",
+    newValue: "New Value",
+    changedAt: "Changed At",
+
   },
   ar: {
     projectsTable: "جدول المشاريع",
@@ -541,46 +575,42 @@ const translations = {
     delete: "حذف",
     deleteConfirmationTitle: "حذف المشروع",
     deleteConfirmationText: "هل تريد حذف هذا المشروع؟",
+    deleteConfirmationSuccess: "تم حذف المشروع بنجاح.",
     close: "إغلاق",
     saving: "يتم الحفظ...",
     update: "تحديث",
     assignManager: "مدير المشروع",
     viceManager: "مدير مساعد",
     projectUpdatedSuccessfully: "تم تحديث المشروع بنجاح",
+    projectDeletedSuccessfully: "تم حذف المشروع بنجاح",
     status: "حالة المشروع",
-    taskOwner: "مدير المهمة",
-    discription: "وصف المشروع",
+    projectCreatedBy: "منشئ المشروع",
+    description: "وصف المشروع",
+    projectDetails: "تفاصيل المشروع",
+    companyName: "اسم الشركة",
+    createdAt: "تاريخ الإنشاء",
+    createdBy: "أنشئ بواسطة",
+    deadline: "المهلة النهائية",
+    departmentName: "اسم القسم",
+    editedBy: "تم التعديل بواسطة",
+    id: "المعرف",
+    leaderName: "اسم القائد",
+    name: "الاسم",
+    startDate: "تاريخ البدء",
+    updatedAt: "تاريخ التحديث",
+    active: "نشط",
+    inactive: "غير نشط",
+    log: "سجل",
+    info: "معلومات",
+    statusUpdatedSuccessfully: "تم تحديث الحالة بنجاح",
+    noLogsAvailable: "لا يوجد سجلات متاحة",
+    changedBy: "تم التعديل بواسطة",
+    field: "الحقل",
+    oldValue: "القيمة القديمة",
+    newValue: "القيمة الجديدة",
+    changedAt: "تم التعديل في",
   },
 };
-
-// const selectedEmployee = ref(null);
-// console.log(selectedEmployee.value)
-
-// Transform employees data into options for the select component
-// const employeeOptions = computed(() => {
-//   return employees.value.map((employee) => ({
-//     label: employee.name, // Adjust the property name as needed
-//     value: employee.id, // Adjust the property name as needed
-//   }));
-// });
-
-console.log(employeeOptions.value);
-
-// Function to get the manager's name
-// const getManagerName = (department) => {
-//   const manager = department.employees.find(
-//     (emp) => emp.position.name === "Manager"
-//   );
-//   return manager ? manager.name : "No Manager";
-// };
-
-// // Function to get the vice manager's name
-// const getViceManagerName = (department) => {
-//   const viceManager = department.employees.find(
-//     (emp) => emp.position.name === "Vice Manager"
-//   );
-//   return viceManager ? viceManager.name : "No Vice Manager";
-// };
 </script>
 
 <style scoped>
@@ -645,12 +675,11 @@ console.log(employeeOptions.value);
 .hover-icon {
   right: 10px; /* اجعل الأيقونة في أقصى اليمين */
   top: 50%; /* محاذاة رأسية */
-  transform: translateY(-50%); /* تصحيح المحاذاة العمودية */
+  transform: translateY(-50%) scale(0.8); /* تصحيح المحاذاة العمودية وتقليل الحجم */
   position: absolute; /* تثبيت الأيقونة بالنسبة للحاوية */
   cursor: pointer;
   color: #4caf50; /* لون الموقع الأساسي */
   opacity: 0; /* الإخفاء الافتراضي */
-  transform: translateY(-50%) scale(0.8); /* تقليل الحجم قليلاً */
   transition:
     opacity 0.3s ease,
     transform 0.3s ease; /* تأثير عند التبديل */
@@ -671,13 +700,10 @@ td:hover .hover-icon {
   padding-right: 30px; /* إضافة مساحة للأيقونة */
 }
 
-/* tabs  */
-
 /* تصميم الـ tabs */
 .custom-tabs {
   display: flex;
   align-items: center;
-  /* background-color: #1e2235;  */
   padding: 0.5rem;
 }
 
@@ -688,7 +714,7 @@ td:hover .hover-icon {
 .custom-tabs .nav-link {
   display: flex;
   align-items: center;
-  color: #4caf50;
+  color: #A9CA5C;
   font-weight: 500;
   font-size: 1rem;
   padding: 0.5rem 1rem;
@@ -699,17 +725,15 @@ td:hover .hover-icon {
     background-color 0.3s ease;
 }
 
-/* .custom-tabs .nav-link i {
-  margin-right: 0.5rem; 
-} */
-
 .custom-tabs .nav-link.active {
-  color: #ffffff; /* النص الأخضر */
-  border-bottom: 2px solid #4caf50; /* خط أخضر أسفل التبويب النشط */
+  color: #ffffff; /* نص أبيض */
+  border-radius: 5px;
+  background-color: #A9CA5C; /* خلفية أخضر فاتح */  
 }
 
 .custom-tabs .nav-link:hover {
-  color: #4caf50; /* النص الأخضر عند التمرير */
+  color: #ffffff; /* نص أبيض عند التمرير */
+  background-color: #A9CA5C; /* خلفية أخضر فاتح عند التمرير */
 }
 
 .tab-content {
@@ -718,12 +742,49 @@ td:hover .hover-icon {
   border-radius: 0.5rem; /* حواف ناعمة */
   overflow-y: auto;
   overflow-x: hidden;
+  max-height: calc(70vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
 }
 
 .modal-body {
-  padding: 1rem;
+  padding: 0.2rem;
   background-color: #ffffff; /* اللون الأبيض */
   border-radius: 0.5rem; /* حواف ناعمة */
-  
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
+  max-width: calc(100vw - 2rem);
 }
+
+/* تنسيق قائمة التعريفية داخل التبويب Info */
+.modal-body dl.row {
+  margin-bottom: 0;
+}
+
+.modal-body dt {  
+  font-weight: 600;
+  text-align: right;
+  padding-right: 1rem;
+}
+
+.modal-body dd {
+  margin-left: 0;
+  text-align: left; /* محاذاة النصوص إلى اليسار لتحسين القراءة */
+}
+
+.log-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.log-item {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.log-item strong {
+  color: #4caf50; /* لون النص البارز */
+}
+
 </style>

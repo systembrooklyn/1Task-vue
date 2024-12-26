@@ -2,7 +2,7 @@
 defineProps({
   color: {
     type: String,
-    default: "success",
+    default: "",
   },
   size: {
     type: String,
@@ -50,3 +50,27 @@ const getClasses = (variant, color, size, fullWidth, active) => {
     <slot />
   </button>
 </template>
+
+<style scoped>
+.btn {
+  background-color: #fff;
+  color: #A8CB59;
+  outline: 1px solid #A8CB59;
+}
+
+.btn:active {
+  background-color: #a9ca5c;
+  color: #fff;
+}
+
+.btn:focus {
+  background-color: #a9ca5c;
+  color: #fff;
+}
+
+
+.btn:hover {
+  background-color: #a9ca5c;
+  color: #fff;
+}
+</style>

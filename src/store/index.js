@@ -58,6 +58,7 @@ export default createStore({
     roleWithPermission: [],
     selectedRole: null,
     projects: [],
+    projectLogs: [],
   },
   mutations: {
     //بناءا على api laravel
@@ -134,6 +135,16 @@ export default createStore({
         state.departments[departmentIndex].manager = manager;
       }
       console.log("manager", manager);
+    },
+
+    SET_UPDATE_PROJECT_STATUS(state, project) {
+      const index = state.projects.findIndex(p => p.id === project.id);
+      if (index !== -1) {
+        state.projects = project;
+      }
+    },
+    SET_PROJECT_LOGS(state, logs) {
+      state.projectLogs = logs;
     },
 
     // end----------------------------------------------------
@@ -924,45 +935,59 @@ export default createStore({
     async addProject({ commit }, project) {
       console.log("project", project);
       try {
-        // const response = await apiClient.addDepartment({
-        //   departmentName: department.departmentName,
-        //   companyId: department.companyId,
-        // });
-        const response = await apiClient.addProject({
-          neme: project.neme,
-          companyId: project.companyId,
-          createdOwner: project.createdOwner,
-        });
+
+        const response = await apiClient.addProject(project);
         commit("SET_ADD_PROJECT", response.data);
-        return { success: true, message: "Project added successfully" };
+        return response;
       } catch (error) {
-        console.error("Error adding project:", error);
-        return { success: false, message: "Error adding project" };
+        return error;
+      }
+    },
+
+    async updateProjectStatus({ commit }, project) {
+      console.log("project", project);
+      try {
+        const response = await apiClient.updateProjectStatus(project);
+        console.log("response", response);
+        commit("SET_UPDATE_PROJECT_STATUS", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error updating project status:", error);
+        return error;
+      }
+    },
+    async fetchProjectLogs({ commit }, projectId) {
+      console.log("projectId", projectId);
+      try {
+        const response = await apiClient.getProjectLogs(projectId);
+        console.log("response", response);
+        commit("SET_PROJECT_LOGS", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error fetching project logs:", error);
+        return error;
       }
     },
     async updateProject({ commit }, project) {
-      console.log("department", project);
+      console.log("project", project);
       try {
-        const response = await apiClient.updateProject({
-          id: project.id,
-          neme: project.neme,
-        });
+        const response = await apiClient.updateProject(project);
         commit("updateProject", response.data);
-        return { success: true, message: "Project updated successfully" };
+        return response;
       } catch (error) {
         console.error("Error updating Project:", error);
-        return { success: false, message: "Error updating Project" };
+        return error;
       }
     },
     async deleteProject({ commit }, projectId) {
       console.log("projectId", projectId);
       try {
-        await apiClient.deleteProject(projectId);
+        const response = await apiClient.deleteProject(projectId);
         commit("removeProject", projectId);
-        return { success: true, message: "Project deleted successfully" };
+        return response;
       } catch (error) {
         console.error("Error deleting project:", error);
-        return { success: false, message: "Error deleting project" };
+        return error;
       }
     },
   },
@@ -994,5 +1019,6 @@ export default createStore({
     selectedPermissions: (state) => state.selectedPermissions,
     roleWithPermissions: (state) => state.roleWithPermissions,
     updateDepartment: (state) => state.updateDepartment,
+    projectLogs: (state) => state.projectLogs,
   },
 });

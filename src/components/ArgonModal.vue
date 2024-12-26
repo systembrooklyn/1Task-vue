@@ -59,8 +59,9 @@ const closeModal = () => {
   background: white;
   padding: 20px;
   border-radius: 8px;
-  max-width: 500px;
+  max-width: 700px;
   width: 100%;
+  height: fit-content;
 }
 
 .modal-header {

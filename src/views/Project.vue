@@ -5,14 +5,14 @@ import { useStore } from "vuex";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
+import ArgonSelect from "@/components/ArgonSelect.vue";
 import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import ProjectsTable from "@/views/components/ProjectsTable.vue";
+import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import Swal from "sweetalert2";
 const store = useStore();
 
-
 const userData = computed(() => store.getters.user);
-
 
 import {
   savePermissionsToLocalStorage,
@@ -21,19 +21,32 @@ import {
   hasPermission,
 } from "@/utils/permissions.js";
 
-
 const permissions = ref(
   loadPermissionsFromLocalStorage(userData.value?.id) || {}
 );
 
 // عند تحميل الصفحة لأول مرة، حفظ الصلاحيات في localStorage
-onBeforeMount(() => {
+onBeforeMount(async () => {
   if (!permissions.value || Object.keys(permissions.value).length === 0) {
-    const extractedPermissions = extractPermissionsFromAPI(userData.value?.roles);
+    const extractedPermissions = extractPermissionsFromAPI(
+      userData.value?.roles
+    );
     permissions.value = extractedPermissions;
     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
+  await store.dispatch("getCompanyUsers");
 });
+
+const dataFromApi = computed(() => store.getters.dataFromApi);
+
+const employeeOptions = computed(() => {
+  return dataFromApi.value.map((employee) => ({
+    value: employee.id,
+    label: employee.name,
+  }));
+});
+
+console.log("employeeOptionssssssssssss:", employeeOptions.value);
 
 const isOwner = computed(() => store.getters.isOwner);
 
@@ -51,6 +64,23 @@ const projects = ref([]);
 const componentKey = ref(0);
 const body = document.getElementsByTagName("body")[0];
 const isLoading = ref(false);
+const projectDescription = ref("");
+const fromDate = ref("");
+const toDate = ref("");
+const showAdvancedSettings = ref(false);
+// const projectManager = ref("");
+const selectedManager = ref("");
+const projectStatus = ref(false);
+
+// التحكم في الإعدادات المتقدمة
+const toggleAdvancedSettings = () => {
+  showAdvancedSettings.value = !showAdvancedSettings.value;
+};
+
+// غلق المودال
+const closePopup = () => {
+  showPopup.value = false;
+};
 
 onBeforeMount(async () => {
   body.classList.remove("bg-gray-100");
@@ -75,7 +105,7 @@ console.log("currentCompanyId:", currentCompanyId.value);
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
 
-const userName = computed(() => store.getters.userName);
+// const userName = computed(() => store.getters.userName);
 
 const fetchProjects = async () => {
   isLoading.value = true;
@@ -118,39 +148,41 @@ const openPopup = () => {
   showPopup.value = true;
 };
 
-const closePopup = () => {
-  showPopup.value = false;
-};
-
 const addProject = async () => {
-  const companyIId =
-    currentCompanyId.value !== null
-      ? currentCompanyId.value
-      : currentUserId.value;
-
   if (projectName.value) {
     isLoading.value = true;
     const project = {
-      neme: projectName.value,
-      companyId: companyIId,
-      createdOwner: userName.value,
+      name: projectName.value,
+      desc: projectDescription.value,
+      from: fromDate.value,
+      to: toDate.value,
+      leader_id: selectedManager.value,
+      status: projectStatus.value,
     };
+
+    console.log("project:", project);
     try {
-      await store.dispatch("addProject", project);
-      showSuccess.value = true;
-      setTimeout(() => {
-        showSuccess.value = false;
-      }, 3000);
-      successMessage.value = t("projectAdded");
+      const response = await store.dispatch("addProject", project);
+      if (response.status === 201) {
+        Swal.fire({
+          icon: "success",
+          title: t("projectAdded"),
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
+      }
       closePopup();
       await fetchProjects();
       componentKey.value += 1;
     } catch (error) {
-      showAlert.value = true;
-      setTimeout(() => {
-        showAlert.value = false;
-      }, 3000);
-      errorMessage.value = t("projectAddedError");
+      Swal.fire({
+        icon: "error",
+        title: t("projectAddedError"),
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
     } finally {
       isLoading.value = false;
     }
@@ -178,12 +210,21 @@ const translations = {
     delete: "Delete",
     addProject: "Add Project",
     projectName: "Project Name",
+    description: "Description",
     close: "Close",
-    add: "Add",
+    create: "create",
     projectsTable: "Projects ",
     projectNameRequired: "Please enter the project name.",
     projectAddedError:
       "An error occurre while adding the project. Please try again later.",
+    from: "From",
+    to: "To",
+    projectManager: "Project Manager",
+    assignManager: "Assign Manager",
+    enterDescription: "Enter Description",
+    enterProjectName: "Enter Project Name",
+    createProject: "Create Project",
+    saving: "Saving...",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -199,12 +240,21 @@ const translations = {
     delete: "حذف",
     addProject: "اضافة مشروع",
     projectName: "اسم المشروع",
+    description: "وصف المشروع",
     close: "اغلاق",
-    add: "اضافة",
+    create: "اضافة",
     projectsTable: "المشاريع",
     projectNameRequired: "يرجى ادخال اسم المشروع.",
     projectAddedError:
       "حدث خطأ في اضافة المشروع. يرجى المحاولة مرة اخرى في وقت لاحق.",
+    from: "من",
+    to: "إلى",
+    projectManager: "مدير المشروع",
+    assignManager: "تعيين المدير",
+    enterDescription: "ادخال الوصف",
+    enterProjectName: "ادخال اسم المشروع",
+    createProject: "اضافة مشروع",
+    saving: "يتم الحفظ...",
   },
 };
 </script>
@@ -218,7 +268,11 @@ const translations = {
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
               <p class="mb-0">{{ t("projectsTable") }}</p>
-              <argon-button v-show="canCreateProject || isOwner" class="ml-auto mx-2" @click="openPopup">
+              <argon-button
+                v-show="canCreateProject || isOwner"
+                class="ml-auto mx-2"
+                @click="openPopup"
+              >
                 <i class="fas fa-plus"></i>
               </argon-button>
             </div>
@@ -249,11 +303,7 @@ const translations = {
                 aria-hidden="true"
               ></span>
             </div>
-            <projects-table
-              v-else
-              :projects="projects"
-              :key="componentKey"
-            />
+            <projects-table v-else :projects="projects" :key="componentKey" />
           </div>
         </div>
       </div>
@@ -262,51 +312,126 @@ const translations = {
 
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
-      <ArgonModal v-if="showPopup" :title="t('addProject')" @close="closePopup">
+      <ArgonModal
+        v-if="showPopup"
+        :title="t('createProject')"
+        @close="closePopup"
+      >
         <template #default>
-          <label>{{ t("projectName") }}:</label>
-          <input v-model="projectName" class="form-control" />
+          <div class="form-group mb-3">
+            <label class="form-label">{{ t("projectName") }}:</label>
+            <input
+              v-model="projectName"
+              class="form-control"
+              :placeholder="t('enterProjectName')"
+            />
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label">{{ t("description") }}:</label>
+            <textarea
+              v-model="projectDescription"
+              class="form-control"
+              :placeholder="t('enterDescription')"
+            ></textarea>
+          </div>
+
+          <div v-if="employeeOptions.length > 0" class="mb-3">
+            <label class="form-label">{{ t("projectManager") }}:</label>
+            <argon-select
+              v-model="selectedManager"
+              :options="employeeOptions"
+              :placeholder="t('assignManager')"
+              class="form-control"
+            />
+          </div>
+
+          <!-- زر الإعدادات المتقدمة -->
+          <div class="d-flex align-items-center">
+            <ArgonButton
+              class="btn btn-link mb-3"
+              @click="toggleAdvancedSettings"
+            >
+              Advanced Settings
+            </ArgonButton>
+
+            <div class="d-flex align-items-center ms-auto">
+              <span class="me-2">{{ t("inactive") }}</span>
+              <argon-switch
+                class="custom-switch-modal"
+                v-model:checked="projectStatus"
+                aria-label="Project Status"
+                role="switch"
+              ></argon-switch>
+              <span class="ms-2">{{ t("active") }}</span>
+            </div>
+          </div>
+
+          <!-- الإعدادات المتقدمة -->
+          <transition name="fade">
+            <div v-if="showAdvancedSettings" class="advanced-settings">
+              <div class="form-group mb-3">
+                <label class="form-label">{{ t("from") }}:</label>
+                <input
+                  type="date"
+                  v-model="fromDate"
+                  class="form-control"
+                />
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">{{ t("to") }}:</label>
+                <input
+                  type="date"
+                  v-model="toDate"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </transition>
         </template>
 
         <template #footer>
-          <argon-button @click="closePopup">{{ t("close") }}</argon-button>
-          <argon-button @click="addProject" :disabled="isLoading">
+          
+          <argon-button
+            variant="success"
+            @click="addProject"
+            :disabled="isLoading"
+          >
             <span
               v-if="isLoading"
               class="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"
             ></span>
-            {{ isLoading ? t("saving") : t("add") }}
+            {{ isLoading ? t("saving") : t("create") }}
           </argon-button>
-        </template>
-
-        <template #title>
-          <i class="fas fa-user-edit me-2"></i>
-          {{ t("addProject") }}
+          <argon-button variant="secondary" @click="closePopup">
+            {{ t("close") }}
+          </argon-button>
         </template>
       </ArgonModal>
     </transition>
   </div>
 </template>
 
+
 <style>
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* تأثيرات الظهور والإخفاء */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-.popup {
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+/* الإعدادات المتقدمة */
+.advanced-settings {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #f9f9f9;
 }
 </style>
