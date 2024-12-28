@@ -4,16 +4,17 @@ import { useStore } from "vuex";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
-import { useRoute } from "vue-router";
+// import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";
 import Swal from "sweetalert2"; // استيراد SweetAlert2
 import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 
 const store = useStore();
-const route = useRoute();
+// const route = useRoute();
 const router = useRouter();
 
-const token = ref(route.query.token ? route.query.token : '');
+// const token = ref(route.query.token ? route.query.token : '');
+// console.log("token:", token.value);
 
 
 // المتغيرات المحلية
@@ -27,6 +28,8 @@ const pageTime = new URLSearchParams(hash);
 console.log("pageTime:", pageTime);
 const expiresAt = pageTime.get('expires_at');
 console.log("expiresAt:", expiresAt);
+const token = pageTime.get('token');
+console.log("token:", token);
 const currentTime = new Date();
 const timestamp = Math.floor(currentTime.getTime() / 1000);
 console.log("timestamp:", timestamp);
@@ -164,7 +167,7 @@ const submitForm = async () => {
 
 
     const formData = {
-      token: token.value,
+      token: token,
       name: name.value,
       password: password.value,
       password_confirmation: confirmPassword.value,
