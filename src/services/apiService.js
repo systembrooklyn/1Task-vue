@@ -364,6 +364,90 @@ const config = {
 
   //end projects-------------------------------------------------
 
+  // start routine tasks---------------------------------------------------
+
+  getAllRoutineTasks(page = 1) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get(`/alldailytask?page=${page}`, config);
+  },
+
+  updateTaskStatus(task) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post(`/activedailytask/${task.id}`, task, config);
+  },
+  
+  addRoutineTask(task) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post(`/dailytask`, task, config);
+  },
+
+  updateRoutineTask(task) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.put(`/dailytask/${task.id}`, task, config);
+  },
+
+  deleteRoutineTask(taskId) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.delete(`/dailytask/${taskId}`, config);
+  },
+
+  getTaskLogs(taskId) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get(`/dailytask/${taskId}/revisions`, config);
+  },
+
+  getRoutineTasks(page = 1) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get(`/dailytask?page=${page}`, config);
+  },
+
+  reportRoutineTasks(taskData) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post(`/daily-tasks/${taskData.id}/submit-report`, taskData, config);
+  },
+
+  // end routine tasks------------------------------------------------
+
   //end
 
   // PUT: تحديث بيانات موجودة

@@ -136,6 +136,18 @@ const routes = [
     component: () => import("@/views/Project.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/manage-routine-task",
+    name: "manage routine task",
+    component: () => import("@/views/ManageRoutineTask.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/routine-task",
+    name: "routine task",
+    component: () => import("@/views/RoutineTask.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({

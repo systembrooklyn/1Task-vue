@@ -4,16 +4,24 @@
       <table class="table align-items-center table-hover mb-0">
         <thead class="thead-light">
           <tr>
-            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+            <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
               {{ t("status") }}
             </th>
-            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+            <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
               {{ t("projectName") }}
             </th>
-            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+            <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
               {{ t("assignManager") }}
             </th>
-            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+            <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
               {{ t("projectCreatedBy") }}
             </th>
             <th class="text-secondary opacity-7"></th>
@@ -23,7 +31,7 @@
           <tr v-for="Project in props.projects" :key="Project.id">
             <td>
               <div class="px-2 py-1">
-                <div  class="d-flex justify-content-center text-sm" >
+                <div class="d-flex justify-content-center text-sm">
                   <argon-switch
                     v-if="isOwner"
                     :checked="Boolean(Project.status)"
@@ -58,7 +66,7 @@
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ Project.created_by_name  }}
+                {{ Project.created_by_name }}
               </p>
             </td>
             <td class="align-middle">
@@ -91,16 +99,10 @@
         >
           <template #default>
             <label class="form-label">{{ t("projectName") }}:</label>
-            <input
-              v-model="selectedProject.name"
-              class="form-control mb-3"
-            />
+            <input v-model="selectedProject.name" class="form-control mb-3" />
 
             <label class="form-label">{{ t("description") }}:</label>
-            <input
-              v-model="selectedProject.desc"
-              class="form-control mb-3"
-            />
+            <input v-model="selectedProject.desc" class="form-control mb-3" />
 
             <div v-if="employeeOptions.length > 0" class="mb-3">
               <label class="form-label">{{ t("assignManager") }}:</label>
@@ -126,8 +128,11 @@
               class="form-control mb-3"
             />
 
-            <label style="display: none;" class="form-label">{{ t("status") }}:</label>
-            <argon-switch style="display: none;"
+            <label style="display: none" class="form-label"
+              >{{ t("status") }}:</label
+            >
+            <argon-switch
+              style="display: none"
               v-model:checked="selectedProject.status"
             >
               {{ selectedProject.status ? t("active") : t("inactive") }}
@@ -135,7 +140,6 @@
           </template>
 
           <template #footer>
-            
             <argon-button
               variant="success"
               @click="updateProject"
@@ -184,7 +188,6 @@
             <li class="nav-item">
               <argon-button
                 class="nav-link"
-                
                 :class="{ active: activeTab === 'log' }"
                 @click="activeTab = 'log'"
               >
@@ -192,47 +195,53 @@
               </argon-button>
             </li>
           </ul>
-          <div class="tab-content ">
+          <div class="tab-content">
             <div v-if="activeTab === 'info'">
               <!-- <h5>{{ t('projectDetails') }}</h5> -->
               <dl class="row">
+                <dt class="col-sm-3">{{ t("description") }}:</dt>
+                <dd class="col-sm-9">{{ selectedDescription || "N/A" }}</dd>
 
-                <dt class="col-sm-3">{{ t('description') }}:</dt>
-                <dd class="col-sm-9">{{ selectedDescription || 'N/A' }}</dd>
+                <dt class="col-sm-3">{{ t("createdAt") }}:</dt>
+                <dd class="col-sm-9">
+                  {{ formatDate(selectedProjectCreationDate) || "N/A" }}
+                </dd>
 
-                <dt class="col-sm-3">{{ t('createdAt') }}:</dt>
-                <dd class="col-sm-9">{{ formatDate(selectedProjectCreationDate) || 'N/A' }}</dd>
+                <dt class="col-sm-3">{{ t("startDate") }}:</dt>
+                <dd class="col-sm-9">
+                  {{ formatDate(selectedProjectStartDate) || "N/A" }}
+                </dd>
 
-
-                <dt class="col-sm-3">{{ t('startDate') }}:</dt>
-                <dd class="col-sm-9">{{ formatDate(selectedProjectStartDate) || 'N/A' }}</dd>
-
-                <dt class="col-sm-3">{{ t('deadline') }}:</dt>
-                <dd class="col-sm-9">{{ formatDate(selectedProjectDeadline) || ' N/A' }}</dd>
-
+                <dt class="col-sm-3">{{ t("deadline") }}:</dt>
+                <dd class="col-sm-9">
+                  {{ formatDate(selectedProjectDeadline) || " N/A" }}
+                </dd>
               </dl>
             </div>
             <div v-if="activeTab === 'log'">
-  <div v-if="projectLogs.length > 0">
-    <ul class="log-list">
-  <li v-for="log in projectLogs" :key="log.id" class="log-item">
-    {{ t("onDate") }} <strong>{{ formatDate(log.changed_at) }}</strong>,
-    <strong>{{ log.changed_by }}</strong>
-    {{ t("changedTheField") }} 
-    "<strong>{{ log.field }}</strong>"
-    {{ t("from") }}
-    "<strong>{{ log.old_value }}</strong>"
-    {{ t("to") }}
-    "<strong>{{ log.new_value }}</strong>".
-  </li>
-</ul>
-
-  </div>
-  <div v-else>
-    <p>{{ t("noLogsAvailable") }}</p>
-  </div>
-</div>
-
+              <div v-if="projectLogs.length > 0">
+                <ul class="log-list">
+                  <li v-for="log in projectLogs" :key="log.id" class="log-item">
+                    {{ t("onDate") }}
+                    <strong>{{ formatDate(log.changed_at) }}</strong
+                    >,
+                    <strong>{{ log.changed_by }}</strong>
+                    {{ t("changedTheField") }}
+                    "<strong>{{ log.field }}</strong
+                    >"
+                    {{ t("from") }}
+                    "<strong>{{ log.old_value }}</strong
+                    >"
+                    {{ t("to") }}
+                    "<strong>{{ log.new_value }}</strong
+                    >".
+                  </li>
+                </ul>
+              </div>
+              <div v-else>
+                <p>{{ t("noLogsAvailable") }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </template>
@@ -302,7 +311,7 @@ const selectedProjectName = ref("");
 const selectedDescription = ref(""); // لتخزين وصف المشروع
 const selectedProjectStartDate = ref(null);
 const selectedProjectDeadline = ref(null);
-const selectedProjectCreationDate = ref(null);  
+const selectedProjectCreationDate = ref(null);
 const selectedProjectId = ref(null);
 const showDescriptionModal = ref(false);
 const projectLogs = ref([]); // غير مستخدم حالياً
@@ -394,11 +403,9 @@ const updateProject = async () => {
   };
 
   try {
-  
     console.log("ProjectData:", ProjectData);
 
     const result = await store.dispatch("updateProject", ProjectData);
-
 
     if (result.status === 200) {
       // تحديث بيانات الموظفين
@@ -469,7 +476,6 @@ const deleteProject = async (projectId) => {
   }
 };
 
-
 const getProjectLogs = async (ProjectId) => {
   try {
     const response = await store.dispatch("fetchProjectLogs", ProjectId);
@@ -484,8 +490,7 @@ const getProjectLogs = async (ProjectId) => {
   }
 };
 
-
-const openDescriptionModal = async(Project) => {
+const openDescriptionModal = async (Project) => {
   // if (!Project || typeof Project !== 'object') {
   //   console.error("Invalid project data:", Project);
   //   return;
@@ -507,7 +512,6 @@ watch(
   }
 );
 
-
 const closeDescriptionModal = () => {
   showDescriptionModal.value = false; // إغلاق المودال
   selectedProjectName.value = "";
@@ -518,15 +522,18 @@ const closeDescriptionModal = () => {
 };
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const options = { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric', 
-    hour: '2-digit', 
-    minute: '2-digit' 
+  if (!dateString) return "N/A";
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   };
-  return new Date(dateString).toLocaleDateString(currentLanguage.value, options);
+  return new Date(dateString).toLocaleDateString(
+    currentLanguage.value,
+    options
+  );
 };
 
 const translations = {
@@ -572,12 +579,10 @@ const translations = {
     newValue: "New Value",
     changedAt: "Changed At",
     // مثال ترجمة بالإنجليزية
-onDate: "On",
-changedTheField: "changed the field",
-from: "from",
-to: "to",
-
-
+    onDate: "On",
+    changedTheField: "changed the field",
+    from: "from",
+    to: "to",
   },
   ar: {
     projectsTable: "جدول المشاريع",
@@ -621,10 +626,9 @@ to: "to",
     newValue: "القيمة الجديدة",
     changedAt: "تم التعديل في",
     onDate: "في تاريخ",
-changedTheField: "قام بتغيير الحقل",
-from: "من",
-to: "إلى",
-
+    changedTheField: "قام بتغيير الحقل",
+    from: "من",
+    to: "إلى",
   },
 };
 </script>
@@ -730,7 +734,7 @@ td:hover .hover-icon {
 .custom-tabs .nav-link {
   display: flex;
   align-items: center;
-  color: #A9CA5C;
+  color: #a9ca5c;
   font-weight: 500;
   font-size: 1rem;
   padding: 0.5rem 1rem;
@@ -744,12 +748,12 @@ td:hover .hover-icon {
 .custom-tabs .nav-link.active {
   color: #ffffff; /* نص أبيض */
   border-radius: 5px;
-  background-color: #A9CA5C; /* خلفية أخضر فاتح */  
+  background-color: #a9ca5c; /* خلفية أخضر فاتح */
 }
 
 .custom-tabs .nav-link:hover {
   color: #ffffff; /* نص أبيض عند التمرير */
-  background-color: #A9CA5C; /* خلفية أخضر فاتح عند التمرير */
+  background-color: #a9ca5c; /* خلفية أخضر فاتح عند التمرير */
 }
 
 .tab-content {
@@ -776,7 +780,7 @@ td:hover .hover-icon {
   margin-bottom: 0;
 }
 
-.modal-body dt {  
+.modal-body dt {
   font-weight: 600;
   text-align: right;
   padding-right: 1rem;
@@ -803,5 +807,4 @@ td:hover .hover-icon {
 .log-item strong {
   color: #4caf50; /* لون النص البارز */
 }
-
 </style>

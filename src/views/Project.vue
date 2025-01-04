@@ -118,10 +118,19 @@ const fetchProjects = async () => {
       projects.value = store.getters.projects;
       console.log("projects:", projects.value);
       componentKey.value += 1;
+    } else {
+      errorMessage.value = t("generalError");
+      showAlert.value = true;
+      setTimeout(() => {
+        showAlert.value = false;
+      }, 3000);
     }
   } catch (error) {
-    showAlert.value = true;
-    errorMessage.value = t("generalError");
+    Swal.fire({
+      icon: "error",
+      title: "Error fetching projects",
+      text: error.message || "An unexpected error occurred.",
+    });
   } finally {
     isLoading.value = false;
   }
@@ -227,7 +236,7 @@ const translations = {
     createProject: "Create Project",
     saving: "Saving...",
     noProjects: "No projects found.",
-    createee: "Create your project from the button above",
+    createee: "Create your project",
   },
   ar: {
     addMember: "اضافة عضو",

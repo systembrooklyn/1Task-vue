@@ -6,8 +6,12 @@ import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import roleTable from "./components/roleTable.vue";
-import { savePermissionsToLocalStorage, loadPermissionsFromLocalStorage, hasPermission } from "@/utils/permissions.js"; 
-
+import {
+  savePermissionsToLocalStorage,
+  extractPermissionsFromAPI,
+  loadPermissionsFromLocalStorage,
+  hasPermission,
+} from "@/utils/permissions.js";
 
 const store = useStore();
 
@@ -27,15 +31,20 @@ const isOwner = computed(() => store.getters.isOwner);
 const isLoadingData = ref(false);
 
 // استدعاء الصلاحيات من localStorage بناءً على المستخدم الحالي
-const permissions = ref(loadPermissionsFromLocalStorage(userData.value?.user?.id) || {});
+const permissions = ref(
+  loadPermissionsFromLocalStorage(userData.value?.id) || {}
+);
 
-// في حال عدم وجود صلاحيات في localStorage، جلبها من Vuex
-if (!permissions.value || Object.keys(permissions.value).length === 0) {
-  const userRolePermissions = userData.value?.user?.role?.permissions[0] || {};
-  permissions.value = userRolePermissions;
+console.log( permissions.value);
 
-  savePermissionsToLocalStorage(permissions.value, userData.value?.user?.id);
-}
+// عند تحميل الصفحة لأول مرة، حفظ الصلاحيات في localStorage
+onBeforeMount(() => {
+  if (!permissions.value || Object.keys(permissions.value).length === 0) {
+    const extractedPermissions = extractPermissionsFromAPI(userData.value?.roles);
+    permissions.value = extractedPermissions;
+    savePermissionsToLocalStorage(permissions.value, userData.value?.id);
+  }
+});
 
 // استخدام الصلاحيات للتحكم في ظهور الأزرار
 const canAddRole = computed(() => hasPermission(permissions.value, "create-role"));

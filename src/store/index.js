@@ -59,6 +59,16 @@ export default createStore({
     selectedRole: null,
     projects: [],
     projectLogs: [],
+    routineTasks: [],
+    allRoutineTasks: [],
+    pagination: {
+      total: 0,
+      current_page: 1,
+      per_page: 10,
+      last_page: 1,
+      next_page_url: null,
+      prev_page_url: null,
+    },
   },
   mutations: {
     //بناءا على api laravel
@@ -145,6 +155,51 @@ export default createStore({
     },
     SET_PROJECT_LOGS(state, logs) {
       state.projectLogs = logs;
+    },
+    SET_ALL_ROUTINE_TASKS(state, tasks) {
+      state.allRoutineTasks = tasks;
+    },
+
+    SET_ROUTINE_TASKS(state, tasks) {
+      state.routineTasks = tasks;
+    },
+
+    SET_PAGINATION(state, pagination) {
+      state.pagination = pagination;
+    },
+
+    UPDATE_ROUTINE_TASK(state, updatedTask) {
+      const index = state.routineTasks.findIndex(task => task.id === updatedTask.id);
+      if (index !== -1) {
+        state.routineTasks.tasks.splice(index, 1, updatedTask);
+      }
+    },
+    DELETE_ROUTINE_TASK(state, taskId) {
+      state.routineTasks = state.routineTasks.filter(task => task.id !== taskId);
+    },
+
+    updateTaskStatus(state, updatedTask) {
+      console.log("updatedTask", updatedTask);
+      console.log("state.routineTasks", state.routineTasks);
+    },
+
+    updateRoutineTask(state, updatedTask) {
+      console.log("updatedTask", updatedTask);
+      console.log("state.routineTasks", state.routineTasks);
+    },
+
+    addRoutineTask(state, newTask) {
+      console.log("newTask", newTask);
+      console.log("state.routineTasks", state.routineTasks);
+    },
+
+    SET_TASK_LOGS(state, logs) {
+      state.taskLogs = logs;
+    },
+
+    reportRoutineTasks(state, taskData) {
+      console.log("taskData", taskData);
+      console.log("state.routineTasks", state.routineTasks);
     },
 
     // end----------------------------------------------------
@@ -537,20 +592,21 @@ export default createStore({
   
 
     async getCompanyUsers({ commit }) {
-      console.log("getCompanyUsers called");
+      // console.log("getCompanyUsers called");
       try {
         const response = await apiClient.getCompanyUsers();
-        console.log("API Response:", response);
+        // console.log("API Response:", response);
         if (response.status === 200) {
-          console.log("Data fetched from API:", response.data);
+          // console.log("Data fetched from API:", response.data);
           commit("SET_DATA_FROM_API", response.data.users);
           return response;
         } else {
-          console.error("Error fetching data:", response);
+          // console.error("Error fetching data:", response);
           return response;
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching projects:", error.response?.data?.message || error.message);
+        throw error.response?.data || error; // إعادة الخطأ       
       }
     },
     
@@ -928,7 +984,8 @@ export default createStore({
           return response;
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
+        console.error("Error fetching projects:", error.response?.data?.message || error.message);
+        throw error.response?.data || error; // إعادة الخطأ       
       }
     },
 
@@ -972,6 +1029,7 @@ export default createStore({
       console.log("project", project);
       try {
         const response = await apiClient.updateProject(project);
+        console.log("response", response);
         commit("updateProject", response.data);
         return response;
       } catch (error) {
@@ -987,6 +1045,106 @@ export default createStore({
         return response;
       } catch (error) {
         console.error("Error deleting project:", error);
+        return error;
+      }
+    },
+
+    // routine tasks
+    async fetchAllRoutineTasks({ commit }, page = 1) {
+      try {
+        const response = await apiClient.getAllRoutineTasks(page);
+        if (response.status === 200) {
+          commit("SET_ALL_ROUTINE_TASKS", response.data);
+          console.log("response", response);
+          console.log("response.data", response.data);
+          return response;
+        } else {
+          return response;
+        }
+      } catch (error) {
+        console.error("Error fetching routine tasks:", error);
+      }
+    },
+
+    async updateTaskStatus({ commit }, payload) {
+      try {
+        const response = await apiClient.updateTaskStatus(payload);
+        commit("updateTaskStatus", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error updating task status:", error);
+        return error;
+      }
+    },
+    async addRoutineTask({ commit }, routineTask) {
+      try {
+        const response = await apiClient.addRoutineTask(routineTask);
+        commit("addRoutineTask", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error adding routine task:", error);
+        return error;
+      }
+    },
+
+    async updateRoutineTask({ commit }, routineTask) {
+      try {
+        const response = await apiClient.updateRoutineTask(routineTask);
+        commit("updateRoutineTask", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error updating routine task:", error);
+        return error;
+      }
+    },
+
+    async deleteRoutineTask({ commit }, taskId) {
+      try {
+        const response = await apiClient.deleteRoutineTask(taskId);
+        commit("removeRoutineTask", taskId);
+        return response;
+      } catch (error) {
+        console.error("Error deleting routine task:", error);
+        return error;
+      }
+    },
+
+    async fetchTaskLogs({ commit }, taskId) {
+      try {
+        const response = await apiClient.getTaskLogs(taskId);
+        commit("SET_TASK_LOGS", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error fetching task logs:", error);
+        return error;
+      }
+    },
+
+    async fetchRoutineTasks({ commit }, page = 1) {
+      try {
+        const response = await apiClient.getRoutineTasks(page);
+        if (response.status === 200) {
+          commit("SET_ROUTINE_TASKS", response.data);
+          console.log("response", response);
+          console.log("response.dataشششششششششش", response.data);
+          return response;
+        } else {
+          return response;
+        }
+      } catch (error) {
+        console.error("Error fetching routine tasks:", error);
+      }
+    },
+
+    async reportRoutineTasks({ commit }, payload) {
+      console.log("payload", payload);
+      try {
+        const response = await apiClient.reportRoutineTasks(payload);
+        console.log("reportRoutineTasks-response", response.data);
+        commit("reportRoutineTasks", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error reporting routine tasks:", error);
         return error;
       }
     },
@@ -1020,5 +1178,7 @@ export default createStore({
     roleWithPermissions: (state) => state.roleWithPermissions,
     updateDepartment: (state) => state.updateDepartment,
     projectLogs: (state) => state.projectLogs,
+    routineTasks: (state) => state.routineTasks,
+    allRoutineTasks: (state) => state.allRoutineTasks,
   },
 });

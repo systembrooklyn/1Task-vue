@@ -167,7 +167,7 @@ const t = (key) => {
     <div class="row">
       <div class="col-12">
         <navbar isBlur="blur  border-radius-lg my-3 py-2 start-0 end-0 mx-4 shadow" :darkMode="true"
-          isBtn="bg-gradient-success" />
+          isBtn="bg-gradient-success" style="display: none;" />
       </div>
     </div>
   </div>
@@ -177,7 +177,7 @@ const t = (key) => {
         <div class="container">
           <div class="row">
             <!-- قسم النموذج -->
-            <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto"
+            <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto form-container"
               :class="currentLanguage === 'ar' ? 'order-2' : ''">
               <div class="card card-plain">
                 <div class="pb-0 card-header text-start">
@@ -239,19 +239,28 @@ const t = (key) => {
               class="col-6 d-none d-lg-flex h-100 justify-content-center flex-column text-center my-auto top-0 position-absolute"
               :class="currentLanguage === 'ar' ? 'start-0 ps-0' : 'end-0 pe-0'">
               <div
-                class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
-                style="
-                  background-image: url(&quot;https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg&quot;);
-                  background-size: cover;
-                ">
-                <span class="mask bg-gradient-success opacity-6"></span>
-                <h4 class="mt-5 text-white font-weight-bolder position-relative">
-                  {{ t("attentionIsNewCurrency") }}
-                </h4>
-                <p class="text-white position-relative">
-                  {{ t("effortlessWriting") }}
-                </p>
-              </div>
+  class="position-relative bg-gradient-primary w-100  px-7 border-radius-lg d-flex flex-column justify-content-center overflow-auto"
+  style="
+    background-image: url('https://ik.imagekit.io/dimpx0s2v/Copy%20of%201task%20(1).gif');
+    background-size: contain; 
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 480px; 
+    margin-left: -100px;
+    max-height: 90vh; 
+  ">
+  <span class=""></span>
+  <!-- المحتويات الأخرى يمكن إضافتها هنا -->
+  <!--
+  <h4 class="mt-5 text-white font-weight-bolder position-relative">
+    {{ t("attentionIsNewCurrency") }}
+  </h4>
+  <p class="text-white position-relative">
+    {{ t("effortlessWriting") }}
+  </p>
+  -->
+</div>
+
             </div>
             <!-- نهاية قسم الصورة والنص -->
           </div>
@@ -260,3 +269,13 @@ const t = (key) => {
     </section>
   </main>
 </template>
+
+<style scoped>
+.form-container {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* ظل أعمق وأكثر وضوحًا */
+  border: 2px solid rgba(255, 255, 255, 0.5); /* حدود أكثر سمكًا وشفافية */
+  border-radius: 10px;
+  padding: 20px;
+}
+</style>
+

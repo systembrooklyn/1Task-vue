@@ -51,7 +51,7 @@ watch(
   <div class="form-check form-switch custom-switch ps-0">
     <input
       :id="id"
-      class="form-check-input ms-0 custom-switch-input"
+      class=" ms-0 custom-switch-input"
       type="checkbox"
       :name="name"
       v-model="isChecked"

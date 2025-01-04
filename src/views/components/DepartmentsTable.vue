@@ -36,10 +36,10 @@
               </p>
             </td> -->
             <td class="align-middle">
-              <a href="javascript:;" class="text-secondary font-weight-bold text-xs me-2" @click="openEditModal(department)">
+              <a href="javascript:;" v-show="permissions['edit-department'] || isOwner" class="text-secondary font-weight-bold text-xs me-2" @click="openEditModal(department)">
                 {{ t("edit") }}
               </a>
-              <a href="javascript:;" class="text-danger font-weight-bold text-xs" @click="confirmDelete(department)">
+              <a href="javascript:;" v-show="permissions['delete-department'] || isOwner" class="text-danger font-weight-bold text-xs" @click="confirmDelete(department)">
                 {{ t("delete") }}
               </a>
             </td>

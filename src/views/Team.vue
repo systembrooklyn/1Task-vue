@@ -3,12 +3,13 @@ import { ref, onBeforeMount, onBeforeUnmount, watch, computed } from "vue";
 import { useStore } from "vuex";
 import AuthorsTable from "./components/AuthorsTable.vue";
 import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
+import Swal from "sweetalert2";
 
 const store = useStore();
 const showAlert = ref(false); // التحكم في عرض التنبيه
 const errorMessage = ref(""); // رسالة الخطأ
-const successMessage = ref(""); // رسالة النجاح
-const showSuccess = ref(false); // التحكم في عرض النجاح
+// const successMessage = ref(""); // رسالة النجاح
+// const showSuccess = ref(false); // التحكم في عرض النجاح
 const employees = ref([]); // لتخزين بيانات الموظفين
 const componentKey = ref(0); // متغير لتغيير المفتاح وإعادة تحميل المكون
 const body = document.getElementsByTagName("body")[0];
@@ -22,43 +23,30 @@ const fetchEmployees = async () => {
     isLoading.value = true; // بدأ التحميل
 
     // جلب بيانات الموظفين من الـ Vuex store
-    await store.dispatch("getCompanyUsers");
+    const response = await store.dispatch("getCompanyUsers");
+
+    if (response.status === 200) {
     
     employees.value = store.getters.dataFromApi; // تخزين بيانات الموظفين في المتغير employees
     console.log("Employees Data:", employees.value.users);
     isLoading.value = false;
 
     componentKey.value += 1; // تحديث المفتاح لإعادة تحميل المكون
-
-    // عرض رسالة نجاح بناءً على اللغة
-    if (store.getters.currentLanguage === "ar") {
-      successMessage.value = "تم جلب بيانات الموظفين بنجاح.";
     } else {
-      successMessage.value = "Employees data fetched successfully.";
+      errorMessage.value = t("generalError");
+      showAlert.value = true;
+      setTimeout(() => {
+        showAlert.value = false;
+      }, 3000);
     }
 
-    showSuccess.value = true; // إظهار التنبيه بالنجاح
+
   } catch (error) {
-    console.error("Error fetching employees data:", error);
-
-    isLoading.value = false;
-
-
-    // عرض رسالة خطأ بناءً على اللغة
-    if (store.getters.currentLanguage === "ar") {
-      errorMessage.value =
-        "حدث خطأ أثناء جلب بيانات الموظفين. حاول مرة أخرى لاحقًا.";
-    } else {
-      errorMessage.value =
-        "An error occurred while fetching employees data. Please try again later.";
-    }
-
-    showAlert.value = true; // إظهار التنبيه بالخطأ
-
-    // إخفاء التنبيه بعد 3 ثوانٍ
-    setTimeout(() => {
-      showAlert.value = false;
-    }, 3000);
+    Swal.fire({
+      icon: "error",
+      title: "Error fetching employees",
+      text: error.message || "An unexpected error occurred.",
+    });
   }
 };
 

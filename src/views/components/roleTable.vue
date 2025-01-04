@@ -49,10 +49,12 @@
             </td>
             <td class="align-middle">
               <a href="javascript:;" class="text-secondary font-weight-bold text-xs"
+                v-show="permissions['edit-role'] || isOwner"
                 @click="handleEditClick(role)">
                 {{ t("edit") }}
               </a>
               <a href="javascript:;"
+                v-show="permissions['delete-role'] || isOwner"
                 class="text-danger font-weight-bold text-xs ms-2" @click="confirmDelete(role)">
                 {{ t("delete") }}
               </a>
@@ -119,12 +121,39 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 import { useStore } from "vuex";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import Swal from "sweetalert2"; 
+
+const store = useStore();
+const userData = computed(() => store.getters.user);
+const isOwner = computed(() => store.getters.isOwner);
+console.log("isOwner:", isOwner.value);
+
+import {
+  savePermissionsToLocalStorage,
+  extractPermissionsFromAPI,
+  loadPermissionsFromLocalStorage,
+  // hasPermission,
+} from "@/utils/permissions.js";
+
+const permissions = ref(
+  loadPermissionsFromLocalStorage(userData.value?.id) || {}
+);
+
+console.log( permissions.value);
+
+// عند تحميل الصفحة لأول مرة، حفظ الصلاحيات في localStorage
+onBeforeMount(() => {
+  if (!permissions.value || Object.keys(permissions.value).length === 0) {
+    const extractedPermissions = extractPermissionsFromAPI(userData.value?.roles);
+    permissions.value = extractedPermissions;
+    savePermissionsToLocalStorage(permissions.value, userData.value?.id);
+  }
+});
 
 const props = defineProps({
   rolesList: {
@@ -137,7 +166,6 @@ const props = defineProps({
   },
 });
 
-const store = useStore();
 const componentKey = ref(0);
 
 const translations = {
@@ -175,6 +203,7 @@ const translations = {
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
 const t = (key) => translations[currentLanguage.value][key];
+
 
 const showEditPopup = ref(false);
 const isLoadingData = ref(false);
@@ -362,4 +391,13 @@ const deleteRole = async (roleId) => {
 .modal-fade-leave-to {
   opacity: 0;
 }
+
+/* إضافة تنسيق لعمود النوت */
+td {
+  word-wrap: break-word; /* السماح للنص بالانكسار */
+  white-space: pre-wrap; /* المحافظة على التنسيق والانكسار */
+  max-width: 200px; /* يمكنك تخصيص العرض المناسب للعمود */
+  overflow-wrap: break-word; /* السماح بانكسار النص */
+}
+
 </style>

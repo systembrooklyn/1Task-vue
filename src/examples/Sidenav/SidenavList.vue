@@ -27,6 +27,7 @@ const isRTL = computed(() => store.state.isRTL);
 
 // جلب بيانات المستخدم من Vuex
 const userData = computed(() => store.getters.user);
+const isOwner = computed(() => store.getters.isOwner);
 // console.log(userData.value);
 
 // استدعاء الصلاحيات من localStorage بناءً على المستخدم الحالي
@@ -105,7 +106,7 @@ const closeMenu = () => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item dropdown">
+      <li class="nav-item dropdown" v-show=" permissions['view-user'] || permissions['view-role'] || permissions['invite-user'] || isOwner">
         <a
           class="nav-link dropdown-toggle"
           href="#"
@@ -127,6 +128,7 @@ const closeMenu = () => {
         >
           <sidenav-item
             to="/addUser"
+            v-show=" permissions['invite-user'] || isOwner "
             :class="getRoute() === 'addUser' ? 'active' : ''"
             :navText="isRTL ? 'اضافة مستخدم' : 'add user'"
           >
@@ -137,6 +139,7 @@ const closeMenu = () => {
           <!-- v-if="canAddUser" -->
           <sidenav-item
             to="/team"
+            v-show=" permissions['view-user'] || isOwner "
             :class="getRoute() === 'team' ? 'active' : ''"
             :navText="isRTL ? 'فريق' : 'Team'"
           >
@@ -147,6 +150,7 @@ const closeMenu = () => {
           <!-- v-if="canAddUser" -->
           <sidenav-item
             to="/add-role"
+            v-show=" permissions['view-role'] || isOwner "
             :class="getRoute() === 'addRole' ? 'active' : ''"
             :navText="isRTL ? 'اضافة دور' : 'Add Role'"
           >
@@ -154,15 +158,17 @@ const closeMenu = () => {
               <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
             </template>
           </sidenav-item>
-          <sidenav-item
+          <!-- v-if="canAddUser" -->
+          <!-- <sidenav-item
             to="/cards"
+            v-show=" permissions['view-cards'] || isOwner "
             :class="getRoute() === 'cards' ? 'active' : ''"
             :navText="isRTL ? 'الكارتات' : 'Cards'"
           >
             <template v-slot:icon>
               <i class="ni ni-app text-info text-sm opacity-10 "></i>
             </template>
-          </sidenav-item>
+          </sidenav-item> -->
         </ul>
       </li>
 
@@ -170,6 +176,7 @@ const closeMenu = () => {
       <li class="nav-item">
         <sidenav-item
           to="/department"
+          v-show=" permissions['view-department'] || isOwner "
           :class="getRoute() === 'department' ? 'active' : ''"
           :navText="isRTL ? 'الاقسام' : 'Department'"
         >
@@ -179,7 +186,7 @@ const closeMenu = () => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item">
+      <li class="nav-item" v-show=" permissions['view-project'] || isOwner ">
         <sidenav-item
           to="/project"
           :class="getRoute() === 'project' ? 'active' : ''"
@@ -191,6 +198,32 @@ const closeMenu = () => {
           </template>
         </sidenav-item>
       </li>
+
+      <li class="nav-item" v-show=" permissions['view-alldailytask'] || isOwner ">
+        <sidenav-item
+          to="/manage-routine-task"
+          :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
+          :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Task'"
+        >
+          <template v-slot:icon>
+        <i class="fa fa-cogs text-info text-sm opacity-10"></i>    
+          </template>
+        </sidenav-item>
+      </li>
+
+      <li class="nav-item" v-show=" permissions['view-dailytask'] || isOwner ">
+        <sidenav-item
+          to="/routine-task"
+          :class="getRoute() === 'routine-task' ? 'active' : ''"
+          :navText="isRTL ? ' المهام اليومية' : ' Routine Task'"
+        >
+          <template v-slot:icon>
+        <i class="fa fa-tasks text-success text-sm opacity-10"></i>    
+          </template>
+        </sidenav-item>
+      </li>
+
+      
 
       <!-- <li class="nav-item">
         <sidenav-item

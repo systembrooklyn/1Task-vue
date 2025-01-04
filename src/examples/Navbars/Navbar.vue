@@ -89,9 +89,9 @@ const closeMenu = () => {
               id="iconNavbarSidenav"
             >
               <div class="sidenav-toggler-inner">
-                <i class="sidenav-toggler-line bg-white"></i>
-                <i class="sidenav-toggler-line bg-white"></i>
-                <i class="sidenav-toggler-line bg-white"></i>
+                <i class="sidenav-toggler-line " :class="darkMode ? 'bg-white' : 'bg-dark' "></i>
+                <i class="sidenav-toggler-line " :class="darkMode ? 'bg-white' : 'bg-dark' "></i>
+                <i class="sidenav-toggler-line " :class="darkMode ? 'bg-white' : 'bg-dark' "></i>
               </div>
             </a>
           </li>

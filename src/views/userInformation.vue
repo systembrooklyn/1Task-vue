@@ -22,7 +22,7 @@ const router = useRouter();
 // const pageTime = ref(route.query.pageTime ? Number(atob(decodeURIComponent(route.query.pageTime))) : 0);
 // const email = ref("");
 
-const hash = window.location.hash.substring(1); // إزالة الهاش (#)
+const hash = window.location.hash.substring(1); 
 console.log("hash:", hash);
 const pageTime = new URLSearchParams(hash);
 console.log("pageTime:", pageTime);
