@@ -3,9 +3,9 @@ import { computed, ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import SidenavDrop from "./SidenavDrop.vue";
 
 const router = useRouter();
-
 
 // const route = useRoute();
 
@@ -18,9 +18,8 @@ import {
   // hasPermission,
 } from "@/utils/permissions.js";
 
-
 // حالة فتح/إغلاق القائمة
-const showMenu = ref(false);
+// const showMenu = ref(false);
 
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
@@ -35,23 +34,23 @@ const permissions = ref(
   loadPermissionsFromLocalStorage(userData.value?.id) || {}
 );
 
-console.log( permissions.value);
+console.log(permissions.value);
 
 // عند تحميل الصفحة لأول مرة، حفظ الصلاحيات في localStorage
 onBeforeMount(() => {
   if (!permissions.value || Object.keys(permissions.value).length === 0) {
-    const extractedPermissions = extractPermissionsFromAPI(userData.value?.roles);
+    const extractedPermissions = extractPermissionsFromAPI(
+      userData.value?.roles
+    );
     permissions.value = extractedPermissions;
     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
 });
 
-
 // التحقق من صلاحية معينة
 // const canCreateDepartment = computed(() =>
 //   hasPermission(permissions.value, "create-department")
 // );
-
 
 // watch(route, () => {
 //   showMenu.value = false; // أغلق القائمة عند تغيير المسار
@@ -79,13 +78,13 @@ const handleSignOut = () => {
     .catch((error) => {
       console.log(error);
     });
-}
-
-const closeMenu = () => {
-  setTimeout(() => {
-    showMenu.value = false;
-  }, 100);
 };
+
+// const closeMenu = () => {
+//   setTimeout(() => {
+//     showMenu.value = false;
+//   }, 100);
+// };
 </script>
 
 <template>
@@ -106,40 +105,51 @@ const closeMenu = () => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item dropdown" v-show=" permissions['view-user'] || permissions['view-role'] || permissions['invite-user'] || isOwner">
+      <!-- <li
+        class="nav-item dropdown"
+        v-show="
+          permissions['view-user'] ||
+          permissions['view-role'] ||
+          permissions['invite-user'] ||
+          isOwner
+        "
+      >
         <a
-          class="nav-link dropdown-toggle"
+          class="nav-link dropdown-toggle d-flex align-items-center"
           href="#"
+          id="navbarDropdown"
+          role="button"
           data-bs-toggle="dropdown"
-          aria-haspopup="true"
           aria-expanded="false"
           @click="showMenu = !showMenu"
+          :class="[
+            showMenu ? 'show' : '',
+            darkMode ? 'text-white' : 'text-dark',
+          ]"
           @blur="closeMenu"
-          :class="[showMenu ? 'show' : '', darkMode ? 'text-white' : 'text-dark']"
-          id="navbarDropdown"
         >
+        
           <i class="ni ni-single-02 text-info text-sm opacity-10 text-center"></i>
           <span class="nav-link-text ms-1">Work Force</span>
         </a>
         <ul
-          :class="showMenu ? 'show' : ''"
-          class="dropdown-menu dropdown-menu-right position-absolute"
+          :class="['dropdown-menu dropdown-menu-end', showMenu ? 'show' : '']"
           aria-labelledby="navbarDropdown"
+          style="z-index: 1050; position: absolute; top: 100%; left: 0"
         >
           <sidenav-item
             to="/addUser"
-            v-show=" permissions['invite-user'] || isOwner "
+            v-show="permissions['invite-user'] || isOwner"
             :class="getRoute() === 'addUser' ? 'active' : ''"
-            :navText="isRTL ? 'اضافة مستخدم' : 'add user'"
+            :navText="isRTL ? 'اضافة مستخدم' : 'Add User'"
           >
             <template v-slot:icon>
               <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
             </template>
           </sidenav-item>
-          <!-- v-if="canAddUser" -->
           <sidenav-item
             to="/team"
-            v-show=" permissions['view-user'] || isOwner "
+            v-show="permissions['view-user'] || isOwner"
             :class="getRoute() === 'team' ? 'active' : ''"
             :navText="isRTL ? 'فريق' : 'Team'"
           >
@@ -147,10 +157,9 @@ const closeMenu = () => {
               <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
             </template>
           </sidenav-item>
-          <!-- v-if="canAddUser" -->
           <sidenav-item
             to="/add-role"
-            v-show=" permissions['view-role'] || isOwner "
+            v-show="permissions['view-role'] || isOwner"
             :class="getRoute() === 'addRole' ? 'active' : ''"
             :navText="isRTL ? 'اضافة دور' : 'Add Role'"
           >
@@ -158,25 +167,42 @@ const closeMenu = () => {
               <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
             </template>
           </sidenav-item>
-          <!-- v-if="canAddUser" -->
-          <!-- <sidenav-item
-            to="/cards"
-            v-show=" permissions['view-cards'] || isOwner "
-            :class="getRoute() === 'cards' ? 'active' : ''"
-            :navText="isRTL ? 'الكارتات' : 'Cards'"
-          >
-            <template v-slot:icon>
-              <i class="ni ni-app text-info text-sm opacity-10 "></i>
-            </template>
-          </sidenav-item> -->
         </ul>
+      </li> -->
+
+      <li>
+        <SidenavDrop
+          title="Work Force"
+          :items="[
+            {
+              to: '/addUser',
+              label: isRTL ? 'اضافة مستخدم' : 'Add User',
+              icon: 'ni ni-single-02 text-primary',
+              active: getRoute() === 'addUser',
+            },
+            {
+              to: '/team',
+              label: isRTL ? 'فريق' : 'Team',
+              icon: 'ni ni-single-02 text-primary',
+              active: getRoute() === 'team',
+            },
+            {
+              to: '/add-role',
+              label: isRTL ? 'اضافة دور' : 'Add Role',
+              icon: 'ni ni-single-02 text-primary',
+              active: getRoute() === 'addRole',
+            },
+          ]"
+          icon="ni ni-single-02"
+          :darkMode="darkMode"
+        ></SidenavDrop>
       </li>
 
       <!-- v-if="canCreateDepartment" -->
       <li class="nav-item">
         <sidenav-item
           to="/department"
-          v-show=" permissions['view-department'] || isOwner "
+          v-show="permissions['view-department'] || isOwner"
           :class="getRoute() === 'department' ? 'active' : ''"
           :navText="isRTL ? 'الاقسام' : 'Department'"
         >
@@ -186,7 +212,7 @@ const closeMenu = () => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item" v-show=" permissions['view-project'] || isOwner ">
+      <li class="nav-item" v-show="permissions['view-project'] || isOwner">
         <sidenav-item
           to="/project"
           :class="getRoute() === 'project' ? 'active' : ''"
@@ -194,36 +220,33 @@ const closeMenu = () => {
         >
           <template v-slot:icon>
             <i class="ni ni-app text-success text-sm opacity-10"></i>
-            
           </template>
         </sidenav-item>
       </li>
 
-      <li class="nav-item" v-show=" permissions['view-alldailytask'] || isOwner ">
+      <li class="nav-item" v-show="permissions['view-alldailytask'] || isOwner">
         <sidenav-item
           to="/manage-routine-task"
           :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
           :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Task'"
         >
           <template v-slot:icon>
-        <i class="fa fa-cogs text-info text-sm opacity-10"></i>    
+            <i class="fa fa-cogs text-info text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
 
-      <li class="nav-item" v-show=" permissions['view-dailytask'] || isOwner ">
+      <li class="nav-item" v-show="permissions['view-dailytask'] || isOwner">
         <sidenav-item
           to="/routine-task"
           :class="getRoute() === 'routine-task' ? 'active' : ''"
           :navText="isRTL ? ' المهام اليومية' : ' Routine Task'"
         >
           <template v-slot:icon>
-        <i class="fa fa-tasks text-success text-sm opacity-10"></i>    
+            <i class="fa fa-tasks text-success text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
-
-      
 
       <!-- <li class="nav-item">
         <sidenav-item
@@ -348,3 +371,52 @@ const closeMenu = () => {
     </ul>
   </div>
 </template>
+
+<style scoped>
+.nav-item .dropdown-toggle {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+/* .nav-item .dropdown-toggle .fas {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+} */
+
+/* .nav-item .dropdown-toggle .rotate-icon {
+  transform: rotate(180deg);
+} */
+
+.dropdown-menu {
+  z-index: 1050; /* لجعل القائمة تظهر فوق العناصر الأخرى */
+  position: absolute;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.dropdown-menu .active {
+  background-color: #4caf50;
+  color: #ffffff;
+  border-radius: 5px;
+}
+
+.dropdown-menu .active:hover {
+  background-color: #4caf50;
+}
+
+.nav-item .dropdown-menu-end {
+  right: 0;
+}
+
+.nav-item .dropdown-menu-end.show {
+  display: block;
+}
+</style>

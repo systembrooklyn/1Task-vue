@@ -6,7 +6,7 @@ import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
-import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
+// import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import ProjectsTable from "@/views/components/ProjectsTable.vue";
 import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import Swal from "sweetalert2";
@@ -274,7 +274,7 @@ const translations = {
 </script>
 
 <template>
-  <LanguageSwitcher />
+  <!-- <LanguageSwitcher /> -->
   <div class="py-4 container-fluid">
     <div class="row">
       <div class="col-md-12">

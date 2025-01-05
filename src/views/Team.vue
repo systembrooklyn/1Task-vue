@@ -2,7 +2,7 @@
 import { ref, onBeforeMount, onBeforeUnmount, watch, computed } from "vue";
 import { useStore } from "vuex";
 import AuthorsTable from "./components/AuthorsTable.vue";
-import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
+// import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import Swal from "sweetalert2";
 
 const store = useStore();
@@ -105,7 +105,7 @@ watch(
 </script>
 
 <template>
-  <LanguageSwitcher />
+  <!-- <LanguageSwitcher /> -->
   <div class="py-4 container-fluid">
     <div class="row">
       <div class="col-12">

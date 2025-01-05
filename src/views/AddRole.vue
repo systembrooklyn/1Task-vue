@@ -4,7 +4,7 @@ import { useStore } from "vuex";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
-import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
+// import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import roleTable from "./components/roleTable.vue";
 import {
   savePermissionsToLocalStorage,
@@ -238,7 +238,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <LanguageSwitcher />
+  <!-- <LanguageSwitcher /> -->
   <div class="container-fluid py-4">
     <div class="row">
       <div class="col-12">

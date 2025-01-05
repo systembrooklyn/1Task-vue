@@ -5,7 +5,7 @@ import { useStore } from "vuex";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
-import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
+// import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import DepartmentsTable from "@/views/components/DepartmentsTable.vue";
 import Swal from "sweetalert2";
 const store = useStore();
@@ -216,7 +216,7 @@ const translations = {
 </script>
 
 <template>
-  <LanguageSwitcher />
+  <!-- <LanguageSwitcher /> -->
   <div class="py-4 container-fluid">
     <div class="row">
       <div class="col-md-12">

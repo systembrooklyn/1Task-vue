@@ -1,102 +1,91 @@
 <script setup>
-import { computed, ref } from "vue";
-import { useStore } from "vuex";
-
-const store = useStore();
-const isRTL = computed(() => store.state.isRTL);
-const sidebarMinimize = () => store.commit("sidebarMinimize");
-
-const minimizeSidebar = () => {
-  if (window.innerWidth < 1200) {
-    sidebarMinimize();
-  }
-};
-
-// حالة التحكم في إظهار القائمة المنسدلة
-const showDropdown = ref(false);
+import { ref } from "vue";
 
 defineProps({
-  to: {
+  title: {
     type: String,
     required: true,
   },
-  navText: {
-    type: String,
+  items: {
+    type: Array,
     required: true,
+  },
+  icon: {
+    type: String,
+    default: "",
+  },
+  darkMode: {
+    type: Boolean,
+    default: false,
   },
 });
+
+const showDropdown = ref(false);
+
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+
+const closeDropdown = () => {
+  setTimeout(() => {
+    showDropdown.value = false;
+  }, 100);
+};
 </script>
 
 <template>
-  <div class="dropdown">
-    <router-link :to="to" class="nav-link" @click="minimizeSidebar">
-      <div
-        class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center"
+  <li class="nav-item dropdown">
+    <a
+      href="#"
+      class="nav-link dropdown-toggle d-flex align-items-center"
+      role="button"
+      @click.prevent="toggleDropdown"
+      @blur="closeDropdown"
+      :class="[
+        showDropdown ? 'show' : '',
+        darkMode ? 'text-white' : 'text-dark',
+      ]"
+    >
+      <i :class="[icon, 'text-info text-sm opacity-10 text-center']"></i>
+      <span class="nav-link-text ms-1">{{ title }}</span>
+    </a>
+    <ul
+      class="dropdown-menu dropdown-menu-end"
+      :class="{ show: showDropdown }"
+      style="z-index: 1050; position: absolute; top: 100%; left: 0"
+    >
+      <li
+        v-for="item in items"
+        :key="item.to"
+        class="dropdown-item"
+        :class="item.active ? 'active' : ''"
       >
-        <slot name="icon"></slot>
-      </div>
-      <span class="nav-link-text" :class="isRTL ? ' me-1' : 'ms-1'">{{ navText }}</span>
-      <button 
-        @click.stop="showDropdown = !showDropdown" 
-        class="dropdown-toggle" 
-        :class="showDropdown ? 'show' : ''"
-      >
-        ▼
-      </button>
-    </router-link>
-    <div v-if="showDropdown" class="dropdown-menu" :class="{ show: showDropdown }">
-      <router-link to="/option1" class="dropdown-item">Option 1</router-link>
-      <router-link to="/option2" class="dropdown-item">Option 2</router-link>
-      <router-link to="/option3" class="dropdown-item">Option 3</router-link>
-    </div>
-  </div>
+        <router-link :to="item.to" class="d-flex align-items-center">
+          <i :class="[item.icon, 'me-2']"></i>
+          {{ item.label }}
+        </router-link>
+      </li>
+    </ul>
+  </li>
 </template>
 
 <style scoped>
-.dropdown {
-  position: relative;
-}
-
-.dropdown-toggle {
-  border: none;
-  background: transparent;
-  font-size: 1.2rem;
-  transition: transform 0.2s ease;
-}
-
-.dropdown-toggle.show {
-  transform: rotate(180deg);
-}
-
-.dropdown-menu {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-top: 5px;
+.nav-item .dropdown-menu {
+  background-color: #ffffff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
-  visibility: hidden;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+  overflow: hidden;
 }
 
-.dropdown-menu.show {
-  opacity: 1;
-  pointer-events: auto;
-  visibility: visible;
+.dropdown-menu .active {
+  background-color: #F6F9FC;
+  color: #000000;
+  font-weight: 500;
+  border-radius: 5px;
 }
 
-.dropdown-item {
-  padding: 10px 15px;
-  color: #333;
-  text-decoration: none;
-  display: block;
-  transition: background-color 0.25s, color 0.25s;
-}
-
-.dropdown-item:hover {
-  background-color: #f1f1f1;
+.dropdown-menu .active:hover {
+  background-color: #F6F9FC;
 }
 </style>

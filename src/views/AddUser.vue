@@ -4,7 +4,7 @@ import { useStore } from "vuex";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
-import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
+// import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 const store = useStore();
 
 // console.log("Company ID:", companyId.value);
@@ -133,7 +133,7 @@ const sendInvitation = async () => {
 </script>
 
 <template>
-  <LanguageSwitcher />
+  <!-- <LanguageSwitcher /> -->
   <div class="py-4 container-fluid">
     <div class="row">
       <div class="col-md-12">

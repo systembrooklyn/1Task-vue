@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 // import Breadcrumbs from "../Breadcrumbs.vue";
+// import LanguageSwitcher from "../../views/components/LanguageSwitcher.vue";
 
 const showMenu = ref(false);
 const store = useStore();
@@ -42,12 +43,12 @@ const closeMenu = () => {
     id="navbarBlur"
     data-scroll="true"
   >
+  <!-- <language-switcher /> -->
     <div class="px-3 py-1 container-fluid">
       <breadcrumbs
         :current-page="currentRouteName"
         :current-directory="currentDirectory"
       />
-
       <div
         class="mt-2 collapse navbar-collapse mt-sm-0 me-md-0 me-sm-4"
         :class="isRTL ? 'px-0' : 'me-sm-4'"
@@ -229,3 +230,5 @@ const closeMenu = () => {
     </div>
   </nav>
 </template>
+
+

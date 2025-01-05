@@ -9,7 +9,7 @@ import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
 import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
-import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
+// import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import RoutineTasksTable from "@/views/components/RoutineTaskTable.vue";
 // import ArgonSwitch from "@/components/ArgonSwitch.vue";
 // import Swal from "sweetalert2";
@@ -394,7 +394,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <LanguageSwitcher />
+  <!-- <LanguageSwitcher /> -->
   <div class="py-4 container-fluid">
     <div class="row">
       <div class="col-md-12">
