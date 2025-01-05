@@ -114,6 +114,8 @@ const props = defineProps({
   },
 });
 
+const isOwner = computed(() => store.getters.isOwner);
+
 const userData = computed(() => store.getters.user);
 // console.log(userData.value);
 

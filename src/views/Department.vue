@@ -50,7 +50,7 @@ const canCreateDepartment = computed(() =>
   hasPermission(permissions.value, "create-department")
 );
 
-const  Owner = computed(() => store.getters.isOwner);
+const isOwner = computed(() => store.getters.isOwner);
 
 onBeforeMount(async () => {
   body.classList.remove("bg-gray-100");
@@ -224,7 +224,7 @@ const translations = {
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
               <p class="mb-0 text-primary font-weight-bold">{{ t("departmentsTable") }}</p>
-              <argon-button v-if="canCreateDepartment || Owner" class="ml-auto mx-2" @click="openPopup">
+              <argon-button v-if="canCreateDepartment || isOwner" class="ml-auto mx-2" @click="openPopup">
                 <i class="fas fa-plus"></i>
               </argon-button>
             </div>

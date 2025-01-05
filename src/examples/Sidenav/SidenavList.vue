@@ -93,7 +93,19 @@ const handleSignOut = () => {
     id="sidenav-collapse-main"
   >
     <ul class="navbar-nav">
-      <li class="nav-item">
+
+      <li class="nav-item" v-show="permissions['view-dailytask'] || isOwner">
+        <sidenav-item
+          to="/routine-task"
+          :class="getRoute() === 'routine-task' ? 'active' : ''"
+          :navText="isRTL ? ' المهام اليومية' : ' Routine Task'"
+        >
+          <template v-slot:icon>
+            <i class="fa fa-tasks text-success text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+      <!-- <li class="nav-item">
         <sidenav-item
           to="/dashboard-default"
           :class="getRoute() === 'dashboard-default' ? 'active' : ''"
@@ -103,7 +115,7 @@ const handleSignOut = () => {
             <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
           </template>
         </sidenav-item>
-      </li>
+      </li> -->
 
       <!-- <li
         class="nav-item dropdown"
@@ -236,17 +248,7 @@ const handleSignOut = () => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item" v-show="permissions['view-dailytask'] || isOwner">
-        <sidenav-item
-          to="/routine-task"
-          :class="getRoute() === 'routine-task' ? 'active' : ''"
-          :navText="isRTL ? ' المهام اليومية' : ' Routine Task'"
-        >
-          <template v-slot:icon>
-            <i class="fa fa-tasks text-success text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
+      
 
       <!-- <li class="nav-item">
         <sidenav-item

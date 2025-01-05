@@ -86,7 +86,7 @@ const signIn = async () => {
     console.log("response:", response);
     if (response.status === 200) {
       isLoading.value = false;
-      router.push("/dashboard-default");
+      router.push("/routine-task");
     } else {
       isLoading.value = false;
       errorMessage.value = t("loginError");
