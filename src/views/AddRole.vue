@@ -285,7 +285,6 @@ onBeforeUnmount(() => {
                       :id="permission"
                       :value="permission"
                       v-model="selectedPermissions"
-                      required
                     />
                     <label class="form-check-label ms-1" :for="permission">
                       {{ permission.name }}
