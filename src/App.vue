@@ -60,3 +60,5 @@ const navClasses = computed(() => {
     <configurator :toggle="toggleConfigurator" :class="[showConfig ? 'show' : '', hideConfigButton ? 'd-none' : '']" />
   </main>
 </template>
+
+

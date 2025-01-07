@@ -21,7 +21,7 @@ const sidebarType = computed(() => store.state.sidebarType);
   /> -->
 
   <aside
-    class="mx-0 overflow-auto border-0 sidenav navbar navbar-vertical navbar-expand-xs border-radius-xl"
+    class="mx-0 overflow-auto border-0 sidenav navbar navbar-vertical navbar-expand-xs"
     :class="`${isRTL ? 'me-3 rotate-caret fixed-end' : 'fixed-start ms-3'}    
       ${
         layout === 'landing' ? 'bg-transparent shadow-none' : ' '

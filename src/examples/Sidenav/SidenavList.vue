@@ -3,7 +3,7 @@ import { computed, ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import SidenavDrop from "./SidenavDrop.vue";
+// import SidenavDrop from "./SidenavDrop.vue";
 
 const router = useRouter();
 
@@ -85,132 +85,133 @@ const handleSignOut = () => {
 //     showMenu.value = false;
 //   }, 100);
 // };
+const collapsibleSections = ref({
+  workForce: false,
+  tasks: false,
+  accountPages: false
+});
+
+const toggleSection = (section) => {
+  collapsibleSections.value[section] = !collapsibleSections.value[section];
+};
+
 </script>
 
 <template>
   <div
-    class="collapse navbar-collapse w-auto h-auto h-100"
+    class="collapse navbar-collapse w-auto h-auto h-100 max-height-vh-100"
     id="sidenav-collapse-main"
   >
     <ul class="navbar-nav">
-
-      <li class="nav-item" v-show="permissions['view-dailytask'] || isOwner">
-        <sidenav-item
-          to="/routine-task"
-          :class="getRoute() === 'routine-task' ? 'active' : ''"
-          :navText="isRTL ? ' المهام اليومية' : ' Routine Task'"
+      <!-- Tasks Section -->
+      <li class="nav-item">
+        <div 
+          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
+          @click="toggleSection('tasks')"
         >
-          <template v-slot:icon>
-            <i class="fa fa-tasks text-success text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-      <!-- <li class="nav-item">
-        <sidenav-item
-          to="/dashboard-default"
-          :class="getRoute() === 'dashboard-default' ? 'active' : ''"
-          :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li> -->
-
-      <!-- <li
-        class="nav-item dropdown"
-        v-show="
-          permissions['view-user'] ||
-          permissions['view-role'] ||
-          permissions['invite-user'] ||
-          isOwner
-        "
-      >
-        <a
-          class="nav-link dropdown-toggle d-flex align-items-center"
-          href="#"
-          id="navbarDropdown"
-          role="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          @click="showMenu = !showMenu"
-          :class="[
-            showMenu ? 'show' : '',
-            darkMode ? 'text-white' : 'text-dark',
-          ]"
-          @blur="closeMenu"
-        >
+          <div class="d-flex align-items-center">
+            <i class="fas fa-tasks text-success me-2"></i>
+            <span>{{ isRTL ? 'المهام' : 'Tasks' }}</span>
+          </div>
+          <i 
+            class="fas fa-chevron-right transition-transform" 
+            :class="{ 'rotate-180': collapsibleSections.tasks }"
+          ></i>
+        </div>
         
-          <i class="ni ni-single-02 text-info text-sm opacity-10 text-center"></i>
-          <span class="nav-link-text ms-1">Work Force</span>
-        </a>
-        <ul
-          :class="['dropdown-menu dropdown-menu-end', showMenu ? 'show' : '']"
-          aria-labelledby="navbarDropdown"
-          style="z-index: 1050; position: absolute; top: 100%; left: 0"
-        >
-          <sidenav-item
-            to="/addUser"
-            v-show="permissions['invite-user'] || isOwner"
-            :class="getRoute() === 'addUser' ? 'active' : ''"
-            :navText="isRTL ? 'اضافة مستخدم' : 'Add User'"
+        <transition name="dropdown">
+          <ul 
+            v-show="collapsibleSections.tasks" 
+            class="nav nav-sm flex-column"
           >
-            <template v-slot:icon>
-              <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
-            </template>
-          </sidenav-item>
-          <sidenav-item
-            to="/team"
-            v-show="permissions['view-user'] || isOwner"
-            :class="getRoute() === 'team' ? 'active' : ''"
-            :navText="isRTL ? 'فريق' : 'Team'"
-          >
-            <template v-slot:icon>
-              <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
-            </template>
-          </sidenav-item>
-          <sidenav-item
-            to="/add-role"
-            v-show="permissions['view-role'] || isOwner"
-            :class="getRoute() === 'addRole' ? 'active' : ''"
-            :navText="isRTL ? 'اضافة دور' : 'Add Role'"
-          >
-            <template v-slot:icon>
-              <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
-            </template>
-          </sidenav-item>
-        </ul>
-      </li> -->
-
-      <li>
-        <SidenavDrop
-          title="Work Force"
-          :items="[
-            {
-              to: '/addUser',
-              label: isRTL ? 'اضافة مستخدم' : 'Add User',
-              icon: 'ni ni-single-02 text-primary',
-              active: getRoute() === 'addUser',
-            },
-            {
-              to: '/team',
-              label: isRTL ? 'فريق' : 'Team',
-              icon: 'ni ni-single-02 text-primary',
-              active: getRoute() === 'team',
-            },
-            {
-              to: '/add-role',
-              label: isRTL ? 'اضافة دور' : 'Add Role',
-              icon: 'ni ni-single-02 text-primary',
-              active: getRoute() === 'addRole',
-            },
-          ]"
-          icon="ni ni-single-02"
-          :darkMode="darkMode"
-        ></SidenavDrop>
+            <li class="nav-item" v-show="permissions['view-dailytask'] || isOwner">
+              <sidenav-item
+                to="/routine-task"
+                :class="getRoute() === 'routine-task' ? 'active' : ''"
+                :navText="isRTL ? ' المهام اليومية' : ' Routine Task'"
+              >
+                <template v-slot:icon>
+                  <i class="fa fa-tasks text-success text-sm opacity-10"></i>
+                </template>
+              </sidenav-item>
+            </li>
+            <li class="nav-item" v-show="permissions['view-alldailytask'] || isOwner">
+              <sidenav-item
+                to="/manage-routine-task"
+                :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
+                :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Task'"
+              >
+                <template v-slot:icon>
+                  <i class="fa fa-cogs text-info text-sm opacity-10"></i>
+                </template>
+              </sidenav-item>
+            </li>
+          </ul>
+        </transition>
       </li>
 
-      <!-- v-if="canCreateDepartment" -->
+      <!-- Work Force Section -->
+      <li class="nav-item" v-show="permissions['view-user'] || permissions['invite-user'] || permissions['view-role'] || isOwner">
+        <div 
+          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
+          @click="toggleSection('workForce')"
+        >
+          <div class="d-flex align-items-center">
+            <i class="ni ni-single-02 text-primary me-2"></i>
+            <span>{{ isRTL ? 'فريق العمل' : 'Work Force' }}</span>
+          </div>
+          <i 
+            class="fas fa-chevron-right transition-transform" 
+            :class="{ 'rotate-180': collapsibleSections.workForce }"
+          ></i>
+        </div>
+        
+        <transition name="dropdown">
+          <ul 
+            v-show="collapsibleSections.workForce" 
+            class="nav nav-sm flex-column"
+          >
+            <li class="nav-item">
+              <sidenav-item
+                to="/addUser"
+                v-show="permissions['invite-user'] || isOwner"
+                :class="getRoute() === 'addUser' ? 'active' : ''"
+                :navText="isRTL ? 'اضافة مستخدم' : 'Add User'"
+              >
+                <template v-slot:icon>
+                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
+                </template>
+              </sidenav-item>
+            </li>
+            <li class="nav-item">
+              <sidenav-item
+                to="/team"
+                v-show="permissions['view-user'] || isOwner"
+                :class="getRoute() === 'team' ? 'active' : ''"
+                :navText="isRTL ? 'فريق' : 'Team'"
+              >
+                <template v-slot:icon>
+                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
+                </template>
+              </sidenav-item>
+            </li>
+            <li class="nav-item">
+              <sidenav-item
+                to="/add-role"
+                v-show="permissions['view-role'] || isOwner"
+                :class="getRoute() === 'addRole' ? 'active' : ''"
+                :navText="isRTL ? 'اضافة دور' : 'Add Role'"
+              >
+                <template v-slot:icon>
+                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
+                </template>
+              </sidenav-item>
+            </li>
+          </ul>
+        </transition>
+      </li>
+
+      <!-- Other Individual Items -->
       <li class="nav-item">
         <sidenav-item
           to="/department"
@@ -236,140 +237,42 @@ const handleSignOut = () => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item" v-show="permissions['view-alldailytask'] || isOwner">
-        <sidenav-item
-          to="/manage-routine-task"
-          :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
-          :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Task'"
-        >
-          <template v-slot:icon>
-            <i class="fa fa-cogs text-info text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-
-      
-
-      <!-- <li class="nav-item">
-        <sidenav-item
-          to="/tables"
-          :class="getRoute() === 'tables' ? 'active' : ''"
-          :navText="isRTL ? 'الجداول' : 'Tables'"
-        >
-          <template v-slot:icon>
-            <i
-              class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
-            ></i>
-          </template>
-        </sidenav-item>
-      </li>
-
-      <li class="nav-item">
-        <sidenav-item
-          to="/billing"
-          :class="getRoute() === 'billing' ? 'active' : ''"
-          :navText="isRTL ? 'الفواتیر' : 'Billing'"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-credit-card text-success text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-
-      <li class="nav-item">
-        <sidenav-item
-          to="/virtual-reality"
-          :class="getRoute() === 'virtual-reality' ? 'active' : ''"
-          :navText="isRTL ? 'الواقع الافتراضي' : 'Virtual Reality'"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-app text-info text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li> -->
-
-      <!-- <li class="nav-item">
-        <sidenav-item
-          :to="isRTL ? '/dashboard-default' : '/rtl-page'"
-          :class="
-            getRoute() === (isRTL ? '/dashboard-default' : '/rtl-page')
-              ? 'active'
-              : ''
-          "
-          :navText="isRTL ? 'LTR' : 'RTL'"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-world-2 text-danger text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li> -->
-
+      <!-- Account Pages Section -->
       <li class="mt-3 nav-item">
-        <h6
-          v-if="isRTL"
-          class="text-xs ps-4 text-uppercase font-weight-bolder opacity-6"
-          :class="isRTL ? 'me-4' : 'ms-2'"
+        <div 
+          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
+          @click="toggleSection('accountPages')"
         >
-          صفحات المرافق
-        </h6>
-
-        <h6
-          v-else
-          class="text-xs ps-4 text-uppercase font-weight-bolder opacity-6"
-          :class="isRTL ? 'me-4' : 'ms-2'"
-        >
-          ACCOUNT PAGES
-        </h6>
+          <div class="d-flex align-items-center">
+            <i class="fas fa-user-circle text-warning me-2"></i>
+            <span>{{ isRTL ? 'صفحات المرافق' : 'Account Pages' }}</span>
+          </div>
+          <i 
+            class="fas fa-chevron-right transition-transform" 
+            :class="{ 'rotate-180': collapsibleSections.accountPages }"
+          ></i>
+        </div>
+        
+        <transition name="dropdown">
+          <ul 
+            v-show="collapsibleSections.accountPages" 
+            class="nav nav-sm flex-column"
+          >
+            <li class="nav-item">
+              <sidenav-item
+                to="/signin"
+                :class="getRoute() === 'signout' ? 'active' : ''"
+                :navText="isRTL ? 'تسجيل الخروج' : 'Sign Out'"
+                @click="handleSignOut"
+              >
+                <template v-slot:icon>
+                  <i class="ni ni-button-power text-danger text-sm opacity-10"></i>
+                </template>
+              </sidenav-item>
+            </li>
+          </ul>
+        </transition>
       </li>
-
-      <!-- <li class="nav-item">
-        <sidenav-item
-          to="/profile"
-          :class="getRoute() === 'profile' ? 'active' : ''"
-          :navText="isRTL ? 'حساب تعريفي' : 'Profile'"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li> -->
-
-      <!-- <li class="nav-item">
-        <sidenav-item
-          to="/signin"
-          :class="getRoute() === 'signin' ? 'active' : ''"
-          :navText="isRTL ? 'تسجيل الدخول' : 'Sign In'"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-single-copy-04 text-danger text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li> -->
-
-      <li class="nav-item">
-        <sidenav-item
-          to="/signin"
-          :class="getRoute() === 'signout' ? 'active' : ''"
-          :navText="isRTL ? 'تسجيل الخروج' : 'Sign Out'"
-          @click="handleSignOut"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-button-power text-danger text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-
-      <!-- <li class="nav-item">
-        <sidenav-item
-          to="/signup"
-          :class="getRoute() === 'signup' ? 'active' : ''"
-          :navText="isRTL ? 'اشتراك' : 'Sign Up'"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-collection text-info text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li> -->
     </ul>
   </div>
 </template>
@@ -420,5 +323,52 @@ const handleSignOut = () => {
 
 .nav-item .dropdown-menu-end.show {
   display: block;
+}
+
+/* Collapsible Sections Styling */
+.cursor-pointer {
+  cursor: pointer;
+  user-select: none;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.cursor-pointer:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.transition-transform {
+  transition: transform 0.3s ease;
+}
+
+.rotate-180 {
+  transform: rotate(90deg);
+}
+
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+
+.dropdown-enter-to,
+.dropdown-leave-from {
+  max-height: 300px;
+  opacity: 1;
+}
+
+/* Nested List Styling */
+.nav-sm {
+  padding-left: 1rem;
+}
+
+.nav-sm .nav-item {
+  margin: 0.25rem 0;
 }
 </style>

@@ -159,7 +159,6 @@ const openPopup = () => {
 };
 
 const addProject = async () => {
-  if (projectName.value) {
     isLoading.value = true;
     const project = {
       name: projectName.value,
@@ -181,34 +180,32 @@ const addProject = async () => {
           timer: 1500,
           timerProgressBar: true,
         });
-      }
+      
       closePopup();
       await fetchProjects();
       componentKey.value += 1;
-    } catch (error) {
-      // التحقق من الخطأ إذا كان يحتوي على رسالة واضحة
-      const errorMessage =
-        error.response?.data?.message || t("projectAddedError");
-
-      Swal.fire({
-        icon: "error",
-        title: t("errorOccurred"),
-        text: errorMessage, // عرض الرسالة القادمة من السيرفر أو رسالة افتراضية
-        showConfirmButton: true,
-      });
-
-      console.error("Error adding project:", error);
-    } finally {
-      isLoading.value = false;
     }
-  } else {
-    Swal.fire({
-      title: t("projectNameRequired"),
-      icon: "warning",
-    });
+    } catch (error) {
+    console.log("error:", error);
+      // استخراج الأخطاء من الرد
+  
+  
+      Swal.fire({
+        icon: "warning",
+        title: t("errorOccurred"),
+        html: error, 
+        showConfirmButton: true,
+        backdrop: 'rgba(0,0,0,0.5)', 
+        heightAuto: false, 
+        customClass: {
+          popup: 'swal-above-modal', 
+        }
+      });
+    } finally {
     isLoading.value = false;
   }
-};
+  }
+
 
 
 const translations = {

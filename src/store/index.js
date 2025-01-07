@@ -1002,13 +1002,21 @@ export default createStore({
         commit("SET_ADD_PROJECT", response.data);
         return response;
       } catch (error) {
-        // عرض الخطأ بشكل واضح في وحدة التحكم وتوفيره لـ Swal
-        const errorMessage =
-          error.response?.data?.message || "Error fetching routine tasks";
+        // استخراج الأخطاء من الرد
+        const errorDetails = error.response?.data?.errors;
+
+        let errorMessage = "Error adding routine task";
     
-        console.error("Error fetching routine tasks:", errorMessage);
-    
-        throw new Error(errorMessage); // رفع الخطأ ليتم التعامل معه في المستوى الأعلى
+        if (errorDetails) {
+          // تحويل الأخطاء إلى قائمة نصوص
+          errorMessage = Object.entries(errorDetails)
+            .map(([field, messages]) => `<strong>${field}</strong>: ${messages.join(", ")}`)
+            .join("<br>");
+            console.log("errorMessage", errorMessage);
+        }
+
+        console.error("Error adding routine task:::", errorMessage);
+        throw new Error(errorMessage || error.message || "Unknown error occurred");
       }
     
     },
