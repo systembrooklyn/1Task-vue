@@ -332,8 +332,8 @@
                   <dt class="col-sm-3">{{ t("taskNumber") }}:</dt>
                   <dd class="col-sm-9">{{ selectedTaskNumber || "N/A" }}</dd>
 
-                  <dt class="col-sm-3">{{ t("description") }}:</dt>
-                  <dd class="col-sm-9">{{ selectedDescription || "N/A" }}</dd>
+                  <dt v-show="selectedDescription" class="col-sm-3">{{ t("description") }}:</dt>
+                  <dd v-show="selectedDescription" class="col-sm-9">{{ selectedDescription || "N/A" }}</dd>
 
                   <dt v-if="selectedTaskRecurrentDays" class="col-sm-3">
                     {{ t("recurrentDays") }}:

@@ -186,13 +186,18 @@ const addProject = async () => {
       await fetchProjects();
       componentKey.value += 1;
     } catch (error) {
+      // التحقق من الخطأ إذا كان يحتوي على رسالة واضحة
+      const errorMessage =
+        error.response?.data?.message || t("projectAddedError");
+
       Swal.fire({
         icon: "error",
-        title: t("projectAddedError"),
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
+        title: t("errorOccurred"),
+        text: errorMessage, // عرض الرسالة القادمة من السيرفر أو رسالة افتراضية
+        showConfirmButton: true,
       });
+
+      console.error("Error adding project:", error);
     } finally {
       isLoading.value = false;
     }
@@ -204,6 +209,7 @@ const addProject = async () => {
     isLoading.value = false;
   }
 };
+
 
 const translations = {
   en: {
@@ -219,7 +225,7 @@ const translations = {
     deleteConfirmationText: "Are you sure you want to delete this Project?",
     delete: "Delete",
     addProject: "Add Project",
-    projectName: "Project Name",
+    projectName: "Project Name *",
     description: "Description",
     close: "Close",
     create: "create",
@@ -251,7 +257,7 @@ const translations = {
     deleteConfirmationText: "هل تريد حذف هذا المشروع؟",
     delete: "حذف",
     addProject: "اضافة مشروع",
-    projectName: "اسم المشروع",
+    projectName: "*اسم المشروع",
     description: "وصف المشروع",
     close: "اغلاق",
     create: "اضافة",

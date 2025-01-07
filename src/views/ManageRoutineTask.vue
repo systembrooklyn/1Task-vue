@@ -210,56 +210,59 @@ const openPopup = () => {
 };
 
 const addRoutineTask = async () => {
-  // تعديل الدالة
-  if (routineTaskName.value) {
-    isLoading.value = true;
-    const routineTask = {
-      task_name: routineTaskName.value, // تعديل المفتاح ليتوافق مع الـ API
-      description: routineTaskDescription.value,
-      start_date: startDate.value, // assuming 'from' is the start_date
-      task_type: taskType.value,
-      recurrent_days: recurrentDays.value,
-      day_of_month: dayOfMonth.value,
-      to: toDate.value,
-      from: fromDate.value, // قد تحتاج إلى التأكد من تطابق الحقول مع الـ API
-      dept_id: deptId.value,
-      assigned_to: selectedManager.value,
-    };
+  isLoading.value = true;
+  const routineTask = {
+    task_name: routineTaskName.value,
+    description: routineTaskDescription.value,
+    start_date: startDate.value,
+    task_type: taskType.value,
+    recurrent_days: recurrentDays.value,
+    day_of_month: dayOfMonth.value,
+    from: fromDate.value,
+    to: toDate.value,
+    dept_id: deptId.value,
+    assigned_to: selectedManager.value,
+  };
 
-    console.log("routineTask:", routineTask);
-    try {
-      const response = await store.dispatch("addRoutineTask", routineTask); // تعديل الـ action
-      if (response.status === 201) {
-        Swal.fire({
-          icon: "success",
-          title: t("routineTaskAdded"), // تعديل الترجمة
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true,
-        });
-      }
-      closePopup();
-      await fetchRoutineTasks();
-      componentKey.value += 1;
-    } catch (error) {
+  console.log("routineTask:", routineTask);
+
+  try {
+    const response = await store.dispatch("addRoutineTask", routineTask);
+    if (response.status === 201) {
       Swal.fire({
-        icon: "error",
-        title: t("routineTaskAddedError"), // تعديل الترجمة
+        icon: "success",
+        title: t("routineTaskAdded"),
         showConfirmButton: false,
         timer: 1500,
         timerProgressBar: true,
       });
-    } finally {
-      isLoading.value = false;
+      closePopup();
+      await fetchRoutineTasks();
+      componentKey.value += 1;
     }
-  } else {
-    Swal.fire({
-      title: t("routineTaskNameRequired"), // تعديل الترجمة
-      icon: "warning",
-    });
+  } catch (error) {
+    console.log("error:", error);
+      // استخراج الأخطاء من الرد
+  
+  
+      Swal.fire({
+        icon: "error",
+        title: t("errorOccurred"),
+        html: error, 
+        showConfirmButton: true,
+        backdrop: 'rgba(0,0,0,0.5)', 
+        heightAuto: false, 
+        customClass: {
+          popup: 'swal-above-modal', 
+        }
+      });
+    } finally {
     isLoading.value = false;
   }
 };
+
+
+
 
 const translations = {
   en: {
@@ -480,7 +483,7 @@ onMounted(async () => {
               />
             </div>
 
-            <div class="form-group mb-3">
+            <div  class="form-group mb-3">
               <label class="form-label">{{ t("description") }}:</label>
               <textarea
                 v-model="routineTaskDescription"
@@ -706,5 +709,17 @@ onMounted(async () => {
 
 .routine-task-modal .modal-body {
   flex: 1; /* السماح للمحتوى بالتمدد */
+}
+
+
+/* swal */
+
+/* Ensure Swal appears above all other elements */
+.swal2-container {
+  z-index: 100000 !important;
+}
+
+.swal-above-modal {
+  z-index: 100001 !important;
 }
 </style>

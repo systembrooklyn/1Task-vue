@@ -202,6 +202,11 @@ export default createStore({
       console.log("state.routineTasks", state.routineTasks);
     },
 
+    ADD_ROUTINE_TASK(state, task) {
+      console.log("task", task);
+      console.log("state.routineTasks", state.routineTasks);
+    },
+
     // end----------------------------------------------------
     // تحميل بيانات المستخدم من `localStorage` عند بدء التشغيل
     LOAD_USER_FROM_STORAGE(state) {
@@ -997,8 +1002,15 @@ export default createStore({
         commit("SET_ADD_PROJECT", response.data);
         return response;
       } catch (error) {
-        return error;
+        // عرض الخطأ بشكل واضح في وحدة التحكم وتوفيره لـ Swal
+        const errorMessage =
+          error.response?.data?.message || "Error fetching routine tasks";
+    
+        console.error("Error fetching routine tasks:", errorMessage);
+    
+        throw new Error(errorMessage); // رفع الخطأ ليتم التعامل معه في المستوى الأعلى
       }
+    
     },
 
     async updateProjectStatus({ commit }, project) {
@@ -1059,10 +1071,17 @@ export default createStore({
           console.log("response.data", response.data);
           return response;
         } else {
+          console.log("response", response);
           return response;
         }
       } catch (error) {
-        console.error("Error fetching routine tasks:", error);
+        // عرض الخطأ بشكل واضح في وحدة التحكم وتوفيره لـ Swal
+        const errorMessage =
+          error.response?.data?.message || "Error fetching routine tasks";
+    
+        console.error("Error fetching routine tasks:", errorMessage);
+    
+        throw new Error(errorMessage); // رفع الخطأ ليتم التعامل معه في المستوى الأعلى
       }
     },
 
@@ -1079,14 +1098,31 @@ export default createStore({
     async addRoutineTask({ commit }, routineTask) {
       try {
         const response = await apiClient.addRoutineTask(routineTask);
-        commit("addRoutineTask", response.data);
-        return response;
-      } catch (error) {
-        console.error("Error adding routine task:", error);
-        return error;
-      }
+        if (response.status === 201) {
+          console.log("Routine task added:", response.data);
+          commit("ADD_ROUTINE_TASK", response.data);
+          return response;
+        } else {
+          return response;
+        }
+      }catch (error) {
+              // استخراج الأخطاء من الرد
+              const errorDetails = error.response?.data?.errors;
+      
+              let errorMessage = "Error adding routine task";
+          
+              if (errorDetails) {
+                // تحويل الأخطاء إلى قائمة نصوص
+                errorMessage = Object.entries(errorDetails)
+                  .map(([field, messages]) => `<strong>${field}</strong>: ${messages.join(", ")}`)
+                  .join("<br>");
+                  console.log("errorMessage", errorMessage);
+              }
+      
+              console.error("Error adding routine task:::", errorMessage);
+              throw new Error(errorMessage || error.message || "Unknown error occurred");
+            }
     },
-
     async updateRoutineTask({ commit }, routineTask) {
       try {
         const response = await apiClient.updateRoutineTask(routineTask);
