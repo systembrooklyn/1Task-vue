@@ -134,7 +134,18 @@ const addDepartment = async () => {
       name: departmentName.value,
     };
     try {
-      await store.dispatch("addDepartment", department);
+      const response = await store.dispatch("addDepartment", department);
+      if (response.status === 400) {
+        isLoading.value = false;
+        Swal.fire({
+          icon: "error",
+          title: t("departmentAddedAlreadyExists"),
+          showConfirmButton: false,
+          timer: 2500,
+        });
+        closePopup();
+        return;
+      }
       Swal.fire({
         icon: "success",
         title: t("departmentAdded"),
@@ -147,9 +158,9 @@ const addDepartment = async () => {
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: t("departmentAddedError"),
+        title: t("departmentAddedAlreadyExists"),
         showConfirmButton: false,
-        timer: 1500,
+        timer: 2500,
       });
       closePopup();
     } finally {
@@ -188,6 +199,7 @@ const translations = {
       "An error occurred while adding the department. Please try again later.",
       noDepartments: "No Departments",
       createDepartments: "Create Departments from the button above",
+      departmentAddedAlreadyExists: "Department already exists",
   },
   ar: {
     addMember: "إضافة عضو",
@@ -211,6 +223,7 @@ const translations = {
       "حدث خطأ أثناء إضافة القسم. يرجى المحاولة مرة أخرى لاحقًا.",
       noDepartments: "لا يوجد اقسام",
       createDepartments: "انشاءالافسام من خلال الزر المتواجد فى الاعلي",
+      departmentAddedAlreadyExists: "القسم موجود بالفعل",
   },
 };
 </script>
@@ -223,7 +236,7 @@ const translations = {
         <div class="card">
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
-              <p class="mb-0 text-primary font-weight-bold">{{ t("departmentsTable") }}</p>
+              <p class="mb-0 font-weight-bold">{{ t("departmentsTable") }}</p>
               <argon-button v-if="canCreateDepartment || isOwner" class="ml-auto mx-2" @click="openPopup">
                 <i class="fas fa-plus"></i>
               </argon-button>

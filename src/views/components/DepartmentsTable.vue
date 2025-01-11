@@ -362,6 +362,12 @@ const deleteDepartment = async (departmentId) => {
   console.log(departmentId);
   try {
     await store.dispatch("deleteDepartment", departmentId);
+    Swal.fire({
+      icon: "success",
+      title: t("departmentDeletedSuccessfully"),
+      showConfirmButton: false,
+      timer: 1500,
+    });
     await store.dispatch("fetchDepartments");
     componentKey.value += 1;
   } catch (error) {
@@ -383,6 +389,7 @@ const translations = {
     assignManager: "Manager",
     viceManager: "Vice Manager",
     departmentUpdatedSuccessfully: "Department updated successfully",
+    departmentDeletedSuccessfully: "Department deleted successfully",
   },
   ar: {
     departmentsTable: "جدول الأقسام",
@@ -397,6 +404,7 @@ const translations = {
     assignManager: "المدير",
     viceManager: "مدير مساعد",
     departmentUpdatedSuccessfully: "تم تحديث القسم بنجاح",
+    departmentDeletedSuccessfully: "تم حذف القسم بنجاح",
   },
 };
 

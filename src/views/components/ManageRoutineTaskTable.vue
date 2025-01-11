@@ -667,7 +667,7 @@ const deleteTask = async (taskId) => {
   console.log(taskId);
   try {
     await store.dispatch("deleteRoutineTask", taskId);
-    await store.dispatch("fetchRoutineTasks", props.pagination.current_page); // جلب البيانات مع الصفحة الحالية
+    // await store.dispatch("fetchRoutineTasks", props.pagination.current_page); // جلب البيانات مع الصفحة الحالية
 
     componentKey.value += 1;
     Swal.fire({
@@ -677,6 +677,7 @@ const deleteTask = async (taskId) => {
       timer: 1500,
       timerProgressBar: true,
     });
+    await store.dispatch("fetchAllRoutineTasks", props.pagination.current_page);
   } catch (error) {
     console.error("Error deleting task:", error);
     Swal.fire({

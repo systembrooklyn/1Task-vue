@@ -49,6 +49,7 @@
               {{ t("employeeName") }}
             </th>
             <th
+            v-if="permissions['report-dailytask']"
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("report") }}
@@ -120,7 +121,7 @@
                 }}
               </p>
             </td>
-            <td class="align-middle">
+            <td class="align-middle" v-if="permissions['report-dailytask']">
               <a
                 href="javascript:;"
                 class="font-weight-bold text-lg me-2"
@@ -175,6 +176,8 @@
         </tbody>
       </table>
     </div>
+
+    
 
     <div class="d-flex justify-content-center mt-4">
       <nav aria-label="Page navigation">
@@ -350,7 +353,7 @@
                 role="status"
                 aria-hidden="true"
               ></span>
-              {{ isLoading ? t("saving") : t("update") }}
+              {{ isLoading ? t("saving") : t("report") }}
             </argon-button>
             <argon-button variant="secondary" @click="closeEditPopup">
               {{ t("close") }}
@@ -403,6 +406,13 @@
 
                   <dt class="col-sm-3">{{ t("description") }}:</dt>
                   <dd class="col-sm-9">{{ selectedDescription || "N/A" }}</dd>
+
+                  <dt class="col-sm-3">{{ t("department") }}:</dt>
+                  <dd class="col-sm-9">
+                    {{ selectedTaskDepartment || "N/A" }}
+                  </dd>
+
+
 
                   <dt v-if="selectedTaskRecurrentDays" class="col-sm-3">
                     {{ t("recurrentDays") }}:
@@ -558,6 +568,8 @@ const selectedTaskAssignedTo = ref(null);
 const selectedTaskDayOfMonth = ref(null);
 const taskNotes = ref("");
 const taskStatus = ref("");
+const selectedTaskDepartment = ref(null);
+
 
 const activeTab = ref("info"); // علامة تبويب البداية
 
@@ -780,6 +792,7 @@ const openDescriptionModal = async (task) => {
   selectedTaskAssignedTo.value = task.assigned_to;
   selectedTaskRecurrentDays.value = task.recurrent_days;
   selectedTaskDayOfMonth.value = task.day_of_month;
+  selectedTaskDepartment.value = task.department.department_name;
   await getTaskLogs(task.id);
   showDescriptionModal.value = true; // إظهار المودال
 };
@@ -804,6 +817,8 @@ const closeDescriptionModal = () => {
   selectedTaskAssignedTo.value = null;
   selectedTaskRecurrentDays.value = [];
   selectedTaskDayOfMonth.value = null;
+  selectedTaskDepartment.value = null;
+
 };
 
 const formatDate = (dateString) => {
@@ -886,6 +901,7 @@ const translations = {
     notes: "Notes",
     enterNotes: "Enter notes",
     employeeName: "Employee Name",
+    department: "Department",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -950,6 +966,7 @@ const translations = {
     notes: "ملاحظات",
     enterNotes: "ادخل ملاحظات",
     employeeName: "اسم الموظف",
+    department: "القسم",
   },
 };
 

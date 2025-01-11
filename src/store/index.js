@@ -207,6 +207,11 @@ export default createStore({
       console.log("state.routineTasks", state.routineTasks);
     },
 
+    removeRoutineTask(state, taskId) {
+      console.log("taskId", taskId);
+      console.log("state.routineTasks", state.routineTasks);
+    },  
+
     // end----------------------------------------------------
     // تحميل بيانات المستخدم من `localStorage` عند بدء التشغيل
     LOAD_USER_FROM_STORAGE(state) {
@@ -498,13 +503,23 @@ export default createStore({
           commit("SET_USER", response.data);
           console.log("User data updated:", response);
           return response;
-        } else {
-          console.error("Error updating user data:", response);
-          return response;
-        }
+        } 
       } catch (error) {
-        console.error("Error updating user data:", error);
-        throw error;
+        // استخراج الأخطاء من الرد
+        const errorDetails = error.response?.data?.errors;
+
+        let errorMessage = "Error adding routine task";
+    
+        if (errorDetails) {
+          // تحويل الأخطاء إلى قائمة نصوص
+          errorMessage = Object.entries(errorDetails)
+            .map(([field, messages]) => `<strong>${field}</strong>: ${messages.join(", ")}`)
+            .join("<br>");
+            console.log("errorMessage", errorMessage);
+        }
+
+        console.error("Error adding routine task:::", errorMessage);
+        throw new Error(errorMessage || error.message || "Unknown error occurred");
       }
       
     },

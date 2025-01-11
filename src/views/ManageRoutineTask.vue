@@ -246,7 +246,7 @@ const addRoutineTask = async () => {
   
   
       Swal.fire({
-        icon: "error",
+        icon: "warning",
         title: t("errorOccurred"),
         html: error, 
         showConfirmButton: true,
