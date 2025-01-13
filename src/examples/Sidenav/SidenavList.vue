@@ -238,7 +238,7 @@ const toggleSection = (section) => {
       </li>
 
       <!-- Account Pages Section -->
-      <li class="mt-3 nav-item">
+      <!-- <li class="mt-3 nav-item">
         <div 
           class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('accountPages')"
@@ -251,14 +251,14 @@ const toggleSection = (section) => {
             class="fas fa-chevron-right transition-transform" 
             :class="{ 'rotate-180': collapsibleSections.accountPages }"
           ></i>
-        </div>
+        </div> -->
         
-        <transition name="dropdown">
+        <!-- <transition name="dropdown">
           <ul 
             v-show="collapsibleSections.accountPages" 
             class="nav nav-sm flex-column"
-          >
-            <li class="nav-item">
+          > -->
+            <!-- <li class="nav-item"> -->
               <sidenav-item
                 to="/signin"
                 :class="getRoute() === 'signout' ? 'active' : ''"
@@ -269,10 +269,9 @@ const toggleSection = (section) => {
                   <i class="ni ni-button-power text-danger text-sm opacity-10"></i>
                 </template>
               </sidenav-item>
-            </li>
-          </ul>
-        </transition>
-      </li>
+          <!-- </li> -->
+        <!-- </transition> -->
+      <!-- </li> -->
     </ul>
   </div>
 </template>

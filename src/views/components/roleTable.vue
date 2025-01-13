@@ -77,13 +77,25 @@
               >
                 {{ t("edit") }}
               </a>
+              <!-- In the roles table row -->
               <a
                 href="javascript:;"
                 v-show="permissions['delete-role'] || isOwner"
                 class="text-danger font-weight-bold text-xs ms-2"
                 @click="confirmDelete(role)"
               >
-                {{ t("delete") }}
+                <!-- <template v-if="!deletingRoles[role.role_id]">
+    {{ t("delete") }}
+  </template> -->
+                <!-- <template v-else> -->
+                <span
+                  v-if="deletingRoles[role.role_id]"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                {{ !deletingRoles[role.role_id] ? t("delete") : t("deleting") }}
+                <!-- </template> -->
               </a>
             </td>
           </tr>
@@ -148,9 +160,6 @@
           </template>
 
           <template #footer>
-            <argon-button @click="closeEditPopup">{{
-              t("close")
-            }}</argon-button>
             <argon-button @click="saveChanges" :disabled="isSaving">
               <span
                 v-if="isSaving"
@@ -160,6 +169,9 @@
               ></span>
               {{ isSaving ? t("saving") : t("update") }}
             </argon-button>
+            <argon-button @click="closeEditPopup">{{
+              t("close")
+            }}</argon-button>
           </template>
 
           <template #title>
@@ -239,6 +251,7 @@ const translations = {
     updateError: "Error updating data.",
     deleteConfirmationText: "Are you sure you want to delete this role?",
     deleteSuccess: "Role deleted successfully!",
+    deleting: "Deleting...",
   },
   ar: {
     rolesTable: "جدول الأدوار",
@@ -256,6 +269,7 @@ const translations = {
     updateError: "حدث خطأ أثناء تحديث البيانات.",
     deleteConfirmationText: "هل انت متاكد من حذف هذا الدور؟",
     deleteSuccess: "تم حذف الدور بنجاح!",
+    deleting: "يتم الحذف...",
   },
 };
 
@@ -373,34 +387,43 @@ const saveChanges = async () => {
 };
 
 const confirmDelete = (role) => {
-  console.log("Confirming delete for role:", role);
-  // تنفيذ الحذف حسب الحاجة
   Swal.fire({
-    title: t("deleteConfirmationTitle"),
-    text: t("deleteConfirmationText"),
+    title: t("deleteConfirmationText"),
     icon: "warning",
     showCancelButton: true,
     confirmButtonText: t("delete"),
     cancelButtonText: t("close"),
+    customClass: {
+      popup: "swal-above-modal",
+    },
   }).then(async (result) => {
     if (result.isConfirmed) {
-      await deleteRole(role.role_id); // إذا تم تأكيد الحذف
+      await deleteRole(role);
     }
   });
 };
 
-const deleteRole = async (roleId) => {
-  console.log("Deleting role with ID:", roleId);
-  // تنفيذ الحذف حسب الحاجة
+const deletingRoles = ref({});
+
+const deleteRole = async (role) => {
+  const roleId = role.role_id;
+
+  // Set the deleting state for this specific role
+  deletingRoles.value[roleId] = true;
+
   try {
     await store.dispatch("deleteRole", roleId);
     componentKey.value += 1;
     await store.dispatch("fetchRoles");
+
     Swal.fire({
       icon: "success",
       title: t("deleteSuccess"),
       showConfirmButton: false,
       timer: 1500,
+      customClass: {
+        popup: "swal-above-modal",
+      },
     });
   } catch (error) {
     console.error("Error deleting role:", error);
@@ -409,7 +432,13 @@ const deleteRole = async (roleId) => {
       title: t("deleteError"),
       showConfirmButton: false,
       timer: 1500,
+      customClass: {
+        popup: "swal-above-modal",
+      },
     });
+  } finally {
+    // Clear the deleting state for this role
+    delete deletingRoles.value[roleId];
   }
 };
 </script>
@@ -492,7 +521,7 @@ td {
   overflow-y: auto; /* تمكين التمرير العمودي */
   flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
   max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
-  scroll-behavior: smooth; 
+  scroll-behavior: smooth;
   max-height: 65vh;
 }
 
@@ -523,10 +552,10 @@ td {
 
 /* Ensure Swal appears above all other elements */
 .swal2-container {
-  z-index: 100000 !important 
+  z-index: 9999999999 !important;
 }
 
 .swal-above-modal {
-  z-index: 100001 !important;
+  z-index: 9999999999 !important;
 }
 </style>

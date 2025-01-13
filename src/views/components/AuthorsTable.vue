@@ -1,7 +1,7 @@
 <template>
   <div class="card">
     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-      <h6 class="text-primary text-uppercase text-sm mb-0">{{ t("employeesTable") }}</h6>
+      <h6 class="mb-0 font-weight-bold">{{ t("employeesTable") }}</h6>
     </div>
     <div class="card-body px-0 pt-0 pb-2">
       <div class="table-responsive p-3" :key="componentKey">
@@ -79,9 +79,9 @@
           </tbody>
         </table>
       </div>
-      <div v-if="isLoading" class="spinner-border text-primary m-3" role="status">
+      <!-- <div v-if="isLoading" class="spinner-border text-primary m-3" role="status">
         <span class="sr-only">Loading...</span>
-      </div>
+      </div> -->
     </div>
 
     <!-- الـ Modal -->
@@ -102,7 +102,7 @@
 
         <template #footer>
           <argon-button variant="success" @click="saveChanges" :disabled="isLoading">
-            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{ isLoading ? t("saving") : t("saveChanges") }}
           </argon-button>
           <argon-button variant="secondary" @click="closeModal">{{ t("close") }}</argon-button>
@@ -335,10 +335,16 @@ const saveChanges = async () => {
     await store.dispatch("getCompanyUsers");
 
     // إظهار رسالة النجاح
-    successMessage.value = t("updateSuccess"); // استخدم الترجمة
-    setTimeout(() => {
-      successMessage.value = "";
-    }, 3000);
+    Swal.fire({
+      icon: 'success',
+      title: t('success'),
+      text: t("updateSuccess"),
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: {
+        popup: "swal-above-modal",
+      },
+    });
 
     // إغلاق الـ Modal
     closeModal();
@@ -397,10 +403,16 @@ const unassignDepartment = async (employee, departmentId) => {
     await store.dispatch("getCompanyUsers");
     
     // إظهار رسالة النجاح
-    successMessage.value = t("updateSuccess");
-    setTimeout(() => {
-      successMessage.value = "";
-    }, 3000);
+    Swal.fire({
+      icon: 'success',
+      title: 'تم',
+      text: t("updateSuccess"),
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: {
+        popup: "swal-above-modal",
+      },
+    });
   } catch (error) {
     console.error("Error unassigning role:", error);
     // إظهار رسالة خطأ
@@ -460,10 +472,15 @@ const unassignRole = async (employee, roleId) => {
     await store.dispatch("getCompanyUsers");
     
     // إظهار رسالة النجاح
-    successMessage.value = t("updateSuccess");
-    setTimeout(() => {
-      successMessage.value = "";
-    }, 3000);
+    Swal.fire({
+      icon: 'success',
+      title: t("updateSuccess"),
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: {
+        popup: "swal-above-modal",
+      },
+    });
   } catch (error) {
     console.error("Error unassigning role:", error);
     // إظهار رسالة خطأ
@@ -471,6 +488,9 @@ const unassignRole = async (employee, roleId) => {
       icon: 'error',
       title: 'Oops...',
       text: t("deleteError"),
+      customClass: {
+        popup: "swal-above-modal",
+      },
     });
   }
 };
@@ -602,14 +622,67 @@ onMounted(async () => {
 }
 
 /* تحسين شكل الـ spinner */
-.spinner-border {
+/* .spinner-border {
   width: 2rem;
   height: 2rem;
-}
+} */
 
 /* تحسين شكل الـ Alerts */
 .argon-alert {
   border-radius: 5px;
   font-size: 0.875rem;
+}
+
+/* كلاس مخصص للمودال لجعله قابلًا للتمرير */
+.routine-task-modal {
+  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth; /* تمكين التمرير العمودي */
+  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+}
+
+.routine-task-modal .modal-content-scroll {
+  overflow-y: auto; /* تمكين التمرير العمودي */
+  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
+  /* scroll-behavior: smooth;  */
+  max-height: 65vh;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* تحسين تصميم المودال الداخلي */
+.routine-task-modal .modal-header,
+.routine-task-modal .modal-footer {
+  flex-shrink: 0; /* منع الانكماش */
+}
+
+.routine-task-modal .modal-body {
+  flex: 1; /* السماح للمحتوى بالتمدد */
+}
+
+
+/* swal */
+
+/* Ensure Swal appears above all other elements */
+.swal2-container {
+  z-index: 100000 !important;
+}
+
+.swal-above-modal {
+  z-index: 100001 !important;
 }
 </style>

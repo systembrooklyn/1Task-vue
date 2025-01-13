@@ -21,7 +21,7 @@ const sidebarType = computed(() => store.state.sidebarType);
   /> -->
 
   <aside
-    class="mx-0 overflow-auto border-0 sidenav navbar navbar-vertical navbar-expand-xs"
+    class="mx-0 overflow-auto border-0 sidenav navbar navbar-vertical navbar-expand-xs "
     :class="`${isRTL ? 'me-3 rotate-caret fixed-end' : 'fixed-start ms-3'}    
       ${
         layout === 'landing' ? 'bg-transparent shadow-none' : ' '
@@ -29,7 +29,7 @@ const sidebarType = computed(() => store.state.sidebarType);
     id="sidenav-main"
   >
     <div class="sidenav-header text-center">
-      <router-link class="m-0 navbar-brand" to="/">
+      <router-link class="m-0 navbar-brand" to="/routine-task">
         <img
           src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?updatedAt=1730567921316"
           class="navbar-brand-img h-100 mx-auto"

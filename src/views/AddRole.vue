@@ -60,8 +60,8 @@ onBeforeMount(() => {
 
 const translations = {
   en: {
-    addRole: " Role & Permissions",
-    addRolePermission: "Add Role & Permissions",
+    addRole: " Roles & Permissions",
+    addRolePermission: "Add Roles & Permissions",
     role: "Role",
     addPermission: "Add Permissions",
     emailExistsError:
@@ -98,7 +98,6 @@ const translations = {
     close: "اغلاق",
     saving: "يتم الحفظ...",
     create: "انشاء",
-
   },
 };
 
@@ -167,9 +166,8 @@ const submitRoleAndPermissions = async () => {
       timerProgressBar: true,
       timer: 1500,
       customClass: {
-    popup: "swal-above-modal",
-  },
-
+        popup: "swal-above-modal",
+      },
     });
     return;
   }
@@ -207,6 +205,8 @@ const submitRoleAndPermissions = async () => {
         );
 
         if (savedPermissionsResponse.status === 200) {
+        closePopup();
+
           Swal.fire({
             icon: "success",
             title: t("roleSaved"),
@@ -214,12 +214,12 @@ const submitRoleAndPermissions = async () => {
             timer: 1500,
             timerProgressBar: true,
             customClass: {
-    popup: "swal-above-modal",
-  },
-
+              popup: "swal-above-modal",
+            },
           });
         }
       } else {
+        closePopup();
         // إذا لم تكن هناك صلاحيات، اكتمال الإضافة فقط
         Swal.fire({
           icon: "success",
@@ -227,6 +227,9 @@ const submitRoleAndPermissions = async () => {
           showConfirmButton: false,
           timer: 1500,
           timerProgressBar: true,
+          customClass: {
+            popup: "swal-above-modal",
+          },
         });
       }
 
@@ -253,7 +256,6 @@ const submitRoleAndPermissions = async () => {
     isLoadingData.value = false;
   }
 };
-
 
 onBeforeMount(async () => {
   const body = document.getElementsByTagName("body")[0];
@@ -292,15 +294,15 @@ onBeforeUnmount(() => {
         <div class="card">
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
-            <h5 class="mb-0 font-weight-bold">{{ t("addRole") }}</h5>
-            <argon-button
+              <h5 class="mb-0 font-weight-bold">{{ t("addRole") }}</h5>
+              <argon-button
                 v-show="permissions['create-role'] || isOwner"
                 class="ml-auto mx-2"
                 @click="openPopup"
               >
                 <i class="fas fa-plus"></i>
               </argon-button>
-          </div>
+            </div>
           </div>
           <!-- <div v-show="canAddRole || isOwner" class="card-body">
             <form @submit.prevent class="mt-2">
@@ -404,7 +406,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
   </div>
-  
+
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
       <ArgonModal
@@ -417,9 +419,7 @@ onBeforeUnmount(() => {
           <div class="modal-content-scroll">
             <!-- المحتوى الجديد المضاف -->
             <div class="form-group mb-3">
-              <label for="role-input" class="form-label">{{
-                t("role")
-              }}</label>
+              <label for="role-input" class="form-label">{{ t("role") }}</label>
               <argon-input
                 id="role-input"
                 v-model="roleName"
@@ -466,7 +466,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div class="mt-4 d-flex align-items-center">
+            <!-- <div class="mt-4 d-flex align-items-center">
               <argon-button
                 variant="gradient"
                 color="success"
@@ -476,7 +476,7 @@ onBeforeUnmount(() => {
               >
                 {{ t("savePermissions") }}
               </argon-button>
-            </div>
+            </div> -->
 
             <div class="mt-3">
               <argon-alert
@@ -503,28 +503,23 @@ onBeforeUnmount(() => {
           <argon-button
             variant="success"
             @click="submitRoleAndPermissions"
-            :disabled="isLoading"
+            :disabled="isLoadingData"
           >
             <span
-              v-if="isLoading"
+              v-if="isLoadingData"
               class="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"
             ></span>
-            {{ isLoading ? t("saving") : t("create") }}
+            {{ isLoadingData ? t("saving") : t("create") }}
           </argon-button>
-          <argon-button
-            variant="secondary"
-            @click="closePopup"
-          >
+          <argon-button variant="secondary" @click="closePopup">
             {{ t("close") }}
           </argon-button>
         </template>
       </ArgonModal>
     </transition>
   </div>
-
-
 </template>
 
 <style scoped>
@@ -598,15 +593,14 @@ onBeforeUnmount(() => {
   flex: 1; /* السماح للمحتوى بالتمدد */
 }
 
-
 /* swal */
 
 /* Ensure Swal appears above all other elements */
 .swal2-container {
-  z-index: 100000 !important; 
+  z-index: 9999999999 !important;
 }
 
 .swal-above-modal {
-  z-index: 100001 !important; 
-} 
+  z-index: 9999999999 !important;
+}
 </style>

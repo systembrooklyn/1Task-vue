@@ -18,7 +18,7 @@
             <select :id="id" class="form-control" :class="getClasses(size, success, error)" :name="name"
                 :required="isRequired" @change="handleChange">
                 <option value="" selected disabled>{{ placeholder }}</option>
-                <option v-for="option in options" :key="option.value" :value="option.value">
+                <option v-for="option in options.filter(option => !internalModelValue.includes(option.value))" :key="option.value" :value="option.value">
                     {{ option.label }}
                 </option>
             </select>
