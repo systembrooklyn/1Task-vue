@@ -335,10 +335,10 @@
                   <dt v-show="selectedDescription" class="col-sm-3">{{ t("description") }}:</dt>
                   <dd v-show="selectedDescription" class="col-sm-9">{{ selectedDescription || "N/A" }}</dd>
 
-                  <dt v-if="selectedTaskRecurrentDays.length" class="col-sm-3">
+                  <dt v-if="selectedTaskRecurrentDays" class="col-sm-3">
                     {{ t("recurrentDays") }}:
                   </dt>
-                  <dd v-if="selectedTaskRecurrentDays.length" class="col-sm-9">
+                  <dd v-if="selectedTaskRecurrentDays" class="col-sm-9">
                     {{
                       selectedTaskRecurrentDays
                         .map(
