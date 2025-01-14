@@ -841,8 +841,21 @@ export default createStore({
         // إرجاع معرفات الدور المحفوظ
         return response;
       } catch (error) {
-        console.error("Error adding role:", error);
-        throw error;
+        // استخراج الأخطاء من الرد
+        const errorDetails = error.response?.data?.message;
+        console.log("errorDetails", errorDetails);
+
+        // let errorMessage = "Error adding role";
+        // if (errorDetails) {
+        //   // تحويل الأخطاء إلى قائمة نصوص
+        //   errorMessage = Object.entries(errorDetails)
+        //     .map(([field, messages]) => `<strong>${field}</strong>: ${messages.join(", ")}`)
+        //     .join("<br>");
+        //     console.log("errorMessage", errorMessage);
+        // }
+
+        // console.error("Error adding role:::", errorMessage);
+        throw new Error(errorDetails || error.message || "Unknown error occurred");
       }
     },
 

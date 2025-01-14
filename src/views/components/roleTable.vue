@@ -334,7 +334,7 @@ const hideAlertAfterDelay = () => {
 };
 
 const saveChanges = async () => {
-  console.log("Saving changes:", editRoleData.value);
+  console.log("Saving changesssssssssssss:", editRoleData.value);
   isSaving.value = true;
   errorMessage.value = "";
   successMessage.value = "";
@@ -344,6 +344,7 @@ const saveChanges = async () => {
     name: editRoleData.value.role_name,
     permissions: editRoleData.value.permissions,
   };
+  console.log("dataaaaaaaaaaa:", data);
 
   try {
     const response = await store.dispatch("updateRole", data);

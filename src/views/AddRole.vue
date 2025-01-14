@@ -246,12 +246,16 @@ const submitRoleAndPermissions = async () => {
       }, 3000);
     }
   } catch (error) {
-    console.error("Error submitting role and permissions:", error);
-    errorMessage.value = t("generalError");
-    showAlert.value = true;
-    setTimeout(() => {
-      showAlert.value = false;
-    }, 3000);
+    console.error("Error adding role:", error);
+    Swal.fire({
+      icon: "warning",
+      title: error,
+      showConfirmButton: false,
+      timerProgressBar: true,
+      customClass: {
+        popup: "swal-above-modal",
+      },
+    });
   } finally {
     isLoadingData.value = false;
   }

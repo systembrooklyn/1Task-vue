@@ -335,10 +335,10 @@
                   <dt v-show="selectedDescription" class="col-sm-3">{{ t("description") }}:</dt>
                   <dd v-show="selectedDescription" class="col-sm-9">{{ selectedDescription || "N/A" }}</dd>
 
-                  <dt v-if="selectedTaskRecurrentDays" class="col-sm-3">
+                  <dt v-if="selectedTaskRecurrentDays.length" class="col-sm-3">
                     {{ t("recurrentDays") }}:
                   </dt>
-                  <dd v-if="selectedTaskRecurrentDays" class="col-sm-9">
+                  <dd v-if="selectedTaskRecurrentDays.length" class="col-sm-9">
                     {{
                       selectedTaskRecurrentDays
                         .map(
@@ -577,8 +577,6 @@ const openEditModal = (task) => {
   console.log("selectedManager.value:", selectedManager.value);
   console.log("selectedTask.value:", selectedTask.value);
 
-  
-
   showEditPopup.value = true;
 };
 
@@ -626,7 +624,7 @@ const updateTask = async () => {
       });
 
       closeEditPopup();
-      await store.dispatch("fetchRoutineTasks", props.pagination.current_page); // جلب البيانات مع الصفحة الحالية
+      await store.dispatch("fetchAllRoutineTasks", props.pagination.current_page); // جلب البيانات مع الصفحة الحالية
 
       // await store.dispatch("fetchTasks"); // تأكد من وجود action fetchTasks في Vuex
     } else {

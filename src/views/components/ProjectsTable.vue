@@ -199,21 +199,23 @@
             <div v-if="activeTab === 'info'">
               <!-- <h5>{{ t('projectDetails') }}</h5> -->
               <dl class="row">
-                <dt class="col-sm-3">{{ t("description") }}:</dt>
-                <dd class="col-sm-9">{{ selectedDescription || "N/A" }}</dd>
+                <dt v-if="selectedDescription" class="col-sm-3">
+                  {{ t("description") }}:
+                </dt>
+                <dd v-if="selectedDescription" class="col-sm-9">{{ selectedDescription || "N/A" }}</dd>
 
                 <dt class="col-sm-3">{{ t("createdAt") }}:</dt>
-                <dd class="col-sm-9">
+                <dd  class="col-sm-9">
                   {{ formatDate(selectedProjectCreationDate) || "N/A" }}
                 </dd>
 
-                <dt class="col-sm-3">{{ t("startDate") }}:</dt>
-                <dd class="col-sm-9">
+                <dt v-if="selectedProjectStartDate" class="col-sm-3">{{ t("startDate") }}:</dt>
+                <dd v-if="selectedProjectStartDate" class="col-sm-9">
                   {{ formatDate(selectedProjectStartDate) || "N/A" }}
                 </dd>
 
-                <dt class="col-sm-3">{{ t("deadline") }}:</dt>
-                <dd class="col-sm-9">
+                <dt v-if="selectedProjectDeadline" class="col-sm-3">{{ t("deadline") }}:</dt>
+                <dd v-if="selectedProjectDeadline" class="col-sm-9">
                   {{ formatDate(selectedProjectDeadline) || " N/A" }}
                 </dd>
               </dl>

@@ -35,6 +35,7 @@ onBeforeMount(async () => {
     permissions.value = extractedPermissions;
     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
+
   await store.dispatch("getCompanyUsers");
 });
 
@@ -81,6 +82,12 @@ const toggleAdvancedSettings = () => {
 // غلق المودال
 const closePopup = () => {
   showPopup.value = false;
+  projectName.value = "";
+  projectDescription.value = "";
+  fromDate.value = "";
+  toDate.value = "";
+  selectedManager.value = "";
+  projectStatus.value = false;
 };
 
 onBeforeMount(async () => {
@@ -163,8 +170,8 @@ const addProject = async () => {
     const project = {
       name: projectName.value,
       desc: projectDescription.value,
-      from: fromDate.value,
-      to: toDate.value,
+      start_date: fromDate.value,
+      deadline: toDate.value,
       leader_id: selectedManager.value,
       status: projectStatus.value,
     };

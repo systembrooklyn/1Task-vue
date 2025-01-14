@@ -243,6 +243,7 @@ const config = {
   },
 
   updateRolesWithPermissions(roleData) {
+    console.log("roleDataapi", roleData);
     const token = localStorage.getItem("token");
     const config = {
       headers: {

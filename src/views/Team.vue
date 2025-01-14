@@ -6,8 +6,8 @@ import AuthorsTable from "./components/AuthorsTable.vue";
 // import Swal from "sweetalert2";
 
 const store = useStore();
-const showAlert = ref(false); // التحكم في عرض التنبيه
-const errorMessage = ref(""); // رسالة الخطأ
+// const showAlert = ref(false); // التحكم في عرض التنبيه
+// const errorMessage = ref(""); // رسالة الخطأ
 // const successMessage = ref(""); // رسالة النجاح
 // const showSuccess = ref(false); // التحكم في عرض النجاح
 const employees = ref([]); // لتخزين بيانات الموظفين
@@ -32,13 +32,14 @@ const fetchEmployees = async () => {
     isLoading.value = false;
 
     componentKey.value += 1; // تحديث المفتاح لإعادة تحميل المكون
-    } else {
-      errorMessage.value = t("generalError");
-      showAlert.value = true;
-      setTimeout(() => {
-        showAlert.value = false;
-      }, 3000);
-    }
+    } 
+    // else {
+    //   errorMessage.value = t("generalError");
+    //   showAlert.value = true;
+    //   setTimeout(() => {
+    //     showAlert.value = false;
+    //   }, 3000);
+    // }
 
 
   } catch (error) {

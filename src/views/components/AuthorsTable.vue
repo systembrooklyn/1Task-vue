@@ -337,7 +337,6 @@ const saveChanges = async () => {
     // إظهار رسالة النجاح
     Swal.fire({
       icon: 'success',
-      title: t('success'),
       text: t("updateSuccess"),
       showConfirmButton: false,
       timer: 1500,
@@ -405,7 +404,7 @@ const unassignDepartment = async (employee, departmentId) => {
     // إظهار رسالة النجاح
     Swal.fire({
       icon: 'success',
-      title: 'تم',
+      title: t('success'),
       text: t("updateSuccess"),
       showConfirmButton: false,
       timer: 1500,
@@ -529,8 +528,8 @@ const deleteEmployee = async (employeeId) => {
       timer: 1500
     });
 
-    await store.dispatch("getCompanyUsers"); // جلب البيانات الجديدة بعد الحذف
-  } else {
+    await store.dispatch("getCompanyUsers")
+    } else {
     Swal.fire({
       icon: 'error',
       title: 'Oops...',
