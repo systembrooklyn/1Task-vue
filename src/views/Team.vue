@@ -3,7 +3,7 @@ import { ref, onBeforeMount, onBeforeUnmount, watch, computed } from "vue";
 import { useStore } from "vuex";
 import AuthorsTable from "./components/AuthorsTable.vue";
 // import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
-import Swal from "sweetalert2";
+// import Swal from "sweetalert2";
 
 const store = useStore();
 const showAlert = ref(false); // التحكم في عرض التنبيه
@@ -42,11 +42,9 @@ const fetchEmployees = async () => {
 
 
   } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error fetching employees",
-      text: error.message || "An unexpected error occurred.",
-    });
+    console.error("Error fetching employees data:", error);
+
+    isLoading.value = false;
   }
 };
 

@@ -626,7 +626,7 @@ export default createStore({
         }
       } catch (error) {
         console.error("Error fetching projects:", error.response?.data?.message || error.message);
-        throw error.response?.data || error; // إعادة الخطأ       
+        // throw error.response?.data || error; // إعادة الخطأ       
       }
     },
     
