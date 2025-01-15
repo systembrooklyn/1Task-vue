@@ -4,6 +4,7 @@ import { useStore } from "vuex";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
+import Swal from "sweetalert2";
 // import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 const store = useStore();
 
@@ -49,22 +50,26 @@ onBeforeUnmount(() => {
 // تعريف الترجمات داخل المكون
 const translations = {
   en: {
-    addMember: "Add Member",
+    addMember: "Add Employee",
     email: "Email",
     emailExistsError:
       "This email is already registered. Please use another email.",
     generalError: "An error occurred while submitting. Please try again later.",
     invalidCompanyIdOrUserId: "Invalid Company ID or User ID.",
     invitationSent: "Invitation sent successfully.",
+    emailRequired: "Email is required",
+    close: "Close",
   },
   ar: {
-    addMember: "إضافة عضو",
+    addMember: "إضافة موظف",
     email: "البريد الإلكتروني",
     emailExistsError:
       "هذا البريد الإلكتروني مسجل بالفعل. يرجى استخدام بريد آخر.",
     generalError: "حدث خطأ أثناء التسجيل. حاول مرة أخرى لاحقًا.",
     invalidCompanyIdOrUserId: "معرف الشركة او المستخدم غير صحيح.",
     invitationSent: "تم ارسال الدعوة بنجاح.",
+    emailRequired: "البريد الإلكتروني مطلوب",
+    close: "اغلاق",
   },
 };
 
@@ -84,15 +89,30 @@ const sendInvitation = async () => {
 
 
   try {
+    if (!email.value) {
+      Swal.fire({
+        icon: "error",
+        title: t("emailRequired"),
+        showConfirmButton: false,
+        timer: 2500,
+        customClass: {
+          popup: "swal-above-modal",
+        },
+      });
+      return;
+    }
     const emailExists = await store.dispatch("checkEmailExists", email.value);
 
     if (emailExists) {
-      showAlert.value = true;
-      errorMessage.value = t("emailExistsError");
-
-      setTimeout(() => {
-        showAlert.value = false;
-      }, 3000);
+      Swal.fire({
+        icon: "error",
+        title: t("emailExistsError"),
+        showConfirmButton: false,
+        timer: 2500,
+        customClass: {
+          popup: "swal-above-modal",
+        },
+      });
 
       return;
     } else {
@@ -103,30 +123,39 @@ const sendInvitation = async () => {
 
     const response = await store.dispatch("sendInvitation", userData);
     if (response.status === 201) {
-      showSuccess.value = true;
-      successMessage.value = t("invitationSent");
-
-      setTimeout(() => {
-        showSuccess.value = false;
-      }, 3000);
+      Swal.fire({
+        icon: "success",
+        title: t("invitationSent"),
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+          popup: "swal-above-modal",
+        },
+      });
     } else {
-      console.error("Error sending invitation:", response);
-      errorMessage.value = t("generalError");
-      showAlert.value = true;
-      setTimeout(() => {
-        showAlert.value = false;
-      }, 3000);
+      Swal.fire({
+        icon: "error",
+        title: t("generalError"),
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+          popup: "swal-above-modal",
+        },
+      });
     }
 
   }
   } catch (error) {
-    console.error("Error submitting form:", error);
-    showAlert.value = true;
-    errorMessage.value = t("generalError");
-
-    setTimeout(() => {
-      showAlert.value = false;
-    }, 3000);
+    console.error("Error sending invitation:", error);
+    Swal.fire({
+      icon: "error",
+      title: t("generalError"),
+      showConfirmButton: false,
+      timer: 2000,
+      customClass: {
+        popup: "swal-above-modal",
+      },
+    });
   }
 };
 

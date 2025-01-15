@@ -293,7 +293,7 @@ const translations = {
     createRoutineTask: "Create Routine Task", // تعديل الترجمة
     saving: "Saving...",
     noRoutineTasks: "No routine tasks found.", // تعديل الترجمة
-    createee: "Create your routine task using the button above", // تعديل الترجمة
+    createee: "Create your routine tasks", // تعديل الترجمة
     inactive: "Inactive", // إضافة ترجمة للحالة
     active: "Active",
     advancedSettings: "Advanced Settings", // إضافة ترجمة
@@ -347,7 +347,7 @@ const translations = {
     createRoutineTask: "اضافة مهمة روتينية", // تعديل الترجمة
     saving: "يتم الحفظ...",
     noRoutineTasks: "لا يوجد مهام روتينية.", // تعديل الترجمة
-    createee: "انشئ مهمتك الروتينية من الزر المتواجد بالاعلي", // تعديل الترجمة
+    createee: "انشئ مهامك الروتينية", // تعديل الترجمة
     inactive: "غير نشط", // إضافة ترجمة للحالة
     active: "نشط",
     advancedSettings: "الإعدادات المتقدمة", // إضافة ترجمة

@@ -20,6 +20,25 @@
             <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
+              {{ t("department") }}
+            </th>
+            <!-- <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+            <select name="department" id="" class="form-control">
+              <option class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" value="all" s>{{ t("department") }}</option>
+              <option
+                v-for="department in allDepartments"
+                :key="department.id"
+                :value="department.id"
+              >
+                {{ department.department_name }}
+              </option>
+            </select>
+            </th> -->
+            <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
               {{ t("taskType") }}
             </th>
             <th
@@ -74,17 +93,23 @@
 
             <td>
               <p class="text-xs font-weight-bold mb-0">
+                {{ task.department?.department_name || "No Department" }}
+              </p>
+            </td>
+
+            <td>
+              <p class="text-xs font-weight-bold mb-0">
                 {{ task.task_type || "No Task Type" }}
               </p>
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.from }}
+                {{ task.from.slice(0, 5) }}
               </p>
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.to }}
+                {{ task.to.slice(0, 5) }}
               </p>
             </td>
             <td>
@@ -601,8 +626,8 @@ const updateTask = async () => {
     task_type: selectedTask.value.task_type,
     recurrent_days: selectedTask.value.recurrent_days,
     day_of_month: selectedTask.value.day_of_month,
-    from: selectedTask.value.from,
-    to: selectedTask.value.to,
+    from: selectedTask.value.from.slice(0, 5),
+    to: selectedTask.value.to.slice(0, 5),
     dept_id: selectedTask.value.department.dept_id,
     // ...selectedTask.value,
   };

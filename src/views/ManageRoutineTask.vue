@@ -283,7 +283,7 @@ const translations = {
     description: "Description",
     close: "Close",
     create: "Create",
-    routineTasksTable: "Routine Tasks", // تعديل الترجمة
+    routineTasksTable: "Manage Routine Tasks", // تعديل الترجمة
     routineTaskNameRequired: "Please enter the routine task name.", // تعديل الترجمة
     routineTaskAddedError:
       "An error occurred while adding the routine task. Please try again later.", // تعديل الترجمة
@@ -296,7 +296,7 @@ const translations = {
     createRoutineTask: "Create Routine Task", // تعديل الترجمة
     saving: "Saving...",
     noRoutineTasks: "No routine tasks found.", // تعديل الترجمة
-    createee: "Create your routine task using the button above", // تعديل الترجمة
+    createee: "Create your routine task ", // تعديل الترجمة
     inactive: "Inactive", // إضافة ترجمة للحالة
     active: "Active",
     advancedSettings: "Advanced Settings", // إضافة ترجمة
@@ -337,7 +337,7 @@ const translations = {
     description: "وصف المشروع",
     close: "اغلاق",
     create: "اضافة",
-    routineTasksTable: "المهام الروتينية", // تعديل الترجمة
+    routineTasksTable: "أدارة المهام الروتينية", // تعديل الترجمة
     routineTaskNameRequired: "يرجى ادخال اسم المهمة الروتينية.", // تعديل الترجمة
     routineTaskAddedError:
       "حدث خطأ في اضافة المهمة الروتينية. يرجى المحاولة مرة اخرى في وقت لاحق.", // تعديل الترجمة
@@ -350,7 +350,7 @@ const translations = {
     createRoutineTask: "اضافة مهمة روتينية", // تعديل الترجمة
     saving: "يتم الحفظ...",
     noRoutineTasks: "لا يوجد مهام روتينية.", // تعديل الترجمة
-    createee: "انشئ مهمتك الروتينية من الزر المتواجد بالاعلي", // تعديل الترجمة
+    createee: "انشئ مهامك الروتينية ", // تعديل الترجمة
     inactive: "غير نشط", // إضافة ترجمة للحالة
     active: "نشط",
     advancedSettings: "الإعدادات المتقدمة", // إضافة ترجمة

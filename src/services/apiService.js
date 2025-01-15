@@ -114,6 +114,16 @@ export default {
     return apiClient.post("/registerViaInvitation", userData);
   },
 
+  updateUserName(data) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post(`/edit-user/${data.user_id}`, data, config);
+  },
+
   //start department---------------------------------------------------
 
   getDepartments() {

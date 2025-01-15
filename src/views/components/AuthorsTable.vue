@@ -1,12 +1,17 @@
 <template>
   <div class="card">
-    <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+    <div
+      class="card-header pb-0 d-flex justify-content-between align-items-center"
+    >
       <h6 class="mb-0 font-weight-bold">{{ t("employeesTable") }}</h6>
     </div>
     <div class="card-body px-0 pt-0 pb-2">
       <div class="table-responsive p-3" :key="componentKey">
         <!-- Spinner عند عدم وجود بيانات -->
-        <div v-if="!dataFromApi || dataFromApi.length === 0" class="d-flex justify-content-center py-5">
+        <div
+          v-if="!dataFromApi || dataFromApi.length === 0"
+          class="d-flex justify-content-center py-5"
+        >
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
@@ -16,16 +21,24 @@
         <table v-else class="table align-items-center table-hover mb-0">
           <thead class="thead-light">
             <tr>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+              <th
+                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+              >
                 {{ t("name") }}
               </th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+              <th
+                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
+              >
                 {{ t("email") }}
               </th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+              <th
+                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
+              >
                 {{ t("roles") }}
               </th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+              <th
+                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
+              >
                 {{ t("department") }}
               </th>
               <th class="text-secondary opacity-7"></th>
@@ -45,9 +58,18 @@
               </td>
               <td>
                 <div v-if="employee.roles.length" class="selected-options">
-                  <span v-for="roleName in employee.roles" :key="roleName" class="selected-option">
+                  <span
+                    v-for="roleName in employee.roles"
+                    :key="roleName"
+                    class="selected-option"
+                  >
                     {{ roleName }}
-                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove" @click="confirmRemoveRole(employee, roleName)">
+                    <button
+                      v-show="canEditUser || isOwner"
+                      type="button"
+                      class="btn-remove"
+                      @click="confirmRemoveRole(employee, roleName)"
+                    >
                       ×
                     </button>
                   </span>
@@ -55,23 +77,45 @@
                 <p v-else class="text-xs font-weight-bold mb-0">No Role</p>
               </td>
               <td>
-                <div v-if="employee.departments.length" class="selected-options">
-                  <span v-for="departmentName in employee.departments" :key="departmentName" class="selected-option">
+                <div
+                  v-if="employee.departments.length"
+                  class="selected-options"
+                >
+                  <span
+                    v-for="departmentName in employee.departments"
+                    :key="departmentName"
+                    class="selected-option"
+                  >
                     {{ departmentName }}
-                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove" @click="confirmRemoveDepartment(employee, departmentName)">
+                    <button
+                      v-show="canEditUser || isOwner"
+                      type="button"
+                      class="btn-remove"
+                      @click="confirmRemoveDepartment(employee, departmentName)"
+                    >
                       ×
                     </button>
                   </span>
                 </div>
-                <p v-else class="text-xs font-weight-bold mb-0">No Department</p>
+                <p v-else class="text-xs font-weight-bold mb-0">
+                  No Department
+                </p>
               </td>
               <td class="align-middle">
-                <a v-show="canEditUser || isOwner" href="javascript:;" class="text-secondary font-weight-bold text-xs me-2"
-                  @click="openEditModal(employee)">
+                <a
+                  v-show="canEditUser || isOwner"
+                  href="javascript:;"
+                  class="text-secondary font-weight-bold text-xs me-2"
+                  @click="openEditModal(employee)"
+                >
                   {{ t("edit") }}
                 </a>
-                <a v-show="canDeleteUser || isOwner" href="javascript:;"
-                  class="text-danger font-weight-bold text-xs" @click="confirmDelete(employee)">
+                <a
+                  v-show="canDeleteUser || isOwner"
+                  href="javascript:;"
+                  class="text-danger font-weight-bold text-xs"
+                  @click="confirmDelete(employee)"
+                >
                   {{ t("delete") }}
                 </a>
               </td>
@@ -85,35 +129,62 @@
     </div>
 
     <!-- الـ Modal -->
-    <transition name="modal-fade">
-      <ArgonModal v-if="isModalOpen" :title="t('editEmployee')" @close="closeModal">
-        <template #default>
-          <label class="form-label">{{ t("name") }}:</label>
-          <input v-model="selectedEmployee.name" class="form-control mb-3" />
+    <div v-if="isModalOpen" class="popup-overlay">
+      <transition name="modal-fade">
+        <ArgonModal
+          v-if="isModalOpen"
+          :title="t('editEmployee')"
+          @close="closeModal"
+        >
+          <template #default>
+            <label class="form-label">{{ t("name") }}:</label>
+            <input v-model="selectedEmployee.name" class="form-control mb-3" />
 
-          <label class="form-label">{{ t("roles") }}:</label>
-          <argon-multiple-select v-model="selectedEmployee.rolesIds" :model-names="selectedEmployee.rolesNames" :options="formattedRoles"
-            :placeholder="t('roles')" class="form-control mb-3" />
+            <label class="form-label">{{ t("roles") }}:</label>
+            <argon-multiple-select
+              v-model="selectedEmployee.rolesIds"
+              :model-names="selectedEmployee.rolesNames"
+              :options="formattedRoles"
+              :placeholder="t('roles')"
+              class="form-control mb-3"
+            />
 
-          <label class="form-label">{{ t("department") }}:</label>
-          <argon-multiple-select v-model="selectedEmployee.departmentId" :model-names="selectedEmployee.departmentNames" :options="formattedDepartments"
-            :placeholder="t('department')" class="form-control" />
-        </template>
+            <label class="form-label">{{ t("department") }}:</label>
+            <argon-multiple-select
+              v-model="selectedEmployee.departmentId"
+              :model-names="selectedEmployee.departmentNames"
+              :options="formattedDepartments"
+              :placeholder="t('department')"
+              class="form-control"
+            />
+          </template>
 
-        <template #footer>
-          <argon-button variant="success" @click="saveChanges" :disabled="isLoading">
-            <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            {{ isLoading ? t("saving") : t("saveChanges") }}
-          </argon-button>
-          <argon-button variant="secondary" @click="closeModal">{{ t("close") }}</argon-button>
-        </template>
+          <template #footer>
+            <argon-button
+              variant="success"
+              @click="saveChanges"
+              :disabled="isLoading"
+            >
+              <span
+                v-if="isLoading"
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              {{ isLoading ? t("saving") : t("saveChanges") }}
+            </argon-button>
+            <argon-button variant="secondary" @click="closeModal">{{
+              t("close")
+            }}</argon-button>
+          </template>
 
-        <template #title>
-          <i class="fas fa-user-edit me-2"></i>
-          {{ t("editEmployee") }}
-        </template>
-      </ArgonModal>
-    </transition>
+          <template #title>
+            <i class="fas fa-user-edit me-2"></i>
+            {{ t("editEmployee") }}
+          </template>
+        </ArgonModal>
+      </transition>
+    </div>
 
     <argon-alert v-if="successMessage" color="success" dismissible class="m-3">
       {{ successMessage }}
@@ -123,22 +194,28 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useStore } from "vuex"; 
+import { useStore } from "vuex";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
-import Swal from "sweetalert2"; 
-import { savePermissionsToLocalStorage, loadPermissionsFromLocalStorage, hasPermission } from "@/utils/permissions.js"; 
+import Swal from "sweetalert2";
+import {
+  savePermissionsToLocalStorage,
+  loadPermissionsFromLocalStorage,
+  hasPermission,
+} from "@/utils/permissions.js";
 
-const store = useStore(); 
+const store = useStore();
 
 const userData = computed(() => store.getters.user);
 const isOwner = computed(() => store.getters.isOwner);
 console.log("isOwner:", isOwner.value);
 
 // استدعاء الصلاحيات من localStorage بناءً على المستخدم الحالي
-const permissions = ref(loadPermissionsFromLocalStorage(userData.value?.user?.id) || {});
+const permissions = ref(
+  loadPermissionsFromLocalStorage(userData.value?.user?.id) || {}
+);
 
 // في حال عدم وجود صلاحيات في localStorage، جلبها من Vuex
 if (!permissions.value || Object.keys(permissions.value).length === 0) {
@@ -149,15 +226,22 @@ if (!permissions.value || Object.keys(permissions.value).length === 0) {
 }
 
 // استخدام الصلاحيات للتحكم في ظهور الأزرار
-const canEditUser = computed(() => hasPermission(permissions.value, "edit-user"));
-const canDeleteUser = computed(() => hasPermission(permissions.value, "delete-user"));
+const canEditUser = computed(() =>
+  hasPermission(permissions.value, "edit-user")
+);
+const canDeleteUser = computed(() =>
+  hasPermission(permissions.value, "delete-user")
+);
 
 // الحصول على الأدوار من الـ Vuex Store
 const roles = computed(() => store.getters.roles);
 
 console.log("roles:", roles.value);
 const formattedRoles = computed(() => {
-  return roles.value.map((role) => ({ value: role.role_id, label: role.role_name }));
+  return roles.value.map((role) => ({
+    value: role.role_id,
+    label: role.role_name,
+  }));
 });
 
 console.log("formattedRoles:", formattedRoles.value);
@@ -188,7 +272,8 @@ const translations = {
     saving: "Saving...",
     updateSuccess: "Data updated successfully!",
     deleteConfirmationText: "Are you sure you want to delete this user?",
-    deleteRoleFromUser: "Are you sure you want to delete this role from this user?",
+    deleteRoleFromUser:
+      "Are you sure you want to delete this role from this user?",
     deleteSuccess: "User deleted successfully!",
     department: "Department",
     position: "Position",
@@ -197,9 +282,11 @@ const translations = {
     unassignRoleSuccess: "Role unassigned successfully!",
     assignRoleSuccess: "Role assigned successfully!",
     assignRole: "Assign Role",
-    deleteDepartmentFromUser: "Are you sure you want to remove this department from this user?",
+    deleteDepartmentFromUser:
+      "Are you sure you want to remove this department from this user?",
     owner: "Owner",
     noRole: "No Role",
+    nameRequired: "Name is required",
   },
   ar: {
     employeesTable: "جدول الموظفين",
@@ -226,6 +313,7 @@ const translations = {
     deleteDepartmentFromUser: "هل تريد حذف هذا القسم من هذا المستخدم؟",
     owner: "مالك",
     noRole: "لا دور",
+    nameRequired: "الاسم مطلوب",
   },
 };
 
@@ -254,21 +342,31 @@ const openEditModal = async (employee) => {
   }
 
   // ربط أسماء الأدوار بمعرفاتها
-  const roleIds = employee.roles.map(roleName => {
-    const role = store.getters.roles.find(r => r.role_name.toLowerCase() === roleName.toLowerCase());
-    if (!role) {
-      console.warn(`Role "${roleName}" not found in store.roles`);
-    }
-    return role ? role.role_id : null;
-  }).filter(id => id !== null); // إزالة القيم null
+  const roleIds = employee.roles
+    .map((roleName) => {
+      const role = store.getters.roles.find(
+        (r) => r.role_name.toLowerCase() === roleName.toLowerCase()
+      );
+      if (!role) {
+        console.warn(`Role "${roleName}" not found in store.roles`);
+      }
+      return role ? role.role_id : null;
+    })
+    .filter((id) => id !== null); // إزالة القيم null
 
-  const departmentIds = employee.departments.map(departmentName => {
-    const department = store.getters.departments.find(d => d.name.toLowerCase() === departmentName.toLowerCase());
-    if (!department) {
-      console.warn(`Department "${departmentName}" not found in store.departments`);
-    }
-    return department ? department.id : null;
-  }).filter(id => id !== null); // إزالة القيم null
+  const departmentIds = employee.departments
+    .map((departmentName) => {
+      const department = store.getters.departments.find(
+        (d) => d.name.toLowerCase() === departmentName.toLowerCase()
+      );
+      if (!department) {
+        console.warn(
+          `Department "${departmentName}" not found in store.departments`
+        );
+      }
+      return department ? department.id : null;
+    })
+    .filter((id) => id !== null); // إزالة القيم null
 
   const roleNames = employee.roles; // أسماء الأدوار كما هي
 
@@ -276,12 +374,12 @@ const openEditModal = async (employee) => {
   console.log("Roles from store:", store.getters.roles);
   console.log("Mapped roleIds:", roleIds);
 
-  selectedEmployee.value = { 
+  selectedEmployee.value = {
     ...employee,
     rolesIds: roleIds,
     rolesNames: roleNames,
     departmentId: departmentIds,
-    departmentNames: employee.departments
+    departmentNames: employee.departments,
   };
   isModalOpen.value = true;
   console.log("selectedEmployee.value:", selectedEmployee.value);
@@ -290,12 +388,12 @@ const openEditModal = async (employee) => {
 // دالة إغلاق الـ Modal
 const closeModal = () => {
   isModalOpen.value = false;
-  selectedEmployee.value = { 
-    name: "", 
-    departmentId: [], 
-    rolesIds: [], 
-    departmentNames: [], 
-    rolesNames: [] 
+  selectedEmployee.value = {
+    name: "",
+    departmentId: [],
+    rolesIds: [],
+    departmentNames: [],
+    rolesNames: [],
   };
 };
 
@@ -304,7 +402,26 @@ const saveChanges = async () => {
   console.log("saveChanges called");
   isLoading.value = true;
   try {
+    if (!selectedEmployee.value.name) {
+      Swal.fire({
+        icon: "error",
+        title: t("nameRequired"),
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+          popup: "swal-above-modal",
+        },
+      });
+      return;
+    }
     // إعداد البيانات للإرسال
+    const payloadforName = {
+      user_id: selectedEmployee.value.id,
+      name: selectedEmployee.value.name,
+    };
+
+    await store.dispatch("updateUserName", payloadforName);
+
     const payloadForRoles = {
       user_id: selectedEmployee.value.id,
       role_ids: selectedEmployee.value.rolesIds, // الـ IDs
@@ -336,7 +453,7 @@ const saveChanges = async () => {
 
     // إظهار رسالة النجاح
     Swal.fire({
-      icon: 'success',
+      icon: "success",
       text: t("updateSuccess"),
       showConfirmButton: false,
       timer: 1500,
@@ -351,9 +468,9 @@ const saveChanges = async () => {
     console.error("Error updating employee:", error);
     // إضافة رسالة خطأ إذا رغبت
     Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'حدث خطأ أثناء تحديث البيانات. حاول مرة أخرى!',
+      icon: "error",
+      title: "Oops...",
+      text: "حدث خطأ أثناء تحديث البيانات. حاول مرة أخرى!",
     });
   } finally {
     isLoading.value = false;
@@ -361,14 +478,17 @@ const saveChanges = async () => {
 };
 
 const confirmRemoveDepartment = (employee, departmentName) => {
-
-  const department = store.getters.departments.find(d => d.name.toLowerCase() === departmentName.toLowerCase());
+  const department = store.getters.departments.find(
+    (d) => d.name.toLowerCase() === departmentName.toLowerCase()
+  );
 
   if (!department) {
-    console.warn(`Department "${departmentName}" not found in store.departments`);
+    console.warn(
+      `Department "${departmentName}" not found in store.departments`
+    );
     Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
+      icon: "error",
+      title: "Oops...",
       text: `القسم "${departmentName}" غير موجود.`,
     });
     return;
@@ -388,23 +508,28 @@ const confirmRemoveDepartment = (employee, departmentName) => {
 };
 
 const unassignDepartment = async (employee, departmentId) => {
-  console.log("unassignRole called for employee:", employee.id, " and department:", departmentId);
+  console.log(
+    "unassignRole called for employee:",
+    employee.id,
+    " and department:",
+    departmentId
+  );
   try {
     const data = {
       user_id: employee.id,
-      department_id: departmentId
+      department_id: departmentId,
     };
     console.log("data:", data);
     // إرسال البيانات كـ Array من معرفات الأدوار
     await store.dispatch("unassignDepartment", data);
-    
+
     // جلب البيانات المحدثة بعد الإزالة
     await store.dispatch("getCompanyUsers");
-    
+
     // إظهار رسالة النجاح
     Swal.fire({
-      icon: 'success',
-      title: t('success'),
+      icon: "success",
+      title: t("success"),
       text: t("updateSuccess"),
       showConfirmButton: false,
       timer: 1500,
@@ -416,8 +541,8 @@ const unassignDepartment = async (employee, departmentId) => {
     console.error("Error unassigning role:", error);
     // إظهار رسالة خطأ
     Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
+      icon: "error",
+      title: "Oops...",
       text: t("deleteError"),
     });
   }
@@ -430,13 +555,15 @@ const confirmRemoveRole = (employee, roleName) => {
   // العثور على الدور في Vuex Store بناءً على الاسم
   // العثور على الدور في Vuex Store بناءً على الاسم
   // @type {import("@/types/role").Role | undefined}
-  const role = store.getters.roles.find(r => r.role_name.toLowerCase() === roleName.toLowerCase());
+  const role = store.getters.roles.find(
+    (r) => r.role_name.toLowerCase() === roleName.toLowerCase()
+  );
 
   if (!role) {
     console.warn(`Role "${roleName}" not found in store.roles`);
     Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
+      icon: "error",
+      title: "Oops...",
       text: `الدور "${roleName}" غير موجود.`,
     });
     return;
@@ -458,21 +585,26 @@ const confirmRemoveRole = (employee, roleName) => {
 
 // دالة إزالة الدور من الموظف
 const unassignRole = async (employee, roleId) => {
-  console.log("unassignRole called for employee:", employee.id, " and roleId:", roleId);
+  console.log(
+    "unassignRole called for employee:",
+    employee.id,
+    " and roleId:",
+    roleId
+  );
   try {
     const data = {
       user_id: employee.id,
-      role_ids: [roleId]
+      role_ids: [roleId],
     };
     // إرسال البيانات كـ Array من معرفات الأدوار
     await store.dispatch("unassignRole", data);
-    
+
     // جلب البيانات المحدثة بعد الإزالة
     await store.dispatch("getCompanyUsers");
-    
+
     // إظهار رسالة النجاح
     Swal.fire({
-      icon: 'success',
+      icon: "success",
       title: t("updateSuccess"),
       showConfirmButton: false,
       timer: 1500,
@@ -484,8 +616,8 @@ const unassignRole = async (employee, roleId) => {
     console.error("Error unassigning role:", error);
     // إظهار رسالة خطأ
     Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
+      icon: "error",
+      title: "Oops...",
       text: t("deleteError"),
       customClass: {
         popup: "swal-above-modal",
@@ -515,34 +647,32 @@ const deleteEmployee = async (employeeId) => {
   console.log("deleteEmployee called with id:", employeeId);
   try {
     const data = {
-      user_id: employeeId
+      user_id: employeeId,
     };
     const res = await store.dispatch("deleteEmployee", data); // استدعاء Vuex لحذف الموظف
 
     if (res.status === 200) {
+      Swal.fire({
+        icon: "success",
+        title: t("deleteSuccess"),
+        showConfirmButton: false,
+        timer: 1500,
+      });
 
-    Swal.fire({
-      icon: 'success',
-      title: t("deleteSuccess"),
-      showConfirmButton: false,
-      timer: 1500
-    });
-
-    await store.dispatch("getCompanyUsers")
+      await store.dispatch("getCompanyUsers");
     } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: t("deleteError"),
-    });
-  }
-
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: t("deleteError"),
+      });
+    }
   } catch (error) {
     console.error("Error deleting employee:", error);
     // إضافة رسالة خطأ إذا رغبت
     Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
+      icon: "error",
+      title: "Oops...",
       text: t("deleteError"),
     });
   }
@@ -573,7 +703,8 @@ onMounted(async () => {
 .table tbody tr:hover {
   background: #f1f1f1;
 }
-.table td, .table th {
+.table td,
+.table th {
   vertical-align: middle;
 }
 
@@ -657,7 +788,7 @@ onMounted(async () => {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
+  z-index: 1050;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -672,7 +803,6 @@ onMounted(async () => {
 .routine-task-modal .modal-body {
   flex: 1; /* السماح للمحتوى بالتمدد */
 }
-
 
 /* swal */
 

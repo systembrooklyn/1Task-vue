@@ -496,6 +496,17 @@ export default createStore({
       }
     },
 
+    async updateUserName({ commit }, data) {
+      try {
+        const response = await apiClient.updateUserName(data);
+        commit("SET_USER", response.data);
+        console.log("UserName updated:", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error updating user data:", error);
+      }
+    },
+
     async updateRole( { commit }, data) {
       try {
         const response = await apiClient.updateRolesWithPermissions(data);
@@ -963,7 +974,21 @@ export default createStore({
           return response;
         }
       } catch (error) {
-        console.error("Error updating department:", error);
+      // استخراج الأخطاء من الرد
+              const errorDetails = error.response?.data?.errors;
+      
+              let errorMessage = "Error adding routine task";
+          
+              if (errorDetails) {
+                // تحويل الأخطاء إلى قائمة نصوص
+                errorMessage = Object.entries(errorDetails)
+                  .map(([field, messages]) => `<strong>${field}</strong>: ${messages.join(", ")}`)
+                  .join("<br>");
+                  console.log("errorMessage", errorMessage);
+              }
+      
+              console.error("Error adding routine task:::", errorMessage);
+              throw new Error(errorMessage || error.message || "Unknown error occurred");
       }
     },
 

@@ -464,7 +464,7 @@ console.log(employeeOptions.value);
 }
 
 /* تنسيق الـ Modal */
-.popup-overlay {
+/* .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -475,7 +475,7 @@ console.log(employeeOptions.value);
   display: flex;
   justify-content: center;
   align-items: center;
-}
+} */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;
@@ -494,5 +494,58 @@ console.log(employeeOptions.value);
   font-weight: 600;
   font-size: 0.875rem;
   margin-bottom: 5px;
+}
+
+/* كلاس مخصص للمودال لجعله قابلًا للتمرير */
+.routine-task-modal {
+  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth; /* تمكين التمرير العمودي */
+  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+}
+
+.routine-task-modal .modal-content-scroll {
+  overflow-y: auto; /* تمكين التمرير العمودي */
+  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
+  /* scroll-behavior: smooth;  */
+  max-height: 65vh;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* تحسين تصميم المودال الداخلي */
+.routine-task-modal .modal-header,
+.routine-task-modal .modal-footer {
+  flex-shrink: 0; /* منع الانكماش */
+}
+
+.routine-task-modal .modal-body {
+  flex: 1; /* السماح للمحتوى بالتمدد */
+}
+
+
+/* swal */
+
+/* Ensure Swal appears above all other elements */
+.swal2-container {
+  z-index: 100000 !important;
+}
+
+.swal-above-modal {
+  z-index: 100001 !important;
 }
 </style>

@@ -128,7 +128,7 @@ const toggleSection = (section) => {
               <sidenav-item
                 to="/routine-task"
                 :class="getRoute() === 'routine-task' ? 'active' : ''"
-                :navText="isRTL ? ' المهام اليومية' : ' Routine Task'"
+                :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'"
               >
                 <template v-slot:icon>
                   <i class="fa fa-tasks text-success text-sm opacity-10"></i>
@@ -139,7 +139,7 @@ const toggleSection = (section) => {
               <sidenav-item
                 to="/manage-routine-task"
                 :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
-                :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Task'"
+                :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Tasks'"
               >
                 <template v-slot:icon>
                   <i class="fa fa-cogs text-info text-sm opacity-10"></i>
@@ -176,7 +176,7 @@ const toggleSection = (section) => {
                 to="/addUser"
                 v-show="permissions['invite-user'] || isOwner"
                 :class="getRoute() === 'addUser' ? 'active' : ''"
-                :navText="isRTL ? 'اضافة مستخدم' : 'Add User'"
+                :navText="isRTL ? 'اضافة موظفين' : 'Add Employees'"
               >
                 <template v-slot:icon>
                   <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
@@ -200,7 +200,7 @@ const toggleSection = (section) => {
                 to="/add-role"
                 v-show="permissions['view-role'] || isOwner"
                 :class="getRoute() === 'addRole' ? 'active' : ''"
-                :navText="isRTL ? 'اضافة دور' : 'Add Role'"
+                :navText="isRTL ? 'اضافة أدوار وصلاحيات' : 'Add Roles & Permissions'"
               >
                 <template v-slot:icon>
                   <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
@@ -217,7 +217,7 @@ const toggleSection = (section) => {
           to="/department"
           v-show="permissions['view-department'] || isOwner"
           :class="getRoute() === 'department' ? 'active' : ''"
-          :navText="isRTL ? 'الاقسام' : 'Department'"
+          :navText="isRTL ? 'الاقسام' : 'Departments'"
         >
           <template v-slot:icon>
             <i class="ni ni-building text-primary text-sm opacity-10"></i>
@@ -229,7 +229,7 @@ const toggleSection = (section) => {
         <sidenav-item
           to="/project"
           :class="getRoute() === 'project' ? 'active' : ''"
-          :navText="isRTL ? 'المشاريع' : 'Project'"
+          :navText="isRTL ? 'المشاريع' : 'Projects'"
         >
           <template v-slot:icon>
             <i class="ni ni-app text-success text-sm opacity-10"></i>

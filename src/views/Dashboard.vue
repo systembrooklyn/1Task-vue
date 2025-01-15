@@ -53,37 +53,39 @@ const sales = {
       <div class="col-lg-12">
         <div class="row">
           <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="Today's Money" value="$53,000" description="<span
+            <mini-statistics-card title="Total Tasks" value="50/70" description="<span
                 class='text-sm font-weight-bolder text-success'
-                >+55%</span> since yesterday" :icon="{
-                  component: 'ni ni-money-coins',
+                >20</span> Inactive Tasks" :icon="{
+                  component: 'fa fa-tasks',
                   background: 'bg-gradient-primary',
                   shape: 'rounded-circle',
                 }" />
           </div>
           <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="Today's Users" value="10000" description="<span
+            <mini-statistics-card title="Today's Tasks" value="25/50" description="<span
                 class='text-sm font-weight-bolder text-success'
-                >+3%</span> since last week" :icon="{
-                  component: 'ni ni-world',
+                >15</span> Done Tasks  <br> <span
+                class='text-sm font-weight-bolder text-danger'
+                >10</span> Not Done Tasks" :icon="{
+                  component: 'fa fa-calendar',
                   background: 'bg-gradient-danger',
                   shape: 'rounded-circle',
                 }" />
           </div>
           <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="New Clients" value="+3,462" description="<span
+            <mini-statistics-card title="employees" value="4" description="<span
                 class='text-sm font-weight-bolder text-danger'
-                >-2%</span> since last quarter" :icon="{
+                >1</span> Pending Employees" :icon="{
                   component: 'ni ni-paper-diploma',
                   background: 'bg-gradient-success',
                   shape: 'rounded-circle',
                 }" />
           </div>
           <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="Sales" value="$103,430" description="<span
-                class='text-sm font-weight-bolder text-success'
-                >+5%</span> than last month" :icon="{
-                  component: 'ni ni-cart',
+            <mini-statistics-card title="Projects" value="8/10" description="<span
+                class='text-sm font-weight-bolder text-danger'
+                >2</span> Inactive Projects" :icon="{
+                  component: 'fa fa-shopping-cart',
                   background: 'bg-gradient-warning',
                   shape: 'rounded-circle',
                 }" />

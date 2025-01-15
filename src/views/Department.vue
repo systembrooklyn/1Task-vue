@@ -198,7 +198,7 @@ const translations = {
     departmentAddedError:
       "An error occurred while adding the department. Please try again later.",
       noDepartments: "No Departments",
-      createDepartments: "Create Departments from the button above",
+      createDepartments: "Create Your Company Departments ",
       departmentAddedAlreadyExists: "Department already exists",
   },
   ar: {
@@ -222,7 +222,7 @@ const translations = {
     departmentAddedError:
       "حدث خطأ أثناء إضافة القسم. يرجى المحاولة مرة أخرى لاحقًا.",
       noDepartments: "لا يوجد اقسام",
-      createDepartments: "انشاءالافسام من خلال الزر المتواجد فى الاعلي",
+      createDepartments: "انشاء أقسام شركتك",
       departmentAddedAlreadyExists: "القسم موجود بالفعل",
   },
 };

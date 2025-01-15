@@ -16,6 +16,12 @@
             >
               {{ t("taskName") }}
             </th>
+
+            <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("department") }}
+            </th>
             <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
@@ -87,6 +93,14 @@
               </div>
             </td>
 
+            <td>
+              <p class="text-xs font-weight-bold mb-0">
+                {{ task.department?.department_name || "No Department" }}
+              </p>
+            </td>
+
+            
+
             <!-- <td>
               <p class="text-xs font-weight-bold mb-0">
                 {{ task.task_type || "No Task Type" }}
@@ -94,12 +108,12 @@
             </td> -->
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.from }}
+                {{ task.from.slice(0, 5) }}
               </p>
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.to }}
+                {{ task.to.slice(0, 5) }}
               </p>
             </td>
             <!-- <td>
