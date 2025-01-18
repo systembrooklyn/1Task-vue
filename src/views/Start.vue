@@ -185,7 +185,7 @@ onBeforeUnmount(() => {
                     alt="task"
                     class="img-fluid"
                   />
-                  <h3 class="mb-4">{{ t("fastAndEasyAndSmart") }}</h3>
+                  <p class="mb-4">{{ t("fastAndEasyAndSmart") }}</p>
 
                   <!-- <p class="mb-3">{{ t("enterDetails") }}</p> -->
                 </div>
@@ -298,9 +298,10 @@ h1 {
   color: #040029;
 }
 
-h3 {
+p {
   font-family: "Pacifico";
-  font-weight: bold;
+  font-size: 1.5rem;
+  /* font-weight: bold; */
   color: #040029;
 }
 
