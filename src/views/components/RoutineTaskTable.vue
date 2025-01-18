@@ -450,13 +450,13 @@
                   <dd v-if="selectedTaskDayOfMonth" class="col-sm-9">
                     {{ selectedTaskDayOfMonth || "N/A" }}
                   </dd>
-                  <dt class="col-sm-3">{{ t("createdAt") }}:</dt>
-                  <dd class="col-sm-9">
+                  <dt v-if="selectedTaskCreationDate" class="col-sm-3">{{ t("createdAt") }}:</dt>
+                  <dd v-if="selectedTaskCreationDate" class="col-sm-9">
                     {{ formatDate(selectedTaskCreationDate) }}
                   </dd>
 
-                  <dt class="col-sm-3">{{ t("startDate") }}:</dt>
-                  <dd class="col-sm-9">
+                  <dt v-if="selectedTaskStartDate" class="col-sm-3">{{ t("startDate") }}:</dt>
+                  <dd v-if="selectedTaskStartDate" class="col-sm-9">
                     {{ formatDate(selectedTaskStartDate) }}
                   </dd>
                 </dl>
