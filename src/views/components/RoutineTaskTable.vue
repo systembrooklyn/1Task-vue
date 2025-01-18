@@ -205,15 +205,43 @@
               &laquo;
             </a>
           </li>
-          <li
-            v-for="page in totalPages"
-            :key="page"
-            :class="['page-item', { active: page === pagination.current_page }]"
-          >
-            <a class="page-link" href="#" @click.prevent="changePage(page)">
-              {{ page }}
-            </a>
-          </li>
+          
+          <template v-if="totalPages <= 10">
+            <li
+              v-for="page in totalPages"
+              :key="page"
+              :class="['page-item', { active: page === pagination.current_page }]"
+            >
+              <a class="page-link" href="#" @click.prevent="changePage(page)">
+                {{ page }}
+              </a>
+            </li>
+          </template>
+          
+          <template v-else>
+            <li v-if="pagination.current_page > 5" class="page-item disabled">
+              <span class="page-link">...</span>
+            </li>
+            
+            <li
+              v-for="page in Math.min( totalPages)"
+              :key="page"
+              :class="['page-item', { 
+                active: page === pagination.current_page,
+                'd-none': page < Math.max(1, pagination.current_page - 4) || 
+                          page > Math.min(totalPages, pagination.current_page + 5)
+              }]"
+            >
+              <a class="page-link" href="#" @click.prevent="changePage(page)">
+                {{ page }}
+              </a>
+            </li>
+            
+            <li v-if="pagination.current_page < totalPages - 4" class="page-item disabled">
+              <span class="page-link">...</span>
+            </li>
+          </template>
+          
           <li :class="['page-item', { disabled: !pagination.next_page_url }]">
             <a
               class="page-link"
@@ -416,22 +444,22 @@
               <div v-if="activeTab === 'info'">
                 <dl class="row">
                   <dt class="col-sm-3">{{ t("taskNumber") }}:</dt>
-                  <dd class="col-sm-9">{{ selectedTaskNumber || "N/A" }}</dd>
+                  <dd class="col-sm-9">{{ selectedTaskNumber  }}</dd>
 
                   <dt class="col-sm-3">{{ t("description") }}:</dt>
-                  <dd class="col-sm-9">{{ selectedDescription || "N/A" }}</dd>
+                  <dd class="col-sm-9">{{ selectedDescription  }}</dd>
 
                   <dt class="col-sm-3">{{ t("department") }}:</dt>
                   <dd class="col-sm-9">
-                    {{ selectedTaskDepartment || "N/A" }}
+                    {{ selectedTaskDepartment  }}
                   </dd>
 
 
 
-                  <dt v-if="selectedTaskRecurrentDays" class="col-sm-3">
+                  <dt v-if="selectedTaskRecurrentDays && selectedTaskRecurrentDays.length" class="col-sm-3">
                     {{ t("recurrentDays") }}:
                   </dt>
-                  <dd v-if="selectedTaskRecurrentDays" class="col-sm-9">
+                  <dd v-if="selectedTaskRecurrentDays && selectedTaskRecurrentDays.length" class="col-sm-9">
                     {{
                       selectedTaskRecurrentDays
                         .map(
@@ -448,7 +476,7 @@
                     {{ t("dayOfMonth") }}:
                   </dt>
                   <dd v-if="selectedTaskDayOfMonth" class="col-sm-9">
-                    {{ selectedTaskDayOfMonth || "N/A" }}
+                    {{ selectedTaskDayOfMonth }}
                   </dd>
                   <dt v-if="selectedTaskCreationDate" class="col-sm-3">{{ t("createdAt") }}:</dt>
                   <dd v-if="selectedTaskCreationDate" class="col-sm-9">
@@ -536,6 +564,12 @@ const props = defineProps({
     required: true,
   },
 });
+
+const totalPages = computed(() => {
+  // Ensure total pages is calculated correctly
+  return Math.ceil(props.pagination.total / props.pagination.per_page);
+});
+
 
 console.log("props.routineTasks:", props.routineTasks);
 
@@ -1002,9 +1036,9 @@ const changePage = (page) => {
 };
 
 // حساب عدد الصفحات
-const totalPages = computed(() => {
-  return props.pagination.last_page;
-});
+// const totalPages = computed(() => {
+//   return props.pagination.last_page;
+// });
 </script>
 
 <style scoped>

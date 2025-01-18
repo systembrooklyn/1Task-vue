@@ -161,9 +161,9 @@ onBeforeUnmount(() => {
           </li> -->
         </ul>
       </div>
-      <argon-button class="btn my-2 my-sm-0" href="/signin">
+      <a class="signin btn my-2 my-sm-0" href="/signin">
         {{ t("signIn") }}
-      </argon-button>
+      </a>
     </div>
   </nav>
 
@@ -349,5 +349,10 @@ h3 {
 
 .card .card-body {
   padding: 1.5rem 1.5rem 1.5rem 0;
+}
+.signin {
+  color: #fff;
+  background-color: #a7c858;
+  border-color: #a7c858;
 }
 </style>
