@@ -17,14 +17,8 @@ import RoutineTasksTable from "@/views/components/RoutineTaskTable.vue";
 const store = useStore();
 
 const userData = computed(() => store.getters.user);
-const departments = computed(() => store.getters.departments);
 
-const formattedDepartments = computed(() => {
-  return departments.value.map((department) => ({
-    value: department.id,
-    label: department.name,
-  }));
-});
+
 
 import {
   savePermissionsToLocalStorage,
@@ -47,6 +41,7 @@ onBeforeMount(async () => {
     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
   await store.dispatch("getCompanyUsers");
+  await store.dispatch("fetchDepartments");
 });
 
 const dataFromApi = computed(() => store.getters.dataFromApi);
@@ -59,6 +54,16 @@ const employeeOptions = computed(() => {
 });
 
 console.log("employeeOptions:", employeeOptions.value);
+
+const departments = computed(() => store.getters.departments);
+console.log("departmentssssssssssssss:", departments.value);
+
+const formattedDepartments = computed(() => {
+  return departments.value.map((department) => ({
+    value: department.id,
+    label: department.name,
+  }));
+});
 
 // const isOwner = computed(() => store.getters.isOwner);
 
@@ -205,6 +210,54 @@ const t = (key) => {
   return translations[currentLanguage.value][key];
 };
 
+// Departments logic
+// const departments = ref([]);
+// const formattedDepartments = computed(() => {
+//   return departments.value.map((department) => ({
+//     value: department.id,
+//     label: department.name,
+//   }));
+// });
+
+// Filter variables
+const selectedTaskType = ref('');
+const selectedDepartments = ref([]);
+console.log("formattedDepartments:", formattedDepartments.value);
+const toggleAllDepartments = () => {
+  
+  if (selectedDepartments.value.length === formattedDepartments.value.length) {
+    // If all are selected, deselect all
+    selectedDepartments.value = [];
+  } else {
+    // Select all departments
+    selectedDepartments.value = formattedDepartments.value.map(dept => ({
+      id: dept.value,
+      name: dept.label
+    }));
+  }
+};
+
+const applyFilters = () => {
+  // Implement filter logic
+  const filters = {
+    task_type: selectedTaskType.value,
+    dept_filter: selectedDepartments.value.map(dept => dept.id)
+  };
+  
+  // Dispatch action to fetch filtered routine tasks
+  store.dispatch('fetchRoutineTasks', { filters });
+};
+
+const resetFilters = () => {
+  // Reset all filter variables
+  selectedTaskType.value = '';
+  selectedDepartments.value = [];
+  
+  // Fetch all routine tasks without filters
+  store.dispatch('fetchRoutineTasks');
+};
+
+
 // const openPopup = () => {
 //   showPopup.value = true;
 // };
@@ -299,14 +352,14 @@ const translations = {
     advancedSettings: "Advanced Settings", // إضافة ترجمة
     taskNumber: "Task Number",
 
-    taskType: "Task Type",
-    selectTaskType: "Select Task Type",
-    recurrentDays: "Recurrent Days",
-    enterRecurrentDays: "Enter number of recurrent days",
-    dayOfMonth: "Day of Month",
-    enterDayOfMonth: "Enter day of the month ex: 1, 2,....31",
-    department: "Department",
-    selectDepartment: "Select Department",
+    // taskType: "Task Type",
+    // selectTaskType: "Select Task Type",
+    // recurrentDays: "Recurrent Days",
+    // enterRecurrentDays: "Enter number of recurrent days",
+    // dayOfMonth: "Day of Month",
+    // enterDayOfMonth: "Enter day of the month ex: 1, 2,....31",
+    // department: "Department",
+    // selectDepartment: "Select Department",
     sunday: "Sunday",
     monday: "Monday",
     tuesday: "Tuesday",
@@ -316,6 +369,21 @@ const translations = {
     saturday: "Saturday",
     enterStartDate: "Enter start date",
     startDate: "Start Date",
+    taskType: 'Task Type',
+    status: 'Status',
+    department: 'Department',
+    allTypes: 'All Types',
+    allStatuses: 'All Statuses',
+    allDepartments: 'All Departments',
+    weekly: 'Weekly',
+    monthly: 'Monthly', 
+    daily: 'Daily',
+    // active: 'Active',
+    // inactive: 'Inactive',
+    applyFilters: 'Apply Filters',
+    resetFilters: 'Reset Filters',
+    selectAll: 'Select All',
+    departmentsSelected: 'Departments Selected'
   },
   ar: {
     addMember: "اضافة عضو",
@@ -370,6 +438,21 @@ const translations = {
     saturday: "السبت",
     enterStartDate: "ادخل تاريخ البدء",
     startDate: "تاريخ البدء",
+    // taskType: 'نوع المهمة',
+    // status: 'الحالة',
+    // department: 'القسم',
+    // allTypes: 'جميع النوايات',
+    // allStatuses: 'جميع الحالات',
+    // allDepartments: 'جميع القسوم',
+    weekly: 'اسبوعي',
+    monthly: 'شهري', 
+    daily: 'يومي',
+    // active: 'نشط',
+    // inactive: 'غير نشط',
+    applyFilters: 'تطبيق التصفيات',
+    resetFilters: 'اعادة تعيين التصفيات',
+    selectAll: 'اختر الكل',
+    departmentsSelected: 'اقسام محددة'  
   },
 };
 
@@ -388,8 +471,19 @@ const handlePageChange = (page) => {
   fetchRoutineTasks(page);
 };
 
+// onMounted(async () => {
+//   await store.dispatch("fetchDepartments");
+// });
+
+// In created() or setup()
 onMounted(async () => {
-  await store.dispatch("fetchDepartments");
+  try {
+    // Fetch departments from your API or Vuex store
+    const fetchedDepartments = await store.dispatch('fetchDepartments');
+    console.log('Fetched Departments:', fetchedDepartments);
+  } catch (error) {
+    console.error('Error fetching departments:', error);
+  }
 });
 </script>
 
@@ -402,13 +496,118 @@ onMounted(async () => {
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
               <p class="mb-0 font-weight-bold">{{ t("routineTasksTable") }}</p>
-              <!-- <argon-button
-                v-show="canCreateRoutineTask || isOwner"
-                class="ml-auto mx-2"
-                @click="openPopup"
+              <!-- <button 
+                class="btn btn-link ms-auto" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#filterCollapse" 
+                aria-expanded="false" 
+                aria-controls="filterCollapse"
               >
-                <i class="fas fa-plus"></i>
-              </argon-button> -->
+                <i class="fas fa-filter"></i>
+              </button> -->
+            </div>
+            <div class="collapse" id="filterCollapse">
+              <div class="card card-body">
+                <div class="row">
+                  <!-- Filter by Task Type -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("taskType") }}</label>
+                    <select 
+                      class="form-select" 
+                      v-model="selectedTaskType"
+                    >
+                      <option value="">{{ t("allTypes") }}</option>
+                      <option value="weekly">{{ t("weekly") }}</option>
+                      <option value="monthly">{{ t("monthly") }}</option>
+                      <option value="daily">{{ t("daily") }}</option>
+                    </select>
+                  </div>
+
+                  <!-- Filter by Status -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("status") }}</label>
+                    <select 
+                      class="form-select" 
+                      v-model="selectedStatus"
+                    >
+                      <option value="">{{ t("allStatuses") }}</option>
+                      <option value="active">{{ t("active") }}</option>
+                      <option value="inactive">{{ t("inactive") }}</option>
+                    </select>
+                  </div>
+
+                  <!-- Filter by Department -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("department") }}</label>
+                    <div class="dropdown">
+                      <button 
+                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start" 
+                        type="button" 
+                        id="departmentDropdown" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false"
+                      >
+                        {{ selectedDepartments.length === 0 ? t("allDepartments") : 
+                           selectedDepartments.length === 1 ? selectedDepartments[0].name : 
+                           `${selectedDepartments.length} ${t("departmentsSelected")}` }}
+                      </button>
+                      <ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
+                        <li class="px-2">
+                          <div class="form-check">
+                            <input 
+                              class="form-check-input" 
+                              type="checkbox" 
+                              id="selectAllDepartments"
+                              :checked="selectedDepartments.length === formattedDepartments.length"
+                              @change="toggleAllDepartments"
+                            >
+                            <label class="form-check-label" for="selectAllDepartments">
+                              {{ t("selectAll") }}
+                            </label>
+                          </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li 
+                          v-for="department in formattedDepartments" 
+                          :key="department.value" 
+                          class="px-2"
+                        >
+                          <div class="form-check">
+                            <input 
+                              class="form-check-input" 
+                              type="checkbox" 
+                              :id="'department-' + department.value"
+                              :value="{ id: department.value, name: department.label }"
+                              v-model="selectedDepartments"
+                            >
+                            <label 
+                              class="form-check-label" 
+                              :for="'department-' + department.value"
+                            >
+                              {{ department.label }}
+                            </label>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                  <button 
+                    class="btn btn-primary me-2" 
+                    @click="applyFilters"
+                  >
+                    {{ t("applyFilters") }}
+                  </button>
+                  <button 
+                    class="btn btn-secondary" 
+                    @click="resetFilters"
+                  >
+                    {{ t("resetFilters") }}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="card-body">

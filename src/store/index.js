@@ -922,12 +922,13 @@ export default createStore({
       }
     },
     async fetchDepartments({ commit }) {
+      console.log("starttttttt fetchDepartments");
       try {
         const response = await apiClient.getDepartments();
         if (response.status === 200) {
           commit("setDepartments", response.data.Departments);
           console.log("response", response);
-          console.log("response.data", response.data);
+          console.log("response.datafetchDepartments", response.data);
           return response;
         } else {
           return response;

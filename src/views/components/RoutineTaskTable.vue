@@ -78,20 +78,22 @@
               </div>
             </td> -->
 
+
             <td>
-              <div class="d-flex px-2 py-1 position-relative">
-                <div class="d-flex flex-column justify-content-center text-sm">
-                  <h6 class="mb-0 text-sm">{{ task.task_name }}</h6>
-                </div>
-                <div
-                  class="hover-icon"
+              <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
+                <div 
+                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer" 
                   @click="openDescriptionModal(task)"
-                  title="Open Description"
+                  title="Open Task Description"
                 >
-                  <i class="fas fa-expand-arrows-alt"></i>
+                  <h6 class=" mb-0 text-sm hover-effect mx-1">{{ task.task_name }}</h6>
+                  <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
                 </div>
               </div>
             </td>
+
 
             <td>
               <p class="text-xs font-weight-bold mb-0">
@@ -108,12 +110,12 @@
             </td> -->
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.from.slice(0, 5) }}
+                {{ formatTime(task.from) }}
               </p>
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.to.slice(0, 5) }}
+                {{ formatTime(task.to) }}
               </p>
             </td>
             <!-- <td>
@@ -617,6 +619,8 @@ const selectedTaskDayOfMonth = ref(null);
 const taskNotes = ref("");
 const taskStatus = ref("");
 const selectedTaskDepartment = ref(null);
+const loadingTaskId = ref(null);
+
 
 
 const activeTab = ref("info"); // علامة تبويب البداية
@@ -816,6 +820,8 @@ const reportTask = async () => {
 
 const getTaskLogs = async (taskId) => {
   try {
+    loadingTaskId.value = taskId; // تحديد الرقم المعرف للمهمة المحددة
+
     const response = await store.dispatch("fetchTaskLogs", taskId);
     if (response.status === 200) {
       console.log("Task logs fetched successfully:", response.data);
@@ -825,6 +831,8 @@ const getTaskLogs = async (taskId) => {
     }
   } catch (error) {
     console.error("Error fetching task logs:", error);
+  } finally {
+    loadingTaskId.value = null; // تحديد الرقم المعرف للمهمة المحددة
   }
 };
 
@@ -882,6 +890,23 @@ const formatDate = (dateString) => {
     currentLanguage.value,
     options
   );
+};
+
+const formatTime = (time) => {
+  // تأكد من أن الوقت موجود وصحيح
+  if (!time) return "N/A";
+
+  // تقسيم الوقت إلى ساعات ودقائق
+  const [hours, minutes] = time.split(":").map(Number);
+
+  // تحديد AM أو PM
+  const period = hours >= 12 ? "PM" : "AM";
+
+  // تحويل الساعات إلى نظام 12 ساعة
+  const formattedHours = hours % 12 || 12; // إذا كانت الساعة 0 تصبح 12
+
+  // إرجاع الوقت بالتنسيق الجديد
+  return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
 };
 
 // الترجمات المحدثة
@@ -1291,5 +1316,20 @@ td {
   white-space: pre-wrap; /* المحافظة على التنسيق والانكسار */
   max-width: 200px; /* يمكنك تخصيص العرض المناسب للعمود */
   overflow-wrap: break-word; /* السماح بانكسار النص */
+}
+
+/* تنسيق للنصوص الاختيارية */
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover-effect {
+  transition: color 0.3s ease;
+}
+
+.hover-effect:hover {
+  color: #a7c858;
+  text-decoration: underline;
 }
 </style>

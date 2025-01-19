@@ -45,7 +45,7 @@
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("from") }}
-            </th> 
+            </th>
             <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
@@ -76,17 +76,16 @@
             </td>
 
             <td>
-              <div class="d-flex px-2 py-1 position-relative">
-                <div class="d-flex flex-column justify-content-center text-sm">
-                  <h6 class="mb-0 text-sm">{{ task.task_name }}</h6>
-                </div>
-                <!-- أيقونة العرض -->
-                <div
-                  class="hover-icon"
+              <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
+                <div 
+                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer" 
                   @click="openDescriptionModal(task)"
-                  title="Open Description"
+                  title="Open Task Description"
                 >
-                  <i class="fas fa-expand-arrows-alt"></i>
+                  <h6 class=" mb-0 text-sm hover-effect mx-1">{{ task.task_name }}</h6>
+                  <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
                 </div>
               </div>
             </td>
@@ -104,12 +103,12 @@
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.from.slice(0, 5) }}
+                {{ formatTime(task.from) }}
               </p>
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.to.slice(0, 5) }}
+                {{ formatTime(task.to) }}
               </p>
             </td>
             <td>
@@ -152,43 +151,53 @@
               &laquo;
             </a>
           </li>
-          
+
           <template v-if="totalPages <= 10">
             <li
               v-for="page in totalPages"
               :key="page"
-              :class="['page-item', { active: page === pagination.current_page }]"
+              :class="[
+                'page-item',
+                { active: page === pagination.current_page },
+              ]"
             >
               <a class="page-link" href="#" @click.prevent="changePage(page)">
                 {{ page }}
               </a>
             </li>
           </template>
-          
+
           <template v-else>
             <li v-if="pagination.current_page > 5" class="page-item disabled">
               <span class="page-link">...</span>
             </li>
-            
+
             <li
-              v-for="page in Math.min( totalPages)"
+              v-for="page in Math.min(totalPages)"
               :key="page"
-              :class="['page-item', { 
-                active: page === pagination.current_page,
-                'd-none': page < Math.max(1, pagination.current_page - 4) || 
-                          page > Math.min(totalPages, pagination.current_page + 5)
-              }]"
+              :class="[
+                'page-item',
+                {
+                  active: page === pagination.current_page,
+                  'd-none':
+                    page < Math.max(1, pagination.current_page - 4) ||
+                    page > Math.min(totalPages, pagination.current_page + 5),
+                },
+              ]"
             >
               <a class="page-link" href="#" @click.prevent="changePage(page)">
                 {{ page }}
               </a>
             </li>
-            
-            <li v-if="pagination.current_page < totalPages - 4" class="page-item disabled">
+
+            <li
+              v-if="pagination.current_page < totalPages - 4"
+              class="page-item disabled"
+            >
               <span class="page-link">...</span>
             </li>
           </template>
-          
+
           <li :class="['page-item', { disabled: !pagination.next_page_url }]">
             <a
               class="page-link"
@@ -243,27 +252,27 @@
               />
 
               <div
-              v-show="selectedTask.task_type === 'weekly'"
-              class="form-group mb-3"
-            >
-              <label class="form-label">{{ t("recurrentDays") }}:</label>
-              <div class="d-flex flex-wrap">
-                <div
-                  v-for="day in daysOfWeek"
-                  :key="day.value"
-                  class="form-check me-3"
-                >
-                  <argon-checkbox
-                    :id="'day-' + day.value"
-                    :name="'recurrentDays'"
-                    :value="day.value"
-                    v-model="selectedTask.recurrent_days"
+                v-show="selectedTask.task_type === 'weekly'"
+                class="form-group mb-3"
+              >
+                <label class="form-label">{{ t("recurrentDays") }}:</label>
+                <div class="d-flex flex-wrap">
+                  <div
+                    v-for="day in daysOfWeek"
+                    :key="day.value"
+                    class="form-check me-3"
                   >
-                    {{ day.label }}
-                  </argon-checkbox>
+                    <argon-checkbox
+                      :id="'day-' + day.value"
+                      :name="'recurrentDays'"
+                      :value="day.value"
+                      v-model="selectedTask.recurrent_days"
+                    >
+                      {{ day.label }}
+                    </argon-checkbox>
+                  </div>
                 </div>
               </div>
-            </div>
 
               <div
                 v-show="selectedTask.task_type === 'monthly'"
@@ -385,13 +394,29 @@
                   <dt class="col-sm-3">{{ t("taskNumber") }}:</dt>
                   <dd class="col-sm-9">{{ selectedTaskNumber }}</dd>
 
-                  <dt v-show="selectedDescription" class="col-sm-3">{{ t("description") }}:</dt>
-                  <dd v-show="selectedDescription" class="col-sm-9">{{ selectedDescription }}</dd>
+                  <dt v-show="selectedDescription" class="col-sm-3">
+                    {{ t("description") }}:
+                  </dt>
+                  <dd v-show="selectedDescription" class="col-sm-9">
+                    {{ selectedDescription }}
+                  </dd>
 
-                  <dt v-if="selectedTaskRecurrentDays && selectedTaskRecurrentDays.length" class="col-sm-3">
+                  <dt
+                    v-if="
+                      selectedTaskRecurrentDays &&
+                      selectedTaskRecurrentDays.length
+                    "
+                    class="col-sm-3"
+                  >
                     {{ t("recurrentDays") }}:
                   </dt>
-                  <dd v-if="selectedTaskRecurrentDays && selectedTaskRecurrentDays.length" class="col-sm-9">
+                  <dd
+                    v-if="
+                      selectedTaskRecurrentDays &&
+                      selectedTaskRecurrentDays.length
+                    "
+                    class="col-sm-9"
+                  >
                     {{
                       selectedTaskRecurrentDays
                         .map(
@@ -400,7 +425,7 @@
                               ?.label
                         )
                         .filter(Boolean)
-                        .join(", ") 
+                        .join(", ")
                     }}
                   </dd>
 
@@ -410,12 +435,16 @@
                   <dd v-if="selectedTaskDayOfMonth" class="col-sm-9">
                     {{ selectedTaskDayOfMonth }}
                   </dd>
-                  <dt v-if="selectedTaskCreationDate" class="col-sm-3">{{ t("createdAt") }}:</dt>
+                  <dt v-if="selectedTaskCreationDate" class="col-sm-3">
+                    {{ t("createdAt") }}:
+                  </dt>
                   <dd v-if="selectedTaskCreationDate" class="col-sm-9">
                     {{ formatDate(selectedTaskCreationDate) }}
                   </dd>
 
-                  <dt v-if="selectedTaskStartDate" class="col-sm-3">{{ t("startDate") }}:</dt>
+                  <dt v-if="selectedTaskStartDate" class="col-sm-3">
+                    {{ t("startDate") }}:
+                  </dt>
                   <dd v-if="selectedTaskStartDate" class="col-sm-9">
                     {{ formatDate(selectedTaskStartDate) }}
                   </dd>
@@ -553,6 +582,7 @@ const selectedTaskRecurrentDays = ref([]);
 const selectedTaskStatus = ref(null);
 const selectedTaskAssignedTo = ref(null);
 const selectedTaskDayOfMonth = ref(null);
+const loadingTaskId = ref(null);
 
 const activeTab = ref("info"); // علامة تبويب البداية
 
@@ -629,7 +659,9 @@ const t = (key) => translations[currentLanguage.value][key];
 const openEditModal = (task) => {
   selectedTask.value = {
     ...task,
-    recurrent_days: Array.isArray(task.recurrent_days) ? [...task.recurrent_days] : [],
+    recurrent_days: Array.isArray(task.recurrent_days)
+      ? [...task.recurrent_days]
+      : [],
   };
   selectedManager.value = task.assigned_to?.id || null; // تأكد من أن الخاصية صحيحة
   console.log("selectedManager.value:", selectedManager.value);
@@ -682,7 +714,10 @@ const updateTask = async () => {
       });
 
       closeEditPopup();
-      await store.dispatch("fetchAllRoutineTasks", props.pagination.current_page); // جلب البيانات مع الصفحة الحالية
+      await store.dispatch(
+        "fetchAllRoutineTasks",
+        props.pagination.current_page
+      ); // جلب البيانات مع الصفحة الحالية
 
       // await store.dispatch("fetchTasks"); // تأكد من وجود action fetchTasks في Vuex
     } else {
@@ -746,6 +781,7 @@ const deleteTask = async (taskId) => {
 
 const getTaskLogs = async (taskId) => {
   try {
+    loadingTaskId.value = taskId; // تحديد الرقم المعرف للمهمة المحددة
     const response = await store.dispatch("fetchTaskLogs", taskId);
     if (response.status === 200) {
       console.log("Task logs fetched successfully:", response.data);
@@ -755,6 +791,8 @@ const getTaskLogs = async (taskId) => {
     }
   } catch (error) {
     console.error("Error fetching task logs:", error);
+  } finally {
+    loadingTaskId.value = null; // تحديد الرقم المعرف للمهمة المحددة
   }
 };
 
@@ -948,6 +986,23 @@ const changePage = (page) => {
   if (page >= 1 && page <= props.pagination.last_page) {
     emit("page-changed", page);
   }
+};
+
+const formatTime = (time) => {
+  // تأكد من أن الوقت موجود وصحيح
+  if (!time) return "N/A";
+
+  // تقسيم الوقت إلى ساعات ودقائق
+  const [hours, minutes] = time.split(":").map(Number);
+
+  // تحديد AM أو PM
+  const period = hours >= 12 ? "PM" : "AM";
+
+  // تحويل الساعات إلى نظام 12 ساعة
+  const formattedHours = hours % 12 || 12; // إذا كانت الساعة 0 تصبح 12
+
+  // إرجاع الوقت بالتنسيق الجديد
+  return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
 };
 
 // حساب عدد الصفحات
@@ -1199,5 +1254,21 @@ td:hover .hover-icon {
 .pagination .page-link:hover:not(.disabled):not(.active) {
   background-color: #e9ecef;
   color: #a9ca5c;
+}
+
+
+/* تنسيق للنصوص الاختيارية */
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover-effect {
+  transition: color 0.3s ease;
+}
+
+.hover-effect:hover {
+  color: #a7c858;
+  text-decoration: underline;
 }
 </style>
