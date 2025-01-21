@@ -58,7 +58,7 @@ const closeMenu = () => {
           class="pe-md-3 d-flex align-items-center"
           :class="isRTL ? 'me-md-auto' : 'ms-md-auto'"
         >
-          <div class="input-group">
+          <!-- <div class="input-group">
             <span class="input-group-text text-body">
               <i class="fas fa-search" aria-hidden="true"></i>
             </span>
@@ -67,7 +67,7 @@ const closeMenu = () => {
               class="form-control"
               :placeholder="isRTL ? 'أكتب هنا...' : 'Type here...'"
             />
-          </div>
+          </div> -->
         </div>
         <ul class="navbar-nav justify-content-end">
           <li class="nav-item d-flex align-items-center">
@@ -98,7 +98,7 @@ const closeMenu = () => {
           </li>
           <li class="px-3 nav-item d-flex align-items-center">
             <a class="p-0 nav-link " @click="toggleConfigurator" :class="darkMode ? 'text-white' : 'text-dark'">
-              <i class="cursor-pointer fa fa-cog fixed-plugin-button-nav"></i>
+              <!-- <i class="cursor-pointer fa fa-cog fixed-plugin-button-nav"></i> -->
             </a>
           </li>
           <li
@@ -115,7 +115,7 @@ const closeMenu = () => {
               @click="showMenu = !showMenu"
               @blur="closeMenu"
             >
-              <i class="cursor-pointer fa fa-bell"></i>
+              <!-- <i class="cursor-pointer fa fa-bell"></i> -->
             </a>
             <ul
               class="px-2 py-3 dropdown-menu dropdown-menu-end me-sm-n4"

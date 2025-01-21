@@ -176,4 +176,11 @@ router.beforeEach((to, from, next) => {
   }
 });
 
+router.afterEach((to) => {
+  window.gtag('config', 'G-VGLP578ZCJ', {
+    page_path: to.fullPath
+  });
+});
+
+
 export default router;
