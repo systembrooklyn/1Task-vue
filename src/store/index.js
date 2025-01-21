@@ -89,7 +89,7 @@ export default createStore({
     SET_USER(state, user) {
       console.log("user", user);
       state.user = user;
-      // localStorage.setItem("user", encryptData(user));
+      localStorage.setItem("user", encryptData(user));
       // localStorage.setItem("userName", encryptData(user.user.name));
       // localStorage.setItem("name1", user.user.name);
       // sessionStorage.setItem("role", user.user.role.name);
@@ -264,6 +264,7 @@ export default createStore({
       state.name = name;
       localStorage.setItem("userName", encryptData(name));
     },
+
 
     SET_IS_OWNER(state, isOwner) {
       console.log("isOwner", isOwner);
