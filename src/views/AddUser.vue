@@ -17,6 +17,7 @@ const showAlert = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
 const showSuccess = ref(false);
+const isLoading = ref(false);
 
 const body = document.getElementsByTagName("body")[0];
 
@@ -89,6 +90,7 @@ const sendInvitation = async () => {
 
 
   try {
+    isLoading.value = true;
     if (!email.value) {
       Swal.fire({
         icon: "error",
@@ -99,6 +101,7 @@ const sendInvitation = async () => {
           popup: "swal-above-modal",
         },
       });
+      isLoading.value = false;
       return;
     }
     const emailExists = await store.dispatch("checkEmailExists", email.value);
@@ -112,7 +115,9 @@ const sendInvitation = async () => {
         customClass: {
           popup: "swal-above-modal",
         },
+        
       });
+      isLoading.value = false;
 
       return;
     } else {
@@ -132,6 +137,9 @@ const sendInvitation = async () => {
           popup: "swal-above-modal",
         },
       });
+
+      isLoading.value = false;
+      email.value = "";
     } else {
       Swal.fire({
         icon: "error",
@@ -142,6 +150,8 @@ const sendInvitation = async () => {
           popup: "swal-above-modal",
         },
       });
+
+      isLoading.value = false;
     }
 
   }
@@ -156,6 +166,8 @@ const sendInvitation = async () => {
         popup: "swal-above-modal",
       },
     });
+
+    isLoading.value = false;
   }
 };
 
@@ -187,8 +199,12 @@ const sendInvitation = async () => {
                     required
                   />
                 </div>
-                  <argon-button class="mt-4 col-md-3 mx-auto" type="submit" color="success" size="sm" @click="sendInvitation">
+                  <argon-button class="d-flex justify-content-center align-items-center mt-4 col-md-3 mx-auto" type="submit" color="success" size="sm" @click="sendInvitation">
                     {{ t("addMember") }}
+                    <span class="visually-hidden">Loading...</span>
+                    <div v-if="isLoading" class="spinner-border spinner-border-sm mx-2 text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
                   </argon-button>
               </div>
               <argon-alert
