@@ -1218,21 +1218,25 @@ export default createStore({
       }
     },
 
-    async fetchRoutineTasks({ commit }, page = 1) {
+    async fetchRoutineTasks({ commit }, page = 1, filters = {}) {
+      console.log("filters", filters);
       try {
-        const response = await apiClient.getRoutineTasks(page);
+        const response = await apiClient.getRoutineTasks(page, filters);
+        
         if (response.status === 200) {
           commit("SET_ROUTINE_TASKS", response.data);
-          console.log("response", response);
-          console.log("response.dataشششششششششش", response.data);
           return response;
         } else {
+          console.error("Error fetching tasks:", response);
           return response;
         }
       } catch (error) {
         console.error("Error fetching routine tasks:", error);
+        throw error;
       }
-    },
+    }
+    ,
+  
 
     async reportRoutineTasks({ commit }, payload) {
       console.log("payload", payload);

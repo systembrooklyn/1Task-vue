@@ -437,15 +437,22 @@ const config = {
     return apiClient.get(`/dailytask/${taskId}/revisions`, config);
   },
 
-  getRoutineTasks(page = 1) {
+  getRoutineTasks(page = 1, filter = {}) {
     const token = localStorage.getItem("token");
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      params: {
+        page,
+        ...filter,  // هنا بنمزج الفلاتر مع الـ params
+      },
     };
-    return apiClient.get(`/dailytask?page=${page}`, config);
+  
+    return apiClient.get("/dailytask", config);
   },
+  
+
 
   reportRoutineTasks(taskData) {
     const token = localStorage.getItem("token");

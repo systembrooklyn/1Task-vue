@@ -319,6 +319,25 @@ const translations = {
     saturday: "Saturday",
     enterStartDate: "Enter start date",
     startDate: "Start Date",
+
+    status: 'Status',
+    allTypes: 'All Types',
+    allStatuses: 'All Statuses',
+    allDepartments: 'All Departments',
+
+    weekly: 'Weekly',
+    monthly: 'Monthly',
+    last_day_of_month: 'Last Day of Month',
+    daily: 'Daily',
+
+    // active: 'Active',
+    // inactive: 'Inactive',
+    applyFilters: 'Apply Filters',
+    resetFilters: 'Reset Filters',
+    selectAll: 'Select All',
+    departmentsSelected: 'Departments Selected'
+
+    // التحكم في الإعدادات المتقدمة
   },
   ar: {
     addMember: "اضافة عضو",
@@ -362,7 +381,6 @@ const translations = {
     enterRecurrentDays: "ادخل عدد أيام التكرار",
     dayOfMonth: "يوم الشهر",
     enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,....31",
-    department: "القسم",
     selectDepartment: "اختر القسم",
     sunday: "الاحد",
     monday: "الاثنين",
@@ -373,6 +391,32 @@ const translations = {
     saturday: "السبت",
     enterStartDate: "ادخل تاريخ البدء",
     startDate: "تاريخ البدء",
+
+    status: "حالة",
+    department: "قسم",
+    allTypes: "جميع النوايات",
+    allStatuses: "جميع الحالات",
+    allDepartments: "جميع القسوم",
+    weekly: "اسبوعي",
+    monthly: "شهري", 
+    daily: "يومي",
+    last_day_of_month: "اخر يوم من الشهر",
+    // active: 'نشط',
+    // inactive: 'غير نشط',
+    applyFilters: 'تطبيق التصفيات',
+    resetFilters: 'اعادة تعيين التصفيات',
+    selectAll: 'اختر الكل',
+    departmentsSelected: 'اقسام محددة',
+    // taskType: 'نوع المهمة',
+    // status: 'الحالة',
+    // department: 'القسم',
+    // allTypes: 'جميع النوايات', 
+    // allStatuses: 'جميع الحالات',
+    // allDepartments: 'جميع القسوم',
+  
+    // active: 'نشط',
+    // inactive: 'غير نشط',
+
   },
 };
 
@@ -394,6 +438,46 @@ const handlePageChange = (page) => {
 onMounted(async () => {
   await store.dispatch("fetchDepartments");
 });
+
+// Filter variables
+const selectedTaskType = ref('');
+const selectedDepartments = ref([]);
+console.log("formattedDepartments:", formattedDepartments.value);
+const toggleAllDepartments = () => {
+  
+  if (selectedDepartments.value.length === formattedDepartments.value.length) {
+    // If all are selected, deselect all
+    selectedDepartments.value = [];
+  } else {
+    // Select all departments
+    selectedDepartments.value = formattedDepartments.value.map(dept => ({
+      id: dept.value,
+      name: dept.label
+    }));
+  }
+};
+
+const applyFilters = () => {
+  // Implement filter logic
+  const filters = {
+    task_type: selectedTaskType.value,
+    dept_filter: selectedDepartments.value.map(dept => dept.id)
+  };
+
+  console.log("Filters:", filters);
+  
+  // Dispatch action to fetch filtered routine tasks
+  store.dispatch('fetchRoutineTasks', { filters });
+};
+
+const resetFilters = () => {
+  // Reset all filter variables
+  selectedTaskType.value = '';
+  selectedDepartments.value = [];
+  
+  // Fetch all routine tasks without filters
+  store.dispatch('fetchRoutineTasks');
+};
 </script>
 
 <template>
@@ -412,6 +496,119 @@ onMounted(async () => {
               >
                 <i class="fas fa-plus"></i>
               </argon-button>
+           <!-- <button 
+                class="btn btn-link ms-auto" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#filterCollapse" 
+                aria-expanded="false" 
+                aria-controls="filterCollapse"
+              >
+                <i class="fas fa-filter"></i>
+              </button> -->
+            </div>
+            <div class="collapse" id="filterCollapse">
+              <div class="card card-body">
+                <div class="row">
+                  <!-- Filter by Task Type -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("taskType") }}</label>
+                    <select 
+                      class="form-select" 
+                      v-model="selectedTaskType"
+                    >
+                      <option value="">{{ t("allTypes") }}</option>
+                      <option value="weekly">{{ t("weekly") }}</option>
+                      <option value="monthly">{{ t("monthly") }}</option>
+                      <option value="daily">{{ t("daily") }}</option>
+                      <option value="last_day_of_month">{{t("last_day_of_month")}}</option>
+                    </select>
+                  </div>
+
+                  <!-- Filter by Status -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("status") }}</label>
+                    <select 
+                      class="form-select" 
+                      v-model="selectedStatus"
+                    >
+                      <option value="">{{ t("allStatuses") }}</option>
+                      <option value="active">{{ t("active") }}</option>
+                      <option value="inactive">{{ t("inactive") }}</option>
+                    </select>
+                  </div>
+
+                  <!-- Filter by Department -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("department") }}</label>
+                    <div class="dropdown">
+                      <button 
+                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start" 
+                        type="button" 
+                        id="departmentDropdown" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false"
+                      >
+                        {{ selectedDepartments.length === 0 ? t("allDepartments") : 
+                           selectedDepartments.length === 1 ? selectedDepartments[0].name : 
+                           `${selectedDepartments.length} ${t("departmentsSelected")}` }}
+                      </button>
+                      <ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
+                        <li class="px-2">
+                          <div class="form-check">
+                            <input 
+                              class="form-check-input" 
+                              type="checkbox" 
+                              id="selectAllDepartments"
+                              :checked="selectedDepartments.length === formattedDepartments.length"
+                              @change="toggleAllDepartments"
+                            >
+                            <label class="form-check-label" for="selectAllDepartments">
+                              {{ t("selectAll") }}
+                            </label>
+                          </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li 
+                          v-for="department in formattedDepartments" 
+                          :key="department.value" 
+                          class="px-2"
+                        >
+                          <div class="form-check">
+                            <input 
+                              class="form-check-input" 
+                              type="checkbox" 
+                              :id="'department-' + department.value"
+                              :value="{ id: department.value, name: department.label }"
+                              v-model="selectedDepartments"
+                            >
+                            <label 
+                              class="form-check-label" 
+                              :for="'department-' + department.value"
+                            >
+                              {{ department.label }}
+                            </label>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                  <button 
+                    class="btn btn-primary me-2" 
+                    @click="applyFilters"
+                  >
+                    {{ t("applyFilters") }}
+                  </button>
+                  <button 
+                    class="btn btn-secondary" 
+                    @click="resetFilters"
+                  >
+                    {{ t("resetFilters") }}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="card-body">

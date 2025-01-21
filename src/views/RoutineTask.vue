@@ -17,8 +17,7 @@ import RoutineTasksTable from "@/views/components/RoutineTaskTable.vue";
 const store = useStore();
 
 const userData = computed(() => store.getters.user);
-
-
+console.log("userDataaaaaaaaa:", userData.value);
 
 import {
   savePermissionsToLocalStorage,
@@ -64,6 +63,17 @@ const formattedDepartments = computed(() => {
     label: department.name,
   }));
 });
+
+const userDepartment = computed(() => {
+  const user = userData.value;
+  console.log("user.departments:", user);
+  return user.user.departments.map((department) => ({
+    value: department.id,
+    label: department.name,
+  }));
+});
+
+console.log("userDepartment:", userDepartment.value);
 
 // const isOwner = computed(() => store.getters.isOwner);
 
@@ -182,8 +192,10 @@ const fetchRoutineTasks = async (page = 1) => {
   try {
     const response = await store.dispatch("fetchRoutineTasks", page); // تعديل الـ action
     console.log("response:", response);
-    if (response.status === 200 ) {
-      routineTasks.value = store.getters.routineTasks.tasks.filter(task => task.active === true); // تعديل الـ getter
+    if (response.status === 200) {
+      routineTasks.value = store.getters.routineTasks.tasks.filter(
+        (task) => task.active === true
+      ); // تعديل الـ getter
       console.log("routineTasks:", routineTasks.value);
       pagination.value = store.getters.routineTasks.pagination; // تعديل الـ getter
       componentKey.value += 1;
@@ -196,13 +208,7 @@ const fetchRoutineTasks = async (page = 1) => {
   }
 };
 
-watch(
-  () => store.getters.routineTasks.tasks, // تعديل الـ getter
-  (newData) => {
-    routineTasks.value = [...newData];
-    componentKey.value += 1; // إعادة تحميل المكون عند حدوث أي تحديث في البيانات
-  }
-);
+
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
 
@@ -220,43 +226,58 @@ const t = (key) => {
 // });
 
 // Filter variables
-const selectedTaskType = ref('');
+const selectedTaskType = ref("");
 const selectedDepartments = ref([]);
-console.log("formattedDepartments:", formattedDepartments.value);
+console.log("userDepartment:", userDepartment.value);
 const toggleAllDepartments = () => {
-  
-  if (selectedDepartments.value.length === formattedDepartments.value.length) {
+  if (selectedDepartments.value.length === userDepartment.value.length) {
     // If all are selected, deselect all
     selectedDepartments.value = [];
+    console.log("selectedDepartments:", selectedDepartments.value);
   } else {
     // Select all departments
-    selectedDepartments.value = formattedDepartments.value.map(dept => ({
+    selectedDepartments.value = userDepartment.value.map((dept) => ({
       id: dept.value,
-      name: dept.label
+      name: dept.label,
     }));
   }
 };
 
-const applyFilters = () => {
-  // Implement filter logic
+const applyFilters = async () => {
   const filters = {
-    task_type: selectedTaskType.value,
-    dept_filter: selectedDepartments.value.map(dept => dept.id)
+    dept_filter: selectedDepartments.value.map((dept) => dept.id),
+    // task_type: selectedTaskType.value,
   };
-  
-  // Dispatch action to fetch filtered routine tasks
-  store.dispatch('fetchRoutineTasks', { filters });
+
+  console.log("Applying filters:", filters);
+
+  // هنا بنستدعي الدالة مع تمرير الصفحة والفلاتر
+  await store.dispatch("fetchRoutineTasks", 1, filters);
+
+  // بعد استلام الرد، بنحدث البيانات المُستخدمة في العرض
+  routineTasks.value = store.getters.routineTasks.tasks.filter(task => task.active === true);
+  pagination.value = store.getters.routineTasks.pagination;
+  componentKey.value += 1;
 };
+
+
 
 const resetFilters = () => {
   // Reset all filter variables
-  selectedTaskType.value = '';
+  selectedTaskType.value = "";
   selectedDepartments.value = [];
-  
+
   // Fetch all routine tasks without filters
-  store.dispatch('fetchRoutineTasks');
+  // store.dispatch('fetchRoutineTasks');
 };
 
+watch(
+  () => store.getters.routineTasks.tasks, // تعديل الـ getter
+  (newData) => {
+    routineTasks.value = [...newData];
+    componentKey.value += 1; // إعادة تحميل المكون عند حدوث أي تحديث في البيانات
+  }
+);
 
 // const openPopup = () => {
 //   showPopup.value = true;
@@ -369,21 +390,21 @@ const translations = {
     saturday: "Saturday",
     enterStartDate: "Enter start date",
     startDate: "Start Date",
-    taskType: 'Task Type',
-    status: 'Status',
-    department: 'Department',
-    allTypes: 'All Types',
-    allStatuses: 'All Statuses',
-    allDepartments: 'All Departments',
-    weekly: 'Weekly',
-    monthly: 'Monthly', 
-    daily: 'Daily',
+    taskType: "Task Type",
+    status: "Status",
+    department: "Department",
+    allTypes: "All Types",
+    allStatuses: "All Statuses",
+    allDepartments: "All Departments",
+    weekly: "Weekly",
+    monthly: "Monthly",
+    daily: "Daily",
     // active: 'Active',
     // inactive: 'Inactive',
-    applyFilters: 'Apply Filters',
-    resetFilters: 'Reset Filters',
-    selectAll: 'Select All',
-    departmentsSelected: 'Departments Selected'
+    applyFilters: "Apply Filters",
+    resetFilters: "Reset Filters",
+    selectAll: "Select All",
+    departmentsSelected: "Departments Selected",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -444,15 +465,15 @@ const translations = {
     // allTypes: 'جميع النوايات',
     // allStatuses: 'جميع الحالات',
     // allDepartments: 'جميع القسوم',
-    weekly: 'اسبوعي',
-    monthly: 'شهري', 
-    daily: 'يومي',
+    weekly: "اسبوعي",
+    monthly: "شهري",
+    daily: "يومي",
     // active: 'نشط',
     // inactive: 'غير نشط',
-    applyFilters: 'تطبيق التصفيات',
-    resetFilters: 'اعادة تعيين التصفيات',
-    selectAll: 'اختر الكل',
-    departmentsSelected: 'اقسام محددة'  
+    applyFilters: "تطبيق التصفيات",
+    resetFilters: "اعادة تعيين التصفيات",
+    selectAll: "اختر الكل",
+    departmentsSelected: "اقسام محددة",
   },
 };
 
@@ -479,10 +500,10 @@ const handlePageChange = (page) => {
 onMounted(async () => {
   try {
     // Fetch departments from your API or Vuex store
-    const fetchedDepartments = await store.dispatch('fetchDepartments');
-    console.log('Fetched Departments:', fetchedDepartments);
+    const fetchedDepartments = await store.dispatch("fetchDepartments");
+    console.log("Fetched Departments:", fetchedDepartments);
   } catch (error) {
-    console.error('Error fetching departments:', error);
+    console.error("Error fetching departments:", error);
   }
 });
 </script>
@@ -496,12 +517,12 @@ onMounted(async () => {
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
               <p class="mb-0 font-weight-bold">{{ t("routineTasksTable") }}</p>
-              <!-- <button 
-                class="btn btn-link ms-auto" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#filterCollapse" 
-                aria-expanded="false" 
+              <!-- <button
+                class="btn btn-link ms-auto"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#filterCollapse"
+                aria-expanded="false"
                 aria-controls="filterCollapse"
               >
                 <i class="fas fa-filter"></i>
@@ -513,10 +534,7 @@ onMounted(async () => {
                   <!-- Filter by Task Type -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("taskType") }}</label>
-                    <select 
-                      class="form-select" 
-                      v-model="selectedTaskType"
-                    >
+                    <select class="form-select" v-model="selectedTaskType">
                       <option value="">{{ t("allTypes") }}</option>
                       <option value="weekly">{{ t("weekly") }}</option>
                       <option value="monthly">{{ t("monthly") }}</option>
@@ -527,10 +545,7 @@ onMounted(async () => {
                   <!-- Filter by Status -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("status") }}</label>
-                    <select 
-                      class="form-select" 
-                      v-model="selectedStatus"
-                    >
+                    <select class="form-select" v-model="selectedStatus">
                       <option value="">{{ t("allStatuses") }}</option>
                       <option value="active">{{ t("active") }}</option>
                       <option value="inactive">{{ t("inactive") }}</option>
@@ -541,48 +556,64 @@ onMounted(async () => {
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
-                      <button 
-                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start" 
-                        type="button" 
-                        id="departmentDropdown" 
-                        data-bs-toggle="dropdown" 
+                      <button
+                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                        type="button"
+                        id="departmentDropdown"
+                        data-bs-toggle="dropdown"
                         aria-expanded="false"
                       >
-                        {{ selectedDepartments.length === 0 ? t("allDepartments") : 
-                           selectedDepartments.length === 1 ? selectedDepartments[0].name : 
-                           `${selectedDepartments.length} ${t("departmentsSelected")}` }}
+                        {{
+                          selectedDepartments.length === 0
+                            ? t("allDepartments")
+                            : selectedDepartments.length === 1
+                              ? selectedDepartments[0].name
+                              : `${selectedDepartments.length} ${t("departmentsSelected")}`
+                        }}
                       </button>
-                      <ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
+                      <ul
+                        class="dropdown-menu w-100"
+                        aria-labelledby="departmentDropdown"
+                      >
                         <li class="px-2">
                           <div class="form-check">
-                            <input 
-                              class="form-check-input" 
-                              type="checkbox" 
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
                               id="selectAllDepartments"
-                              :checked="selectedDepartments.length === formattedDepartments.length"
+                              :checked="
+                                selectedDepartments.length ===
+                                userDepartment.length
+                              "
                               @change="toggleAllDepartments"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="selectAllDepartments"
                             >
-                            <label class="form-check-label" for="selectAllDepartments">
                               {{ t("selectAll") }}
                             </label>
                           </div>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li 
-                          v-for="department in formattedDepartments" 
-                          :key="department.value" 
+                        <li><hr class="dropdown-divider" /></li>
+                        <li
+                          v-for="department in userDepartment"
+                          :key="department.value"
                           class="px-2"
                         >
                           <div class="form-check">
-                            <input 
-                              class="form-check-input" 
-                              type="checkbox" 
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
                               :id="'department-' + department.value"
-                              :value="{ id: department.value, name: department.label }"
+                              :value="{
+                                id: department.value,
+                                name: department.label,
+                              }"
                               v-model="selectedDepartments"
-                            >
-                            <label 
-                              class="form-check-label" 
+                            />
+                            <label
+                              class="form-check-label"
                               :for="'department-' + department.value"
                             >
                               {{ department.label }}
@@ -594,16 +625,10 @@ onMounted(async () => {
                   </div>
                 </div>
                 <div class="d-flex justify-content-end">
-                  <button 
-                    class="btn btn-primary me-2" 
-                    @click="applyFilters"
-                  >
+                  <button class="btn btn-primary me-2" @click="applyFilters">
                     {{ t("applyFilters") }}
                   </button>
-                  <button 
-                    class="btn btn-secondary" 
-                    @click="resetFilters"
-                  >
+                  <button class="btn btn-secondary" @click="resetFilters">
                     {{ t("resetFilters") }}
                   </button>
                 </div>
@@ -696,7 +721,6 @@ onMounted(async () => {
                 class="form-control"
               />
             </div>
-
 
             <div v-show="taskType === 'weekly'" class="form-group mb-3">
               <label class="form-label">{{ t("recurrentDays") }}:</label>
