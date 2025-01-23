@@ -61,6 +61,7 @@ export default createStore({
     projectLogs: [],
     routineTasks: [],
     allRoutineTasks: [],
+    routineTasksReports: [],
     pagination: {
       total: 0,
       current_page: 1,
@@ -210,7 +211,11 @@ export default createStore({
     removeRoutineTask(state, taskId) {
       console.log("taskId", taskId);
       console.log("state.routineTasks", state.routineTasks);
-    },  
+    }, 
+    
+    SET_TASK_REPORTS(state, reports) {
+      state.routineTasksReports = reports;
+    },
 
     // end----------------------------------------------------
     // تحميل بيانات المستخدم من `localStorage` عند بدء التشغيل
@@ -1251,6 +1256,33 @@ export default createStore({
         return error;
       }
     },
+
+    // task reports
+    async fetchTaskReports({ commit }, page = 1 , filterData ) {
+      try {
+        // const filterData = {
+        //   start_date: start_date,
+        //   end_date: end_date
+        // }
+        if (filterData) {
+          console.log("with filter");
+          const response = await apiClient.getTaskReports(page , filterData);
+          console.log("response", response.data);
+        commit("SET_TASK_REPORTS", response.data);
+        return response;
+        } else{
+          console.log("without filter");
+          const response = await apiClient.getTaskReports(page);
+          console.log("response", response.data);
+        commit("SET_TASK_REPORTS", response.data);
+        return response;
+        }
+        
+      } catch (error) {
+        console.error("Error fetching task reports:", error);
+        return error;
+      }
+    },
   },
 
   getters: {
@@ -1283,5 +1315,6 @@ export default createStore({
     projectLogs: (state) => state.projectLogs,
     routineTasks: (state) => state.routineTasks,
     allRoutineTasks: (state) => state.allRoutineTasks,
+    routineTasksReports: (state) => state.routineTasksReports,
   },
 });

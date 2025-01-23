@@ -88,6 +88,7 @@ const handleSignOut = () => {
 const collapsibleSections = ref({
   workForce: false,
   tasks: false,
+  reports: false,
   accountPages: false
 });
 
@@ -143,6 +144,56 @@ const toggleSection = (section) => {
               >
                 <template v-slot:icon>
                   <i class="fa fa-cogs text-info text-sm opacity-10"></i>
+                </template>
+              </sidenav-item>
+            </li>
+            <!-- <li class="nav-item" v-show="isOwner">
+              <sidenav-item
+                to="/task-reports"
+                :class="getRoute() === 'reported-tasks' ? 'active' : ''"
+                :navText="isRTL ? ' تقرير المهام' : ' Task Reports'"
+              >
+                <template v-slot:icon>
+                  <i class="fa  fa-check-square text-primary text-sm opacity-10"></i>
+                </template>
+              </sidenav-item>
+            </li> -->
+          </ul>
+        </transition>
+      </li>
+
+      <!-- rport Section -->
+
+      <li class="nav-item" v-show="isOwner">
+        <div 
+          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
+          @click="toggleSection('reports')"
+        >
+          <div class="d-flex align-items-center">
+            <i class="fas fa-chart-line text-success me-2"></i>
+            <span>{{ isRTL ? 'تقارير' : 'Reports' }}</span>
+          </div>
+          <i 
+            class="fas fa-chevron-right transition-transform" 
+            :class="{ 'rotate-180': collapsibleSections.reports }"
+          ></i>
+        </div>
+        
+        <transition  name="dropdown">
+          <ul 
+            v-show="collapsibleSections.reports" 
+            class="nav nav-sm flex-column"
+          >
+
+
+            <li class="nav-item" v-show="isOwner">
+              <sidenav-item
+                to="/task-reports"
+                :class="getRoute() === 'reported-tasks' ? 'active' : ''"
+                :navText="isRTL ? ' تقرير المهام' : ' Task Reports'"
+              >
+                <template v-slot:icon>
+                  <i class="fas fa-clipboard-check text-primary text-sm opacity-10"></i>
                 </template>
               </sidenav-item>
             </li>

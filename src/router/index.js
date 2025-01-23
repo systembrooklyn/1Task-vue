@@ -119,6 +119,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/task-reports",
+    name: "reported tasks",
+    component: () => import("@/views/ReportedTask.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/error",
     name: "Error",
     component: ErrorPage,
