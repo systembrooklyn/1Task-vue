@@ -122,10 +122,10 @@ const toggleSection = (section) => {
         
         <transition name="dropdown">
           <ul 
-            v-show="collapsibleSections.tasks" 
+            v-if="collapsibleSections.tasks" 
             class="nav nav-sm flex-column"
           >
-            <li class="nav-item" v-show="permissions['view-dailytask'] || isOwner">
+            <li class="nav-item" v-if="permissions['view-dailytask'] || isOwner">
               <sidenav-item
                 to="/routine-task"
                 :class="getRoute() === 'routine-task' ? 'active' : ''"
@@ -136,7 +136,7 @@ const toggleSection = (section) => {
                 </template>
               </sidenav-item>
             </li>
-            <li class="nav-item" v-show="permissions['view-alldailytask'] || isOwner">
+            <li class="nav-item" v-if="permissions['view-alldailytask'] || isOwner">
               <sidenav-item
                 to="/manage-routine-task"
                 :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
@@ -147,7 +147,7 @@ const toggleSection = (section) => {
                 </template>
               </sidenav-item>
             </li>
-            <!-- <li class="nav-item" v-show="isOwner">
+            <!-- <li class="nav-item" v-if="isOwner">
               <sidenav-item
                 to="/task-reports"
                 :class="getRoute() === 'reported-tasks' ? 'active' : ''"
@@ -164,7 +164,7 @@ const toggleSection = (section) => {
 
       <!-- rport Section -->
 
-      <li class="nav-item" v-show="isOwner || permissions['view-dailyTaskReports']">
+      <li class="nav-item" v-if="isOwner || permissions['view-dailyTaskReports']">
         <div 
           class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('reports')"
@@ -181,12 +181,12 @@ const toggleSection = (section) => {
         
         <transition  name="dropdown">
           <ul 
-            v-show="collapsibleSections.reports" 
+            v-if="collapsibleSections.reports" 
             class="nav nav-sm flex-column"
           >
 
 
-            <li class="nav-item" v-show="isOwner || permissions['view-dailyTaskReports']">
+            <li class="nav-item" v-if="isOwner || permissions['view-dailyTaskReports']">
               <sidenav-item
                 to="/task-reports"
                 :class="getRoute() === 'reported-tasks' ? 'active' : ''"
@@ -202,7 +202,7 @@ const toggleSection = (section) => {
       </li>
 
       <!-- Work Force Section -->
-      <li class="nav-item" v-show="permissions['view-user'] || permissions['invite-user'] || permissions['view-role'] || isOwner">
+      <li class="nav-item" v-if="permissions['view-user'] || permissions['invite-user'] || permissions['view-role'] || isOwner">
         <div 
           class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('workForce')"
@@ -219,13 +219,13 @@ const toggleSection = (section) => {
         
         <transition name="dropdown">
           <ul 
-            v-show="collapsibleSections.workForce" 
+            v-if="collapsibleSections.workForce" 
             class="nav nav-sm flex-column"
           >
             <li class="nav-item">
               <sidenav-item
                 to="/addUser"
-                v-show="permissions['invite-user'] || isOwner"
+                v-if="permissions['invite-user'] || isOwner"
                 :class="getRoute() === 'addUser' ? 'active' : ''"
                 :navText="isRTL ? 'اضافة موظفين' : 'Add Employees'"
               >
@@ -237,7 +237,7 @@ const toggleSection = (section) => {
             <li class="nav-item">
               <sidenav-item
                 to="/team"
-                v-show="permissions['view-user'] || isOwner"
+                v-if="permissions['view-user'] || isOwner"
                 :class="getRoute() === 'team' ? 'active' : ''"
                 :navText="isRTL ? 'فريق' : 'Team'"
               >
@@ -249,7 +249,7 @@ const toggleSection = (section) => {
             <li class="nav-item">
               <sidenav-item
                 to="/add-role"
-                v-show="permissions['view-role'] || isOwner"
+                v-if="permissions['view-role'] || isOwner"
                 :class="getRoute() === 'addRole' ? 'active' : ''"
                 :navText="isRTL ? 'اضافة أدوار وصلاحيات' : 'Add Roles & Permissions'"
               >
@@ -266,7 +266,7 @@ const toggleSection = (section) => {
       <li class="nav-item">
         <sidenav-item
           to="/department"
-          v-show="permissions['view-department'] || isOwner"
+          v-if="permissions['view-department'] || isOwner"
           :class="getRoute() === 'department' ? 'active' : ''"
           :navText="isRTL ? 'الاقسام' : 'Departments'"
         >
@@ -276,7 +276,7 @@ const toggleSection = (section) => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item" v-show="permissions['view-project'] || isOwner">
+      <li class="nav-item" v-if="permissions['view-project'] || isOwner">
         <sidenav-item
           to="/project"
           :class="getRoute() === 'project' ? 'active' : ''"
@@ -306,7 +306,7 @@ const toggleSection = (section) => {
         
         <!-- <transition name="dropdown">
           <ul 
-            v-show="collapsibleSections.accountPages" 
+            v-if="collapsibleSections.accountPages" 
             class="nav nav-sm flex-column"
           > -->
             <!-- <li class="nav-item"> -->
