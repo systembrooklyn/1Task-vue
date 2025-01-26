@@ -1,7 +1,7 @@
 // src/views/RoutineTask.vue
 
 <script setup>
-import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
+import { ref, computed, onBeforeMount, watch, onMounted   } from "vue";
 import { useStore } from "vuex";
 // import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonModal from "@/components/ArgonModal.vue";
@@ -15,6 +15,17 @@ import ReportedTaskTable from "@/views/components/ReportedTaskTable.vue";
 // import Swal from "sweetalert2";
 
 const store = useStore();
+
+// const emit = defineEmits(['toggle-tasks']);
+// const showAllTasks = ref(false);
+
+// const toggleTasks = () => {
+//   showAllTasks.value = !showAllTasks.value;
+//   console.log(showAllTasks.value);
+//   emit('toggle-tasks', showAllTasks.value);
+// };
+
+
 
 const userData = computed(() => store.getters.user);
 const departments = computed(() => store.getters.departments);
@@ -243,26 +254,22 @@ const t = (key) => {
 //   } catch (error) {
 //     console.log("error:", error);
 //       // استخراج الأخطاء من الرد
-  
-  
+
 //       Swal.fire({
 //         icon: "warning",
 //         title: t("errorOccurred"),
-//         html: error, 
+//         html: error,
 //         showConfirmButton: true,
-//         backdrop: 'rgba(0,0,0,0.5)', 
-//         heightAuto: false, 
+//         backdrop: 'rgba(0,0,0,0.5)',
+//         heightAuto: false,
 //         customClass: {
-//           popup: 'swal-above-modal', 
+//           popup: 'swal-above-modal',
 //         }
 //       });
 //     } finally {
 //     isLoading.value = false;
 //   }
 // };
-
-
-
 
 const translations = {
   en: {
@@ -320,22 +327,22 @@ const translations = {
     enterStartDate: "Enter start date",
     startDate: "Start Date",
 
-    status: 'Status',
-    allTypes: 'All Types',
-    allStatuses: 'All Statuses',
-    allDepartments: 'All Departments',
+    status: "Status",
+    allTypes: "All Types",
+    allStatuses: "All Statuses",
+    allDepartments: "All Departments",
 
-    weekly: 'Weekly',
-    monthly: 'Monthly',
-    last_day_of_month: 'Last Day of Month',
-    daily: 'Daily',
+    weekly: "Weekly",
+    monthly: "Monthly",
+    last_day_of_month: "Last Day of Month",
+    daily: "Daily",
 
     // active: 'Active',
     // inactive: 'Inactive',
-    applyFilters: 'Apply Filters',
-    resetFilters: 'Reset Filters',
-    selectAll: 'Select All',
-    departmentsSelected: 'Departments Selected',
+    applyFilters: "Apply Filters",
+    resetFilters: "Reset Filters",
+    selectAll: "Select All",
+    departmentsSelected: "Departments Selected",
     filterByDate: "Filter by Date",
 
     // التحكم في الإعدادات المتقدمة
@@ -399,27 +406,26 @@ const translations = {
     allStatuses: "جميع الحالات",
     allDepartments: "جميع القسوم",
     weekly: "اسبوعي",
-    monthly: "شهري", 
+    monthly: "شهري",
     daily: "يومي",
     last_day_of_month: "اخر يوم من الشهر",
     // active: 'نشط',
     // inactive: 'غير نشط',
-    applyFilters: 'تطبيق التصفيات',
-    resetFilters: 'اعادة تعيين التصفيات',
-    selectAll: 'اختر الكل',
-    departmentsSelected: 'اقسام محددة',
+    applyFilters: "تطبيق التصفيات",
+    resetFilters: "اعادة تعيين التصفيات",
+    selectAll: "اختر الكل",
+    departmentsSelected: "اقسام محددة",
     filterByDate: "تصفية حسب التاريخ",
 
     // taskType: 'نوع المهمة',
     // status: 'الحالة',
     // department: 'القسم',
-    // allTypes: 'جميع النوايات', 
+    // allTypes: 'جميع النوايات',
     // allStatuses: 'جميع الحالات',
     // allDepartments: 'جميع القسوم',
-  
+
     // active: 'نشط',
     // inactive: 'غير نشط',
-
   },
 };
 
@@ -440,8 +446,9 @@ const handlePageChange = (page) => {
 
 onMounted(async () => {
   await store.dispatch("fetchDepartments");
+  const today = new Date().toISOString().split("T")[0];
+  selectedDate.value = today;
 });
-
 
 // Define userDepartment (alias for formattedDepartments)
 const userDepartment = computed(() => formattedDepartments.value);
@@ -469,10 +476,10 @@ const areAllDepartmentsSelected = computed(() => {
   return selectedDepartments.value.length === userDepartment.value.length;
 });
 
-// Reset filters
+// Update the resetFilters function
 const resetFilters = () => {
   selectedDepartments.value = [];
-  selectedDate.value = "";
+  selectedDate.value = new Date().toISOString().split("T")[0]; // Reset to today's date
 };
 
 // Clear all departments
@@ -481,6 +488,7 @@ const clearAllDepartments = () => {
 };
 
 // Filtered tasks based on selected departments and date
+// Update the filteredTasks computed property
 const filteredTasks = computed(() => {
   return routineTasksReport.value.filter((task) => {
     // Filter by department
@@ -497,6 +505,7 @@ const filteredTasks = computed(() => {
     return departmentMatch && dateMatch;
   });
 });
+
 </script>
 
 <template>
@@ -515,12 +524,12 @@ const filteredTasks = computed(() => {
               >
                 <i class="fas fa-plus"></i>
               </argon-button> -->
-           <button 
-                class="btn btn-link ms-auto" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#filterCollapse" 
-                aria-expanded="false" 
+              <button
+                class="btn btn-link ms-auto"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#filterCollapse"
+                aria-expanded="false"
                 aria-controls="filterCollapse"
               >
                 <i class="fas fa-filter"></i>
@@ -535,73 +544,85 @@ const filteredTasks = computed(() => {
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
                       <button
-  class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
-  type="button"
-  id="departmentDropdown"
-  data-bs-toggle="dropdown"
-  aria-expanded="false"
-  :aria-label="
-    selectedDepartments.length === 0
-      ? 'All Departments'
-      : selectedDepartments.length === 1
-        ? selectedDepartments[0].name
-        : `${selectedDepartments.length} Departments Selected`
-  "
->
-  {{
-    selectedDepartments.length === 0
-      ? t("allDepartments")
-      : selectedDepartments.length === 1
-        ? selectedDepartments[0].name
-        : `${selectedDepartments.length} ${t("departmentsSelected")}`
-  }}
-</button>
-<ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
-  <!-- Select All Checkbox -->
-  <li class="px-2">
-  <div class="form-check">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      id="selectAllDepartments"
-      :checked="areAllDepartmentsSelected"
-      @change="toggleAllDepartments"
-    />
-    <label class="form-check-label" for="selectAllDepartments">
-      {{ t("selectAll") }}
-    </label>
-  </div>
-</li>
-<li class="px-2">
-  <button class="btn btn-link text-danger" @click="clearAllDepartments">
-    {{ t("clearAll") }}
-  </button>
-</li>
-<li><hr class="dropdown-divider" /></li>
+                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                        type="button"
+                        id="departmentDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        :aria-label="
+                          selectedDepartments.length === 0
+                            ? 'All Departments'
+                            : selectedDepartments.length === 1
+                              ? selectedDepartments[0].name
+                              : `${selectedDepartments.length} Departments Selected`
+                        "
+                      >
+                        {{
+                          selectedDepartments.length === 0
+                            ? t("allDepartments")
+                            : selectedDepartments.length === 1
+                              ? selectedDepartments[0].name
+                              : `${selectedDepartments.length} ${t("departmentsSelected")}`
+                        }}
+                      </button>
+                      <ul
+                        class="dropdown-menu w-100"
+                        aria-labelledby="departmentDropdown"
+                      >
+                        <!-- Select All Checkbox -->
+                        <li class="px-2">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="selectAllDepartments"
+                              :checked="areAllDepartmentsSelected"
+                              @change="toggleAllDepartments"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="selectAllDepartments"
+                            >
+                              {{ t("selectAll") }}
+                            </label>
+                          </div>
+                        </li>
+                        <li class="px-2">
+                          <button
+                            class="btn btn-link text-danger"
+                            @click="clearAllDepartments"
+                          >
+                            {{ t("clearAll") }}
+                          </button>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
 
-  <!-- Department Checkboxes -->
-  <li
-    v-for="department in userDepartment"
-    :key="department.value"
-    class="px-2"
-  >
-    <div class="form-check">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        :id="'department-' + department.value"
-        :value="{ id: department.value, name: department.label }"
-        v-model="selectedDepartments"
-      />
-      <label
-        class="form-check-label"
-        :for="'department-' + department.value"
-      >
-        {{ department.label }}
-      </label>
-    </div>
-  </li>
-</ul>
+                        <!-- Department Checkboxes -->
+                        <li
+                          v-for="department in userDepartment"
+                          :key="department.value"
+                          class="px-2"
+                        >
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              :id="'department-' + department.value"
+                              :value="{
+                                id: department.value,
+                                name: department.label,
+                              }"
+                              v-model="selectedDepartments"
+                            />
+                            <label
+                              class="form-check-label"
+                              :for="'department-' + department.value"
+                            >
+                              {{ department.label }}
+                            </label>
+                          </div>
+                        </li>
+                      </ul>
                     </div>
                   </div>
 
@@ -618,13 +639,26 @@ const filteredTasks = computed(() => {
 
                 <!-- Reset Filters -->
                 <div class="d-flex justify-content-end">
-                  <button
-                    class="btn btn-secondary"
-                    @click="resetFilters"
-                  >
+                  <button class="btn btn-secondary" @click="resetFilters">
                     {{ t("resetFilters") }}
                   </button>
                 </div>
+                <!-- <div class="d-flex justify-content-end mb-3">
+      <button
+        class="btn btn-sm btn-primary"
+        @click="showAllTasks = !showAllTasks"
+      >
+        {{ showAllTasks ? "Show Today's Tasks" : "Show All Tasks" }}
+      </button>
+    </div> -->
+    <!-- <div class="d-flex align-items-center">
+              <button
+                class="btn btn-sm btn-primary ms-auto"
+                @click="toggleTasks"
+              >
+                {{ showAllTasks ? "Show Today's Tasks" : "Show All Tasks" }}
+              </button>
+            </div> -->
               </div>
             </div>
           </div>
@@ -672,7 +706,7 @@ const filteredTasks = computed(() => {
         </div>
       </div>
     </div>
-  </div>  
+  </div>
 
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
@@ -694,7 +728,7 @@ const filteredTasks = computed(() => {
               />
             </div>
 
-            <div  class="form-group mb-3">
+            <div class="form-group mb-3">
               <label class="form-label">{{ t("description") }}:</label>
               <textarea
                 v-model="routineTaskDescription"
@@ -921,7 +955,6 @@ const filteredTasks = computed(() => {
 .routine-task-modal .modal-body {
   flex: 1; /* السماح للمحتوى بالتمدد */
 }
-
 
 /* swal */
 

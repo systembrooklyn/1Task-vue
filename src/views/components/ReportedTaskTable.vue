@@ -2,6 +2,31 @@
 
 <template>
   <div class="card-body px-0 pt-0 pb-2" :key="componentKey">
+    <!-- <div class="d-flex justify-content-end mb-3">
+      <button
+        class="btn btn-sm btn-primary"
+        @click="showAllTasks = !showAllTasks"
+      >
+        {{ showAllTasks ? "Show Today's Tasks" : "Show All Tasks" }}
+      </button>
+    </div> -->
+
+    <!-- <div class="row mb-4">
+      <div
+        v-for="(count, department) in taskCountByDepartment"
+        :key="department"
+        class="col-md-3 mb-3"
+      >
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ department }}</h5>
+            <p class="card-text">
+              <span class="badge bg-primary">{{ count }}</span> tasks
+            </p>
+          </div>
+        </div>
+      </div>
+    </div> -->
     <div class="table-responsive p-3">
       <table class="table align-items-center table-hover mb-0">
         <thead class="thead-light">
@@ -65,7 +90,6 @@
               {{ t("employeeName") }}
             </th>
             <th
-              
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("report") }}
@@ -180,7 +204,7 @@
                 {{ task?.submitted_by?.name || "No one submitted" }}
               </p>
             </td>
-            <td class="align-middle" >
+            <td class="align-middle">
               <a
                 href="javascript:;"
                 class="font-weight-bold text-lg me-2"
@@ -620,13 +644,45 @@ const props = defineProps({
     // تغيير اسم الخاصية من tasks إلى routineTasks
     type: Array,
     required: true,
-  },
+  }
+  // ,
+  // showAllTasks: {
+  //   type: Boolean,
+  //   required: true,
+  // },
   // pagination: {
   //   // تغيير اسم الخاصية من tasks إلى routineTasks
   //   type: Object,
   //   required: true,
   // },
 });
+
+// const showAllTasks = ref(false);
+
+// const filteredTasks = computed(() => {
+//   if (props.showAllTasks) {
+//     return props.routineTasksReport; // Show all tasks
+//   } else {
+//     const today = new Date().toISOString().split("T")[0]; // Get today's date
+//     return props.routineTasksReport.filter((task) => {
+//       const taskDate = new Date(task.created_at).toISOString().split("T")[0]; // Get task date
+//       return taskDate === today; // Filter tasks reported today
+//     });
+//   }
+// });
+
+
+// const taskCountByDepartment = computed(() => {
+//   const counts = {};
+
+//   // Iterate through the tasks and count by department
+//   props.routineTasksReport.forEach((task) => {
+//     const departmentName = task.daily_task.department?.name || "No Department";
+//     counts[departmentName] = (counts[departmentName] || 0) + 1;
+//   });
+
+//   return counts;
+// });
 
 // const totalPages = computed(() => {
 //   // Ensure total pages is calculated correctly
@@ -1520,5 +1576,34 @@ td {
 .hover-effect:hover {
   color: #a7c858;
   text-decoration: underline;
+}
+
+
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.card-text {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.badge {
+  font-size: 0.9rem;
+  padding: 0.5em 0.75em;
 }
 </style>

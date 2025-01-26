@@ -208,7 +208,7 @@ const toggleSection = (section) => {
           @click="toggleSection('workForce')"
         >
           <div class="d-flex align-items-center">
-            <i class="ni ni-single-02 text-primary me-2"></i>
+            <i class="fas fa-users text-primary me-2"></i>
             <span>{{ isRTL ? 'فريق العمل' : 'Work Force' }}</span>
           </div>
           <i 
@@ -251,10 +251,10 @@ const toggleSection = (section) => {
                 to="/add-role"
                 v-if="permissions['view-role'] || isOwner"
                 :class="getRoute() === 'addRole' ? 'active' : ''"
-                :navText="isRTL ? 'اضافة أدوار وصلاحيات' : 'Add Roles & Permissions'"
+                :navText="isRTL ? 'أدوار وصلاحيات' : 'Roles & Permissions'"
               >
                 <template v-slot:icon>
-                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
+                  <i class="fas fa-user-lock text-info text-sm opacity-10"></i>
                 </template>
               </sidenav-item>
             </li>
