@@ -2,8 +2,6 @@
 
 <template>
   <div class="card-body px-0 pt-0 pb-2" :key="componentKey">
-    
-
     <div class="table-responsive p-3">
       <table class="table align-items-center table-hover mb-0">
         <thead class="thead-light">
@@ -67,7 +65,7 @@
               {{ t("employeeName") }}
             </th>
             <th
-              v-if="isOwner"
+              
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("report") }}
@@ -115,9 +113,7 @@
 
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{
-                  task.daily_task.department?.name || "No Department"
-                }}
+                {{ task.daily_task.department?.name || "No Department" }}
               </p>
             </td>
 
@@ -146,16 +142,23 @@
               <p
                 class="text-xs font-weight-bold mb-0"
                 :class="{
-                  'text-danger': isTaskLate(
+                  'text-success': calculateTaskStatus(
+                    task.daily_task.from,
                     task.daily_task.to,
-                    task.submitted_by.created_at
-                  ),
+                    task.created_at
+                  ).includes('early'),
+                  'text-danger': calculateTaskStatus(
+                    task.daily_task.from,
+                    task.daily_task.to,
+                    task.created_at
+                  ).includes('late'),
                 }"
               >
                 {{
-                  calculateLateTime(
+                  calculateTaskStatus(
+                    task.daily_task.from,
                     task.daily_task.to,
-                    task.submitted_by.created_at
+                    task.created_at
                   )
                 }}
               </p>
@@ -177,7 +180,7 @@
                 {{ task?.submitted_by?.name || "No one submitted" }}
               </p>
             </td>
-            <td class="align-middle" v-if="isOwner">
+            <td class="align-middle" >
               <a
                 href="javascript:;"
                 class="font-weight-bold text-lg me-2"
@@ -633,7 +636,7 @@ const props = defineProps({
 console.log("props.routineTasks:", props.routineTasksReport);
 
 const userData = computed(() => store.getters.user);
-const isOwner = computed(() => store.getters.isOwner);
+// const isOwner = computed(() => store.getters.isOwner);
 
 const reportTypeOptions = [
   { value: "done", label: "Done" },
@@ -1151,48 +1154,62 @@ const daysOfWeek = [
 //   }
 // };
 
-const calculateLateTime = (toTime, createdAt) => {
-  if (!toTime || !createdAt) return "N/A";
+const calculateTaskStatus = (fromTime, toTime, createdAt) => {
+  if (!fromTime || !toTime || !createdAt) return "N/A";
 
   // Extract the time part from the `created_at` timestamp
   const createdTime = new Date(createdAt).toTimeString().split(" ")[0]; // Extracts "HH:MM:SS"
 
-  // Parse the "to" time and the extracted time from `created_at` into Date objects
+  // Parse the times into Date objects
+  const fromDate = new Date(`1970-01-01T${fromTime}`);
   const toDate = new Date(`1970-01-01T${toTime}`);
   const reportDate = new Date(`1970-01-01T${createdTime}`);
 
   // Calculate the difference in milliseconds
-  const timeDifference = reportDate - toDate;
+  const earlyDifference = fromDate - reportDate; // Positive if early
+  const lateDifference = reportDate - toDate; // Positive if late
 
-  // If the report time is earlier than or equal to the "to" time, it's not late
-  if (timeDifference <= 0) return "On Time";
-
-  // Convert the difference to minutes
-  const lateMinutes = Math.floor(timeDifference / (1000 * 60));
-
-  // Format the late time
-  if (lateMinutes < 60) {
-    return `${lateMinutes} mins late`;
-  } else {
-    const lateHours = Math.floor(lateMinutes / 60);
-    const remainingMinutes = lateMinutes % 60;
-    return `${lateHours}h ${remainingMinutes}m late`;
+  // Check if the task is early
+  if (earlyDifference > 0) {
+    const earlyMinutes = Math.floor(earlyDifference / (1000 * 60));
+    if (earlyMinutes < 60) {
+      return `${earlyMinutes} mins early`;
+    } else {
+      const earlyHours = Math.floor(earlyMinutes / 60);
+      const remainingMinutes = earlyMinutes % 60;
+      return `${earlyHours}h ${remainingMinutes}m early`;
+    }
+  }
+  // Check if the task is late
+  else if (lateDifference > 0) {
+    const lateMinutes = Math.floor(lateDifference / (1000 * 60));
+    if (lateMinutes < 60) {
+      return `${lateMinutes} mins late`;
+    } else {
+      const lateHours = Math.floor(lateMinutes / 60);
+      const remainingMinutes = lateMinutes % 60;
+      return `${lateHours}h ${remainingMinutes}m late`;
+    }
+  }
+  // Otherwise, the task is on time
+  else {
+    return "On Time";
   }
 };
 
-const isTaskLate = (toTime, createdAt) => {
-  if (!toTime || !createdAt) return false;
+// const isTaskLate = (toTime, createdAt) => {
+//   if (!toTime || !createdAt) return false;
 
-  // Extract the time part from the `created_at` timestamp
-  const createdTime = new Date(createdAt).toTimeString().split(" ")[0]; // Extracts "HH:MM:SS"
+//   // Extract the time part from the `created_at` timestamp
+//   const createdTime = new Date(createdAt).toTimeString().split(" ")[0]; // Extracts "HH:MM:SS"
 
-  // Parse the "to" time and the extracted time from `created_at` into Date objects
-  const toDate = new Date(`1970-01-01T${toTime}`);
-  const reportDate = new Date(`1970-01-01T${createdTime}`);
+//   // Parse the "to" time and the extracted time from `created_at` into Date objects
+//   const toDate = new Date(`1970-01-01T${toTime}`);
+//   const reportDate = new Date(`1970-01-01T${createdTime}`);
 
-  // Check if the report time is later than the "to" time
-  return reportDate > toDate;
-};
+//   // Check if the report time is later than the "to" time
+//   return reportDate > toDate;
+// };
 
 // const fromDate = ref("");
 // const toDate = ref("");

@@ -164,7 +164,7 @@ const toggleSection = (section) => {
 
       <!-- rport Section -->
 
-      <li class="nav-item" v-show="isOwner">
+      <li class="nav-item" v-show="isOwner || permissions['view-dailyTaskReports']">
         <div 
           class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('reports')"
@@ -186,7 +186,7 @@ const toggleSection = (section) => {
           >
 
 
-            <li class="nav-item" v-show="isOwner">
+            <li class="nav-item" v-show="isOwner || permissions['view-dailyTaskReports']">
               <sidenav-item
                 to="/task-reports"
                 :class="getRoute() === 'reported-tasks' ? 'active' : ''"
