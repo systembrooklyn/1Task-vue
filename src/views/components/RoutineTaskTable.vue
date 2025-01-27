@@ -195,7 +195,7 @@
 
     
 
-    <div class="d-flex justify-content-center mt-4">
+    <!-- <div class="d-flex justify-content-center mt-4">
       <nav aria-label="Page navigation">
         <ul class="pagination">
           <li :class="['page-item', { disabled: !pagination.prev_page_url }]">
@@ -255,7 +255,7 @@
           </li>
         </ul>
       </nav>
-    </div>
+    </div> -->
 
     <!-- مودال التعديل -->
     <div v-if="showEditPopup" class="popup-overlay">
@@ -552,25 +552,26 @@ console.log("currentCompanyId:", currentCompanyId.value);
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
 
-const emit = defineEmits(["page-changed"]);
+// const emit = defineEmits(["page-changed"]);
 
 const props = defineProps({
   routineTasks: {
     // تغيير اسم الخاصية من tasks إلى routineTasks
     type: Array,
     required: true,
-  },
-  pagination: {
-    // تغيير اسم الخاصية من tasks إلى routineTasks
-    type: Object,
-    required: true,
-  },
+  }
+  // ,
+  // pagination: {
+  //   // تغيير اسم الخاصية من tasks إلى routineTasks
+  //   type: Object,
+  //   required: true,
+  // },
 });
 
-const totalPages = computed(() => {
-  // Ensure total pages is calculated correctly
-  return Math.ceil(props.pagination.total / props.pagination.per_page);
-});
+// const totalPages = computed(() => {
+//   // Ensure total pages is calculated correctly
+//   return Math.ceil(props.pagination.total / props.pagination.per_page);
+// });
 
 
 console.log("props.routineTasks:", props.routineTasks);
@@ -1054,11 +1055,11 @@ const daysOfWeek = [
 ];
 
 // التعامل مع تغيير الصفحة
-const changePage = (page) => {
-  if (page >= 1 && page <= props.pagination.last_page) {
-    emit("page-changed", page);
-  }
-};
+// const changePage = (page) => {
+//   if (page >= 1 && page <= props.pagination.last_page) {
+//     emit("page-changed", page);
+//   }
+// };
 
 // حساب عدد الصفحات
 // const totalPages = computed(() => {
