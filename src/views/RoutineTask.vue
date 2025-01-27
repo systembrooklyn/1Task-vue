@@ -133,14 +133,14 @@ watch(
   }
 );
 
-const pagination = ref({
-  total: 0,
-  current_page: 1,
-  per_page: 10,
-  last_page: 1,
-  next_page_url: null,
-  prev_page_url: null,
-});
+// const pagination = ref({
+//   total: 0,
+//   current_page: 1,
+//   per_page: 10,
+//   last_page: 1,
+//   next_page_url: null,
+//   prev_page_url: null,
+// });
 
 // التحكم في الإعدادات المتقدمة
 // const toggleAdvancedSettings = () => {
@@ -176,8 +176,41 @@ onBeforeMount(async () => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 
-  await fetchRoutineTasks(); // تعديل الدالة
+  isLoading.value = true;
+  try {
+    // Example of calling your Vuex action:
+    const response = await store.dispatch("fetchRoutineTasks");
+    if (response.status === 200) {
+      // Filter out inactive tasks if desired:
+      routineTasks.value = store.getters.routineTasks.tasks.filter(
+        (task) => task.active === true
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  } finally {
+    isLoading.value = false;
+  }
 });
+
+
+// Method to fetch tasks and update local data
+const refreshTasks = async () => {
+  try {
+    // Pass in page if needed: fetchRoutineTasks(pagination.value.current_page)
+    const response = await store.dispatch("fetchRoutineTasks");
+    if (response.status === 200) {
+      routineTasks.value = store.getters.routineTasks.tasks;
+      // Recompute pagination data
+      pagination.value.total = routineTasks.value.length;
+      pagination.value.last_page = Math.ceil(
+        routineTasks.value.length / pagination.value.per_page
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  }
+};
 
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
@@ -185,30 +218,34 @@ console.log("currentCompanyId:", currentCompanyId.value);
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
 
-const fetchRoutineTasks = async (page = 1) => {
-  // تعديل الدالة
-  isLoading.value = true;
+// Pagination
+const pagination = ref({
+  current_page: 1, // Current page
+  per_page: 10, // Items per page
+  total: 0, // Total number of tasks
+  last_page: 1, // Total number of pages
+});
 
-  try {
-    const response = await store.dispatch("fetchRoutineTasks", page); // تعديل الـ action
-    console.log("response:", response);
-    if (response.status === 200) {
-      routineTasks.value = store.getters.routineTasks.tasks.filter(
-        (task) => task.active === true
-      ); // تعديل الـ getter
-      console.log("routineTasks:", routineTasks.value);
-      pagination.value = store.getters.routineTasks.pagination; // تعديل الـ getter
-      componentKey.value += 1;
-    }
-  } catch (error) {
-    showAlert.value = true;
-    errorMessage.value = t("generalError");
-  } finally {
-    isLoading.value = false;
-  }
-};
+// Fetch all tasks from the API
+// const fetchRoutineTasks = async () => {
+//   try {
+//     const response = await store.dispatch("fetchRoutineTasks");
+//     if (response.status === 200) {
+//       routineTasks.value = store.getters.routineTasks.tasks.filter(task => task.active === true);
+//       pagination.value.total = routineTasks.value.length;
+//       pagination.value.last_page = Math.ceil(routineTasks.value.length / pagination.value.per_page);
+//     }
+//   } catch (error) {
+//     console.error("Error fetching tasks:", error);
+//   }
+// };
 
-
+// Get tasks for the current page
+// const paginatedTasks = computed(() => {
+//   const start = (pagination.value.current_page - 1) * pagination.value.per_page;
+//   const end = start + pagination.value.per_page;
+//   return tasks.value.slice(start, end);
+// });
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
 
@@ -228,56 +265,62 @@ const t = (key) => {
 // Filter variables
 const selectedTaskType = ref("");
 const selectedDepartments = ref([]);
+const selectedStatus = ref("");
 console.log("userDepartment:", userDepartment.value);
-const toggleAllDepartments = () => {
-  if (selectedDepartments.value.length === userDepartment.value.length) {
-    // If all are selected, deselect all
-    selectedDepartments.value = [];
-    console.log("selectedDepartments:", selectedDepartments.value);
-  } else {
-    // Select all departments
-    selectedDepartments.value = userDepartment.value.map((dept) => ({
-      id: dept.value,
-      name: dept.label,
-    }));
-  }
-};
-
-const applyFilters = async () => {
-  const filters = {
-    dept_filter: selectedDepartments.value.map((dept) => dept.id),
-    // task_type: selectedTaskType.value,
-  };
-
-  console.log("Applying filters:", filters);
-
-  // هنا بنستدعي الدالة مع تمرير الصفحة والفلاتر
-  await store.dispatch("fetchRoutineTasks", 1, filters);
-
-  // بعد استلام الرد، بنحدث البيانات المُستخدمة في العرض
-  routineTasks.value = store.getters.routineTasks.tasks.filter(task => task.active === true);
-  pagination.value = store.getters.routineTasks.pagination;
-  componentKey.value += 1;
-};
+// const toggleAllDepartments = () => {
+//   if (selectedDepartments.value.length === userDepartment.value.length) {
+//     // If all are selected, deselect all
+//     selectedDepartments.value = [];
+//     console.log("selectedDepartments:", selectedDepartments.value);
+//   } else {
+//     // Select all departments
+//     selectedDepartments.value = userDepartment.value.map((dept) => ({
+//       id: dept.value,
+//       name: dept.label,
+//     }));
+//   }
+// };
 
 
 
-const resetFilters = () => {
-  // Reset all filter variables
-  selectedTaskType.value = "";
-  selectedDepartments.value = [];
+// const applyFilters = async () => {
+//   const filters = {
+//     dept_filter: selectedDepartments.value.map((dept) => dept.id),
+//     // task_type: selectedTaskType.value,
+//   };
 
-  // Fetch all routine tasks without filters
-  // store.dispatch('fetchRoutineTasks');
-};
+//   console.log("Applying filters:", filters);
 
-watch(
-  () => store.getters.routineTasks.tasks, // تعديل الـ getter
-  (newData) => {
-    routineTasks.value = [...newData];
-    componentKey.value += 1; // إعادة تحميل المكون عند حدوث أي تحديث في البيانات
-  }
-);
+//   // هنا بنستدعي الدالة مع تمرير الصفحة والفلاتر
+//   await store.dispatch("fetchRoutineTasks", 1, filters);
+
+//   // بعد استلام الرد، بنحدث البيانات المُستخدمة في العرض
+//   routineTasks.value = store.getters.routineTasks.tasks.filter(
+//     (task) => task.active === true
+//   );
+//   pagination.value = store.getters.routineTasks.pagination;
+//   componentKey.value += 1;
+// };
+
+// const resetFilters = () => {
+//   // Reset all filter variables
+//   selectedTaskType.value = "";
+//   selectedDepartments.value = [];
+
+//   // Fetch all routine tasks without filters
+//   // store.dispatch('fetchRoutineTasks');
+// };
+
+
+// Watch for changes in the tasks array to recalculate pagination
+
+// Compute the tasks for the current page
+// const paginatedTasks = computed(() => {
+//   const startIndex =
+//     (pagination.value.current_page - 1) * pagination.value.per_page;
+//   const endIndex = startIndex + pagination.value.per_page;
+//   return routineTasks.value.slice(startIndex, endIndex);
+// });
 
 // const openPopup = () => {
 //   showPopup.value = true;
@@ -487,10 +530,12 @@ const daysOfWeek = [
   { label: t("saturday"), value: 6 },
 ];
 
-// التعامل مع تغيير الصفحة
-const handlePageChange = (page) => {
-  fetchRoutineTasks(page);
-};
+// Handle page change event from child
+// const handlePageChange = (page) => {
+//   if (page >= 1 && page <= pagination.value.last_page) {
+//     pagination.value.current_page = page;
+//   }
+// };
 
 // onMounted(async () => {
 //   await store.dispatch("fetchDepartments");
@@ -505,7 +550,117 @@ onMounted(async () => {
   } catch (error) {
     console.error("Error fetching departments:", error);
   }
+
+  await refreshTasks();
+
 });
+
+const filteredTasks = computed(() => {
+  let tasks = [...routineTasks.value];
+  console.log(tasks);
+
+  // a) Filter by Task Type if selected
+  if (selectedTaskType.value) {
+    tasks = tasks.filter(t => t.task_type === selectedTaskType.value);
+  }
+
+  // b) Filter by Status if selected
+  if (selectedStatus.value) {
+    // You need to know how "status" is stored in your tasks
+    // e.g., t.active === true/false, or t.status === 'active'/'inactive'
+    if (selectedStatus.value === "active") {
+      tasks = tasks.filter(t => t.active === true);
+    } else if (selectedStatus.value === "inactive") {
+      tasks = tasks.filter(t => t.active === false);
+    }
+  }
+
+// c) Filter by selected departments
+if (selectedDepartments.value.length > 0) {
+  const departmentIds = selectedDepartments.value.map((d) => d.id);
+  console.log(departmentIds);
+  tasks = tasks.filter(
+    (t) =>
+      // Ensure you have t.dept_id
+      t.department.dept_id &&
+      departmentIds.includes(t.department.dept_id)
+  );
+}
+
+  return tasks;
+});
+
+
+watch(
+  () => filteredTasks.value.length,
+  (newLength) => {
+    // Update pagination data here (instead of inside computed)
+    pagination.value.total = newLength;
+    pagination.value.last_page = Math.ceil(
+      newLength / pagination.value.per_page
+    );
+
+    // If current page is now out of range, reset to last valid page
+    if (pagination.value.current_page > pagination.value.last_page) {
+      pagination.value.current_page = pagination.value.last_page || 1;
+    }
+  },
+  { immediate: true }
+);
+
+// --------------------------------------
+// 4) Paginated tasks from "filteredTasks"
+// --------------------------------------
+const paginatedTasks = computed(() => {
+  const startIndex =
+    (pagination.value.current_page - 1) * pagination.value.per_page;
+  const endIndex = startIndex + pagination.value.per_page;
+  return filteredTasks.value.slice(startIndex, endIndex);
+});
+
+
+// --------------------------------------
+// 5) Handler for "Apply Filter" button
+// --------------------------------------
+// const applyFilters = () => {
+//   // We do not need to call the backend if you want purely front-end filtering
+//   // The computed "filteredTasks" will re-calc automatically.
+
+//   // Reset to page 1 so we don't land on an out-of-range page
+//   pagination.value.current_page = 1;
+// };
+
+// "Reset Filter" button
+const resetFilters = () => {
+  selectedTaskType.value = "";
+  selectedStatus.value = "";
+  selectedDepartments.value = [];
+
+  // Also reset to page 1
+  pagination.value.current_page = 1;
+};
+
+// Toggling "Select All" departments
+const toggleAllDepartments = () => {
+  if (selectedDepartments.value.length === userDepartment.value.length) {
+    selectedDepartments.value = [];
+  } else {
+    selectedDepartments.value = userDepartment.value.map((dept) => ({
+      id: dept.value,
+      name: dept.label,
+    }));
+  }
+};
+
+// --------------------------------------
+// 6) Pagination change from child
+// --------------------------------------
+const handlePageChange = (page) => {
+  if (page >= 1 && page <= pagination.value.last_page) {
+    pagination.value.current_page = page;
+  }
+};
+
 </script>
 
 <template>
@@ -517,7 +672,7 @@ onMounted(async () => {
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
               <p class="mb-0 font-weight-bold">{{ t("routineTasksTable") }}</p>
-              <!-- <button
+              <button
                 class="btn btn-link ms-auto"
                 type="button"
                 data-bs-toggle="collapse"
@@ -526,12 +681,13 @@ onMounted(async () => {
                 aria-controls="filterCollapse"
               >
                 <i class="fas fa-filter"></i>
-              </button> -->
+              </button>
             </div>
+            <!-- Collapsible Filter Panel -->
             <div class="collapse" id="filterCollapse">
               <div class="card card-body">
                 <div class="row">
-                  <!-- Filter by Task Type -->
+                  <!-- TaskType Filter -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("taskType") }}</label>
                     <select class="form-select" v-model="selectedTaskType">
@@ -542,7 +698,7 @@ onMounted(async () => {
                     </select>
                   </div>
 
-                  <!-- Filter by Status -->
+                  <!-- Status Filter -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("status") }}</label>
                     <select class="form-select" v-model="selectedStatus">
@@ -552,7 +708,7 @@ onMounted(async () => {
                     </select>
                   </div>
 
-                  <!-- Filter by Department -->
+                  <!-- Department Filter -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
@@ -567,8 +723,8 @@ onMounted(async () => {
                           selectedDepartments.length === 0
                             ? t("allDepartments")
                             : selectedDepartments.length === 1
-                              ? selectedDepartments[0].name
-                              : `${selectedDepartments.length} ${t("departmentsSelected")}`
+                            ? selectedDepartments[0].name
+                            : `${selectedDepartments.length} ${t("departmentsSelected")}`
                         }}
                       </button>
                       <ul
@@ -576,14 +732,14 @@ onMounted(async () => {
                         aria-labelledby="departmentDropdown"
                       >
                         <li class="px-2">
+                          <!-- "Select All" option -->
                           <div class="form-check">
                             <input
                               class="form-check-input"
                               type="checkbox"
                               id="selectAllDepartments"
                               :checked="
-                                selectedDepartments.length ===
-                                userDepartment.length
+                                selectedDepartments.length === userDepartment.length
                               "
                               @change="toggleAllDepartments"
                             />
@@ -597,26 +753,23 @@ onMounted(async () => {
                         </li>
                         <li><hr class="dropdown-divider" /></li>
                         <li
-                          v-for="department in userDepartment"
-                          :key="department.value"
+                          v-for="dept in userDepartment"
+                          :key="dept.value"
                           class="px-2"
                         >
                           <div class="form-check">
                             <input
                               class="form-check-input"
                               type="checkbox"
-                              :id="'department-' + department.value"
-                              :value="{
-                                id: department.value,
-                                name: department.label,
-                              }"
+                              :id="'department-' + dept.value"
+                              :value="{ id: dept.value, name: dept.label }"
                               v-model="selectedDepartments"
                             />
                             <label
                               class="form-check-label"
-                              :for="'department-' + department.value"
+                              :for="'department-' + dept.value"
                             >
-                              {{ department.label }}
+                              {{ dept.label }}
                             </label>
                           </div>
                         </li>
@@ -624,10 +777,12 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
+                
+                <!-- Filter Buttons -->
                 <div class="d-flex justify-content-end">
-                  <button class="btn btn-primary me-2" @click="applyFilters">
+                  <!-- <button class="btn btn-primary me-2" @click="applyFilters">
                     {{ t("applyFilters") }}
-                  </button>
+                  </button> -->
                   <button class="btn btn-secondary" @click="resetFilters">
                     {{ t("resetFilters") }}
                   </button>
@@ -672,10 +827,11 @@ onMounted(async () => {
             </div>
             <routine-tasks-table
               v-else
-              :routineTasks="routineTasks"
+              :routineTasks="paginatedTasks"
               :key="componentKey"
               @page-changed="handlePageChange"
               :pagination="pagination"
+              @reload-tasks="refreshTasks"
             />
             <!-- تعديل المكون والخصائص -->
           </div>

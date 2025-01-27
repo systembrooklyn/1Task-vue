@@ -55,7 +55,7 @@
               {{ t("employeeName") }}
             </th>
             <th
-            v-if="permissions['report-dailytask']"
+              v-if="permissions['report-dailytask']"
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("report") }}
@@ -78,30 +78,34 @@
               </div>
             </td> -->
 
-
             <td>
-              <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
-                <div 
-                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer" 
+              <div
+                class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
+              >
+                <div
+                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
                   @click="openDescriptionModal(task)"
                   title="Open Task Description"
                 >
-                  <h6 class=" mb-0 text-sm hover-effect mx-1">{{ task.task_name }}</h6>
-                  <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary" role="status">
+                  <h6 class="mb-0 text-sm hover-effect mx-1">
+                    {{ task.task_name }}
+                  </h6>
+                  <div
+                    v-if="loadingTaskId === task.id"
+                    class="spinner-border spinner-border-sm text-primary"
+                    role="status"
+                  >
                     <span class="visually-hidden">Loading...</span>
                   </div>
                 </div>
               </div>
             </td>
 
-
             <td>
               <p class="text-xs font-weight-bold mb-0">
                 {{ task.department?.department_name || "No Department" }}
               </p>
             </td>
-
-            
 
             <!-- <td>
               <p class="text-xs font-weight-bold mb-0">
@@ -193,7 +197,49 @@
       </table>
     </div>
 
-    
+    <!-- Pagination Controls -->
+    <nav aria-label="Page navigation" class="pagination-container">
+      <ul class="pagination">
+        <!-- Previous Button -->
+        <li
+          class="page-item"
+          :class="{ disabled: pagination.current_page === 1 }"
+        >
+          <a
+            class="page-link"
+            href="#"
+            @click.prevent="changePage(pagination.current_page - 1)"
+          >
+            <i class="fas fa-angle-left"></i>
+          </a>
+        </li>
+
+        <!-- Page Numbers -->
+        <li
+          v-for="page in lastPage"
+          :key="page"
+          :class="['page-item', { active: pagination.current_page === page }]"
+        >
+          <a class="page-link" href="#" @click.prevent="changePage(page)">
+            {{ page }}
+          </a>
+        </li>
+
+        <!-- Next Button -->
+        <li
+          class="page-item"
+          :class="{ disabled: pagination.current_page === lastPage }"
+        >
+          <a
+            class="page-link"
+            href="#"
+            @click.prevent="changePage(pagination.current_page + 1)"
+          >
+            <i class="fas fa-angle-right"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
 
     <!-- <div class="d-flex justify-content-center mt-4">
       <nav aria-label="Page navigation">
@@ -446,22 +492,32 @@
               <div v-if="activeTab === 'info'">
                 <dl class="row">
                   <dt class="col-sm-3">{{ t("taskNumber") }}:</dt>
-                  <dd class="col-sm-9">{{ selectedTaskNumber  }}</dd>
+                  <dd class="col-sm-9">{{ selectedTaskNumber }}</dd>
 
                   <dt class="col-sm-3">{{ t("description") }}:</dt>
-                  <dd class="col-sm-9">{{ selectedDescription  }}</dd>
+                  <dd class="col-sm-9">{{ selectedDescription }}</dd>
 
                   <dt class="col-sm-3">{{ t("department") }}:</dt>
                   <dd class="col-sm-9">
-                    {{ selectedTaskDepartment  }}
+                    {{ selectedTaskDepartment }}
                   </dd>
 
-
-
-                  <dt v-if="selectedTaskRecurrentDays && selectedTaskRecurrentDays.length" class="col-sm-3">
+                  <dt
+                    v-if="
+                      selectedTaskRecurrentDays &&
+                      selectedTaskRecurrentDays.length
+                    "
+                    class="col-sm-3"
+                  >
                     {{ t("recurrentDays") }}:
                   </dt>
-                  <dd v-if="selectedTaskRecurrentDays && selectedTaskRecurrentDays.length" class="col-sm-9">
+                  <dd
+                    v-if="
+                      selectedTaskRecurrentDays &&
+                      selectedTaskRecurrentDays.length
+                    "
+                    class="col-sm-9"
+                  >
                     {{
                       selectedTaskRecurrentDays
                         .map(
@@ -480,12 +536,16 @@
                   <dd v-if="selectedTaskDayOfMonth" class="col-sm-9">
                     {{ selectedTaskDayOfMonth }}
                   </dd>
-                  <dt v-if="selectedTaskCreationDate" class="col-sm-3">{{ t("createdAt") }}:</dt>
+                  <dt v-if="selectedTaskCreationDate" class="col-sm-3">
+                    {{ t("createdAt") }}:
+                  </dt>
                   <dd v-if="selectedTaskCreationDate" class="col-sm-9">
                     {{ formatDate(selectedTaskCreationDate) }}
                   </dd>
 
-                  <dt v-if="selectedTaskStartDate" class="col-sm-3">{{ t("startDate") }}:</dt>
+                  <dt v-if="selectedTaskStartDate" class="col-sm-3">
+                    {{ t("startDate") }}:
+                  </dt>
                   <dd v-if="selectedTaskStartDate" class="col-sm-9">
                     {{ formatDate(selectedTaskStartDate) }}
                   </dd>
@@ -552,27 +612,25 @@ console.log("currentCompanyId:", currentCompanyId.value);
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
 
-// const emit = defineEmits(["page-changed"]);
+const emit = defineEmits(["page-changed" , "reload-tasks"]);
 
 const props = defineProps({
   routineTasks: {
     // تغيير اسم الخاصية من tasks إلى routineTasks
     type: Array,
     required: true,
-  }
-  // ,
-  // pagination: {
-  //   // تغيير اسم الخاصية من tasks إلى routineTasks
-  //   type: Object,
-  //   required: true,
-  // },
+  },
+  pagination: {
+    // تغيير اسم الخاصية من tasks إلى routineTasks
+    type: Object,
+    required: true,
+  },
 });
 
 // const totalPages = computed(() => {
 //   // Ensure total pages is calculated correctly
 //   return Math.ceil(props.pagination.total / props.pagination.per_page);
 // });
-
 
 console.log("props.routineTasks:", props.routineTasks);
 
@@ -621,8 +679,6 @@ const taskNotes = ref("");
 const taskStatus = ref("");
 const selectedTaskDepartment = ref(null);
 const loadingTaskId = ref(null);
-
-
 
 const activeTab = ref("info"); // علامة تبويب البداية
 
@@ -730,6 +786,7 @@ const closeEditPopup = () => {
 
 const isLoading = ref(false);
 
+
 const reportTask = async () => {
   isLoading.value = true;
 
@@ -743,12 +800,10 @@ const reportTask = async () => {
 
   try {
     console.log("TaskData:", taskData);
-
     const result = await store.dispatch("reportRoutineTasks", taskData);
     console.log("result:", result);
 
     if (result.status === 201) {
-      // تحديث بيانات الموظفين
       Swal.fire({
         icon: "success",
         title: t("taskReportedSuccessfully"),
@@ -756,17 +811,11 @@ const reportTask = async () => {
         timer: 1500,
         timerProgressBar: true,
       });
-
       closeEditPopup();
-      await store.dispatch("fetchRoutineTasks", props.pagination.current_page); // جلب البيانات مع الصفحة الحالية
 
-      // await store.dispatch("fetchTasks"); // تأكد من وجود action fetchTasks في Vuex
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: result.message,
-        showConfirmButton: true,
-      });
+      // Instead of directly calling fetchRoutineTasks here,
+      // emit a custom event to let the parent handle it.
+      emit("reload-tasks");
     }
   } catch (error) {
     console.error("Error updating task:", error);
@@ -875,7 +924,6 @@ const closeDescriptionModal = () => {
   selectedTaskRecurrentDays.value = [];
   selectedTaskDayOfMonth.value = null;
   selectedTaskDepartment.value = null;
-
 };
 
 const formatDate = (dateString) => {
@@ -1054,6 +1102,17 @@ const daysOfWeek = [
   { label: t("saturday"), value: 6 },
 ];
 
+// Emitter when a user clicks a new page
+const changePage = (page) => {
+  // Basic boundary check:
+  if (page < 1 || page > lastPage.value) return;
+  emit("page-changed", page);
+};
+
+// Calculate total pages from front-end data
+const lastPage = computed(() =>
+  Math.ceil(props.pagination.total / props.pagination.per_page)
+);
 // التعامل مع تغيير الصفحة
 // const changePage = (page) => {
 //   if (page >= 1 && page <= props.pagination.last_page) {
@@ -1332,5 +1391,45 @@ td {
 .hover-effect:hover {
   color: #a7c858;
   text-decoration: underline;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.page-item {
+  margin: 0 5px;
+}
+
+.page-link {
+  cursor: pointer;
+}
+
+.disabled .page-link {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.active .page-link {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+/* Basic styling for the pagination */
+.pagination-container {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+.page-item.active .page-link {
+  background-color: #007bff;
+  color: #fff;
+}
+.page-item.disabled .page-link {
+  pointer-events: none;
+  opacity: 0.6;
 }
 </style>
