@@ -816,6 +816,8 @@ const reportTask = async () => {
       // Instead of directly calling fetchRoutineTasks here,
       // emit a custom event to let the parent handle it.
       emit("reload-tasks");
+      taskStatus.value = "";
+      taskNotes.value = "";
     }
   } catch (error) {
     console.error("Error updating task:", error);

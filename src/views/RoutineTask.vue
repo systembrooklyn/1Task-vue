@@ -14,6 +14,8 @@ import RoutineTasksTable from "@/views/components/RoutineTaskTable.vue";
 // import ArgonSwitch from "@/components/ArgonSwitch.vue";
 // import Swal from "sweetalert2";
 
+const refreshInterval = ref(null); // Will store our setInterval ID
+
 const store = useStore();
 
 const userData = computed(() => store.getters.user);
@@ -191,8 +193,12 @@ onBeforeMount(async () => {
   } finally {
     isLoading.value = false;
   }
-});
 
+  // Always clear the interval on unmount
+  if (refreshInterval.value) {
+    clearInterval(refreshInterval.value);
+  }
+});
 
 // Method to fetch tasks and update local data
 const refreshTasks = async () => {
@@ -281,8 +287,6 @@ console.log("userDepartment:", userDepartment.value);
 //   }
 // };
 
-
-
 // const applyFilters = async () => {
 //   const filters = {
 //     dept_filter: selectedDepartments.value.map((dept) => dept.id),
@@ -310,7 +314,6 @@ console.log("userDepartment:", userDepartment.value);
 //   // Fetch all routine tasks without filters
 //   // store.dispatch('fetchRoutineTasks');
 // };
-
 
 // Watch for changes in the tasks array to recalculate pagination
 
@@ -437,7 +440,7 @@ const translations = {
     status: "Status",
     department: "Department",
     allTypes: "All Types",
-    allStatuses: "All Statuses",
+    allStatuses: "All Status",
     allDepartments: "All Departments",
     weekly: "Weekly",
     monthly: "Monthly",
@@ -448,6 +451,10 @@ const translations = {
     resetFilters: "Reset Filters",
     selectAll: "Select All",
     departmentsSelected: "Departments Selected",
+    done: "Done",
+    not_done: "Not Done",
+    not_reported: "Not Reported",
+    LatedTasks: "Lated Tasks",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -517,6 +524,10 @@ const translations = {
     resetFilters: "اعادة تعيين التصفيات",
     selectAll: "اختر الكل",
     departmentsSelected: "اقسام محددة",
+    done: "تم",
+    not_done: "لم يتم",
+    not_reported: "لم يتم التقرير",
+    LatedTasks: "مهام متاخرة",
   },
 };
 
@@ -553,43 +564,76 @@ onMounted(async () => {
 
   await refreshTasks();
 
+  // ====== Auto-refresh every 60 seconds ======
+  refreshInterval.value = setInterval(() => {
+    console.log("Auto-refreshing tasks...");
+    refreshTasks();
+  }, 60_000);
 });
+
+const nowTime = ref(new Date());
+// const formatTime = (time) => {
+//   return time.toLocaleTimeString([], {
+//     hour: "2-digit",
+//     minute: "2-digit",
+//     hour12: false  // Use 24-hour format
+//   });
+// };
+// const formattedNowTime = ref(formatTime(nowTime.value));
 
 const filteredTasks = computed(() => {
   let tasks = [...routineTasks.value];
   console.log(tasks);
 
   // a) Filter by Task Type if selected
-  if (selectedTaskType.value) {
-    tasks = tasks.filter(t => t.task_type === selectedTaskType.value);
-  }
+  // if (selectedTaskType.value) {
+  //   tasks = tasks.filter((t) => t.task_type === selectedTaskType.value);
+  // }
 
   // b) Filter by Status if selected
   if (selectedStatus.value) {
     // You need to know how "status" is stored in your tasks
     // e.g., t.active === true/false, or t.status === 'active'/'inactive'
-    if (selectedStatus.value === "active") {
-      tasks = tasks.filter(t => t.active === true);
-    } else if (selectedStatus.value === "inactive") {
-      tasks = tasks.filter(t => t.active === false);
+    if (selectedStatus.value === "done") {
+      tasks = tasks.filter((t) => t.today_report_status === "done");
+    } else if (selectedStatus.value === "not_done") {
+      tasks = tasks.filter((t) => t.today_report_status === "not_done");
+    } else if (selectedStatus.value === "null") {
+      tasks = tasks.filter((t) => t.today_report_status === null );
+    }  else if (selectedStatus.value === "lated") {
+      tasks = tasks.filter((t) => {
+        // Check if task is lated (time passed)
+        if (!t.to) return false;
+        
+        // Parse task's 'to' time
+        const [taskHours, taskMinutes] = t.to.split(':').map(Number);
+        const taskTime = new Date();
+        taskTime.setHours(taskHours, taskMinutes, 0, 0);
+        
+        // Check if task is not done or not reported
+        const isNotDoneOrReported = 
+          t.today_report_status !== "done" && 
+          t.today_report_status !== "not_done";
+        
+        // Return true if time has passed and task is not done
+        return taskTime < nowTime.value && isNotDoneOrReported;
+      });
     }
   }
 
-// c) Filter by selected departments
-if (selectedDepartments.value.length > 0) {
-  const departmentIds = selectedDepartments.value.map((d) => d.id);
-  console.log(departmentIds);
-  tasks = tasks.filter(
-    (t) =>
-      // Ensure you have t.dept_id
-      t.department.dept_id &&
-      departmentIds.includes(t.department.dept_id)
-  );
-}
+  // c) Filter by selected departments
+  if (selectedDepartments.value.length > 0) {
+    const departmentIds = selectedDepartments.value.map((d) => d.id);
+    console.log(departmentIds);
+    tasks = tasks.filter(
+      (t) =>
+        // Ensure you have t.dept_id
+        t.department.dept_id && departmentIds.includes(t.department.dept_id)
+    );
+  }
 
   return tasks;
 });
-
 
 watch(
   () => filteredTasks.value.length,
@@ -617,7 +661,6 @@ const paginatedTasks = computed(() => {
   const endIndex = startIndex + pagination.value.per_page;
   return filteredTasks.value.slice(startIndex, endIndex);
 });
-
 
 // --------------------------------------
 // 5) Handler for "Apply Filter" button
@@ -661,6 +704,11 @@ const handlePageChange = (page) => {
   }
 };
 
+// If you're filtering tasks
+const routineTasksCount = computed(() => {
+  return filteredTasks.value.length;
+  // or routineTasks.value.length, depending on what you want to display
+});
 </script>
 
 <template>
@@ -672,6 +720,9 @@ const handlePageChange = (page) => {
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
               <p class="mb-0 font-weight-bold">{{ t("routineTasksTable") }}</p>
+              <small class="mb-0 font-weight-bold mx-2">
+                ({{ routineTasksCount }})
+              </small>
               <button
                 class="btn btn-link ms-auto"
                 type="button"
@@ -688,7 +739,7 @@ const handlePageChange = (page) => {
               <div class="card card-body">
                 <div class="row">
                   <!-- TaskType Filter -->
-                  <div class="col-md-4 mb-3">
+                  <!-- <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("taskType") }}</label>
                     <select class="form-select" v-model="selectedTaskType">
                       <option value="">{{ t("allTypes") }}</option>
@@ -696,20 +747,10 @@ const handlePageChange = (page) => {
                       <option value="monthly">{{ t("monthly") }}</option>
                       <option value="daily">{{ t("daily") }}</option>
                     </select>
-                  </div>
-
-                  <!-- Status Filter -->
-                  <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("status") }}</label>
-                    <select class="form-select" v-model="selectedStatus">
-                      <option value="">{{ t("allStatuses") }}</option>
-                      <option value="active">{{ t("active") }}</option>
-                      <option value="inactive">{{ t("inactive") }}</option>
-                    </select>
-                  </div>
+                  </div> -->
 
                   <!-- Department Filter -->
-                  <div class="col-md-4 mb-3">
+                  <div class="col-md-6 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
                       <button
@@ -723,8 +764,8 @@ const handlePageChange = (page) => {
                           selectedDepartments.length === 0
                             ? t("allDepartments")
                             : selectedDepartments.length === 1
-                            ? selectedDepartments[0].name
-                            : `${selectedDepartments.length} ${t("departmentsSelected")}`
+                              ? selectedDepartments[0].name
+                              : `${selectedDepartments.length} ${t("departmentsSelected")}`
                         }}
                       </button>
                       <ul
@@ -739,7 +780,8 @@ const handlePageChange = (page) => {
                               type="checkbox"
                               id="selectAllDepartments"
                               :checked="
-                                selectedDepartments.length === userDepartment.length
+                                selectedDepartments.length ===
+                                userDepartment.length
                               "
                               @change="toggleAllDepartments"
                             />
@@ -776,8 +818,21 @@ const handlePageChange = (page) => {
                       </ul>
                     </div>
                   </div>
+
+                  <!-- Status Filter -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ t("status") }}</label>
+                    <select class="form-select" v-model="selectedStatus">
+                      <option value="">{{ t("allStatuses") }}</option>
+                      <option value="done">{{ t("done") }}</option>
+                      <option value="not_done">{{ t("not_done") }}</option>
+                      <option value="null">{{ t("not_reported") }}</option>
+                      <option value="lated">{{ t("LatedTasks") }}</option>
+                    </select>
+                  </div>
+
                 </div>
-                
+
                 <!-- Filter Buttons -->
                 <div class="d-flex justify-content-end">
                   <!-- <button class="btn btn-primary me-2" @click="applyFilters">
