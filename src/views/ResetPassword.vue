@@ -5,7 +5,7 @@ import { useRoute } from "vue-router";
 import { useRouter } from "vue-router"; // استدعاء Vue Router
 // import Swal from "sweetalert2";
 
-import Navbar from "@/examples/PageLayout/Navbar.vue";
+// import Navbar from "@/examples/PageLayout/Navbar.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
@@ -22,16 +22,24 @@ const showAlert = ref(false); // حالة التحكم في عرض التنبي�
 const errorMessage = ref(""); // رسالة الخطأ التي ستظهر عند الفشل
 const successMessage = ref(""); // رسالة النجاح التي ستظهر عند التمام
 const showSuccess = ref(false); // حالة التحكم في عرض النجاح
+const showPassword = ref(false);
+const passwordsMatch = ref(false);
+
+
 
 // دالة التحقق من قوة كلمة المرور
 const validatePassword = (password) => {
-  const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%*?&-_]{8,}$/;
   return regex.test(password);
 };
 
 // مراقبة إدخال كلمة المرور والتحقق منها
 watch(password, (newPassword) => {
   passwordValid.value = validatePassword(newPassword);
+});
+
+watch([password, confirmPassword], () => {
+  passwordsMatch.value = password.value === confirmPassword.value;
 });
 
 // const expiryTime = ref(route.query.expiry ? Number(atob(decodeURIComponent(route.query.expiry))) : 0);
@@ -211,9 +219,17 @@ const translations = {
     send: "send",
     passwordRequirements:
       "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character.",
-    passwordValid: "Password is valid ✅",
-  },
+      passwordValid: "Password is valid ✅",
+      confirmationPassword: "Confirm your Password *",
+    passwordsMatch: "Passwords match ✅",
+    passwordsDoNotMatch: "Passwords do not match",
+    },
   ar: {
+    confirmationPassword: "تأكيد كلمة المرور *",
+    passwordsMatch: "كلمات المرور متطابقة ✅",
+    passwordsDoNotMatch: "كلمات المرور غير متطابقة",
+
+
     signIn: "تسجيل الدخول",
     enterEmailAndPassword: "أدخل بريدك الإلكتروني وكلمة المرور لتسجيل الدخول",
     enterEmail: "أدخل بريدك الإلكتروني",
@@ -246,13 +262,13 @@ const t = (key) => {
 <template>
   <div class="container top-0 position-sticky z-index-sticky">
     <div class="row">
-      <div class="col-12">
+      <!-- <div class="col-12">
         <navbar
           isBlur="blur border-radius-lg my-3 py-2 start-0 end-0 mx-4 shadow"
           :darkMode="true"
           isBtn="bg-gradient-success"
         />
-      </div>
+      </div> -->
     </div>
   </div>
   <main class="mt-0 main-content">
@@ -275,28 +291,30 @@ const t = (key) => {
                 </div>
                 <div class="card-body">
                   <form role="form" @submit.prevent="updatePassword">
-                    <div class="mb-3">
-                      <argon-input
-                        v-model="password"
-                        id="password"
-                        type="password"
-                        :placeholder="t('password')"
-                        name="password"
-                        size="lg"
-                      />
-                      <p v-if="passwordValid" class="text-success">{{ t("passwordValid") }}</p>
-                      <p v-else class="text-danger">{{ t("passwordRequirements") }}</p>
-                    </div>
-                    <div class="mb-3">
-                      <argon-input
-                        v-model="confirmPassword"
-                        id="confirmPassword"
-                        type="password"
-                        :placeholder="t('confirmPassword')"
-                        name="confirmPassword"
-                        size="lg"
-                      />
-                    </div>
+                    <div class="mb-3 position-relative">
+                  <div class="position-relative">
+                    <argon-input v-model="password" id="password" :type="showPassword ? 'text' : 'password'"
+                      :placeholder="t('password')" name="password" size="lg" required />
+                    <span @click="showPassword = !showPassword"
+                      class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
+                      <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                    </span>
+                  </div>
+                  <p v-if="passwordValid" class="text-success mt-2">{{ t("passwordValid") }}</p>
+                  <p v-if="!passwordValid" class="text-danger mt-2">{{ t("passwordRequirements") }}</p>
+                </div>
+                <div class="mb-3 position-relative">
+                  <div class="position-relative">
+                    <argon-input v-model="confirmPassword" id="password" :type="showPassword ? 'text' : 'password'"
+                      :placeholder="t('confirmationPassword')" name="password" size="lg" />
+                    <span @click="showPassword = !showPassword"
+                      class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
+                      <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                    </span>
+                  </div>
+                  <p v-if="passwordsMatch && confirmPassword" class="text-success mt-2"> {{ t("passwordsMatch") }}</p>
+                  <p v-if="!passwordsMatch && confirmPassword" class="text-danger mt-2"> {{ t("passwordsDoNotMatch") }}</p>
+                </div>
                     <argon-alert v-if="showAlert" color="danger">
                       {{ errorMessage }}
                     </argon-alert>
