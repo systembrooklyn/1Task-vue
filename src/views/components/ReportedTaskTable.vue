@@ -521,7 +521,11 @@
                   <dd class="col-sm-9">
                     {{ selectedTaskNotes || "No Notes" }}
                   </dd>
-
+                  <dt v-if="selectedTaskFound" class="col-sm-3">{{ t("found") }}:</dt>
+                  <dd v-if="selectedTaskFound" class="col-sm-9">
+                    {{ selectedTaskFound }}
+                  </dd>
+                  <!-- task_found -->
                   <!-- <dt class="col-sm-3">{{ t("department") }}:</dt>
                   <dd class="col-sm-9">
                     {{ selectedTaskDepartment }}
@@ -737,6 +741,7 @@ const taskStatus = ref("");
 const selectedTaskDepartment = ref(null);
 const loadingTaskId = ref(null);
 const selectedTaskNotes = ref(null);
+const selectedTaskFound = ref(null);
 
 const activeTab = ref("info"); // علامة تبويب البداية
 
@@ -965,6 +970,7 @@ const openDescriptionModal = async (task) => {
   selectedTaskDayOfMonth.value = task.daily_task.day_of_month;
   selectedTaskDepartment.value = task.daily_task.department.department_name;
   selectedTaskNotes.value = task.notes;
+  selectedTaskFound.value = task.task_found;
   // await getTaskLogs(task.id);
   showDescriptionModal.value = true; // إظهار المودال
 };
@@ -1119,6 +1125,7 @@ const translations = {
     fromDate: "From Date",
     toDate: "To Date",
     applyFilter: "Apply Filter",
+    found : "Task Found",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -1190,6 +1197,7 @@ const translations = {
     fromDate: "من تاريخ",
     toDate: "إلى تاريخ",
     applyFilter: "تطبيق الفلتر",
+    found : "تم العثور على المهمة",
   },
 };
 

@@ -338,10 +338,19 @@
 
               <label class="form-label">{{ t("reportTaskType") }}:</label>
               <argon-select
+                required
                 v-model="taskStatus"
                 :options="reportTypeOptions"
                 class="form-control mb-3"
                 :placeholder="t('selectReportTaskType')"
+              />
+
+              <label class="form-label">{{ t("taskFound") }}</label>
+              <argon-select
+                v-model="taskFound"
+                :options="taskFoundOptions"
+                class="form-control mb-3"
+                :placeholder="t('selectTaskFound')"
               />
 
               <label class="form-label">{{ t("notes") }}:</label>
@@ -612,7 +621,7 @@ console.log("currentCompanyId:", currentCompanyId.value);
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
 
-const emit = defineEmits(["page-changed" , "reload-tasks"]);
+const emit = defineEmits(["page-changed", "reload-tasks"]);
 
 const props = defineProps({
   routineTasks: {
@@ -640,6 +649,11 @@ const userData = computed(() => store.getters.user);
 const reportTypeOptions = [
   { value: "done", label: "Done" },
   { value: "not_done", label: "Not Done" },
+];
+
+const taskFoundOptions = [
+  { value: 1, label: "Yes" },
+  { value: 0, label: "No" },
 ];
 
 // استدعاء الصلاحيات من localStorage بناءً على المستخدم الحالي
@@ -677,6 +691,7 @@ const selectedTaskAssignedTo = ref(null);
 const selectedTaskDayOfMonth = ref(null);
 const taskNotes = ref("");
 const taskStatus = ref("");
+const taskFound = ref(null);
 const selectedTaskDepartment = ref(null);
 const loadingTaskId = ref(null);
 
@@ -786,7 +801,6 @@ const closeEditPopup = () => {
 
 const isLoading = ref(false);
 
-
 const reportTask = async () => {
   isLoading.value = true;
 
@@ -795,6 +809,7 @@ const reportTask = async () => {
     id: selectedTask.value.id,
     notes: taskNotes.value,
     status: taskStatus.value,
+    task_found: taskFound.value,
     // ...selectedTask.value,
   };
 
@@ -1026,6 +1041,8 @@ const translations = {
     enterNotes: "Enter notes",
     employeeName: "Employee Name",
     department: "Department",
+    taskFound: "There is task ?",
+    selectTaskFound: "Select Task Found",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -1091,6 +1108,8 @@ const translations = {
     enterNotes: "ادخل ملاحظات",
     employeeName: "اسم الموظف",
     department: "القسم",
+    taskFound: "هل يوجد مهمة؟",
+    selectTaskFound: "حدد المهمة موجودة",
   },
 };
 
