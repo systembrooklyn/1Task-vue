@@ -521,9 +521,9 @@
                   <dd class="col-sm-9">
                     {{ selectedTaskNotes || "No Notes" }}
                   </dd>
-                  <dt v-if="selectedTaskFound" class="col-sm-3">{{ t("found") }}:</dt>
-                  <dd v-if="selectedTaskFound" class="col-sm-9">
-                    {{ selectedTaskFound }}
+                  <dt v-if="selectedTaskFound !== null" class="col-sm-3">{{ t("found") }}:</dt>
+                  <dd v-if="selectedTaskFound !== null" class="col-sm-9">
+                    {{ selectedTaskFound === 1 ? "yes" : "no" }}
                   </dd>
                   <!-- task_found -->
                   <!-- <dt class="col-sm-3">{{ t("department") }}:</dt>

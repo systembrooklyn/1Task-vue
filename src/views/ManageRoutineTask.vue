@@ -1,4 +1,4 @@
-// src/views/RoutineTask.vue
+// src/views/ManageRoutineTask.vue
 
 <script setup>
 import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
@@ -118,14 +118,20 @@ watch(
   }
 );
 
+// Modify pagination configuration
 const pagination = ref({
-  total: 0,
   current_page: 1,
   per_page: 10,
-  last_page: 1,
-  next_page_url: null,
-  prev_page_url: null,
+  total: 0,
+  last_page: 1
 });
+
+// فلتر: نوع المهمة
+const selectedTaskType = ref("");
+// فلتر: حالة المهمة
+const selectedStatus = ref("");
+// فلتر: الأقسام المختارة
+const selectedDepartments = ref([]);
 
 // التحكم في الإعدادات المتقدمة
 // const toggleAdvancedSettings = () => {
@@ -169,25 +175,86 @@ console.log("currentCompanyId:", currentCompanyId.value);
 
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
-
-const fetchRoutineTasks = async (page = 1) => {
-  // تعديل الدالة
+// Modify fetchRoutineTasks to get all data
+const fetchRoutineTasks = async () => {
   isLoading.value = true;
+  // طلب الـ API أو Vuex
+  const response = await store.dispatch("fetchAllRoutineTasks");
+  if (response.status === 200) {
+    // كل المهام
+    allroutineTasks.value = store.getters.allRoutineTasks.tasks;
+    // حساب عدد الصفحات أوّل مرة
+    pagination.value.total = allroutineTasks.value.length;
+    pagination.value.last_page = Math.ceil(
+      allroutineTasks.value.length / pagination.value.per_page
+    );
+  } else {
+    console.error("Error fetching tasks:", response);
+  }
+  isLoading.value = false;
+};
 
-  try {
-    const response = await store.dispatch("fetchAllRoutineTasks", page); // تعديل الـ action
-    console.log("response:", response);
-    if (response.status === 200) {
-      allroutineTasks.value = store.getters.allRoutineTasks.tasks; // تعديل الـ getter
-      console.log("allroutineTasks:", allroutineTasks.value);
-      pagination.value = store.getters.allRoutineTasks.pagination; // تعديل الـ getter
-      componentKey.value += 1;
+const filteredTasks = computed(() => {
+  // خد نسخة من المهام عشان ما تعملش تعديل على الأصل
+  let tasks = [...allroutineTasks.value];
+
+  // 1. فلتر حسب الـ taskType (لو مش فاضي)
+  if (selectedTaskType.value) {
+    tasks = tasks.filter(t => t.task_type === selectedTaskType.value);
+  }
+
+  // 2. فلتر حسب حالة المهمة (active / inactive - على حسب هي متخزنة إزاي)
+  //   - انتبه لطريقة تخزين الحالة في الـ API: هل هي active/inactive boolean ولا status= 'done'/'not_done'...؟
+  if (selectedStatus.value) {
+    if (selectedStatus.value === "active") {
+      tasks = tasks.filter(t => t.active === true);
+    } else if (selectedStatus.value === "inactive") {
+      tasks = tasks.filter(t => t.active === false);
     }
-  } catch (error) {
-    showAlert.value = true;
-    errorMessage.value = t("generalError");
-  } finally {
-    isLoading.value = false;
+    // أو لو عندك منطق مختلف للـ status، عدّله هنا
+  }
+
+  // 3. فلتر حسب الأقسام المختارة
+  if (selectedDepartments.value.length > 0) {
+    const selectedDeptIds = selectedDepartments.value.map(dept => dept.id);
+    tasks = tasks.filter(task => {
+      // تأكد الـ task.dept_id ضمن الـ selectedDeptIds
+      return selectedDeptIds.includes(task.department?.dept_id);
+    });
+  }
+
+  return tasks;
+});
+
+watch(
+  () => filteredTasks.value.length,
+  (newLength) => {
+    // Update pagination data here (instead of inside computed)
+    pagination.value.total = newLength;
+    pagination.value.last_page = Math.ceil(
+      newLength / pagination.value.per_page
+    );
+
+    // If current page is now out of range, reset to last valid page
+    if (pagination.value.current_page > pagination.value.last_page) {
+      pagination.value.current_page = pagination.value.last_page || 1;
+    }
+  },
+  { immediate: true }
+);
+
+
+// Add computed for paginated data
+const paginatedTasks = computed(() => {
+  const start = (pagination.value.current_page - 1) * pagination.value.per_page;
+  const end = start + pagination.value.per_page;
+  return filteredTasks.value.slice(start, end);
+});
+
+// Update page change handler
+const handlePageChange = (page) => {
+  if (page >= 1 && page <= pagination.value.last_page) {
+    pagination.value.current_page = page;
   }
 };
 
@@ -431,17 +498,17 @@ const daysOfWeek = [
 ];
 
 // التعامل مع تغيير الصفحة
-const handlePageChange = (page) => {
-  fetchRoutineTasks(page);
-};
+// const handlePageChange = (page) => {
+//   fetchRoutineTasks(page);
+// };
 
 onMounted(async () => {
   await store.dispatch("fetchDepartments");
 });
 
 // Filter variables
-const selectedTaskType = ref('');
-const selectedDepartments = ref([]);
+// const selectedTaskType = ref('');
+// const selectedDepartments = ref([]);
 console.log("formattedDepartments:", formattedDepartments.value);
 const toggleAllDepartments = () => {
   
@@ -457,23 +524,26 @@ const toggleAllDepartments = () => {
   }
 };
 
-const applyFilters = () => {
-  // Implement filter logic
-  const filters = {
-    task_type: selectedTaskType.value,
-    dept_filter: selectedDepartments.value.map(dept => dept.id)
-  };
 
-  console.log("Filters:", filters);
+
+// const applyFilters = () => {
+//   // Implement filter logic
+//   const filters = {
+//     task_type: selectedTaskType.value,
+//     dept_filter: selectedDepartments.value.map(dept => dept.id)
+//   };
+
+//   console.log("Filters:", filters);
   
-  // Dispatch action to fetch filtered routine tasks
-  store.dispatch('fetchRoutineTasks', { filters });
-};
+//   // Dispatch action to fetch filtered routine tasks
+//   store.dispatch('fetchRoutineTasks', { filters });
+// };
 
 const resetFilters = () => {
   // Reset all filter variables
   selectedTaskType.value = '';
   selectedDepartments.value = [];
+  selectedStatus.value = '';
   
   // Fetch all routine tasks without filters
   store.dispatch('fetchRoutineTasks');
@@ -496,7 +566,7 @@ const resetFilters = () => {
               >
                 <i class="fas fa-plus"></i>
               </argon-button>
-           <!-- <button 
+           <button 
                 class="btn btn-link ms-auto" 
                 type="button" 
                 data-bs-toggle="collapse" 
@@ -505,7 +575,7 @@ const resetFilters = () => {
                 aria-controls="filterCollapse"
               >
                 <i class="fas fa-filter"></i>
-              </button> -->
+              </button>
             </div>
             <div class="collapse" id="filterCollapse">
               <div class="card card-body">
@@ -595,12 +665,12 @@ const resetFilters = () => {
                   </div>
                 </div>
                 <div class="d-flex justify-content-end">
-                  <button 
+                  <!-- <button 
                     class="btn btn-primary me-2" 
                     @click="applyFilters"
                   >
                     {{ t("applyFilters") }}
-                  </button>
+                  </button> -->
                   <button 
                     class="btn btn-secondary" 
                     @click="resetFilters"
@@ -648,7 +718,7 @@ const resetFilters = () => {
             </div>
             <ManageRoutineTaskTable
               v-else
-              :allroutineTasks="allroutineTasks"
+              :allroutineTasks="paginatedTasks"
               :key="componentKey"
               @page-changed="handlePageChange"
               :pagination="pagination"

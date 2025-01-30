@@ -138,8 +138,86 @@
         </tbody>
       </table>
     </div>
-
     <div class="d-flex justify-content-center mt-4">
+    <nav aria-label="Page navigation">
+    <ul class="pagination">
+      <!-- زر الانتقال للصفحة السابقة -->
+      <li 
+        :class="['page-item', { disabled: pagination.current_page === 1 }]"
+      >
+        <a
+          class="page-link"
+          href="#"
+          @click.prevent="$emit('page-changed', pagination.current_page - 1)"
+        >
+          &laquo;
+        </a>
+      </li>
+
+      <!-- لو في صفحات قبل الـ startIndex نعرض أول صفحة ... -->
+      <li 
+        v-if="startIndex > 1" 
+        class="page-item" 
+        :class="{ active: 1 === pagination.current_page }"
+      >
+        <a class="page-link" href="#" @click.prevent="$emit('page-changed', 1)">
+          1
+        </a>
+      </li>
+      <li v-if="startIndex > 2" class="page-item disabled">
+        <span class="page-link">...</span>
+      </li>
+
+      <!-- الصفحات الوسيطة اللي هتعرضها -->
+      <li
+        v-for="page in pagesToShow"
+        :key="page"
+        :class="['page-item', { active: page === pagination.current_page }]"
+      >
+        <a
+          class="page-link"
+          href="#"
+          @click.prevent="$emit('page-changed', page)"
+        >
+          {{ page }}
+        </a>
+      </li>
+
+      <!-- لو في صفحات بعد الـ endIndex نعرض آخر صفحة ... -->
+      <li v-if="endIndex < pagination.last_page - 1" class="page-item disabled">
+        <span class="page-link">...</span>
+      </li>
+      <li 
+        v-if="endIndex < pagination.last_page" 
+        class="page-item" 
+        :class="{ active: pagination.last_page === pagination.current_page }"
+      >
+        <a 
+          class="page-link" 
+          href="#" 
+          @click.prevent="$emit('page-changed', pagination.last_page)"
+        >
+          {{ pagination.last_page }}
+        </a>
+      </li>
+
+      <!-- زر الانتقال للصفحة التالية -->
+      <li 
+        :class="['page-item', { disabled: pagination.current_page === pagination.last_page }]"
+      >
+        <a
+          class="page-link"
+          href="#"
+          @click.prevent="$emit('page-changed', pagination.current_page + 1)"
+        >
+          &raquo;
+        </a>
+      </li>
+    </ul>
+  </nav>
+  </div>
+    <!-- <div class="d-flex justify-content-center mt-4">
+      
       <nav aria-label="Page navigation">
         <ul class="pagination">
           <li :class="['page-item', { disabled: !pagination.prev_page_url }]">
@@ -209,7 +287,7 @@
           </li>
         </ul>
       </nav>
-    </div>
+    </div> -->
 
     <!-- مودال التعديل -->
     <div v-if="showEditPopup" class="popup-overlay">
@@ -516,25 +594,24 @@ console.log("currentCompanyId:", currentCompanyId.value);
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
 
-const emit = defineEmits(["page-changed"]);
+// const emit = defineEmits(["page-changed"]);
 
 const props = defineProps({
   allroutineTasks: {
     // تغيير اسم الخاصية من tasks إلى routineTasks
     type: Array,
     required: true,
-  },
-  pagination: {
-    // تغيير اسم الخاصية من tasks إلى routineTasks
+  }
+  ,pagination: {
     type: Object,
     required: true,
   },
 });
 
-const totalPages = computed(() => {
-  // Ensure total pages is calculated correctly
-  return Math.ceil(props.pagination.total / props.pagination.per_page);
-});
+// const totalPages = computed(() => {
+//   // Ensure total pages is calculated correctly
+//   return Math.ceil(props.pagination.total / props.pagination.per_page);
+// });
 
 console.log("props.allroutineTasks:", props.allroutineTasks);
 
@@ -982,11 +1059,11 @@ const daysOfWeek = [
 ];
 
 // التعامل مع تغيير الصفحة
-const changePage = (page) => {
-  if (page >= 1 && page <= props.pagination.last_page) {
-    emit("page-changed", page);
-  }
-};
+// const changePage = (page) => {
+//   if (page >= 1 && page <= props.pagination.last_page) {
+//     emit("page-changed", page);
+//   }
+// };
 
 const formatTime = (time) => {
   // تأكد من أن الوقت موجود وصحيح
@@ -1009,6 +1086,39 @@ const formatTime = (time) => {
 // const totalPages = computed(() => {
 //   return props.pagination.last_page;
 // });
+
+
+const MAX_VISIBLE_PAGES = 6;
+
+const startIndex = computed(() => {
+  // لو الصفحة الحالية في النص، نفترض -2 +2
+  // بس نحد أقصى 6 صفحات، هنعمل منطق صغير يظبط الموضوع
+  let half = Math.floor(MAX_VISIBLE_PAGES / 2);
+  
+  // بداية النطاق
+  let start = props.pagination.current_page - half;
+  
+  // ما ينفعش نبدأ من أقل من 1
+  return start < 1 ? 1 : start;
+});
+
+const endIndex = computed(() => {
+  let start = startIndex.value;
+  let end = start + MAX_VISIBLE_PAGES - 1;
+  // برضه ما ينفعش يتعدى عدد الصفحات
+  if (end > props.pagination.last_page) {
+    end = props.pagination.last_page;
+  }
+  return end;
+});
+
+const pagesToShow = computed(() => {
+  let pages = [];
+  for (let i = startIndex.value; i <= endIndex.value; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
 </script>
 
 <style scoped>
