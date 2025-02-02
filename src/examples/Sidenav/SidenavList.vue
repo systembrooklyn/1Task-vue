@@ -265,6 +265,18 @@ const toggleSection = (section) => {
       <!-- Other Individual Items -->
       <li class="nav-item">
         <sidenav-item
+          to="/dashboard-default"
+          v-if="permissions['view-dashboard-owner'] || isOwner"
+          :class="getRoute() === 'dashboard-default' ? 'active' : ''"
+          :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
+        >
+          <template v-slot:icon>
+            <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+      <li class="nav-item">
+        <sidenav-item
           to="/department"
           v-if="permissions['view-department'] || isOwner"
           :class="getRoute() === 'department' ? 'active' : ''"

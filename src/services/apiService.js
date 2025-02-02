@@ -481,6 +481,20 @@ const config = {
 
   // end routine tasks------------------------------------------------
 
+  // start dashboard---------------------------------------------------
+
+  getDashboardData() {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get("/dashboard", config);
+  },
+
+  // end dashboard---------------------------------------------------
+
   //end
 
   // PUT: تحديث بيانات موجودة

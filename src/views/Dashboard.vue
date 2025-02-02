@@ -1,206 +1,305 @@
+// Dashboard.vue
 <script setup>
+import { onBeforeMount, ref, computed } from "vue";
 import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
 import GradientLineChart from "@/examples/Charts/GradientLineChart.vue";
-import Carousel from "./components/Carousel.vue";
-import CategoriesList from "./components/CategoriesList.vue";
-
-import US from "@/assets/img/icons/flags/US.png";
-import DE from "@/assets/img/icons/flags/DE.png";
-import GB from "@/assets/img/icons/flags/GB.png";
-import BR from "@/assets/img/icons/flags/BR.png";
-import { computed } from "vue";
+// import Carousel from "./components/Carousel.vue";
 import { useStore } from "vuex";
-const store = useStore();
 
+const store = useStore();
 const userName = computed(() => store.getters.userName);
 
+const isLoading = ref(true);  // Flag to control the loading state
+const dashboardData = computed(() => store.getters.dashboardData || {
+  AllDailyTasks: { active: 0, inActive: 0, total: 0 },
+  DailyTasks: {
+    DailyTaskDepts: [],
+    done_reports: 0,
+    not_done_reports: 0,
+    total_reports: 0,
+  },
+  Departments: { Departments: [], total: 0 },
+  Emps: { invited: 0, pending: 0, total: 0 },
+});
 
-const sales = {
-  us: {
-    country: "United States",
-    sales: 2500,
-    value: "$230,900",
-    bounce: "29.9%",
-    flag: US,
-  },
-  germany: {
-    country: "Germany",
-    sales: "3.900",
-    value: "$440,000",
-    bounce: "40.22%",
-    flag: DE,
-  },
-  britain: {
-    country: "Great Britain",
-    sales: "1.400",
-    value: "$190,700",
-    bounce: "23.44%",
-    flag: GB,
-  },
-  brasil: {
-    country: "Brasil",
-    sales: "562",
-    value: "$143,960",
-    bounce: "32.14%",
-    flag: BR,
-  },
+const fetchDashboardData = async () => {
+  try {
+    await store.dispatch("fetchDashboardData");
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;  // Set loading to false once data is fetched
+  }
 };
+
+onBeforeMount(async () => {
+  await fetchDashboardData();
+});
 </script>
+
 <template>
   <div class="py-4 container-fluid">
-    <div class="row">
-      <h4>welcome, {{ userName }}</h4>
-      <div class="col-lg-12">
-        <div class="row">
-          <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="Total Tasks" value="50/70" description="<span
-                class='text-sm font-weight-bolder text-success'
-                >20</span> Inactive Tasks" :icon="{
+    <div v-if="!isLoading">
+      <!-- If data is loaded, display dashboard content -->
+      <div class="row">
+        <h4>Welcome, {{ userName }}</h4>
+        <div class="col-lg-12">
+          <!-- Statistics Cards -->
+          <div class="row">
+            <!-- AllDailyTasks -->
+            <div class="col-lg-3 col-md-6 col-12 d-flex align-items-stretch">
+              <mini-statistics-card
+                v-if="!isLoading"
+                class="flex-fill"
+                title="Total Daily Tasks"
+                :value="`${dashboardData?.AllDailyTasks?.total || 0}`"
+                :description="`
+                  <span class='text-sm font-weight-bolder text-success'>
+                    ${dashboardData?.AllDailyTasks?.active || 0}
+                  </span> Active
+                  <br>
+                  <span class='text-sm font-weight-bolder text-danger'>
+                    ${dashboardData?.AllDailyTasks?.inActive || 0}
+                  </span> Inactive
+                `"
+                :icon="{
                   component: 'fa fa-tasks',
                   background: 'bg-gradient-primary',
                   shape: 'rounded-circle',
-                }" />
-          </div>
-          <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="Today's Tasks" value="25/50" description="<span
-                class='text-sm font-weight-bolder text-success'
-                >15</span> Done Tasks  <br> <span
-                class='text-sm font-weight-bolder text-danger'
-                >10</span> Not Done Tasks" :icon="{
-                  component: 'fa fa-calendar',
+                }"
+              />
+            </div>
+
+            <!-- DailyTasks -->
+            <div class="col-lg-3 col-md-6 col-12 d-flex align-items-stretch">
+              <mini-statistics-card
+                v-if="!isLoading"
+                class="flex-fill"
+                title="Today's Reports"
+                :value="`${dashboardData?.DailyTasks?.today_total_daily_tasks || 0}`"
+                :description="`
+                <span class='text-sm font-weight-bolder '>
+                  ${dashboardData?.DailyTasks?.total_reports || 0}
+                </span> 
+                  (<span class='text-sm font-weight-bolder text-success'>
+                    ${dashboardData?.DailyTasks?.done_reports || 0}
+                  </span> Done  /
+                  <span class='text-sm font-weight-bolder text-danger'>
+                    ${dashboardData?.DailyTasks?.not_done_reports || 0}
+                  </span> not Done) <br>
+                  <span class='text-sm font-weight-bolder text-danger'>
+                    ${dashboardData?.DailyTasks?.today_total_daily_tasks -  dashboardData?.DailyTasks?.total_reports || 0}
+                  </span> Not Reported
+                `"
+                :icon="{
+                  component: 'fa fa-file-alt',
                   background: 'bg-gradient-danger',
                   shape: 'rounded-circle',
-                }" />
-          </div>
-          <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="employees" value="4" description="<span
-                class='text-sm font-weight-bolder text-danger'
-                >1</span> Pending Employees" :icon="{
-                  component: 'ni ni-paper-diploma',
+                }"
+              />
+            </div>
+
+            <!-- Emps -->
+            <div class="col-lg-3 col-md-6 col-12 d-flex align-items-stretch">
+              <mini-statistics-card
+                v-if="!isLoading"
+                class="flex-fill"
+                title="Employees"
+                :value="`${dashboardData?.Emps?.invited || 0}`"
+                :description="`
+                  <span class='text-sm font-weight-bolder text-success'>
+                    ${dashboardData?.Emps?.total || 0}
+                  </span> Active Employees <br>
+                  <span class='text-sm font-weight-bolder text-danger'>
+                    ${dashboardData?.Emps?.pending || 0}
+                  </span> Pending
+                `"
+                :icon="{
+                  component: 'ni ni-single-02',
                   background: 'bg-gradient-success',
                   shape: 'rounded-circle',
-                }" />
-          </div>
-          <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="Projects" value="8/10" description="<span
-                class='text-sm font-weight-bolder text-danger'
-                >2</span> Inactive Projects" :icon="{
-                  component: 'fa fa-shopping-cart',
+                }"
+              />
+            </div>
+
+            <!-- Projects -->
+            <div class="col-lg-3 col-md-6 col-12 d-flex align-items-stretch">
+              <mini-statistics-card
+                v-if="!isLoading"
+                class="flex-fill"
+                title="Projects"
+                :value="`${dashboardData?.Projects?.total || 0}`"
+                :description="`
+                  <span class='text-sm font-weight-bolder text-success'>
+                    ${dashboardData?.Projects?.active || 0}
+                  </span> Active Projects <br>
+                  <span class='text-sm font-weight-bolder text-danger'>
+                    ${dashboardData?.Projects?.inactive || 0}
+                  </span> Inactive
+                `"
+                :icon="{
+                  component: 'ni ni-building',
                   background: 'bg-gradient-warning',
                   shape: 'rounded-circle',
-                }" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-7 mb-lg">
-            <!-- line chart -->
-            <div class="card z-index-2">
-              <gradient-line-chart id="chart-line" title="Sales Overview" description="<i class='fa fa-arrow-up text-success'></i>
-      <span class='font-weight-bold'>4% more</span> in 2021" :chart="{
-        labels: [
-          'Apr',
-          'May',
-          'Jun',
-          'Jul',
-          'Aug',
-          'Sep',
-          'Oct',
-          'Nov',
-          'Dec',
-        ],
-        datasets: [
-          {
-            label: 'Mobile Apps',
-            data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
-          },
-        ],
-      }" />
+                }"
+              />
             </div>
           </div>
-          <div class="col-lg-5">
-            <carousel />
+
+          <!-- Charts & Carousel Row -->
+          <div class="row mt-4">
+            <div class="col-lg-6 mb-lg">
+              <div class="card z-index-2">
+                <gradient-line-chart
+                  v-if="!isLoading"
+                  id="chart-line"
+                  title="Tasks Progress"
+                  description="Daily tasks distribution"
+                  :chart="{
+                    labels: (
+                      dashboardData?.DailyTasks?.DailyTaskDepts || []
+                    ).map((dept) => dept.department_name),
+                    datasets: [
+                      {
+                        label: 'Done Tasks',
+                        data: (
+                          dashboardData?.DailyTasks?.DailyTaskDepts || []
+                        ).map((dept) => dept.done_reports || 0),
+                      },
+                      {
+                        label: 'Not Done Tasks',
+                        data: (
+                          dashboardData?.DailyTasks?.DailyTaskDepts || []
+                        ).map((dept) => dept.not_done_reports || 0),
+                      }
+                    ],
+                  }"
+                />
+              </div>
+            </div>
+            <div class="col-lg-6 mb-lg mt-4 mt-lg-0">
+              <div class="card z-index-2">
+                <gradient-line-chart
+                  v-if="!isLoading"
+                  id="chart-line2"
+                  title="Tasks Progress"
+                  description="Daily tasks distribution"
+                  :chart="{
+                    labels: (
+                      dashboardData?.DailyTasks?.DailyTaskDepts || []
+                    ).map((dept) => dept.department_name),
+                    datasets: [
+                      {
+                        label: 'Reported Tasks',
+                        data: (
+                          dashboardData?.DailyTasks?.DailyTaskDepts || []
+                        ).map((dept) => dept.total_reports || 0),
+                      },
+                      {
+                        label: 'Not Reported Tasks',
+                        data: (
+                          dashboardData?.DailyTasks?.DailyTaskDepts || []
+                        ).map((dept) => dept.total_tasks - (dept.total_reports || 0) || 0),
+                      }
+                    ],
+                  }"
+                />
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <!-- Carousel component (if any) -->
+            </div>
           </div>
-        </div>
-        <div class="row mt-4">
-          <div class="col-lg-7 mb-lg-0 mb-4">
-            <div class="card">
-              <div class="p-3 pb-0 card-header">
-                <div class="d-flex justify-content-between">
-                  <h6 class="mb-2">Sales by Country</h6>
+
+          <!-- Departments Tables -->
+          <div class="row mt-4">
+            <!-- Daily Tasks by Department -->
+            <div class="col-lg-7 mb-lg-0 mb-4">
+              <div class="card">
+                <div class="p-3 pb-0 card-header">
+                  <h6 class="mb-2">Daily Tasks by Department</h6>
+                </div>
+                <div class="table-responsive">
+                  <table class="table align-items-center">
+                    <thead>
+                      <tr>
+                        <th class="text-center">Department</th>
+                        <th class="text-center">Total Tasks</th>
+                        <th class="text-center">Done Tasks</th>
+                        <th class="text-center">not Done Tasks</th>
+                        <th class="text-center">Reported</th>
+                        <th class="text-center">Not Reported</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(dept, index) in dashboardData?.DailyTasks
+                          ?.DailyTaskDepts || []"
+                        :key="index"
+                      >
+                        <td class="text-center">
+                          {{ dept.department_name || "N/A" }}
+                        </td>
+                        <td class="text-center">{{ dept.total_tasks || 0 }}</td>
+                        <td class="text-center text-success">
+                          {{ dept.done_reports || 0 }}
+                        </td>
+                        <td class="text-center text-danger">
+                          {{ dept.not_done_reports || 0 }}
+                        </td>
+                        <td class="text-center">
+                          {{ dept.total_reports || 0 }}
+                        </td>
+                        <td class="text-center">
+                          {{ dept.total_tasks - dept.total_reports || 0 }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
-              <div class="table-responsive">
-                <table class="table align-items-center">
-                  <tbody>
-                    <tr v-for="(sale, index) in sales" :key="index">
-                      <td class="w-30">
-                        <div class="px-2 py-1 d-flex align-items-center">
-                          <div>
-                            <img :src="sale.flag" alt="Country flag" />
-                          </div>
-                          <div class="ms-4">
-                            <p class="mb-0 text-xs font-weight-bold">
-                              Country:
-                            </p>
-                            <h6 class="mb-0 text-sm">{{ sale.country }}</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="mb-0 text-xs font-weight-bold">Sales:</p>
-                          <h6 class="mb-0 text-sm">{{ sale.sales }}</h6>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="mb-0 text-xs font-weight-bold">Value:</p>
-                          <h6 class="mb-0 text-sm">{{ sale.value }}</h6>
-                        </div>
-                      </td>
-                      <td class="text-sm align-middle">
-                        <div class="text-center col">
-                          <p class="mb-0 text-xs font-weight-bold">Bounce:</p>
-                          <h6 class="mb-0 text-sm">{{ sale.bounce }}</h6>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            </div>
+
+            <!-- Department Users -->
+            <div class="col-lg-5">
+              <div class="card h-100">
+                <div class="p-3 pb-0 card-header">
+                  <h6 class="mb-2">Departments Overview</h6>
+                </div>
+                <div class="table-responsive">
+                  <table class="table align-items-center">
+                    <thead>
+                      <tr>
+                        <th class="text-center">Department ({{ dashboardData?.Departments?.total || 0 }})</th>
+                        <th class="text-center">Users ({{ dashboardData?.Emps?.total || 0 }})</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(dept, index) in dashboardData?.Departments
+                          ?.Departments || []"
+                        :key="index"
+                      >
+                        <td class="text-center">
+                          {{ dept.department_name || "N/A" }}
+                        </td>
+                        <td class="text-center">{{ dept.total_users || 0 }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-lg-5">
-            <categories-list :categories="[
-              {
-                icon: {
-                  component: 'ni ni-mobile-button',
-                  background: 'dark',
-                },
-                label: 'Devices',
-                description: '250 in stock <strong>346+ sold</strong>',
-              },
-              {
-                icon: {
-                  component: 'ni ni-tag',
-                  background: 'dark',
-                },
-                label: 'Tickets',
-                description: '123 closed <strong>15 open</strong>',
-              },
-              {
-                icon: { component: 'ni ni-box-2', background: 'dark' },
-                label: 'Error logs',
-                description: '1 is active <strong>40 closed</strong>',
-              },
-              {
-                icon: { component: 'ni ni-satisfied', background: 'dark' },
-                label: 'Happy Users',
-                description: '+ 430',
-              },
-            ]" />
-          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Skeleton Loader if data is loading -->
+    <div v-else class="text-center">
+      <p>Loading data...</p>
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
     </div>
   </div>

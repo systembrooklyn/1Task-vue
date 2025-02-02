@@ -16,6 +16,8 @@ const showPassword = ref(false); // للتحكم في عرض/إخفاء كلمة
 const showAlert = ref(false); // حالة التحكم في عرض التنبيه
 const errorMessage = ref(""); // رسالة الخطأ التي ستظهر عند الفشل
 const passwordValid = ref(false); // للتحقق من صحة كلمة المرور
+const isOwner = computed(() => store.getters.isOwner);
+
 
 const body = document.getElementsByTagName("body")[0];
 const isLoading = ref(false);
@@ -86,7 +88,11 @@ const signIn = async () => {
     console.log("response:", response);
     if (response.status === 200) {
       isLoading.value = false;
-      router.push("/routine-task");
+      if (isOwner.value) {
+        router.push("/dashboard-default");
+      } else {
+        router.push("/routine-task");
+      }
     } else {
       isLoading.value = false;
       errorMessage.value = t("loginError");

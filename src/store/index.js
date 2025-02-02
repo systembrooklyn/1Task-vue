@@ -62,6 +62,7 @@ export default createStore({
     routineTasks: [],
     allRoutineTasks: [],
     routineTasksReports: [],
+    dashboardData: [],
     pagination: {
       total: 0,
       current_page: 1,
@@ -70,6 +71,8 @@ export default createStore({
       next_page_url: null,
       prev_page_url: null,
     },
+
+    
   },
   mutations: {
     //بناءا على api laravel
@@ -215,6 +218,11 @@ export default createStore({
     
     SET_TASK_REPORTS(state, reports) {
       state.routineTasksReports = reports;
+    },
+
+
+    SET_DASHBOARD_DATA(state, data) {
+      state.dashboardData = data;
     },
 
     // end----------------------------------------------------
@@ -1283,6 +1291,19 @@ export default createStore({
         return error;
       }
     },
+
+    // dashboard
+    async fetchDashboardData({ commit }) {
+      try {
+        const response = await apiClient.getDashboardData();
+        console.log("response", response.data);
+        commit("SET_DASHBOARD_DATA", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        return error;
+      }
+    }
   },
 
   getters: {
@@ -1316,5 +1337,6 @@ export default createStore({
     routineTasks: (state) => state.routineTasks,
     allRoutineTasks: (state) => state.allRoutineTasks,
     routineTasksReports: (state) => state.routineTasksReports,
+    dashboardData: (state) => state.dashboardData,
   },
 });

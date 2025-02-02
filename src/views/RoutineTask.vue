@@ -208,10 +208,10 @@ const refreshTasks = async () => {
     if (response.status === 200) {
       routineTasks.value = store.getters.routineTasks.tasks;
       // Recompute pagination data
-      pagination.value.total = routineTasks.value.length;
-      pagination.value.last_page = Math.ceil(
-        routineTasks.value.length / pagination.value.per_page
-      );
+      // pagination.value.total = routineTasks.value.length;
+      // pagination.value.last_page = Math.ceil(
+      //   routineTasks.value.length / pagination.value.per_page
+      // );
     }
   } catch (error) {
     console.error("Error fetching tasks:", error);
@@ -565,9 +565,9 @@ onMounted(async () => {
   await refreshTasks();
 
   // ====== Auto-refresh every 60 seconds ======
-  refreshInterval.value = setInterval(() => {
+  refreshInterval.value = setInterval( async () => {
     console.log("Auto-refreshing tasks...");
-    refreshTasks();
+    await refreshTasks();
   }, 60_000);
 });
 

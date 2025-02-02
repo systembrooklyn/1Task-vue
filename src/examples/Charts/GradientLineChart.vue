@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted } from "vue";
 import Chart from "chart.js/auto";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+Chart.register(ChartDataLabels);
 
 const props = defineProps({
   id: {
@@ -52,35 +54,33 @@ onMounted(() => {
   }
   if (props.chart.datasets.length == 2) {
     new Chart(gradientLineChart, {
-      type: "line",
+      type: "bar",
       data: {
         labels: props.chart.labels,
         datasets: [
           {
             label: props.chart.datasets[0].label,
             tension: 0.4,
-            borderWidth: 0,
             pointRadius: 0,
             borderColor: "#4BB543 ",
             backgroundColor: gradientStroke1,
-            // eslint-disable-next-line no-dupe-keys
             borderWidth: 3,
             fill: true,
             data: props.chart.datasets[0].data,
             maxBarThickness: 6,
+            barThickness: 20, // تحديد عرض الأعمدة
           },
           {
             label: props.chart.datasets[1].label,
             tension: 0.4,
-            borderWidth: 0,
             pointRadius: 0,
-            borderColor: "#3A416F",
-            // eslint-disable-next-line no-dupe-keys
+            borderColor: "#F5365C",
             borderWidth: 3,
             backgroundColor: gradientStroke2,
             fill: true,
             data: props.chart.datasets[1].data,
             maxBarThickness: 6,
+            barThickness: 20, // تحديد عرض الأعمدة
           },
         ],
       },
@@ -89,7 +89,17 @@ onMounted(() => {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: false,
+            display: true,
+          },
+          datalabels: {
+            anchor: "end",
+            align: "end",
+            color: "#000",
+            font: {
+              size: 12,
+              weight: "bold",
+            },
+            formatter: (value) => value,
           },
         },
         interaction: {
@@ -97,6 +107,29 @@ onMounted(() => {
           mode: "index",
         },
         scales: {
+          x: {
+            stacked: false, // إزالة التكديس
+            grid: {
+              drawBorder: false,
+              display: false,
+              drawOnChartArea: false,
+              drawTicks: false,
+              borderDash: [5, 5],
+            },
+            ticks: {
+              display: true,
+              color: "#ccc",
+              padding: 20,
+              font: {
+                size: 11,
+                family: "Open Sans",
+                style: "normal",
+                lineHeight: 2,
+              },
+            },
+            categoryPercentage: 0.5, // زيادة هذه القيم لتقليل المسافة
+            barPercentage: 0.5, // زيادة هذه القيم لتقليل المسافة
+          },
           y: {
             grid: {
               drawBorder: false,
@@ -117,32 +150,12 @@ onMounted(() => {
               },
             },
           },
-          x: {
-            grid: {
-              drawBorder: false,
-              display: false,
-              drawOnChartArea: false,
-              drawTicks: false,
-              borderDash: [5, 5],
-            },
-            ticks: {
-              display: true,
-              color: "#ccc",
-              padding: 20,
-              font: {
-                size: 11,
-                family: "Open Sans",
-                style: "normal",
-                lineHeight: 2,
-              },
-            },
-          },
         },
       },
     });
   } else if (props.chart.datasets.length == 1) {
     new Chart(gradientLineChart, {
-      type: "line",
+      type: "bar",
       data: {
         labels: props.chart.labels,
         datasets: [
@@ -167,6 +180,16 @@ onMounted(() => {
         plugins: {
           legend: {
             display: false,
+          },
+          datalabels: {
+            anchor: "end",
+            align: "end",
+            color: "#000",
+            font: {
+              size: 12,
+              weight: "bold",
+            },
+            formatter: (value) => value,
           },
         },
         interaction: {
