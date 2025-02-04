@@ -9,6 +9,17 @@ import Signup from "../views/Signup.vue";
 import Signin from "../views/Signin.vue";
 import ErrorPage from "@/views/ErrorPage.vue";
 
+import { useStore } from "vuex";
+
+// خارج حارس المسارات أو داخله في نفس الملف
+function getCompanyName() {
+  const store = useStore();
+  // لو عندك user => user.company => company.name
+  // اعمل أي Normalization للمسافات أو الرموز
+  const companyName = store.getters.user?.user?.company?.name || "";
+  return companyName.replace(/\s+/g, "-");
+}
+
 const routes = [
   {
     path: "/",
@@ -17,25 +28,25 @@ const routes = [
     meta: { public: true },
   },
   {
-    path: "/dashboard-default",
+    path: "/:companyName/dashboard-default",
     name: "Dashboard",
     component: Dashboard,
     meta: { requiresAuth: true },
   },
   {
-    path: "/tables",
+    path: "/:companyName/tables",
     name: "Tables",
     component: Tables,
     meta: { requiresAuth: true },
   },
   {
-    path: "/billing",
+    path: "/:companyName/billing",
     name: "Billing",
     component: Billing,
     meta: { requiresAuth: true },
   },
   {
-    path: "/virtual-reality",
+    path: "/:companyName/virtual-reality",
     name: "Virtual Reality",
     component: VirtualReality,
     meta: { requiresAuth: true },
@@ -53,7 +64,7 @@ const routes = [
     meta: { public: true }, // صفحة عامة
   },
   {
-    path: "/profile",
+    path: "/:companyName/profile",
     name: "Profile",
     component: Profile,
     meta: { requiresAuth: true },
@@ -89,13 +100,13 @@ const routes = [
     meta: { public: true },
   },
   {
-    path: "/icon",
+    path: "/:companyName/icon",
     name: "icon",
     component: () => import("../views/icon.vue"),
     meta: { requiresAuth: true },
   },
   {
-    path: "/addUser",
+    path: "/:companyName/addUser",
     name: "add user",
     component: () => import("@/views/AddUser.vue"),
     meta: { requiresAuth: true },
@@ -107,19 +118,19 @@ const routes = [
     meta: { public: true },
   },
   {
-    path: "/team",
+    path: "/:companyName/team",
     name: "team",
     component: () => import("@/views/Team.vue"),
     meta: { requiresAuth: true },
   },
   {
-    path: "/add-role",
-    name: "add role",
+    path: "/:companyName/add-role&permissions",
+    name: "roles & permissions",
     component: () => import("@/views/AddRole.vue"),
     meta: { requiresAuth: true },
   },
   {
-    path: "/task-reports",
+    path: "/:companyName/task-reports",
     name: "reported tasks",
     component: () => import("@/views/ReportedTask.vue"),
     meta: { requiresAuth: true },
@@ -131,25 +142,25 @@ const routes = [
     meta: { public: true },
   },
   {
-    path: "/department",
+    path: "/:companyName/department",
     name: "department",
     component: () => import("@/views/Department.vue"),
     meta: { requiresAuth: true },
   },
   {
-    path: "/project",
+    path: "/:companyName/project",
     name: "project",
     component: () => import("@/views/Project.vue"),
     meta: { requiresAuth: true },
   },
   {
-    path: "/manage-routine-task",
+    path: "/:companyName/manage-routine-task",
     name: "manage routine task",
     component: () => import("@/views/ManageRoutineTask.vue"),
     meta: { requiresAuth: true },
   },
   {
-    path: "/routine-task",
+    path: "/:companyName/routine-task",
     name: "routine task",
     component: () => import("@/views/RoutineTask.vue"),
     meta: { requiresAuth: true },
@@ -167,20 +178,36 @@ function isUserAuthenticated() {
   return !!localStorage.getItem("token"); // تحقق إذا كان `token` موجودًا
 }
 
+
 // حراسة المسارات
 router.beforeEach((to, from, next) => {
   const isAuthenticated = isUserAuthenticated();
 
+  // 1) لو المسار يحتاج تسجيل دخول، والمستخدم مش مسجّل، نوديه للـ Signin
   if (to.meta.requiresAuth && !isAuthenticated) {
-    // إذا كانت الصفحة تحتاج إلى تسجيل دخول والمستخدم غير مسجل
-    next({ name: "Signin" });
-  } else if (isAuthenticated && to.meta.public && to.name === "Signin") {
-    // إذا كان المستخدم مسجلًا ويحاول الوصول إلى صفحة عامة مثل تسجيل الدخول
-    next({ name: "Dashboard" });
-  } else {
-    next(); // السماح بالانتقال
+    return next({ name: "Signin" });
   }
+
+  // 2) لو المستخدم مسجّل، والصفحة عامة، واسمها Signin (مثال)، نوديه للـ Dashboard
+  if (isAuthenticated && to.meta.public && to.name === "Signin") {
+    return next({ name: "Dashboard", params: { companyName: getCompanyName() } });
+  }
+
+  // 3) التحقق من companyName (لو المسار يحتوي عليه)
+  const userCompanyName = getCompanyName(); // دالة هننشئها أسفل للكشف من الـ Store
+  if (to.params.companyName && to.meta.requiresAuth) {
+    // لو الشركة غير مطابقة
+    if (to.params.companyName !== userCompanyName) {
+      // حمايتك: إما توجيهه لصفحة خطأ، أو صفحة الشركة الصحيحة
+      // return next({ name: "Error" });
+      // أو:
+      return next({ name: "Dashboard", params: { companyName: userCompanyName } });
+    }
+  }
+
+  return next(); // السماح بالانتقال
 });
+
 
 router.afterEach((to) => {
   window.gtag('config', 'G-VGLP578ZCJ', {

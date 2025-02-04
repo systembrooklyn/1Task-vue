@@ -18,10 +18,8 @@ const errorMessage = ref(""); // رسالة الخطأ التي ستظهر عن�
 const passwordValid = ref(false); // للتحقق من صحة كلمة المرور
 const isOwner = computed(() => store.getters.isOwner);
 
-
 const body = document.getElementsByTagName("body")[0];
 const isLoading = ref(false);
-
 
 onBeforeMount(() => {
   store.state.hideConfigButton = true;
@@ -48,7 +46,8 @@ onBeforeUnmount(() => {
 
 // دالة التحقق من قوة كلمة المرور
 const validatePassword = (password) => {
-  const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%*?&-_]{8,}$/;
+  const regex =
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%*?&-_]{8,}$/;
   return regex.test(password);
 };
 
@@ -61,26 +60,25 @@ watch(password, (newPassword) => {
 const signIn = async () => {
   isLoading.value = true;
   if (!passwordValid.value) {
-    errorMessage.value = store.getters.currentLanguage === "ar"
-      ? "كلمة المرور غير مطابقة للشروط."
-      : "Password does not meet the requirements.";
+    errorMessage.value =
+      store.getters.currentLanguage === "ar"
+        ? "كلمة المرور غير مطابقة للشروط."
+        : "Password does not meet the requirements.";
     showAlert.value = true;
 
     // إخفاء التنبيه بعد 3 ثوانٍ
     setTimeout(() => {
       isLoading.value = false;
       showAlert.value = false;
-
     }, 3000);
     return;
   }
 
   try {
-
     const formData = {
       email: email.value,
-      password: password.value
-    }
+      password: password.value,
+    };
 
     console.log("formData:", formData);
     // إرسال البيانات إلى المسار للتحقق من تسجيل الدخول
@@ -88,8 +86,19 @@ const signIn = async () => {
     console.log("response:", response);
     if (response.status === 200) {
       isLoading.value = false;
+      const user = store.getters.user;
+      console.log("useRRRRRRRRr:", user);
+      const companyName = user.user.company.name;
+        const companyNameNormalized = companyName.replace(/\s+/g, '-'); // مثلاً
+
+      console.log("companyNamEEEEEe:", companyName);
       if (isOwner.value) {
-        router.push("/dashboard-default");
+        router.push({
+          name: "Dashboard",
+          params: {
+            companyName: companyNameNormalized, // أو companyNameNormalized
+          },
+        });
       } else {
         router.push("/routine-task");
       }
@@ -131,7 +140,8 @@ const translations = {
     effortlessWriting:
       "The more effortless the writing looks, the more effort the writer actually put into the process.",
     forgotPassword: "Forgot password?",
-    passwordRequirements: "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character.",
+    passwordRequirements:
+      "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character.",
     passwordValid: "Password is valid ✅",
     showPassword: "Show Password",
     hidePassword: "Hide Password",
@@ -151,7 +161,8 @@ const translations = {
     effortlessWriting:
       "كلما بدت الكتابة أكثر سهولة، كلما بذل الكاتب مجهودًا أكبر في العملية.",
     forgotPassword: "نسيت كلمة المرور؟",
-    passwordRequirements: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتشمل حرفًا كبيرًا، وحرفًا صغيرًا، ورقمًا، وحرفًا خاصًا.",
+    passwordRequirements:
+      "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتشمل حرفًا كبيرًا، وحرفًا صغيرًا، ورقمًا، وحرفًا خاصًا.",
     passwordValid: "كلمة المرور مطابقة للشروط ✅",
     showPassword: "إظهار كلمة المرور",
     hidePassword: "إخفاء كلمة المرور",
@@ -172,8 +183,12 @@ const t = (key) => {
   <div class="container top-0 position-sticky z-index-sticky">
     <div class="row">
       <div class="col-12">
-        <navbar isBlur="blur  border-radius-lg my-3 py-2 start-0 end-0 mx-4 shadow" :darkMode="true"
-          isBtn="bg-gradient-success" style="display: none;" />
+        <navbar
+          isBlur="blur  border-radius-lg my-3 py-2 start-0 end-0 mx-4 shadow"
+          :darkMode="true"
+          isBtn="bg-gradient-success"
+          style="display: none"
+        />
       </div>
     </div>
   </div>
@@ -183,8 +198,10 @@ const t = (key) => {
         <div class="container">
           <div class="row">
             <!-- قسم النموذج -->
-            <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto form-container"
-              :class="currentLanguage === 'ar' ? 'order-2' : ''">
+            <div
+              class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto form-container"
+              :class="currentLanguage === 'ar' ? 'order-2' : ''"
+            >
               <div class="card card-plain">
                 <div class="pb-0 card-header text-start">
                   <h4 class="font-weight-bolder">{{ t("signIn") }}</h4>
@@ -193,16 +210,34 @@ const t = (key) => {
                 <div class="card-body">
                   <form role="form" @submit.prevent="signIn">
                     <div class="mb-3">
-                      <argon-input v-model="email" id="email" type="email" :placeholder="t('email')" name="email"
-                        size="lg" />
+                      <argon-input
+                        v-model="email"
+                        id="email"
+                        type="email"
+                        :placeholder="t('email')"
+                        name="email"
+                        size="lg"
+                      />
                     </div>
                     <div class="mb-3 position-relative">
-                      <div class=" position-relative">
-                        <argon-input v-model="password" id="password" :type="showPassword ? 'text' : 'password'"
-                          :placeholder="t('password')" name="password" size="lg" />
-                        <span @click="showPassword = !showPassword"
-                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
-                          <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                      <div class="position-relative">
+                        <argon-input
+                          v-model="password"
+                          id="password"
+                          :type="showPassword ? 'text' : 'password'"
+                          :placeholder="t('password')"
+                          name="password"
+                          size="lg"
+                        />
+                        <span
+                          @click="showPassword = !showPassword"
+                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"
+                        >
+                          <i
+                            :class="
+                              showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'
+                            "
+                          ></i>
                         </span>
                       </div>
                       <p v-if="passwordValid" class="text-success mt-2">
@@ -213,8 +248,11 @@ const t = (key) => {
                       </p>
                     </div>
                     <p class="mx-auto mb-4 text-sm">
-                      <a href="javascript:;" @click="showForgotPasswordForm"
-                        class="text-success text-gradient font-weight-bold">
+                      <a
+                        href="javascript:;"
+                        @click="showForgotPasswordForm"
+                        class="text-success text-gradient font-weight-bold"
+                      >
                         {{ t("forgotPassword") }}
                       </a>
                     </p>
@@ -222,11 +260,21 @@ const t = (key) => {
                       {{ errorMessage }}
                     </argon-alert>
                     <div class="text-center">
-                      <argon-button class="mt-4 d-flex justify-content-center" variant="gradient" color="success" fullWidth size="lg"
-                        :disabled="!passwordValid">
+                      <argon-button
+                        class="mt-4 d-flex justify-content-center"
+                        variant="gradient"
+                        color="success"
+                        fullWidth
+                        size="lg"
+                        :disabled="!passwordValid"
+                      >
                         <span class="me-2 mx-2">{{ t("signIn") }}</span>
                         <div v-if="isLoading" class="text-center">
-                          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                          <span
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
                         </div>
                       </argon-button>
                     </div>
@@ -235,7 +283,11 @@ const t = (key) => {
                 <div class="px-1 pt-0 text-center card-footer px-lg-2">
                   <p class="mx-auto mb-4 text-sm">
                     {{ t("dontHaveAccount") }}
-                    <a href="/" class="text-success text-gradient font-weight-bold">{{ t("signUp") }}</a>
+                    <a
+                      href="/"
+                      class="text-success text-gradient font-weight-bold"
+                      >{{ t("signUp") }}</a
+                    >
                   </p>
                 </div>
               </div>
@@ -243,21 +295,23 @@ const t = (key) => {
             <!-- قسم الصورة والنص -->
             <div
               class="col-6 d-none d-lg-flex h-100 justify-content-center flex-column text-center my-auto top-0 position-absolute"
-              :class="currentLanguage === 'ar' ? 'start-0 ps-0' : 'end-0 pe-0'">
+              :class="currentLanguage === 'ar' ? 'start-0 ps-0' : 'end-0 pe-0'"
+            >
               <div
-  class="position-relative bg-gradient-primary w-100  px-7 border-radius-lg d-flex flex-column justify-content-center overflow-auto"
-  style="
-    background-image: url('https://ik.imagekit.io/dimpx0s2v/Copy%20of%201task%20(1).gif');
-    background-size: contain; 
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 480px; 
-    margin-left: -100px;
-    max-height: 90vh; 
-  ">
-  <span class=""></span>
-  <!-- المحتويات الأخرى يمكن إضافتها هنا -->
-  <!--
+                class="position-relative bg-gradient-primary w-100 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-auto"
+                style="
+                  background-image: url(&quot;https://ik.imagekit.io/dimpx0s2v/Copy%20of%201task%20(1).gif&quot;);
+                  background-size: contain;
+                  background-position: center;
+                  background-repeat: no-repeat;
+                  height: 480px;
+                  margin-left: -100px;
+                  max-height: 90vh;
+                "
+              >
+                <span class=""></span>
+                <!-- المحتويات الأخرى يمكن إضافتها هنا -->
+                <!--
   <h4 class="mt-5 text-white font-weight-bolder position-relative">
     {{ t("attentionIsNewCurrency") }}
   </h4>
@@ -265,8 +319,7 @@ const t = (key) => {
     {{ t("effortlessWriting") }}
   </p>
   -->
-</div>
-
+              </div>
             </div>
             <!-- نهاية قسم الصورة والنص -->
           </div>
@@ -284,4 +337,3 @@ const t = (key) => {
   padding: 20px;
 }
 </style>
-

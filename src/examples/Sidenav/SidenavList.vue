@@ -26,6 +26,9 @@ const isRTL = computed(() => store.state.isRTL);
 
 // جلب بيانات المستخدم من Vuex
 const userData = computed(() => store.getters.user);
+const currentCompanyName = computed(() => userData.value?.user?.company?.name || "DefaultCompany");
+  const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, '-'); // مثلاً
+
 const isOwner = computed(() => store.getters.isOwner);
 // console.log(userData.value);
 
@@ -89,13 +92,12 @@ const collapsibleSections = ref({
   workForce: false,
   tasks: false,
   reports: false,
-  accountPages: false
+  accountPages: false,
 });
 
 const toggleSection = (section) => {
   collapsibleSections.value[section] = !collapsibleSections.value[section];
 };
-
 </script>
 
 <template>
@@ -106,29 +108,31 @@ const toggleSection = (section) => {
     <ul class="navbar-nav">
       <!-- Tasks Section -->
       <li class="nav-item">
-        <div 
+        <div
           class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('tasks')"
         >
           <div class="d-flex align-items-center">
             <i class="fas fa-tasks text-success me-2"></i>
-            <span>{{ isRTL ? 'المهام' : 'Tasks' }}</span>
+            <span>{{ isRTL ? "المهام" : "Tasks" }}</span>
           </div>
-          <i 
-            class="fas fa-chevron-right transition-transform" 
+          <i
+            class="fas fa-chevron-right transition-transform"
             :class="{ 'rotate-180': collapsibleSections.tasks }"
           ></i>
         </div>
-        
+
         <transition name="dropdown">
-          <ul 
-            v-if="collapsibleSections.tasks" 
-            class="nav nav-sm flex-column"
-          >
-            <li class="nav-item" v-if="permissions['view-dailytask'] || isOwner">
+          <ul v-if="collapsibleSections.tasks" class="nav nav-sm flex-column">
+            <li
+              class="nav-item"
+              v-if="permissions['view-dailytask'] || isOwner"
+            >
               <sidenav-item
-                to="/routine-task"
-                :class="getRoute() === 'routine-task' ? 'active' : ''"
+              :to="{
+    name: 'routine task',
+    params: { companyName: companyNameNormalized }
+  }"                :class="getRoute() === 'routine-task' ? 'active' : ''"
                 :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'"
               >
                 <template v-slot:icon>
@@ -136,11 +140,18 @@ const toggleSection = (section) => {
                 </template>
               </sidenav-item>
             </li>
-            <li class="nav-item" v-if="permissions['view-alldailytask'] || isOwner">
+            <li
+              class="nav-item"
+              v-if="permissions['view-alldailytask'] || isOwner"
+            >
               <sidenav-item
-                to="/manage-routine-task"
-                :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
-                :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Tasks'"
+              :to="{
+    name: 'manage routine task',
+    params: { companyName: companyNameNormalized }
+  }"                :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
+                :navText="
+                  isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Tasks'
+                "
               >
                 <template v-slot:icon>
                   <i class="fa fa-cogs text-info text-sm opacity-10"></i>
@@ -164,36 +175,41 @@ const toggleSection = (section) => {
 
       <!-- rport Section -->
 
-      <li class="nav-item" v-if="isOwner || permissions['view-dailyTaskReports']">
-        <div 
+      <li
+        class="nav-item"
+        v-if="isOwner || permissions['view-dailyTaskReports']"
+      >
+        <div
           class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('reports')"
         >
           <div class="d-flex align-items-center">
             <i class="fas fa-chart-line text-success me-2"></i>
-            <span>{{ isRTL ? 'تقارير' : 'Reports' }}</span>
+            <span>{{ isRTL ? "تقارير" : "Reports" }}</span>
           </div>
-          <i 
-            class="fas fa-chevron-right transition-transform" 
+          <i
+            class="fas fa-chevron-right transition-transform"
             :class="{ 'rotate-180': collapsibleSections.reports }"
           ></i>
         </div>
-        
-        <transition  name="dropdown">
-          <ul 
-            v-if="collapsibleSections.reports" 
-            class="nav nav-sm flex-column"
-          >
 
-
-            <li class="nav-item" v-if="isOwner || permissions['view-dailyTaskReports']">
+        <transition name="dropdown">
+          <ul v-if="collapsibleSections.reports" class="nav nav-sm flex-column">
+            <li
+              class="nav-item"
+              v-if="isOwner || permissions['view-dailyTaskReports']"
+            >
               <sidenav-item
-                to="/task-reports"
-                :class="getRoute() === 'reported-tasks' ? 'active' : ''"
+              :to="{
+    name: 'reported tasks',
+    params: { companyName: companyNameNormalized }
+  }"                :class="getRoute() === 'reported-tasks' ? 'active' : ''"
                 :navText="isRTL ? ' تقرير المهام' : ' Task Reports'"
               >
                 <template v-slot:icon>
-                  <i class="fas fa-clipboard-check text-primary text-sm opacity-10"></i>
+                  <i
+                    class="fas fa-clipboard-check text-primary text-sm opacity-10"
+                  ></i>
                 </template>
               </sidenav-item>
             </li>
@@ -202,54 +218,72 @@ const toggleSection = (section) => {
       </li>
 
       <!-- Work Force Section -->
-      <li class="nav-item" v-if="permissions['view-user'] || permissions['invite-user'] || permissions['view-role'] || isOwner">
-        <div 
+      <li
+        class="nav-item"
+        v-if="
+          permissions['view-user'] ||
+          permissions['invite-user'] ||
+          permissions['view-role'] ||
+          isOwner
+        "
+      >
+        <div
           class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('workForce')"
         >
           <div class="d-flex align-items-center">
             <i class="fas fa-users text-primary me-2"></i>
-            <span>{{ isRTL ? 'فريق العمل' : 'Work Force' }}</span>
+            <span>{{ isRTL ? "فريق العمل" : "Work Force" }}</span>
           </div>
-          <i 
-            class="fas fa-chevron-right transition-transform" 
+          <i
+            class="fas fa-chevron-right transition-transform"
             :class="{ 'rotate-180': collapsibleSections.workForce }"
           ></i>
         </div>
-        
+
         <transition name="dropdown">
-          <ul 
-            v-if="collapsibleSections.workForce" 
+          <ul
+            v-if="collapsibleSections.workForce"
             class="nav nav-sm flex-column"
           >
             <li class="nav-item">
               <sidenav-item
-                to="/addUser"
-                v-if="permissions['invite-user'] || isOwner"
+              :to="{
+    name: 'add user',
+    params: { companyName: companyNameNormalized }
+  }"                 v-if="permissions['invite-user'] || isOwner"
                 :class="getRoute() === 'addUser' ? 'active' : ''"
                 :navText="isRTL ? 'اضافة موظفين' : 'Add Employees'"
               >
                 <template v-slot:icon>
-                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
+                  <i
+                    class="ni ni-single-02 text-primary text-sm opacity-10"
+                  ></i>
                 </template>
               </sidenav-item>
             </li>
             <li class="nav-item">
               <sidenav-item
-                to="/team"
-                v-if="permissions['view-user'] || isOwner"
+              :to="{
+    name: 'team',
+    params: { companyName: companyNameNormalized }
+  }"                v-if="permissions['view-user'] || isOwner"
                 :class="getRoute() === 'team' ? 'active' : ''"
                 :navText="isRTL ? 'فريق' : 'Team'"
               >
                 <template v-slot:icon>
-                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
+                  <i
+                    class="ni ni-single-02 text-primary text-sm opacity-10"
+                  ></i>
                 </template>
               </sidenav-item>
             </li>
             <li class="nav-item">
               <sidenav-item
-                to="/add-role"
-                v-if="permissions['view-role'] || isOwner"
+              :to="{
+    name: 'roles & permissions',
+    params: { companyName: companyNameNormalized }
+  }"                v-if="permissions['view-role'] || isOwner"
                 :class="getRoute() === 'addRole' ? 'active' : ''"
                 :navText="isRTL ? 'أدوار وصلاحيات' : 'Roles & Permissions'"
               >
@@ -265,7 +299,10 @@ const toggleSection = (section) => {
       <!-- Other Individual Items -->
       <li class="nav-item">
         <sidenav-item
-          to="/dashboard-default"
+          :to="{
+            name: 'Dashboard',
+            params: { companyName: companyNameNormalized },
+          }"
           v-if="permissions['view-dashboard-owner'] || isOwner"
           :class="getRoute() === 'dashboard-default' ? 'active' : ''"
           :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
@@ -277,8 +314,10 @@ const toggleSection = (section) => {
       </li>
       <li class="nav-item">
         <sidenav-item
-          to="/department"
-          v-if="permissions['view-department'] || isOwner"
+        :to="{
+    name: 'department',
+    params: { companyName: companyNameNormalized }
+  }"           v-if="permissions['view-department'] || isOwner"
           :class="getRoute() === 'department' ? 'active' : ''"
           :navText="isRTL ? 'الاقسام' : 'Departments'"
         >
@@ -290,8 +329,10 @@ const toggleSection = (section) => {
 
       <li class="nav-item" v-if="permissions['view-project'] || isOwner">
         <sidenav-item
-          to="/project"
-          :class="getRoute() === 'project' ? 'active' : ''"
+        :to="{
+    name: 'project',
+    params: { companyName: companyNameNormalized }
+  }"          :class="getRoute() === 'project' ? 'active' : ''"
           :navText="isRTL ? 'المشاريع' : 'Projects'"
         >
           <template v-slot:icon>
@@ -315,25 +356,25 @@ const toggleSection = (section) => {
             :class="{ 'rotate-180': collapsibleSections.accountPages }"
           ></i>
         </div> -->
-        
-        <!-- <transition name="dropdown">
+
+      <!-- <transition name="dropdown">
           <ul 
             v-if="collapsibleSections.accountPages" 
             class="nav nav-sm flex-column"
           > -->
-            <!-- <li class="nav-item"> -->
-              <sidenav-item
-                to="/signin"
-                :class="getRoute() === 'signout' ? 'active' : ''"
-                :navText="isRTL ? 'تسجيل الخروج' : 'Sign Out'"
-                @click="handleSignOut"
-              >
-                <template v-slot:icon>
-                  <i class="ni ni-button-power text-danger text-sm opacity-10"></i>
-                </template>
-              </sidenav-item>
-          <!-- </li> -->
-        <!-- </transition> -->
+      <!-- <li class="nav-item"> -->
+      <sidenav-item
+        to="/signin"
+        :class="getRoute() === 'signout' ? 'active' : ''"
+        :navText="isRTL ? 'تسجيل الخروج' : 'Sign Out'"
+        @click="handleSignOut"
+      >
+        <template v-slot:icon>
+          <i class="ni ni-button-power text-danger text-sm opacity-10"></i>
+        </template>
+      </sidenav-item>
+      <!-- </li> -->
+      <!-- </transition> -->
       <!-- </li> -->
     </ul>
   </div>
@@ -396,7 +437,7 @@ const toggleSection = (section) => {
 }
 
 .cursor-pointer:hover {
-  background-color: rgba(0,0,0,0.05);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .transition-transform {
@@ -409,7 +450,9 @@ const toggleSection = (section) => {
 
 .dropdown-enter-active,
 .dropdown-leave-active {
-  transition: max-height 0.3s ease, opacity 0.3s ease;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
   overflow: hidden;
 }
 
