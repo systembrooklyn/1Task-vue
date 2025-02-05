@@ -2,6 +2,8 @@
 import { onMounted } from "vue";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import "chartjs-plugin-annotation"; // إذا لم تكن قد قمت باستيراد الـ plugin بعد
+
 Chart.register(ChartDataLabels);
 
 const props = defineProps({
@@ -90,6 +92,12 @@ onMounted(() => {
         plugins: {
           legend: {
             display: true,
+            position: "bottom",
+            labels: {
+              usePointStyle: true,
+              color: "#000",
+              maxHeight: 100,
+            },
           },
           datalabels: {
             anchor: "end",

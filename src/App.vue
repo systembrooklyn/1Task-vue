@@ -1,19 +1,5 @@
-<!--
-=========================================================
-* Vue Argon Dashboard 2 - v4.0.0
-=========================================================
-
-* Product Page: https://creative-tim.com/product/vue-argon-dashboard
-* Copyright 2024 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import Sidenav from "./examples/Sidenav";
 import Configurator from "@/examples/Configurator.vue";
@@ -42,7 +28,40 @@ const navClasses = computed(() => {
     "px-0 mx-4": !isAbsolute.value,
   };
 });
+
+// الحصول على اسم الشركة من Vuex
+const currentCompanyName = computed(() => store.getters.user?.user.company?.name || "1Task");
+
+// دالة لتحديث العنوان عندما يتغير اسم الشركة أو حالة تسجيل الدخول
+const updateTitle = () => {
+  const companyName = currentCompanyName.value;
+  document.title = companyName || "1Task"; // تحديث العنوان حسب اسم الشركة أو 1Task إذا لم توجد شركة
+};
+
+// عند تحميل الصفحة أو عند تحديث اسم الشركة
+onMounted(() => {
+  updateTitle();
+});
+
+// مراقبة التغييرات على حالة المستخدم (عند تسجيل الدخول أو الخروج)
+watch(
+  () => store.getters.user?.user,
+  () => {
+    updateTitle(); // تحديث العنوان عند تغيير حالة المستخدم
+  }
+);
+
+// مراقبة التغيرات في `token` داخل `localStorage`، إذا كان غير موجود يعيد العنوان إلى 1Task
+watch(
+  () => localStorage.getItem("token"), // مراقبة الـ token في localStorage
+  (newToken) => {
+    if (!newToken) {
+      document.title = "1Task"; // عند عدم وجود الـ token، إعادة العنوان إلى 1Task
+    }
+  }
+);
 </script>
+
 <template>
   <div v-show="layout === 'landing'" class="landing-bg h-100 bg-gradient-primary position-fixed w-100"></div>
 
@@ -60,5 +79,3 @@ const navClasses = computed(() => {
     <configurator :toggle="toggleConfigurator" :class="[showConfig ? 'show' : '', hideConfigButton ? 'd-none' : '']" />
   </main>
 </template>
-
-

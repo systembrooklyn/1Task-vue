@@ -26,8 +26,10 @@ const isRTL = computed(() => store.state.isRTL);
 
 // جلب بيانات المستخدم من Vuex
 const userData = computed(() => store.getters.user);
-const currentCompanyName = computed(() => userData.value?.user?.company?.name || "DefaultCompany");
-  const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, '-'); // مثلاً
+const currentCompanyName = computed(
+  () => userData.value?.user?.company?.name || "DefaultCompany"
+);
+const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, "-"); // مثلاً
 
 const isOwner = computed(() => store.getters.isOwner);
 // console.log(userData.value);
@@ -107,6 +109,23 @@ const toggleSection = (section) => {
   >
     <ul class="navbar-nav">
       <!-- Tasks Section -->
+
+      <li class="nav-item">
+        <sidenav-item
+          :to="{
+            name: 'Dashboard',
+            params: { companyName: companyNameNormalized },
+          }"
+          v-if="permissions['view-dashboard-owner'] || isOwner"
+          :class="getRoute() === 'dashboard-default' ? 'active' : ''"
+          :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
+        >
+          <template v-slot:icon>
+            <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
       <li class="nav-item">
         <div
           class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
@@ -129,10 +148,11 @@ const toggleSection = (section) => {
               v-if="permissions['view-dailytask'] || isOwner"
             >
               <sidenav-item
-              :to="{
-    name: 'routine task',
-    params: { companyName: companyNameNormalized }
-  }"                :class="getRoute() === 'routine-task' ? 'active' : ''"
+                :to="{
+                  name: 'routine task',
+                  params: { companyName: companyNameNormalized },
+                }"
+                :class="getRoute() === 'routine-task' ? 'active' : ''"
                 :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'"
               >
                 <template v-slot:icon>
@@ -145,10 +165,11 @@ const toggleSection = (section) => {
               v-if="permissions['view-alldailytask'] || isOwner"
             >
               <sidenav-item
-              :to="{
-    name: 'manage routine task',
-    params: { companyName: companyNameNormalized }
-  }"                :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
+                :to="{
+                  name: 'manage routine task',
+                  params: { companyName: companyNameNormalized },
+                }"
+                :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
                 :navText="
                   isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Tasks'
                 "
@@ -200,10 +221,11 @@ const toggleSection = (section) => {
               v-if="isOwner || permissions['view-dailyTaskReports']"
             >
               <sidenav-item
-              :to="{
-    name: 'reported tasks',
-    params: { companyName: companyNameNormalized }
-  }"                :class="getRoute() === 'reported-tasks' ? 'active' : ''"
+                :to="{
+                  name: 'reported tasks',
+                  params: { companyName: companyNameNormalized },
+                }"
+                :class="getRoute() === 'reported-tasks' ? 'active' : ''"
                 :navText="isRTL ? ' تقرير المهام' : ' Task Reports'"
               >
                 <template v-slot:icon>
@@ -248,10 +270,11 @@ const toggleSection = (section) => {
           >
             <li class="nav-item">
               <sidenav-item
-              :to="{
-    name: 'add user',
-    params: { companyName: companyNameNormalized }
-  }"                 v-if="permissions['invite-user'] || isOwner"
+                :to="{
+                  name: 'add user',
+                  params: { companyName: companyNameNormalized },
+                }"
+                v-if="permissions['invite-user'] || isOwner"
                 :class="getRoute() === 'addUser' ? 'active' : ''"
                 :navText="isRTL ? 'اضافة موظفين' : 'Add Employees'"
               >
@@ -264,10 +287,11 @@ const toggleSection = (section) => {
             </li>
             <li class="nav-item">
               <sidenav-item
-              :to="{
-    name: 'team',
-    params: { companyName: companyNameNormalized }
-  }"                v-if="permissions['view-user'] || isOwner"
+                :to="{
+                  name: 'team',
+                  params: { companyName: companyNameNormalized },
+                }"
+                v-if="permissions['view-user'] || isOwner"
                 :class="getRoute() === 'team' ? 'active' : ''"
                 :navText="isRTL ? 'فريق' : 'Team'"
               >
@@ -280,10 +304,11 @@ const toggleSection = (section) => {
             </li>
             <li class="nav-item">
               <sidenav-item
-              :to="{
-    name: 'roles & permissions',
-    params: { companyName: companyNameNormalized }
-  }"                v-if="permissions['view-role'] || isOwner"
+                :to="{
+                  name: 'roles & permissions',
+                  params: { companyName: companyNameNormalized },
+                }"
+                v-if="permissions['view-role'] || isOwner"
                 :class="getRoute() === 'addRole' ? 'active' : ''"
                 :navText="isRTL ? 'أدوار وصلاحيات' : 'Roles & Permissions'"
               >
@@ -296,28 +321,14 @@ const toggleSection = (section) => {
         </transition>
       </li>
 
-      <!-- Other Individual Items -->
+      <!-- Departments Section -->
       <li class="nav-item">
         <sidenav-item
           :to="{
-            name: 'Dashboard',
+            name: 'department',
             params: { companyName: companyNameNormalized },
           }"
-          v-if="permissions['view-dashboard-owner'] || isOwner"
-          :class="getRoute() === 'dashboard-default' ? 'active' : ''"
-          :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-      <li class="nav-item">
-        <sidenav-item
-        :to="{
-    name: 'department',
-    params: { companyName: companyNameNormalized }
-  }"           v-if="permissions['view-department'] || isOwner"
+          v-if="permissions['view-department'] || isOwner"
           :class="getRoute() === 'department' ? 'active' : ''"
           :navText="isRTL ? 'الاقسام' : 'Departments'"
         >
@@ -329,10 +340,11 @@ const toggleSection = (section) => {
 
       <li class="nav-item" v-if="permissions['view-project'] || isOwner">
         <sidenav-item
-        :to="{
-    name: 'project',
-    params: { companyName: companyNameNormalized }
-  }"          :class="getRoute() === 'project' ? 'active' : ''"
+          :to="{
+            name: 'project',
+            params: { companyName: companyNameNormalized },
+          }"
+          :class="getRoute() === 'project' ? 'active' : ''"
           :navText="isRTL ? 'المشاريع' : 'Projects'"
         >
           <template v-slot:icon>

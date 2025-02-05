@@ -34,6 +34,23 @@ Coded by www.creative-tim.com
 
     <title>1Task</title>
 
+    <!-- <script setup>
+      import { computed, onMounted } from "vue";
+      import { useStore } from "vuex";
+      
+      const store = useStore();
+      
+      // الحصول على اسم الشركة من Vuex
+      const currentCompanyName = computed(() => store.getters.user?.company?.name || "DefaultCompany");
+      
+      
+      // عندما يتم تحميل الصفحة، تحديث عنوان الصفحة
+      onMounted(() => {
+        document.title = `${currentCompanyName.value} - 1Task`;
+      });
+      </script> -->
+      
+
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
       rel="stylesheet"
