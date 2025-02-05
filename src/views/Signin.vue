@@ -100,8 +100,12 @@ const signIn = async () => {
           },
         });
       } else {
-        router.push("/routine-task");
-      }
+        router.push({
+          name: "routine task",
+          params: {
+            companyName: companyNameNormalized, // أو companyNameNormalized
+          },
+        });      }
     } else {
       isLoading.value = false;
       errorMessage.value = t("loginError");
