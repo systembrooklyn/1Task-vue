@@ -43,6 +43,7 @@ export default createStore({
     companyEmail: "",
     invitedEmail: "",
     companyId: null,
+    companyName: "",
     tempEmail: null,
     user: null,
     permId: null,
@@ -254,6 +255,10 @@ export default createStore({
         state.isOwner = decryptData(storedisOwner);
         console.log("state.isOwner", state.isOwner);
       }
+      const storedCompanyName = localStorage.getItem("companyName");
+      if (storedCompanyName) {
+        state.companyName = decryptData(storedCompanyName);
+      }
     },
 
     // حفظ بيانات المستخدم الجديدة مع تصفير البيانات القديمة
@@ -268,6 +273,10 @@ export default createStore({
       state.companyId = id;
       localStorage.setItem("companyId1", id);
       localStorage.setItem("companyId", encryptData(id));
+    },
+    SET_COMPANY_NAME(state, name) {
+      state.companyName = name;
+      localStorage.setItem("companyName", encryptData(name));
     },
     SET_PERMISSIONS(state, permissions) {
       state.permissions = permissions;
@@ -703,6 +712,7 @@ export default createStore({
           console.log("response.data.token", response.data.token);
           // commit("SET_USER_ID", response.data.user.id);
           commit("SET_COMPANY_ID", response.data.user.company.id);
+          commit("SET_COMPANY_NAME", response.data.user.company.name);
           // commit("SET_EMAIL", response.data.user.email);
           commit("SET_USER_Name", response.data.user.name);
 
@@ -1338,5 +1348,6 @@ export default createStore({
     allRoutineTasks: (state) => state.allRoutineTasks,
     routineTasksReports: (state) => state.routineTasksReports,
     dashboardData: (state) => state.dashboardData,
+    companyName: (state) => state.companyName,
   },
 });

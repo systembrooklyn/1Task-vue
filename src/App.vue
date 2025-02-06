@@ -30,7 +30,10 @@ const navClasses = computed(() => {
 });
 
 // الحصول على اسم الشركة من Vuex
-const currentCompanyName = computed(() => store.getters.user?.user.company?.name || "1Task");
+// const currentCompanyName = computed(() => localStorage.getItem("companyName") || "1Task");
+const currentCompanyName = computed(() => store.getters.companyName);
+
+console.log("currentCompanyName:", currentCompanyName.value);
 
 // دالة لتحديث العنوان عندما يتغير اسم الشركة أو حالة تسجيل الدخول
 const updateTitle = () => {
