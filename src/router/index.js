@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { computed } from "vue";
 import Dashboard from "../views/Dashboard.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
@@ -13,10 +14,12 @@ import { useStore } from "vuex";
 
 // خارج حارس المسارات أو داخله في نفس الملف
 function getCompanyName() {
-  const store = useStore();
   // لو عندك user => user.company => company.name
   // اعمل أي Normalization للمسافات أو الرموز
-  const companyName = store.getters.user?.user?.company?.name || "";
+  const store = useStore();
+  const companyNameValue = computed(() => store.getters.companyName);
+  const companyName = companyNameValue.value;
+
   return companyName.replace(/\s+/g, "-");
 }
 

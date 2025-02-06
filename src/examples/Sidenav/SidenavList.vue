@@ -26,8 +26,7 @@ const isRTL = computed(() => store.state.isRTL);
 
 // جلب بيانات المستخدم من Vuex
 const userData = computed(() => store.getters.user);
-const currentCompanyName = computed(
-  () => userData.value?.user?.company?.name || "DefaultCompany"
+const currentCompanyName = computed(() => store.getters.companyName || "DefaultCompany"
 );
 const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, "-"); // مثلاً
 

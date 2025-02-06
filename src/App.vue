@@ -48,7 +48,7 @@ onMounted(() => {
 
 // مراقبة التغييرات على حالة المستخدم (عند تسجيل الدخول أو الخروج)
 watch(
-  () => store.getters.user?.user,
+  () => store.getters.companyName,
   () => {
     updateTitle(); // تحديث العنوان عند تغيير حالة المستخدم
   }
