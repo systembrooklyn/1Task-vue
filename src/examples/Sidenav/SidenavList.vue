@@ -337,7 +337,7 @@ const toggleSection = (section) => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item" v-if="permissions['view-project'] || isOwner">
+      <li class="nav-item" v-if="permissions['view-project'] || permissions['view-Allproject'] || isOwner">
         <sidenav-item
           :to="{
             name: 'project',

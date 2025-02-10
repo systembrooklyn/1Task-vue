@@ -33,7 +33,7 @@
               <div class="px-2 py-1">
                 <div class="d-flex justify-content-center text-sm">
                   <argon-switch
-                    v-if="isOwner"
+                    v-if="isOwner || permissions['edit-project']"
                     :checked="Boolean(Project.status)"
                     @update:checked="() => toggleStatus(Project.id)"
                   >

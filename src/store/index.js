@@ -226,6 +226,10 @@ export default createStore({
       state.dashboardData = data;
     },
 
+    SET_NOT_REPORTED_TASKS(state, tasks) {
+      state.notReportedTasks = tasks;
+    },
+
     // end----------------------------------------------------
     // تحميل بيانات المستخدم من `localStorage` عند بدء التشغيل
     LOAD_USER_FROM_STORAGE(state) {
@@ -1302,6 +1306,19 @@ export default createStore({
       }
     },
 
+    async fetchNotReportedTasks({ commit }, date) {
+      console.log("dateeeeeeeeeeeeeeeee", date);
+      try {
+        const response = await apiClient.getNotReportedTasks(date); // Pass date to API
+        commit("SET_NOT_REPORTED_TASKS", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error fetching not reported tasks:", error);
+        return error;
+      }
+    },
+    
+
     // dashboard
     async fetchDashboardData({ commit }) {
       try {
@@ -1349,5 +1366,6 @@ export default createStore({
     routineTasksReports: (state) => state.routineTasksReports,
     dashboardData: (state) => state.dashboardData,
     companyName: (state) => state.companyName,
+    notReportedTasks: (state) => state.notReportedTasks,
   },
 });

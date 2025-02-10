@@ -479,6 +479,18 @@ const config = {
     
   },
 
+  getNotReportedTasks(date) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  
+    return apiClient.get(`/daily-task-reports/${date}`, config);
+  },
+  
+
   // end routine tasks------------------------------------------------
 
   // start dashboard---------------------------------------------------

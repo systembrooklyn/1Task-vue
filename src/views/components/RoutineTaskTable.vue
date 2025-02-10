@@ -832,6 +832,7 @@ const reportTask = async () => {
       // emit a custom event to let the parent handle it.
       emit("reload-tasks");
       taskStatus.value = "";
+      taskFound.value = null;
       taskNotes.value = "";
     }
   } catch (error) {

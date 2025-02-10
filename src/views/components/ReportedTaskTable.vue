@@ -27,79 +27,121 @@
         </div>
       </div>
     </div> -->
-    <div class="table-responsive p-3">
-      <table class="table align-items-center table-hover mb-0">
-        <thead class="thead-light">
-          <tr>
-            <!-- <th
+    
+    <!-- Tabs Navigation -->
+    <!-- <ul class="nav nav-tabs custom-tabs" role="ttttablist">
+      <li class="nav-item">
+        <argon-button
+          class="nav-link"
+          :class="{ active: reportActiveTab === 'reported' }"
+          @click="setActiveTab('reported')"
+        >
+          {{ t("reported") }}
+        </argon-button>
+      </li>
+      <li class="nav-item">
+        <argon-button
+          class="nav-link"
+          :class="{ active: reportActiveTab === 'not_reported' }"
+          @click="setActiveTab('not_reported')"
+        >
+          {{ t("not_reported") }}
+        </argon-button>
+      </li>
+    </ul> -->
+
+    <!-- <div
+      v-if="reportActiveTab === 'not_reported'"
+      class="d-flex align-items-center mb-3"
+    >
+      <label class="me-2">{{ t("selectDate") }}:</label>
+      <input
+        type="date"
+        v-model="localSelectedDate"
+        class="form-control"
+        @change="applyFilter"
+      />
+    </div> -->
+
+    <!-- Tabs Content -->
+    <div class="mt-3">
+      <div v-if="props.reportActiveTab === 'reported'">
+        <!-- لودر يظهر فقط أثناء تحميل بيانات Not Reported Tasks -->
+         
+
+        <div class="table-responsive p-3">
+          <table class="table align-items-center table-hover mb-0">
+            <thead class="thead-light">
+              <tr>
+                <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("status") }}
             </th> -->
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("taskName") }}
-            </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("taskName") }}
+                </th>
 
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("department") }}
-            </th>
-            <!-- <th
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("department") }}
+                </th>
+                <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("taskType") }}
             </th> -->
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("from") }}
-            </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("to") }}
-            </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("reporttime") }}
-            </th>
-            <!-- <th
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("from") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("to") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("reporttime") }}
+                </th>
+                <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("taskCreatedBy") }}
             </th> -->
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("lateTime") }}
-            </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("lateTime") }}
+                </th>
 
-            <!-- <th
+                <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("notes") }}
             </th> -->
 
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("employeeName") }}
-            </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("report") }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="task in props.routineTasksReport" :key="task.id">
-            <!-- استخدام routineTasks -->
-            <!-- <td>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("employeeName") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("report") }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="task in props.routineTasksReport" :key="task.id">
+                <!-- استخدام routineTasks -->
+                <!-- <td>
               <div class="mb-0 py-1">
                 <div class="d-flex justify-content-center text-sm">
                   <argon-switch
@@ -112,139 +154,382 @@
               </div>
             </td> -->
 
-            <td>
-              <div
-                class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
-              >
-                <div
-                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
-                  @click="openDescriptionModal(task)"
-                  title="Open Task Description"
-                >
-                  <h6 class="mb-0 text-sm hover-effect mx-1">
-                    {{ task.daily_task.task_name }}
-                  </h6>
+                <td>
                   <div
-                    v-if="loadingTaskId === task.id"
-                    class="spinner-border spinner-border-sm text-primary"
-                    role="status"
+                    class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
                   >
-                    <span class="visually-hidden">Loading...</span>
+                    <div
+                      class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
+                      @click="openDescriptionModal(task)"
+                      title="Open Task Description"
+                    >
+                      <h6 class="mb-0 text-sm hover-effect mx-1">
+                        {{ task.daily_task.task_name }}
+                      </h6>
+                      <div
+                        v-if="loadingTaskId === task.id"
+                        class="spinner-border spinner-border-sm text-primary"
+                        role="status"
+                      >
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </td>
+                </td>
 
-            <td>
-              <p class="text-xs font-weight-bold mb-0">
-                {{ task.daily_task.department?.name || "No Department" }}
-              </p>
-            </td>
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ task.daily_task.department?.name || "No Department" }}
+                  </p>
+                </td>
 
-            <!-- <td>
+                <!-- <td>
               <p class="text-xs font-weight-bold mb-0">
                 {{ task.task_type || "No Task Type" }}
               </p>
             </td> -->
-            <td>
-              <p class="text-xs font-weight-bold mb-0">
-                {{ formatTime(task.daily_task.from) }}
-              </p>
-            </td>
-            <td>
-              <p class="text-xs font-weight-bold mb-0">
-                {{ formatTime(task.daily_task.to) }}
-              </p>
-            </td>
-            <td>
-              <p class="text-xs font-weight-bold mb-0">
-                {{ formatReportDate(task.created_at) }}
-              </p>
-            </td>
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ formatTime(task.daily_task.from) }}
+                  </p>
+                </td>
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ formatTime(task.daily_task.to) }}
+                  </p>
+                </td>
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ formatReportDate(task.created_at) }}
+                  </p>
+                </td>
 
-            <td>
-              <p
-                class="text-xs font-weight-bold mb-0"
-                :class="{
-                  'text-success': calculateTaskStatus(
-                    task.daily_task.from,
-                    task.daily_task.to,
-                    task.created_at
-                  ).includes('early'),
-                  'text-danger': calculateTaskStatus(
-                    task.daily_task.from,
-                    task.daily_task.to,
-                    task.created_at
-                  ).includes('late'),
-                }"
-              >
-                {{
-                  calculateTaskStatus(
-                    task.daily_task.from,
-                    task.daily_task.to,
-                    task.created_at
-                  )
-                }}
-              </p>
-            </td>
-            <!-- <td>
+                <td>
+                  <p
+                    class="text-xs font-weight-bold mb-0"
+                    :class="{
+                      'text-success': calculateTaskStatus(
+                        task.daily_task.from,
+                        task.daily_task.to,
+                        task.created_at
+                      ).includes('early'),
+                      'text-danger': calculateTaskStatus(
+                        task.daily_task.from,
+                        task.daily_task.to,
+                        task.created_at
+                      ).includes('late'),
+                    }"
+                  >
+                    {{
+                      calculateTaskStatus(
+                        task.daily_task.from,
+                        task.daily_task.to,
+                        task.created_at
+                      )
+                    }}
+                  </p>
+                </td>
+                <!-- <td>
               <p class="text-xs font-weight-bold mb-0">
                 {{ task.created_by?.name || "N/A" }}
               </p>
             </td> -->
 
-            <!-- <td>
+                <!-- <td>
               <p class="text-xs font-weight-bold mb-0">
                 {{ task?.notes || "No Notes" }}
               </p>
             </td> -->
 
-            <td>
-              <p class="text-xs font-weight-bold mb-0">
-                {{ task?.submitted_by?.name || "No one submitted" }}
-              </p>
-            </td>
-            <td class="align-middle">
-              <a
-                href="javascript:;"
-                class="font-weight-bold text-lg me-2"
-                :class="{
-                  'text-success': task.status === 'done',
-                  'text-danger': task.status === 'not_done',
-                  'text-secondary': !['done', 'not_done'].includes(task.status),
-                }"
-                :aria-disabled="['done', 'not_done'].includes(task.status)"
-                :style="{
-                  pointerEvents: ['done', 'not_done'].includes(task.status)
-                    ? 'none'
-                    : 'auto',
-                  opacity: ['done', 'not_done'].includes(task.status) ? 0.6 : 1,
-                }"
-                @click="
-                  !['done', 'not_done'].includes(task.status) &&
-                    openReportModal(task.id)
-                "
-              >
-                <i
-                  :class="{
-                    'fa fa-check-circle': task.status === 'done',
-                    'fa fa-times-circle': task.status === 'not_done',
-                    'fa fa-circle': !['done', 'not_done'].includes(task.status),
-                  }"
-                ></i>
-              </a>
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ task?.submitted_by?.name || "No one submitted" }}
+                  </p>
+                </td>
+                <td class="align-middle">
+                  <a
+                    href="javascript:;"
+                    class="font-weight-bold text-lg me-2"
+                    :class="{
+                      'text-success': task.status === 'done',
+                      'text-danger': task.status === 'not_done',
+                      'text-secondary': !['done', 'not_done'].includes(
+                        task.status
+                      ),
+                    }"
+                    :aria-disabled="['done', 'not_done'].includes(task.status)"
+                    :style="{
+                      pointerEvents: ['done', 'not_done'].includes(task.status)
+                        ? 'none'
+                        : 'auto',
+                      opacity: ['done', 'not_done'].includes(task.status)
+                        ? 0.6
+                        : 1,
+                    }"
+                    @click="
+                      !['done', 'not_done'].includes(task.status) &&
+                        openReportModal(task.id)
+                    "
+                  >
+                    <i
+                      :class="{
+                        'fa fa-check-circle': task.status === 'done',
+                        'fa fa-times-circle': task.status === 'not_done',
+                        'fa fa-circle': !['done', 'not_done'].includes(
+                          task.status
+                        ),
+                      }"
+                    ></i>
+                  </a>
 
-              <!-- <a
+                  <!-- <a
                 href="javascript:;"
                 class="text-danger font-weight-bold text-xs"
                 @click="confirmDelete(task)"
               >
                 {{ t("delete") }}
               </a> -->
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div v-if="props.reportActiveTab === 'not_reported'">
+
+        <!-- Spinner أثناء التحميل -->
+    <div v-if="props.isNotReportedLoading" class="d-flex justify-content-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+        <div v-else class="table-responsive p-3">
+          <table class="table align-items-center table-hover mb-0">
+            <thead class="thead-light">
+              <tr>
+                <!-- <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("status") }}
+            </th> -->
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("taskName") }}
+                </th>
+
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("department") }}
+                </th>
+                <!-- <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("taskType") }}
+            </th> -->
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("from") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("to") }}
+                </th>
+                <!-- <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("reporttime") }}
+                </th> -->
+                <!-- <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("taskCreatedBy") }}
+            </th> -->
+                <!-- <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("lateTime") }}
+                </th> -->
+
+                <!-- <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("notes") }}
+            </th> -->
+
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("employeeName") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("report") }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="task in props.notReportedTasks" :key="task.id">
+                <!-- استخدام routineTasks -->
+                <!-- <td>
+              <div class="mb-0 py-1">
+                <div class="d-flex justify-content-center text-sm">
+                  <argon-switch
+                    v-if="isOwner || permissions['edit-dailytask']"
+                    :checked="task.active"
+                    @update:checked="() => toggleStatus(task.id)"
+                  >
+                  </argon-switch>
+                </div>
+              </div>
+            </td> -->
+
+                <td>
+                  <div
+                    class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
+                  >
+                    <div
+                      class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
+                      @click="openDescriptionModal(task)"
+                      title="Open Task Description"
+                    >
+                      <h6 class="mb-0 text-sm hover-effect mx-1">
+                        {{ task.daily_task.task_name }}
+                      </h6>
+                      <div
+                        v-if="loadingTaskId === task.id"
+                        class="spinner-border spinner-border-sm text-primary"
+                        role="status"
+                      >
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ task.department?.name || "No Department" }}
+                  </p>
+                </td>
+
+                <!-- <td>
+              <p class="text-xs font-weight-bold mb-0">
+                {{ task.task_type || "No Task Type" }}
+              </p>
+            </td> -->
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ formatTime(task.daily_task.from) }}
+                  </p>
+                </td>
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ formatTime(task.daily_task.to) }}
+                  </p>
+                </td>
+                <!-- <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ formatReportDate(task.created_at) }}
+                  </p>
+                </td> -->
+
+                <!-- <td>
+                  <p
+                    class="text-xs font-weight-bold mb-0"
+                    :class="{
+                      'text-success': calculateTaskStatus(
+                        task.daily_task.from,
+                        task.daily_task.to,
+                        task.created_at
+                      ).includes('early'),
+                      'text-danger': calculateTaskStatus(
+                        task.daily_task.from,
+                        task.daily_task.to,
+                        task.created_at
+                      ).includes('late'),
+                    }"
+                  >
+                    {{
+                      calculateTaskStatus(
+                        task.daily_task.from,
+                        task.daily_task.to,
+                        task.created_at
+                      )
+                    }}
+                  </p>
+                </td> -->
+                <!-- <td>
+              <p class="text-xs font-weight-bold mb-0">
+                {{ task.created_by?.name || "N/A" }}
+              </p>
+            </td> -->
+
+                <!-- <td>
+              <p class="text-xs font-weight-bold mb-0">
+                {{ task?.notes || "No Notes" }}
+              </p>
+            </td> -->
+
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ task?.submitted_by?.name || "No one submitted" }}
+                  </p>
+                </td>
+                <td class="align-middle">
+                  <a
+                    href="javascript:;"
+                    class="font-weight-bold text-lg me-2"
+                    :class="{
+                      'text-success': task.status === 'done',
+                      'text-danger': task.status === 'not_done',
+                      'text-secondary': !['done', 'not_done'].includes(
+                        task.status
+                      ),
+                    }"
+                    :aria-disabled="!['done', 'not_done'].includes(task.status)"
+                    :style="{
+                      pointerEvents: !['done', 'not_done'].includes(task.status)
+                        ? 'none'
+                        : 'auto',
+                      opacity: !['done', 'not_done'].includes(task.status)
+                        ? 0.6
+                        : 1,
+                    }"
+                    @click="
+                      !['done', 'not_done'].includes(task.status) &&
+                        openReportModal(task.id)
+                    "
+                  >
+                    <i
+                      :class="{
+                        'fa fa-check-circle': task.status === 'done',
+                        'fa fa-times-circle': task.status === 'not_done',
+                        'fa fa-circle': !['done', 'not_done'].includes(
+                          task.status
+                        ),
+                      }"
+                    ></i>
+                  </a>
+
+                  <!-- <a
+                href="javascript:;"
+                class="text-danger font-weight-bold text-xs"
+                @click="confirmDelete(task)"
+              >
+                {{ t("delete") }}
+              </a> -->
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- <div class="d-flex justify-content-center mt-4">
@@ -521,8 +806,23 @@
                   <dd class="col-sm-9">
                     {{ selectedTaskNotes || "No Notes" }}
                   </dd>
-                  <dt v-if="selectedTaskFound !== null" class="col-sm-3">{{ t("found") }}:</dt>
-                  <dd v-if="selectedTaskFound !== null" class="col-sm-9">
+
+                  <dt
+                    v-if="
+                      selectedTaskFound !== null &&
+                      reportActiveTab === 'reported'
+                    "
+                    class="col-sm-3"
+                  >
+                    {{ t("found") }}:
+                  </dt>
+                  <dd
+                    v-if="
+                      selectedTaskFound !== null &&
+                      reportActiveTab === 'reported'
+                    "
+                    class="col-sm-9"
+                  >
                     {{ selectedTaskFound === 1 ? "yes" : "no" }}
                   </dd>
                   <!-- task_found -->
@@ -619,7 +919,14 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeMount, watch } from "vue";
+import {
+  computed,
+  ref,
+  onBeforeMount,
+  watch,
+  // defineEmits,
+  defineProps,
+} from "vue";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
 import ArgonModal from "@/components/ArgonModal.vue";
@@ -642,13 +949,32 @@ const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
 
 // const emit = defineEmits(["page-changed"]);
+// const emit = defineEmits(["apply-date-filter"]); // Define the event
 
 const props = defineProps({
   routineTasksReport: {
     // تغيير اسم الخاصية من tasks إلى routineTasks
     type: Array,
     required: true,
+  },
+  notReportedTasks: {
+    // تغيير اسم الخاصية من tasks إلى routineTasks
+    type: Array,
+    required: true,
+  }, isNotReportedLoading: {
+    type: Boolean,
+    required: true,
   }
+  // ,
+  // selectedDateForNotReported: {
+  //   type: String,
+  // }
+  , 
+  reportActiveTab: {
+    type: String,
+    required: true,
+  },
+
   // ,
   // showAllTasks: {
   //   type: Boolean,
@@ -674,7 +1000,6 @@ const props = defineProps({
 //     });
 //   }
 // });
-
 
 // const taskCountByDepartment = computed(() => {
 //   const counts = {};
@@ -738,10 +1063,18 @@ const selectedTaskAssignedTo = ref(null);
 const selectedTaskDayOfMonth = ref(null);
 const taskNotes = ref("");
 const taskStatus = ref("");
-const selectedTaskDepartment = ref(null);
+// const selectedTaskDepartment = ref(null);
 const loadingTaskId = ref(null);
 const selectedTaskNotes = ref(null);
 const selectedTaskFound = ref(null);
+// const isNotReportedLoading = ref(false);
+
+// const reportActiveTab = ref(sessionStorage.getItem("reportActiveTab") || "reported");
+
+// const setActiveTab = (tab) => {
+//     reportActiveTab.value = tab;
+//     sessionStorage.setItem("reportActiveTab", tab); // حفظ التبويب الحالي
+// };
 
 const activeTab = ref("info"); // علامة تبويب البداية
 
@@ -968,7 +1301,7 @@ const openDescriptionModal = async (task) => {
   selectedTaskAssignedTo.value = task.daily_task.assigned_to;
   selectedTaskRecurrentDays.value = task.daily_task.recurrent_days;
   selectedTaskDayOfMonth.value = task.daily_task.day_of_month;
-  selectedTaskDepartment.value = task.daily_task.department.department_name;
+  // selectedTaskDepartment.value = task.daily_task.department.department_name;
   selectedTaskNotes.value = task.notes;
   selectedTaskFound.value = task.task_found;
   // await getTaskLogs(task.id);
@@ -995,7 +1328,7 @@ const closeDescriptionModal = () => {
   selectedTaskAssignedTo.value = null;
   selectedTaskRecurrentDays.value = [];
   selectedTaskDayOfMonth.value = null;
-  selectedTaskDepartment.value = null;
+  // selectedTaskDepartment.value = null;
 };
 
 const formatDate = (dateString) => {
@@ -1125,7 +1458,9 @@ const translations = {
     fromDate: "From Date",
     toDate: "To Date",
     applyFilter: "Apply Filter",
-    found : "Task Found",
+    found: "Task Found",
+    reported: "Reported",
+    not_reported: "Not Reported",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -1197,7 +1532,9 @@ const translations = {
     fromDate: "من تاريخ",
     toDate: "إلى تاريخ",
     applyFilter: "تطبيق الفلتر",
-    found : "تم العثور على المهمة",
+    found: "تم العثور على المهمة",
+    reported: "تم التقرير عن المهمة",
+    not_reported: "لم يتم التقرير عن المهمة",
   },
 };
 
@@ -1317,6 +1654,33 @@ const calculateTaskStatus = (fromTime, toTime, createdAt) => {
 // const totalPages = computed(() => {
 //   return props.pagination.last_page;
 // });
+
+// const localSelectedDate = ref(
+//   props.selectedDateForNotReported || new Date().toISOString().split("T")[0]
+// );
+
+// watch(
+//   () => props.selectedDateForNotReported,
+//   (newVal) => {
+//     localSelectedDate.value = newVal;
+//   }
+// );
+
+// const applyFilter = () => {
+//     console.log("Applying filter for date:", localSelectedDate.value);
+//     isNotReportedLoading.value = true; // تشغيل اللودر
+
+//     emit("apply-date-filter", localSelectedDate.value);
+
+//     // اجعل التبويب يبقى على not_reported بعد الفلترة
+//     if (sessionStorage.getItem("reportActiveTab") === "not_reported") {
+//         reportActiveTab.value = "not_reported";
+//     }
+
+// };
+
+
+
 </script>
 
 <style scoped>
@@ -1586,12 +1950,13 @@ td {
   text-decoration: underline;
 }
 
-
 .card {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card:hover {

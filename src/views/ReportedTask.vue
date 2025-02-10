@@ -1,7 +1,7 @@
 // src/views/RoutineTask.vue
 
 <script setup>
-import { ref, computed, onBeforeMount, watch, onMounted   } from "vue";
+import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
 import { useStore } from "vuex";
 // import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonModal from "@/components/ArgonModal.vue";
@@ -24,8 +24,6 @@ const store = useStore();
 //   console.log(showAllTasks.value);
 //   emit('toggle-tasks', showAllTasks.value);
 // };
-
-
 
 const userData = computed(() => store.getters.user);
 const departments = computed(() => store.getters.departments);
@@ -84,6 +82,7 @@ const showSuccess = ref(false);
 const routineTaskName = ref(""); // تعديل المتغيرات
 const showPopup = ref(false);
 const routineTasksReport = ref([]); // تعديل المتغيرات
+const notReportedTasks = ref([]);
 const componentKey = ref(0);
 const body = document.getElementsByTagName("body")[0];
 const isLoading = ref(false);
@@ -91,6 +90,8 @@ const routineTaskDescription = ref(""); // تعديل المتغيرات
 const startDate = ref("");
 const fromDate = ref("");
 const toDate = ref("");
+const isNotReportedLoading = ref(false); // متغير تحميل خاص بـ Not Reported Tasks
+
 // const showAdvancedSettings = ref(false);
 const selectedManager = ref("");
 // const routineTaskStatus = ref(false); // تعديل المتغيرات
@@ -173,13 +174,78 @@ onBeforeMount(async () => {
   body.classList.add("bg-gray-100");
 
   await fetchTasksReports(); // تعديل الدالة
+  await fetchNotReportedTasks(); // تعديل الدالة
 });
 
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
 
-const currentUserId = computed(() => store.getters.userId);
-console.log("currentUserId:", currentUserId.value);
+// const currentUserId = computed(() => store.getters.userId);
+// console.log("currentUserId:", currentUserId.value);
+
+const selectedDateForNotReported = ref(new Date().toISOString().split("T")[0]); // التاريخ الافتراضي اليوم
+
+// watch(
+//   () => selectedDateForNotReported,
+//   (newVal) => {
+//     selectedDateForNotReported.value = newVal;
+//   }
+// );
+
+const reportActiveTab = ref(
+  sessionStorage.getItem("reportActiveTab") || "reported"
+);
+
+const setActiveTab = (tab) => {
+  reportActiveTab.value = tab;
+  sessionStorage.setItem("reportActiveTab", tab); // حفظ التبويب الحالي
+console.log(reportActiveTab.value);
+
+};
+
+watch(
+  () => reportActiveTab.value,
+  () => {
+    // Reset the date when tab switches
+    const today = new Date().toISOString().split("T")[0];
+    if (reportActiveTab.value === 'reported') {
+      selectedDate.value = today;
+    } else {
+      selectedDateForNotReported.value = today;
+    }
+  }
+);
+
+
+const fetchNotReportedTasks = async (
+  date = selectedDateForNotReported.value
+) => {
+  selectedDateForNotReported.value = date; // تحديث التاريخ المختار
+  isNotReportedLoading.value = true; // تشغيل اللودر قبل جلب البيانات
+
+  // isLoading.value = true;
+
+  try {
+    const response = await store.dispatch("fetchNotReportedTasks", date); // Pass the date parameter
+    console.log("response fetchNotReportedTasks:", response);
+
+    if (response.status === 200) {
+      notReportedTasks.value = store.getters.notReportedTasks.tasks;
+      console.log(
+        "response fetchNotReportedTaskssssssss:",
+        notReportedTasks.value
+      );
+
+      console.log("notReportedTasks:", notReportedTasks.value);
+      componentKey.value += 1;
+    }
+  } catch (error) {
+    showAlert.value = true;
+    errorMessage.value = t("generalError");
+  } finally {
+    isNotReportedLoading.value = false; // إيقاف اللودر بعد جلب البيانات
+  }
+};
 
 const fetchTasksReports = async (page = 1) => {
   // تعديل الدالة
@@ -271,6 +337,20 @@ const t = (key) => {
 //   }
 // };
 
+const applyFilter = () => {
+  console.log("Applying filter for date:", 
+    (reportActiveTab.value === 'not_reported' ? selectedDateForNotReported.value : selectedDate.value)
+  );
+
+  // Fetch tasks based on selected date and active tab
+  if (reportActiveTab.value === 'not_reported') {
+    isNotReportedLoading.value = true;
+    fetchNotReportedTasks(selectedDateForNotReported.value); // Fetch tasks for 'not_reported' tab
+  } 
+};
+
+
+
 const translations = {
   en: {
     addMember: "Add Member",
@@ -344,6 +424,8 @@ const translations = {
     selectAll: "Select All",
     departmentsSelected: "Departments Selected",
     filterByDate: "Filter by Date",
+    reported: "Reported",
+    not_reported: "Not Reported",
 
     // التحكم في الإعدادات المتقدمة
   },
@@ -416,6 +498,8 @@ const translations = {
     selectAll: "اختر الكل",
     departmentsSelected: "اقسام محددة",
     filterByDate: "تصفية حسب التاريخ",
+    reported: "تقرير",
+    not_reported: "لم يتم التقرير",
 
     // taskType: 'نوع المهمة',
     // status: 'الحالة',
@@ -444,18 +528,20 @@ const handlePageChange = (page) => {
   fetchTasksReports(page);
 };
 
+const today = new Date().toISOString().split("T")[0]; 
 onMounted(async () => {
   await store.dispatch("fetchDepartments");
-  const today = new Date().toISOString().split("T")[0];
   selectedDate.value = today;
+  selectedDateForNotReported.value = today; // Optional if already initialized
 });
+
 
 // Define userDepartment (alias for formattedDepartments)
 const userDepartment = computed(() => formattedDepartments.value);
 
 // Selected departments for filtering
 const selectedDepartments = ref([]);
-const selectedDate = ref("");
+const selectedDate = ref(new Date().toISOString().split("T")[0]);  // Today's date as default
 
 // Toggle "Select All" functionality
 const toggleAllDepartments = (event) => {
@@ -479,8 +565,20 @@ const areAllDepartmentsSelected = computed(() => {
 // Update the resetFilters function
 const resetFilters = () => {
   selectedDepartments.value = [];
-  selectedDate.value = new Date().toISOString().split("T")[0]; // Reset to today's date
+
+  // Reset the date filter to today based on the active tab
+  const today = new Date().toISOString().split("T")[0]; // Get today's date
+  if (reportActiveTab.value === 'not_reported') {
+    selectedDateForNotReported.value = today;
+  } else {
+    selectedDate.value = today;
+  }
+
+    // Optionally, call `applyFilter` to apply the reset filter immediately
+    applyFilter();
 };
+
+
 
 // Clear all departments
 const clearAllDepartments = () => {
@@ -505,7 +603,6 @@ const filteredTasks = computed(() => {
     return departmentMatch && dateMatch;
   });
 });
-
 </script>
 
 <template>
@@ -515,8 +612,8 @@ const filteredTasks = computed(() => {
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
-            <div class="d-flex align-items-center">
-              <p class="mb-0 font-weight-bold">{{ t("reportedTasksTable") }}</p>
+            <p class="mb-0 font-weight-bold">{{ t("reportedTasksTable") }}</p>
+            <div class="d-flex nav-tabs align-items-center">
               <!-- <argon-button
                 v-show="canCreateRoutineTask || isOwner"
                 class="ml-auto mx-2"
@@ -524,6 +621,27 @@ const filteredTasks = computed(() => {
               >
                 <i class="fas fa-plus"></i>
               </argon-button> -->
+              <!-- Tabs Navigation -->
+              <ul class="nav custom-tabs" role="ttttablist">
+                <li class="nav-item">
+                  <argon-button
+                    class="nav-link"
+                    :class="{ active: reportActiveTab === 'reported' }"
+                    @click="setActiveTab('reported')"
+                  >
+                    {{ t("reported") }}
+                  </argon-button>
+                </li>
+                <li class="nav-item">
+                  <argon-button
+                    class="nav-link"
+                    :class="{ active: reportActiveTab === 'not_reported' }"
+                    @click="setActiveTab('not_reported')"
+                  >
+                    {{ t("not_reported") }}
+                  </argon-button>
+                </li>
+              </ul>
               <button
                 class="btn btn-link ms-auto"
                 type="button"
@@ -539,8 +657,7 @@ const filteredTasks = computed(() => {
               <div class="card card-body">
                 <div class="row">
                   <!-- Filter by Department -->
-                  <!-- Filter by Department -->
-                  <div class="col-md-6 mb-3">
+                  <div v-if="reportActiveTab === 'reported'" class="col-md-6 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
                       <button
@@ -627,14 +744,26 @@ const filteredTasks = computed(() => {
                   </div>
 
                   <!-- Filter by Specific Date -->
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">{{ t("filterByDate") }}</label>
-                    <input
-                      type="date"
-                      class="form-control"
-                      v-model="selectedDate"
-                    />
-                  </div>
+                  <!-- Filter by Specific Date -->
+<div class="col-md-6 mb-3">
+  <label class="form-label">{{ t("filterByDate") }}</label>
+  <div v-if="reportActiveTab === 'reported'">
+    <input
+      type="date"
+      class="form-control"
+      v-model="selectedDate"
+    />
+  </div>
+  <div v-if="reportActiveTab === 'not_reported'">
+    <input
+      type="date"
+      class="form-control"
+      v-model="selectedDateForNotReported"
+      @change="applyFilter"
+    />
+  </div>
+</div>
+
                 </div>
 
                 <!-- Reset Filters -->
@@ -651,7 +780,7 @@ const filteredTasks = computed(() => {
         {{ showAllTasks ? "Show Today's Tasks" : "Show All Tasks" }}
       </button>
     </div> -->
-    <!-- <div class="d-flex align-items-center">
+                <!-- <div class="d-flex align-items-center">
               <button
                 class="btn btn-sm btn-primary ms-auto"
                 @click="toggleTasks"
@@ -699,6 +828,9 @@ const filteredTasks = computed(() => {
             <ReportedTaskTable
               v-else
               :routineTasksReport="filteredTasks"
+              :notReportedTasks="notReportedTasks"
+              :reportActiveTab="reportActiveTab"
+              :isNotReportedLoading="isNotReportedLoading"
               :key="componentKey"
               @page-changed="handlePageChange"
             />
@@ -965,5 +1097,41 @@ const filteredTasks = computed(() => {
 
 .swal-above-modal {
   z-index: 100001 !important;
+}
+
+/* تصميم الـ tabs */
+.custom-tabs {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.custom-tabs .nav-item {
+  margin-right: 1rem;
+}
+
+.custom-tabs .nav-link {
+  display: flex;
+  align-items: center;
+  color: #a9ca5c;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: transparent;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.custom-tabs .nav-link.active {
+  color: #ffffff; /* نص أبيض */
+  border-radius: 5px;
+  background-color: #a9ca5c; /* خلفية أخضر فاتح */
+}
+
+.custom-tabs .nav-link:hover {
+  color: #ffffff; /* نص أبيض عند التمرير */
+  background-color: #a9ca5c; /* خلفية أخضر فاتح عند التمرير */
 }
 </style>
