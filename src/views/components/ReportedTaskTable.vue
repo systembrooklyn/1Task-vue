@@ -398,7 +398,7 @@
                       @click="openDescriptionModal(task)"
                       title="Open Task Description"
                     >
-                      <h6 class="mb-0 text-sm hover-effect mx-1">
+                      <h6 class="mb-0 text-sm hover-effect mx-1" style="direction: rtl;">
                         {{ task.daily_task.task_name }}
                       </h6>
                       <div
@@ -803,7 +803,7 @@
                   </dd>
 
                   <dt class="col-sm-3">{{ t("notes") }}:</dt>
-                  <dd class="col-sm-9">
+                  <dd class="col-sm-9" style="direction: rtl;">
                     {{ selectedTaskNotes || "No Notes" }}
                   </dd>
 

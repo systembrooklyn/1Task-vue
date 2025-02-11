@@ -82,7 +82,7 @@
                   @click="openDescriptionModal(task)"
                   title="Open Task Description"
                 >
-                  <h6 class=" mb-0 text-sm hover-effect mx-1">{{ task.task_name }}</h6>
+                  <h6 class=" mb-0 text-sm hover-effect mx-1 " style="direction: rtl;">{{ task.task_name }}</h6>
                   <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                   </div>

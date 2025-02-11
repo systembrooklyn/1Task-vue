@@ -159,6 +159,25 @@ const toggleSection = (section) => {
                 </template>
               </sidenav-item>
             </li>
+
+            <li
+              class="nav-item"
+              v-if="isOwner"
+            >
+              <sidenav-item
+                :to="{
+                  name: 'one time task',
+                  params: { companyName: companyNameNormalized },
+                }"
+                :class="getRoute() === 'one-time-task' ? 'active' : ''"
+                :navText="isRTL ? 'المهام الاحتياطية' : 'One Time Tasks'"
+              >
+                <template v-slot:icon>
+                  <i class="fa fa-clock text-warning text-sm opacity-10"></i>
+                </template>
+              </sidenav-item>
+            </li>
+
             <li
               class="nav-item"
               v-if="permissions['view-alldailytask'] || isOwner"

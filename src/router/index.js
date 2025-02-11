@@ -168,6 +168,12 @@ const routes = [
     component: () => import("@/views/RoutineTask.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/:companyName/one-time-task",
+    name: "one time task",
+    component: () => import("@/views/OneTimeTask.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({
