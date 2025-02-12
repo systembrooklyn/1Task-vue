@@ -157,8 +157,8 @@ watch(
 
 const formattedProjects = computed(() => {
   return routineTasks.value.map((project) => ({
-    value: project.project.id,
-    label: project.project.name,
+    value: project.project?.id,
+    label: project.project?.name,
   }));
 });
 
@@ -547,6 +547,7 @@ const translations = {
     not_reported: "لم يتم التقرير",
     LatedTasks: "مهام متاخرة",
     project: "المشروع",
+    selectProject: "اختر المشروع",
   },
 };
 
