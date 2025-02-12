@@ -868,7 +868,7 @@ const routineTasksCount = computed(() => {
 
                   <!-- filter by project -->
 
-                  <div class="col-md-4 mb-3">
+                  <div v-if="formattedProjects.length !== 0" class="col-md-4 mb-3">
                     <label class="form-label">{{ t("project") }}</label>
                     <div class="dropdown">
                       <button
