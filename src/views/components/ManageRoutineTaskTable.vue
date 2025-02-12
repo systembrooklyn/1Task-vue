@@ -54,7 +54,7 @@
             <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("taskCreatedBy") }}
+              {{ t("project") }}
             </th>
             <th class="text-secondary opacity-7"></th>
           </tr>
@@ -113,7 +113,7 @@
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.created_by?.name || "N/A" }}
+                {{ task.project?.name || "No Project" }}
               </p>
             </td>
             <td class="align-middle">
@@ -513,6 +513,14 @@
                   <dd v-if="selectedTaskDayOfMonth" class="col-sm-9">
                     {{ selectedTaskDayOfMonth }}
                   </dd>
+
+                  <dt  class="col-sm-3">
+                    {{ t("taskCreatedBy") }}:
+                  </dt>
+                  <dd class="col-sm-9">
+                    {{ selectedTaskCreatedBy }}
+                  </dd>
+
                   <dt v-if="selectedTaskCreationDate" class="col-sm-3">
                     {{ t("createdAt") }}:
                   </dt>
@@ -659,6 +667,7 @@ const selectedTaskRecurrentDays = ref([]);
 const selectedTaskStatus = ref(null);
 const selectedTaskAssignedTo = ref(null);
 const selectedTaskDayOfMonth = ref(null);
+const selectedTaskCreatedBy = ref(null);
 const loadingTaskId = ref(null);
 
 const activeTab = ref("info"); // علامة تبويب البداية
@@ -885,6 +894,7 @@ const openDescriptionModal = async (task) => {
   selectedTaskAssignedTo.value = task.assigned_to;
   selectedTaskRecurrentDays.value = task.recurrent_days;
   selectedTaskDayOfMonth.value = task.day_of_month;
+  selectedTaskCreatedBy.value = task.created_by.name;
   selectedTaskDepartment.value = task.department.department_name;
   await getTaskLogs(task.id);
   showDescriptionModal.value = true; // إظهار المودال
@@ -911,6 +921,7 @@ const closeDescriptionModal = () => {
   selectedTaskAssignedTo.value = null;
   selectedTaskRecurrentDays.value = [];
   selectedTaskDayOfMonth.value = null;
+  selectedTaskCreatedBy.value = null;
 };
 
 const formatDate = (dateString) => {
@@ -967,7 +978,7 @@ const translations = {
     editTask: "Edit Task",
     noTasks: "No tasks found.", // إضافة ترجمة جديدة
     createee: "Create your task using the button above", // تعديل الترجمة
-    taskNumber: "Task Number",
+    taskNumber: "Task code",
     taskStartDate: "Task Start Date",
     taskDeadline: "Task Deadline",
     taskType: "Task Type",
@@ -987,6 +998,7 @@ const translations = {
     recurrentDays: "Recurrent Days",
     enterDayOfMonth: "Enter day of the month ex: 1, 2,....31",
     department: "Department",
+    project: "Project",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -1025,7 +1037,7 @@ const translations = {
     editTask: "تعديل المهمة",
     noTasks: "لا يوجد مهام.", // إضافة ترجمة جديدة
     createee: "انشئ مهمتك من الزر المتواجد بالاعلي", // تعديل الترجمة
-    taskNumber: "رقم المهمة",
+    taskNumber: "كود المهمة",
     taskStartDate: "تاريخ بدء المهمة",
     taskDeadline: "تاريخ انتهاء المهمة",
     taskType: "نوع المهمة",
@@ -1045,6 +1057,7 @@ const translations = {
     recurrentDays: "ايام التكرار",
     enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,....31",
     department: "القسم",
+    project: "المشروع",
   },
 };
 

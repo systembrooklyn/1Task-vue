@@ -14,10 +14,17 @@ import ManageRoutineTaskTable from "@/views/components/ManageRoutineTaskTable.vu
 // import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import Swal from "sweetalert2";
 
+onMounted(async () => {
+  await store.dispatch("fetchDepartments");
+  await store.dispatch("fetchProjects");
+});
+
 const store = useStore();
 
 const userData = computed(() => store.getters.user);
 const departments = computed(() => store.getters.departments);
+const projects = computed(() => store.getters.projects);
+console.log("projectssssssssssss:", projects.value);
 
 const formattedDepartments = computed(() => {
   return departments.value.map((department) => ({
@@ -25,6 +32,15 @@ const formattedDepartments = computed(() => {
     label: department.name,
   }));
 });
+
+const formattedProjects = computed(() => {
+  return projects.value.map((project) => ({
+    value: project.id,
+    label: project.name,
+  }));
+});
+
+console.log("formattedProjectsssssssssss:", formattedProjects.value);
 
 import {
   savePermissionsToLocalStorage,
@@ -86,6 +102,7 @@ const selectedManager = ref("");
 const taskType = ref("");
 const dayOfMonth = ref("");
 const deptId = ref("");
+const projectId = ref("");
 const taskTypeOptions = [
   { value: "daily", label: "Daily" },
   { value: "weekly", label: "Weekly" },
@@ -123,7 +140,7 @@ const pagination = ref({
   current_page: 1,
   per_page: 10,
   total: 0,
-  last_page: 1
+  last_page: 1,
 });
 
 // فلتر: نوع المهمة
@@ -132,6 +149,8 @@ const selectedTaskType = ref("");
 const selectedStatus = ref("");
 // فلتر: الأقسام المختارة
 const selectedDepartments = ref([]);
+// فلتر: المشروعات المختارة
+const selectedProjects = ref([]);
 
 // التحكم في الإعدادات المتقدمة
 // const toggleAdvancedSettings = () => {
@@ -150,6 +169,7 @@ const closePopup = () => {
   taskType.value = "";
   dayOfMonth.value = "";
   deptId.value = "";
+  projectId.value = "";
   recurrentDays.value = [];
 };
 
@@ -200,26 +220,38 @@ const filteredTasks = computed(() => {
 
   // 1. فلتر حسب الـ taskType (لو مش فاضي)
   if (selectedTaskType.value) {
-    tasks = tasks.filter(t => t.task_type === selectedTaskType.value);
+    tasks = tasks.filter((t) => t.task_type === selectedTaskType.value);
   }
 
   // 2. فلتر حسب حالة المهمة (active / inactive - على حسب هي متخزنة إزاي)
   //   - انتبه لطريقة تخزين الحالة في الـ API: هل هي active/inactive boolean ولا status= 'done'/'not_done'...؟
   if (selectedStatus.value) {
     if (selectedStatus.value === "active") {
-      tasks = tasks.filter(t => t.active === true);
+      tasks = tasks.filter((t) => t.active === true);
     } else if (selectedStatus.value === "inactive") {
-      tasks = tasks.filter(t => t.active === false);
+      tasks = tasks.filter((t) => t.active === false);
     }
     // أو لو عندك منطق مختلف للـ status، عدّله هنا
   }
 
   // 3. فلتر حسب الأقسام المختارة
   if (selectedDepartments.value.length > 0) {
-    const selectedDeptIds = selectedDepartments.value.map(dept => dept.id);
-    tasks = tasks.filter(task => {
+    const selectedDeptIds = selectedDepartments.value.map((dept) => dept.id);
+    tasks = tasks.filter((task) => {
       // تأكد الـ task.dept_id ضمن الـ selectedDeptIds
       return selectedDeptIds.includes(task.department?.dept_id);
+    });
+  }
+
+  // 5. فلتر حسب المشروعات المختارة
+  if (selectedProjects.value.length > 0) {
+    const selectedProjectIds = selectedProjects.value.map(
+      (project) => project.id
+    );
+    console.log("selectedProjectIds:", selectedProjectIds);
+    tasks = tasks.filter((task) => {
+      // تأكد الـ task.project_id ضمن الـ selectedProjectIds
+      return selectedProjectIds.includes(task.project?.id);
     });
   }
 
@@ -242,7 +274,6 @@ watch(
   },
   { immediate: true }
 );
-
 
 // Add computed for paginated data
 const paginatedTasks = computed(() => {
@@ -288,6 +319,7 @@ const addRoutineTask = async () => {
     from: fromDate.value,
     to: toDate.value,
     dept_id: deptId.value,
+    project_id: projectId.value,
     assigned_to: selectedManager.value,
   };
 
@@ -309,27 +341,23 @@ const addRoutineTask = async () => {
     }
   } catch (error) {
     console.log("error:", error);
-      // استخراج الأخطاء من الرد
-  
-  
-      Swal.fire({
-        icon: "warning",
-        title: t("errorOccurred"),
-        html: error, 
-        showConfirmButton: true,
-        backdrop: 'rgba(0,0,0,0.5)', 
-        heightAuto: false, 
-        customClass: {
-          popup: 'swal-above-modal', 
-        }
-      });
-    } finally {
+    // استخراج الأخطاء من الرد
+
+    Swal.fire({
+      icon: "warning",
+      title: t("errorOccurred"),
+      html: error,
+      showConfirmButton: true,
+      backdrop: "rgba(0,0,0,0.5)",
+      heightAuto: false,
+      customClass: {
+        popup: "swal-above-modal",
+      },
+    });
+  } finally {
     isLoading.value = false;
   }
 };
-
-
-
 
 const translations = {
   en: {
@@ -387,22 +415,27 @@ const translations = {
     enterStartDate: "Enter start date",
     startDate: "Start Date",
 
-    status: 'Status',
-    allTypes: 'All Types',
-    allStatuses: 'All Statuses',
-    allDepartments: 'All Departments',
+    status: "Status",
+    allTypes: "All Types",
+    allStatuses: "All Statuses",
+    allDepartments: "All Departments",
 
-    weekly: 'Weekly',
-    monthly: 'Monthly',
-    last_day_of_month: 'Last Day of Month',
-    daily: 'Daily',
+    weekly: "Weekly",
+    monthly: "Monthly",
+    last_day_of_month: "Last Day of Month",
+    daily: "Daily",
 
     // active: 'Active',
     // inactive: 'Inactive',
-    applyFilters: 'Apply Filters',
-    resetFilters: 'Reset Filters',
-    selectAll: 'Select All',
-    departmentsSelected: 'Departments Selected'
+    applyFilters: "Apply Filters",
+    resetFilters: "Reset Filters",
+    selectAll: "Select All",
+    departmentsSelected: "Departments Selected",
+
+    selectProject: "Select Project",
+    project: "Project",
+    allProjects: "All Projects",
+    projectsSelected: "Projects Selected",
 
     // التحكم في الإعدادات المتقدمة
   },
@@ -465,25 +498,29 @@ const translations = {
     allStatuses: "جميع الحالات",
     allDepartments: "جميع القسوم",
     weekly: "اسبوعي",
-    monthly: "شهري", 
+    monthly: "شهري",
     daily: "يومي",
     last_day_of_month: "اخر يوم من الشهر",
     // active: 'نشط',
     // inactive: 'غير نشط',
-    applyFilters: 'تطبيق التصفيات',
-    resetFilters: 'اعادة تعيين التصفيات',
-    selectAll: 'اختر الكل',
-    departmentsSelected: 'اقسام محددة',
+    applyFilters: "تطبيق التصفيات",
+    resetFilters: "اعادة تعيين التصفيات",
+    selectAll: "اختر الكل",
+    departmentsSelected: "اقسام محددة",
+    projectsSelected: "مشاريع محددة",
     // taskType: 'نوع المهمة',
     // status: 'الحالة',
     // department: 'القسم',
-    // allTypes: 'جميع النوايات', 
+    // allTypes: 'جميع النوايات',
     // allStatuses: 'جميع الحالات',
     // allDepartments: 'جميع القسوم',
-  
+
     // active: 'نشط',
     // inactive: 'غير نشط',
 
+    project: "مشروع",
+    selectProject: "اختر المشروع",
+    allProjects: "جميع المشاريع",
   },
 };
 
@@ -502,29 +539,34 @@ const daysOfWeek = [
 //   fetchRoutineTasks(page);
 // };
 
-onMounted(async () => {
-  await store.dispatch("fetchDepartments");
-});
-
 // Filter variables
 // const selectedTaskType = ref('');
 // const selectedDepartments = ref([]);
 console.log("formattedDepartments:", formattedDepartments.value);
 const toggleAllDepartments = () => {
-  
   if (selectedDepartments.value.length === formattedDepartments.value.length) {
     // If all are selected, deselect all
     selectedDepartments.value = [];
   } else {
     // Select all departments
-    selectedDepartments.value = formattedDepartments.value.map(dept => ({
+    selectedDepartments.value = formattedDepartments.value.map((dept) => ({
       id: dept.value,
-      name: dept.label
+      name: dept.label,
     }));
   }
 };
 
-
+// 4. فلتر حسب المشروعات المختارة
+const toggleAllProjects = () => {
+  if (selectedProjects.value.length === formattedProjects.value.length) {
+    selectedProjects.value = [];
+  } else {
+    selectedProjects.value = formattedProjects.value.map((project) => ({
+      id: project.value,
+      name: project.label,
+    }));
+  }
+};
 
 // const applyFilters = () => {
 //   // Implement filter logic
@@ -534,19 +576,20 @@ const toggleAllDepartments = () => {
 //   };
 
 //   console.log("Filters:", filters);
-  
+
 //   // Dispatch action to fetch filtered routine tasks
 //   store.dispatch('fetchRoutineTasks', { filters });
 // };
 
 const resetFilters = () => {
   // Reset all filter variables
-  selectedTaskType.value = '';
+  selectedTaskType.value = "";
   selectedDepartments.value = [];
-  selectedStatus.value = '';
-  
+  selectedProjects.value = [];
+  selectedStatus.value = "";
+
   // Fetch all routine tasks without filters
-  store.dispatch('fetchRoutineTasks');
+  store.dispatch("fetchRoutineTasks");
 };
 </script>
 
@@ -566,12 +609,12 @@ const resetFilters = () => {
               >
                 <i class="fas fa-plus"></i>
               </argon-button>
-           <button 
-                class="btn btn-link ms-auto" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#filterCollapse" 
-                aria-expanded="false" 
+              <button
+                class="btn btn-link ms-auto"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#filterCollapse"
+                aria-expanded="false"
                 aria-controls="filterCollapse"
               >
                 <i class="fas fa-filter"></i>
@@ -583,25 +626,21 @@ const resetFilters = () => {
                   <!-- Filter by Task Type -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("taskType") }}</label>
-                    <select 
-                      class="form-select" 
-                      v-model="selectedTaskType"
-                    >
+                    <select class="form-select" v-model="selectedTaskType">
                       <option value="">{{ t("allTypes") }}</option>
                       <option value="weekly">{{ t("weekly") }}</option>
                       <option value="monthly">{{ t("monthly") }}</option>
                       <option value="daily">{{ t("daily") }}</option>
-                      <option value="last_day_of_month">{{t("last_day_of_month")}}</option>
+                      <option value="last_day_of_month">
+                        {{ t("last_day_of_month") }}
+                      </option>
                     </select>
                   </div>
 
                   <!-- Filter by Status -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("status") }}</label>
-                    <select 
-                      class="form-select" 
-                      v-model="selectedStatus"
-                    >
+                    <select class="form-select" v-model="selectedStatus">
                       <option value="">{{ t("allStatuses") }}</option>
                       <option value="active">{{ t("active") }}</option>
                       <option value="inactive">{{ t("inactive") }}</option>
@@ -612,51 +651,141 @@ const resetFilters = () => {
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
-                      <button 
-                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start" 
-                        type="button" 
-                        id="departmentDropdown" 
-                        data-bs-toggle="dropdown" 
+                      <button
+                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                        type="button"
+                        id="departmentDropdown"
+                        data-bs-toggle="dropdown"
                         aria-expanded="false"
                       >
-                        {{ selectedDepartments.length === 0 ? t("allDepartments") : 
-                           selectedDepartments.length === 1 ? selectedDepartments[0].name : 
-                           `${selectedDepartments.length} ${t("departmentsSelected")}` }}
+                        {{
+                          selectedDepartments.length === 0
+                            ? t("allDepartments")
+                            : selectedDepartments.length === 1
+                              ? selectedDepartments[0].name
+                              : `${selectedDepartments.length} ${t("departmentsSelected")}`
+                        }}
                       </button>
-                      <ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
+                      <ul
+                        class="dropdown-menu w-100"
+                        aria-labelledby="departmentDropdown"
+                      >
                         <li class="px-2">
                           <div class="form-check">
-                            <input 
-                              class="form-check-input" 
-                              type="checkbox" 
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
                               id="selectAllDepartments"
-                              :checked="selectedDepartments.length === formattedDepartments.length"
+                              :checked="
+                                selectedDepartments.length ===
+                                formattedDepartments.length
+                              "
                               @change="toggleAllDepartments"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="selectAllDepartments"
                             >
-                            <label class="form-check-label" for="selectAllDepartments">
                               {{ t("selectAll") }}
                             </label>
                           </div>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li 
-                          v-for="department in formattedDepartments" 
-                          :key="department.value" 
+                        <li><hr class="dropdown-divider" /></li>
+                        <li
+                          v-for="department in formattedDepartments"
+                          :key="department.value"
                           class="px-2"
                         >
                           <div class="form-check">
-                            <input 
-                              class="form-check-input" 
-                              type="checkbox" 
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
                               :id="'department-' + department.value"
-                              :value="{ id: department.value, name: department.label }"
+                              :value="{
+                                id: department.value,
+                                name: department.label,
+                              }"
                               v-model="selectedDepartments"
-                            >
-                            <label 
-                              class="form-check-label" 
+                            />
+                            <label
+                              class="form-check-label"
                               :for="'department-' + department.value"
                             >
                               {{ department.label }}
+                            </label>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <!-- toggleAllProjects -->
+
+                  <!-- filter by project -->
+
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("project") }}</label>
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                        type="button"
+                        id="projectDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        {{
+                          selectedProjects.length === 0
+                            ? t("allProjects")
+                            : selectedProjects.length === 1
+                              ? selectedProjects[0].name
+                              : `${selectedProjects.length} ${t("projectsSelected")}`
+                        }}
+                      </button>
+                      <ul
+                        class="dropdown-menu w-100"
+                        aria-labelledby="projectDropdown"
+                      >
+                        <li class="px-2">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="selectAllProjects"
+                              :checked="
+                                selectedProjects.length ===
+                                formattedProjects.length
+                              "
+                              @change="toggleAllProjects"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="selectAllProjects"
+                            >
+                              {{ t("selectAll") }}
+                            </label>
+                          </div>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li
+                          v-for="project in formattedProjects"
+                          :key="project.value"
+                          class="px-2"
+                        >
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              :id="'project-' + project.value"
+                              :value="{
+                                id: project.value,
+                                name: project.label,
+                              }"
+                              v-model="selectedProjects"
+                            />
+                            <label
+                              class="form-check-label"
+                              :for="'project-' + project.value"
+                            >
+                              {{ project.label }}
                             </label>
                           </div>
                         </li>
@@ -671,10 +800,7 @@ const resetFilters = () => {
                   >
                     {{ t("applyFilters") }}
                   </button> -->
-                  <button 
-                    class="btn btn-secondary" 
-                    @click="resetFilters"
-                  >
+                  <button class="btn btn-secondary" @click="resetFilters">
                     {{ t("resetFilters") }}
                   </button>
                 </div>
@@ -750,7 +876,7 @@ const resetFilters = () => {
               />
             </div>
 
-            <div  class="form-group mb-3">
+            <div class="form-group mb-3">
               <label class="form-label">{{ t("description") }}:</label>
               <textarea
                 v-model="routineTaskDescription"
@@ -781,6 +907,7 @@ const resetFilters = () => {
             />
           </div> -->
 
+            <!-- select box for weekly task -->
             <div v-show="taskType === 'weekly'" class="form-group mb-3">
               <label class="form-label">{{ t("recurrentDays") }}:</label>
               <div class="d-flex flex-wrap">
@@ -816,6 +943,7 @@ const resetFilters = () => {
               />
             </div>
 
+            <!-- select Department -->
             <div class="form-group mb-3">
               <label class="form-label">{{ t("department") }}:</label>
               <argon-select
@@ -826,6 +954,18 @@ const resetFilters = () => {
               />
             </div>
 
+            <!-- select project -->
+            <div class="form-group mb-3">
+              <label class="form-label">{{ t("project") }}:</label>
+              <argon-select
+                v-model="projectId"
+                :options="formattedProjects"
+                :placeholder="t('selectProject')"
+                class="form-control"
+              />
+            </div>
+
+            <!-- start date -->
             <div class="form-group mb-3">
               <label class="form-label">{{ t("startDate") }}:</label>
               <input
@@ -977,7 +1117,6 @@ const resetFilters = () => {
 .routine-task-modal .modal-body {
   flex: 1; /* السماح للمحتوى بالتمدد */
 }
-
 
 /* swal */
 

@@ -42,12 +42,18 @@
             >
               {{ t("taskCreatedBy") }}
             </th> -->
+            <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("project") }}
+            </th>
 
             <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
               {{ t("notes") }}
             </th>
+
 
             <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
@@ -130,9 +136,17 @@
 
             <td>
               <p class="text-xs font-weight-bold mb-0" style="direction: rtl;">
+                {{ task.project?.name || "No project" }}
+              </p>
+            </td>
+
+            <td>
+              <p class="text-xs font-weight-bold mb-0" style="direction: rtl;">
                 {{ task.today_report?.notes || "No Notes" }}
               </p>
             </td>
+
+            
 
             <td>
               <p class="text-xs font-weight-bold mb-0">
@@ -503,8 +517,8 @@
                   <dt class="col-sm-3">{{ t("taskNumber") }}:</dt>
                   <dd class="col-sm-9">{{ selectedTaskNumber }}</dd>
 
-                  <dt class="col-sm-3">{{ t("description") }}:</dt>
-                  <dd class="col-sm-9">{{ selectedDescription }}</dd>
+                  <dt v-if="selectedDescription" class="col-sm-3">{{ t("description") }}:</dt>
+                  <dd v-if="selectedDescription" class="col-sm-9">{{ selectedDescription }}</dd>
 
                   <dt class="col-sm-3">{{ t("department") }}:</dt>
                   <dd class="col-sm-9">
@@ -1016,7 +1030,7 @@ const translations = {
     editTask: "Edit Task",
     noTasks: "No tasks found.", // إضافة ترجمة جديدة
     createee: "Create your task using the button above", // تعديل الترجمة
-    taskNumber: "Task Number",
+    taskNumber: "Task Code",
     taskStartDate: "Task Start Date",
     taskDeadline: "Task Deadline",
     reportTaskType: "Report Task Type",
@@ -1044,6 +1058,7 @@ const translations = {
     department: "Department",
     taskFound: "There is task ?",
     selectTaskFound: "Select Task Found",
+    project: "Project",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -1083,7 +1098,7 @@ const translations = {
     editTask: "تعديل المهمة",
     noTasks: "لا يوجد مهام.", // إضافة ترجمة جديدة
     createee: "انشئ مهمتك من الزر المتواجد بالاعلي", // تعديل الترجمة
-    taskNumber: "رقم المهمة",
+    taskNumber: "كود المهمة",
     taskStartDate: "تاريخ بدء المهمة",
     taskDeadline: "تاريخ انتهاء المهمة",
     reportTaskType: "تقرير المهمة",
@@ -1111,6 +1126,7 @@ const translations = {
     department: "القسم",
     taskFound: "هل يوجد مهمة؟",
     selectTaskFound: "حدد المهمة موجودة",
+    project: "المشروع",
   },
 };
 

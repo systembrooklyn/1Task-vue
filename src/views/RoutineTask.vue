@@ -18,6 +18,7 @@ const refreshInterval = ref(null); // Will store our setInterval ID
 
 const store = useStore();
 
+
 const userData = computed(() => store.getters.user);
 console.log("userDataaaaaaaaa:", userData.value);
 
@@ -42,7 +43,7 @@ onBeforeMount(async () => {
     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
   await store.dispatch("getCompanyUsers");
-  await store.dispatch("fetchDepartments");
+  // await store.dispatch("fetchDepartments");
 });
 
 const dataFromApi = computed(() => store.getters.dataFromApi);
@@ -57,6 +58,8 @@ const employeeOptions = computed(() => {
 console.log("employeeOptions:", employeeOptions.value);
 
 const departments = computed(() => store.getters.departments);
+// const projects = computed(() => store.getters.projects);
+
 console.log("departmentssssssssssssss:", departments.value);
 
 const formattedDepartments = computed(() => {
@@ -65,6 +68,9 @@ const formattedDepartments = computed(() => {
     label: department.name,
   }));
 });
+
+
+
 
 const userDepartment = computed(() => {
   const user = userData.value;
@@ -149,6 +155,13 @@ watch(
 //   showAdvancedSettings.value = !showAdvancedSettings.value;
 // };
 
+const formattedProjects = computed(() => {
+  return routineTasks.value.map((project) => ({
+    value: project.project.id,
+    label: project.project.name,
+  }));
+});
+
 // غلق المودال
 const closePopup = () => {
   showPopup.value = false;
@@ -178,8 +191,8 @@ onBeforeMount(async () => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 
-  isLoading.value = true;
   try {
+    isLoading.value = true;
     // Example of calling your Vuex action:
     const response = await store.dispatch("fetchRoutineTasks");
     if (response.status === 200) {
@@ -271,6 +284,8 @@ const t = (key) => {
 // Filter variables
 const selectedTaskType = ref("");
 const selectedDepartments = ref([]);
+const selectedProjects = ref([]);
+
 const selectedStatus = ref("");
 console.log("userDepartment:", userDepartment.value);
 // const toggleAllDepartments = () => {
@@ -455,6 +470,8 @@ const translations = {
     not_done: "Not Done",
     not_reported: "Not Reported",
     LatedTasks: "Lated Tasks",
+    allProjects: "All Projects",
+    project: "Project",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -515,6 +532,7 @@ const translations = {
     // allTypes: 'جميع النوايات',
     // allStatuses: 'جميع الحالات',
     // allDepartments: 'جميع القسوم',
+    allProjects: 'جميع المشاريع',
     weekly: "اسبوعي",
     monthly: "شهري",
     daily: "يومي",
@@ -528,6 +546,7 @@ const translations = {
     not_done: "لم يتم",
     not_reported: "لم يتم التقرير",
     LatedTasks: "مهام متاخرة",
+    project: "المشروع",
   },
 };
 
@@ -554,13 +573,13 @@ const daysOfWeek = [
 
 // In created() or setup()
 onMounted(async () => {
-  try {
-    // Fetch departments from your API or Vuex store
-    const fetchedDepartments = await store.dispatch("fetchDepartments");
-    console.log("Fetched Departments:", fetchedDepartments);
-  } catch (error) {
-    console.error("Error fetching departments:", error);
-  }
+  // try {
+  //   // Fetch departments from your API or Vuex store
+  //   const fetchedDepartments = await store.dispatch("fetchDepartments");
+  //   console.log("Fetched Departments:", fetchedDepartments);
+  // } catch (error) {
+  //   console.error("Error fetching departments:", error);
+  // }
 
   await refreshTasks();
 
@@ -632,6 +651,19 @@ const filteredTasks = computed(() => {
     );
   }
 
+
+    // 5. فلتر حسب المشروعات المختارة
+   if (selectedProjects.value.length > 0) {
+    const selectedProjectIds = selectedProjects.value.map(
+      (project) => project.id
+    );
+    console.log("selectedProjectIds:", selectedProjectIds);
+    tasks = tasks.filter((task) => {
+      // تأكد الـ task.project_id ضمن الـ selectedProjectIds
+      return selectedProjectIds.includes(task.project?.id);
+    });
+  }
+
   return tasks;
 });
 
@@ -678,6 +710,8 @@ const resetFilters = () => {
   selectedTaskType.value = "";
   selectedStatus.value = "";
   selectedDepartments.value = [];
+  selectedProjects.value = [];
+
 
   // Also reset to page 1
   pagination.value.current_page = 1;
@@ -691,6 +725,18 @@ const toggleAllDepartments = () => {
     selectedDepartments.value = userDepartment.value.map((dept) => ({
       id: dept.value,
       name: dept.label,
+    }));
+  }
+};
+
+// 4. فلتر حسب المشروعات المختارة
+const toggleAllProjects = () => {
+  if (selectedProjects.value.length === formattedProjects.value.length) {
+    selectedProjects.value = [];
+  } else {
+    selectedProjects.value = formattedProjects.value.map((project) => ({
+      id: project.value,
+      name: project.label,
     }));
   }
 };
@@ -750,7 +796,7 @@ const routineTasksCount = computed(() => {
                   </div> -->
 
                   <!-- Department Filter -->
-                  <div class="col-md-6 mb-3">
+                  <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
                       <button
@@ -819,8 +865,81 @@ const routineTasksCount = computed(() => {
                     </div>
                   </div>
 
+                  <!-- filter by project -->
+
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("project") }}</label>
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                        type="button"
+                        id="projectDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        {{
+                          selectedProjects.length === 0
+                            ? t("allProjects")
+                            : selectedProjects.length === 1
+                              ? selectedProjects[0].name
+                              : `${selectedProjects.length} ${t("projectsSelected")}`
+                        }}
+                      </button>
+                      <ul
+                        class="dropdown-menu w-100"
+                        aria-labelledby="projectDropdown"
+                      >
+                        <li class="px-2">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="selectAllProjects"
+                              :checked="
+                                selectedProjects.length ===
+                                formattedProjects.length
+                              "
+                              @change="toggleAllProjects"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="selectAllProjects"
+                            >
+                              {{ t("selectAll") }}
+                            </label>
+                          </div>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li
+                          v-for="project in formattedProjects"
+                          :key="project.value"
+                          class="px-2"
+                        >
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              :id="'project-' + project.value"
+                              :value="{
+                                id: project.value,
+                                name: project.label,
+                              }"
+                              v-model="selectedProjects"
+                            />
+                            <label
+                              class="form-check-label"
+                              :for="'project-' + project.value"
+                            >
+                              {{ project.label }}
+                            </label>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
                   <!-- Status Filter -->
-                  <div class="col-md-6 mb-3">
+                  <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("status") }}</label>
                     <select class="form-select" v-model="selectedStatus">
                       <option value="">{{ t("allStatuses") }}</option>
