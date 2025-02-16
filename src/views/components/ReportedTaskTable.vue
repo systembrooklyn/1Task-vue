@@ -803,7 +803,7 @@
                   </dd>
 
                   <dt class="col-sm-3">{{ t("notes") }}:</dt>
-                  <dd class="col-sm-9" style="direction: rtl;">
+                  <dd class="col-sm-9">
                     {{ selectedTaskNotes || "No Notes" }}
                   </dd>
 

@@ -1,29 +1,15 @@
-// src/views/RoutineTask.vue
-
+<!-- src/views/RoutineTask.vue -->
 <script setup>
 import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
 import { useStore } from "vuex";
-// import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
 import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
-// import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import ReportedTaskTable from "@/views/components/ReportedTaskTable.vue";
-// import ArgonSwitch from "@/components/ArgonSwitch.vue";
-// import Swal from "sweetalert2";
 
 const store = useStore();
-
-// const emit = defineEmits(['toggle-tasks']);
-// const showAllTasks = ref(false);
-
-// const toggleTasks = () => {
-//   showAllTasks.value = !showAllTasks.value;
-//   console.log(showAllTasks.value);
-//   emit('toggle-tasks', showAllTasks.value);
-// };
 
 const userData = computed(() => store.getters.user);
 const departments = computed(() => store.getters.departments);
@@ -39,7 +25,6 @@ import {
   savePermissionsToLocalStorage,
   extractPermissionsFromAPI,
   loadPermissionsFromLocalStorage,
-  // hasPermission,
 } from "@/utils/permissions.js";
 
 const permissions = ref(
@@ -58,22 +43,14 @@ onBeforeMount(async () => {
   await store.dispatch("getCompanyUsers");
 });
 
-const dataFromApi = computed(() => store.getters.dataFromApi);
+// const dataFromApi = computed(() => store.getters.dataFromApi);
 
-const employeeOptions = computed(() => {
-  return dataFromApi.value.map((employee) => ({
-    value: employee.id,
-    label: employee.name,
-  }));
-});
-
-console.log("employeeOptions:", employeeOptions.value);
-
-// const isOwner = computed(() => store.getters.isOwner);
-
-// const canCreateRoutineTask = computed(
-//   () => hasPermission(permissions.value, "create-dailytask") // تعديل صلاحية
-// );
+// const employeeOptions = computed(() => {
+//   return dataFromApi.value.map((employee) => ({
+//     value: employee.id,
+//     label: employee.name,
+//   }));
+// });
 
 const showAlert = ref(false);
 const errorMessage = ref("");
@@ -91,10 +68,9 @@ const startDate = ref("");
 const fromDate = ref("");
 const toDate = ref("");
 const isNotReportedLoading = ref(false); // متغير تحميل خاص بـ Not Reported Tasks
+const searchQuery = ref("");
 
-// const showAdvancedSettings = ref(false);
 const selectedManager = ref("");
-// const routineTaskStatus = ref(false); // تعديل المتغيرات
 const taskType = ref("");
 const dayOfMonth = ref("");
 const deptId = ref("");
@@ -121,28 +97,12 @@ const toggleRecurrentDay = (dayValue, isChecked) => {
   }
 };
 
-// مراقبة التغييرات في `recurrentDays`
 watch(
   () => recurrentDays.value,
   (newVal) => {
     console.log("Recurrent Days:", newVal);
-    // يمكنك إضافة أي عملية أخرى هنا بناءً على التغييرات
   }
 );
-
-// const pagination = ref({
-//   total: 0,
-//   current_page: 1,
-//   per_page: 10,
-//   last_page: 1,
-//   next_page_url: null,
-//   prev_page_url: null,
-// });
-
-// التحكم في الإعدادات المتقدمة
-// const toggleAdvancedSettings = () => {
-//   showAdvancedSettings.value = !showAdvancedSettings.value;
-// };
 
 // غلق المودال
 const closePopup = () => {
@@ -173,24 +133,14 @@ onBeforeMount(async () => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 
-  await fetchTasksReports(); // تعديل الدالة
-  await fetchNotReportedTasks(); // تعديل الدالة
+  await fetchTasksReports(); 
+  await fetchNotReportedTasks();
 });
 
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
 
-// const currentUserId = computed(() => store.getters.userId);
-// console.log("currentUserId:", currentUserId.value);
-
-const selectedDateForNotReported = ref(new Date().toISOString().split("T")[0]); // التاريخ الافتراضي اليوم
-
-// watch(
-//   () => selectedDateForNotReported,
-//   (newVal) => {
-//     selectedDateForNotReported.value = newVal;
-//   }
-// );
+const selectedDateForNotReported = ref(new Date().toISOString().split("T")[0]);
 
 const reportActiveTab = ref(
   sessionStorage.getItem("reportActiveTab") || "reported"
@@ -198,9 +148,8 @@ const reportActiveTab = ref(
 
 const setActiveTab = (tab) => {
   reportActiveTab.value = tab;
-  sessionStorage.setItem("reportActiveTab", tab); // حفظ التبويب الحالي
-console.log(reportActiveTab.value);
-
+  sessionStorage.setItem("reportActiveTab", tab); 
+  console.log(reportActiveTab.value);
 };
 
 watch(
@@ -208,7 +157,7 @@ watch(
   () => {
     // Reset the date when tab switches
     const today = new Date().toISOString().split("T")[0];
-    if (reportActiveTab.value === 'reported') {
+    if (reportActiveTab.value === "reported") {
       selectedDate.value = today;
     } else {
       selectedDateForNotReported.value = today;
@@ -216,25 +165,19 @@ watch(
   }
 );
 
-
 const fetchNotReportedTasks = async (
   date = selectedDateForNotReported.value
 ) => {
-  selectedDateForNotReported.value = date; // تحديث التاريخ المختار
-  isNotReportedLoading.value = true; // تشغيل اللودر قبل جلب البيانات
-
-  // isLoading.value = true;
+  selectedDateForNotReported.value = date; 
+  isNotReportedLoading.value = true; 
 
   try {
-    const response = await store.dispatch("fetchNotReportedTasks", date); // Pass the date parameter
+    const response = await store.dispatch("fetchNotReportedTasks", date); 
     console.log("response fetchNotReportedTasks:", response);
 
     if (response.status === 200) {
       notReportedTasks.value = store.getters.notReportedTasks.tasks;
-      console.log(
-        "response fetchNotReportedTaskssssssss:",
-        notReportedTasks.value
-      );
+      console.log("response fetchNotReportedTaskssssssss:", notReportedTasks.value);
 
       console.log("notReportedTasks:", notReportedTasks.value);
       componentKey.value += 1;
@@ -243,21 +186,19 @@ const fetchNotReportedTasks = async (
     showAlert.value = true;
     errorMessage.value = t("generalError");
   } finally {
-    isNotReportedLoading.value = false; // إيقاف اللودر بعد جلب البيانات
+    isNotReportedLoading.value = false; 
   }
 };
 
 const fetchTasksReports = async (page = 1) => {
-  // تعديل الدالة
   isLoading.value = true;
 
   try {
-    const response = await store.dispatch("fetchTaskReports", page); // تعديل الـ action
+    const response = await store.dispatch("fetchTaskReports", page);
     console.log("response:", response);
     if (response.status === 200) {
-      routineTasksReport.value = store.getters.routineTasksReports.reports; // تعديل الـ getter
+      routineTasksReport.value = store.getters.routineTasksReports.reports;
       console.log("routineTasksReport:", response);
-      // pagination.value = store.getters.routineTasksReports.pagination; // تعديل الـ getter
       componentKey.value += 1;
     }
   } catch (error) {
@@ -269,10 +210,10 @@ const fetchTasksReports = async (page = 1) => {
 };
 
 watch(
-  () => store.getters.routineTasksReports.tasks, // تعديل الـ getter
+  () => store.getters.routineTasksReports.tasks,
   (newData) => {
     routineTasksReport.value = [...newData];
-    componentKey.value += 1; // إعادة تحميل المكون عند حدوث أي تحديث في البيانات
+    componentKey.value += 1; 
   }
 );
 
@@ -282,74 +223,19 @@ const t = (key) => {
   return translations[currentLanguage.value][key];
 };
 
-// const openPopup = () => {
-//   showPopup.value = true;
-// };
-
-// const addRoutineTask = async () => {
-//   isLoading.value = true;
-//   const routineTask = {
-//     task_name: routineTaskName.value,
-//     description: routineTaskDescription.value,
-//     start_date: startDate.value,
-//     task_type: taskType.value,
-//     recurrent_days: recurrentDays.value,
-//     day_of_month: dayOfMonth.value,
-//     from: fromDate.value,
-//     to: toDate.value,
-//     dept_id: deptId.value,
-//     assigned_to: selectedManager.value,
-//   };
-
-//   console.log("routineTask:", routineTask);
-
-//   try {
-//     const response = await store.dispatch("addRoutineTask", routineTask);
-//     if (response.status === 201) {
-//       Swal.fire({
-//         icon: "success",
-//         title: t("routineTaskAdded"),
-//         showConfirmButton: false,
-//         timer: 1500,
-//         timerProgressBar: true,
-//       });
-//       closePopup();
-//       await fetchRoutineTasks();
-//       componentKey.value += 1;
-//     }
-//   } catch (error) {
-//     console.log("error:", error);
-//       // استخراج الأخطاء من الرد
-
-//       Swal.fire({
-//         icon: "warning",
-//         title: t("errorOccurred"),
-//         html: error,
-//         showConfirmButton: true,
-//         backdrop: 'rgba(0,0,0,0.5)',
-//         heightAuto: false,
-//         customClass: {
-//           popup: 'swal-above-modal',
-//         }
-//       });
-//     } finally {
-//     isLoading.value = false;
-//   }
-// };
-
 const applyFilter = () => {
-  console.log("Applying filter for date:", 
-    (reportActiveTab.value === 'not_reported' ? selectedDateForNotReported.value : selectedDate.value)
+  console.log(
+    "Applying filter for date:",
+    reportActiveTab.value === "not_reported"
+      ? selectedDateForNotReported.value
+      : selectedDate.value
   );
 
-  // Fetch tasks based on selected date and active tab
-  if (reportActiveTab.value === 'not_reported') {
+  if (reportActiveTab.value === "not_reported") {
     isNotReportedLoading.value = true;
-    fetchNotReportedTasks(selectedDateForNotReported.value); // Fetch tasks for 'not_reported' tab
-  } 
+    fetchNotReportedTasks(selectedDateForNotReported.value);
+  }
 };
-
-
 
 const translations = {
   en: {
@@ -359,34 +245,33 @@ const translations = {
       "This email is already registered. Please use another email.",
     generalError: "An error occurred while submitting. Please try again later.",
     invalidCompanyIdOrUserId: "Invalid Company ID or User ID.",
-    routineTaskDeleted: "Routine Task deleted successfully.", // تعديل الترجمة
-    routineTaskAdded: "Routine Task added successfully.", // تعديل الترجمة
-    deleteConfirmationTitle: "Delete Routine Task", // تعديل الترجمة
-    deleteConfirmationText:
-      "Are you sure you want to delete this Routine Task?", // تعديل الترجمة
+    routineTaskDeleted: "Routine Task deleted successfully.",
+    routineTaskAdded: "Routine Task added successfully.",
+    deleteConfirmationTitle: "Delete Routine Task",
+    deleteConfirmationText: "Are you sure you want to delete this Routine Task?",
     delete: "Delete",
-    addRoutineTask: "Add Routine Task", // تعديل الترجمة
-    routineTaskName: "Routine Task Name", // تعديل الترجمة
+    addRoutineTask: "Add Routine Task",
+    routineTaskName: "Routine Task Name",
     description: "Description",
     close: "Close",
     create: "Create",
-    reportedTasksTable: "Reported Routine Tasks", // تعديل الترجمة
-    routineTaskNameRequired: "Please enter the routine task name.", // تعديل الترجمة
+    reportedTasksTable: "Reported Routine Tasks",
+    routineTaskNameRequired: "Please enter the routine task name.",
     routineTaskAddedError:
-      "An error occurred while adding the routine task. Please try again later.", // تعديل الترجمة
+      "An error occurred while adding the routine task. Please try again later.",
     from: "From",
     to: "To",
-    routineTaskManager: "Routine Task Manager", // تعديل الترجمة
+    routineTaskManager: "Routine Task Manager",
     assignManager: "Assign Manager",
     enterDescription: "Enter Description",
-    enterRoutineTaskName: "Enter Routine Task Name", // تعديل الترجمة
-    createRoutineTask: "Create Routine Task", // تعديل الترجمة
+    enterRoutineTaskName: "Enter Routine Task Name",
+    createRoutineTask: "Create Routine Task",
     saving: "Saving...",
-    noRoutineTasks: "No routine tasks found.", // تعديل الترجمة
-    createee: "Create your routine task ", // تعديل الترجمة
-    inactive: "Inactive", // إضافة ترجمة للحالة
+    noRoutineTasks: "No routine tasks found.",
+    createee: "Create your routine task ",
+    inactive: "Inactive",
     active: "Active",
-    advancedSettings: "Advanced Settings", // إضافة ترجمة
+    advancedSettings: "Advanced Settings",
     taskNumber: "Task Number",
 
     taskType: "Task Type",
@@ -411,14 +296,10 @@ const translations = {
     allTypes: "All Types",
     allStatuses: "All Statuses",
     allDepartments: "All Departments",
-
     weekly: "Weekly",
     monthly: "Monthly",
     last_day_of_month: "Last Day of Month",
     daily: "Daily",
-
-    // active: 'Active',
-    // inactive: 'Inactive',
     applyFilters: "Apply Filters",
     resetFilters: "Reset Filters",
     selectAll: "Select All",
@@ -426,8 +307,7 @@ const translations = {
     filterByDate: "Filter by Date",
     reported: "Reported",
     not_reported: "Not Reported",
-
-    // التحكم في الإعدادات المتقدمة
+    searchPlaceholder: "Search tasks...",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -436,33 +316,33 @@ const translations = {
       "هذا البريد الالكتروني مسجل بالفعل. يرجى استخدام بريد الكتروني اخر.",
     generalError: "حدث خطأ في التقديم. يرجى المحاولة مرة اخرى في وقت لاحق.",
     invalidCompanyIdOrUserId: "معرف الشركة أو معرف المستخدم غير صحيح.",
-    routineTaskDeleted: "تم حذف المهمة الروتينية بنجاح.", // تعديل الترجمة
-    routineTaskAdded: "تم اضافة المهمة الروتينية بنجاح.", // تعديل الترجمة
-    deleteConfirmationTitle: "حذف المهمة الروتينية", // تعديل الترجمة
-    deleteConfirmationText: "هل تريد حذف هذه المهمة الروتينية؟", // تعديل الترجمة
+    routineTaskDeleted: "تم حذف المهمة الروتينية بنجاح.",
+    routineTaskAdded: "تم اضافة المهمة الروتينية بنجاح.",
+    deleteConfirmationTitle: "حذف المهمة الروتينية",
+    deleteConfirmationText: "هل تريد حذف هذه المهمة الروتينية؟",
     delete: "حذف",
-    addRoutineTask: "اضافة مهمة روتينية", // تعديل الترجمة
-    routineTaskName: "اسم المهمة الروتينية", // تعديل الترجمة
+    addRoutineTask: "اضافة مهمة روتينية",
+    routineTaskName: "اسم المهمة الروتينية",
     description: "وصف المشروع",
     close: "اغلاق",
     create: "اضافة",
-    reportedTasksTable: "تقارير المهام الروتينية", // تعديل الترجمة
-    routineTaskNameRequired: "يرجى ادخال اسم المهمة الروتينية.", // تعديل الترجمة
+    reportedTasksTable: "تقارير المهام الروتينية",
+    routineTaskNameRequired: "يرجى ادخال اسم المهمة الروتينية.",
     routineTaskAddedError:
-      "حدث خطأ في اضافة المهمة الروتينية. يرجى المحاولة مرة اخرى في وقت لاحق.", // تعديل الترجمة
+      "حدث خطأ في اضافة المهمة الروتينية. يرجى المحاولة مرة اخرى في وقت لاحق.",
     from: "من",
     to: "إلى",
-    routineTaskManager: "مدير المهمة الروتينية", // تعديل الترجمة
+    routineTaskManager: "مدير المهمة الروتينية",
     assignManager: "تعيين المدير",
     enterDescription: "ادخال الوصف",
-    enterRoutineTaskName: "ادخال اسم المهمة الروتينية", // تعديل الترجمة
-    createRoutineTask: "اضافة مهمة روتينية", // تعديل الترجمة
+    enterRoutineTaskName: "ادخال اسم المهمة الروتينية",
+    createRoutineTask: "اضافة مهمة روتينية",
     saving: "يتم الحفظ...",
-    noRoutineTasks: "لا يوجد مهام روتينية.", // تعديل الترجمة
-    createee: "انشئ مهامك الروتينية ", // تعديل الترجمة
-    inactive: "غير نشط", // إضافة ترجمة للحالة
+    noRoutineTasks: "لا يوجد مهام روتينية.",
+    createee: "انشئ مهامك الروتينية ",
+    inactive: "غير نشط",
     active: "نشط",
-    advancedSettings: "الإعدادات المتقدمة", // إضافة ترجمة
+    advancedSettings: "الإعدادات المتقدمة",
     taskNumber: "رقم المهمة",
 
     taskType: "نوع المهمة",
@@ -471,6 +351,7 @@ const translations = {
     enterRecurrentDays: "ادخل عدد أيام التكرار",
     dayOfMonth: "يوم الشهر",
     enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,....31",
+    department: "قسم",
     selectDepartment: "اختر القسم",
     sunday: "الاحد",
     monday: "الاثنين",
@@ -483,16 +364,13 @@ const translations = {
     startDate: "تاريخ البدء",
 
     status: "حالة",
-    department: "قسم",
     allTypes: "جميع النوايات",
     allStatuses: "جميع الحالات",
     allDepartments: "جميع القسوم",
     weekly: "اسبوعي",
     monthly: "شهري",
-    daily: "يومي",
     last_day_of_month: "اخر يوم من الشهر",
-    // active: 'نشط',
-    // inactive: 'غير نشط',
+    daily: "يومي",
     applyFilters: "تطبيق التصفيات",
     resetFilters: "اعادة تعيين التصفيات",
     selectAll: "اختر الكل",
@@ -500,16 +378,7 @@ const translations = {
     filterByDate: "تصفية حسب التاريخ",
     reported: "تقرير",
     not_reported: "لم يتم التقرير",
-
-    // taskType: 'نوع المهمة',
-    // status: 'الحالة',
-    // department: 'القسم',
-    // allTypes: 'جميع النوايات',
-    // allStatuses: 'جميع الحالات',
-    // allDepartments: 'جميع القسوم',
-
-    // active: 'نشط',
-    // inactive: 'غير نشط',
+    searchPlaceholder: "...ابحث هنا",
   },
 };
 
@@ -528,20 +397,21 @@ const handlePageChange = (page) => {
   fetchTasksReports(page);
 };
 
-const today = new Date().toISOString().split("T")[0]; 
+const today = new Date().toISOString().split("T")[0];
+const selectedDate = ref(today);
+
+// Fetch departments on mount
 onMounted(async () => {
   await store.dispatch("fetchDepartments");
   selectedDate.value = today;
-  selectedDateForNotReported.value = today; // Optional if already initialized
+  selectedDateForNotReported.value = today;
 });
-
 
 // Define userDepartment (alias for formattedDepartments)
 const userDepartment = computed(() => formattedDepartments.value);
 
 // Selected departments for filtering
 const selectedDepartments = ref([]);
-const selectedDate = ref(new Date().toISOString().split("T")[0]);  // Today's date as default
 
 // Toggle "Select All" functionality
 const toggleAllDepartments = (event) => {
@@ -562,102 +432,132 @@ const areAllDepartmentsSelected = computed(() => {
   return selectedDepartments.value.length === userDepartment.value.length;
 });
 
-// Update the resetFilters function
-const resetFilters = () => {
-  selectedDepartments.value = [];
-
-  // Reset the date filter to today based on the active tab
-  const today = new Date().toISOString().split("T")[0]; // Get today's date
-  if (reportActiveTab.value === 'not_reported') {
-    selectedDateForNotReported.value = today;
-  } else {
-    selectedDate.value = today;
-  }
-
-    // Optionally, call `applyFilter` to apply the reset filter immediately
-    applyFilter();
-};
-
-
-
 // Clear all departments
 const clearAllDepartments = () => {
   selectedDepartments.value = [];
 };
 
-// Filtered tasks based on selected departments and date
-// Update the filteredTasks computed property
+// Reset filters
+const resetFilters = () => {
+  selectedDepartments.value = [];
+
+  const today = new Date().toISOString().split("T")[0];
+  if (reportActiveTab.value === "not_reported") {
+    selectedDateForNotReported.value = today;
+  } else {
+    selectedDate.value = today;
+  }
+  applyFilter();
+};
+
+const searchMatch = (task) => {
+  const query = searchQuery.value.toLowerCase();
+  const taskName = (task.daily_task.task_name || "").toLowerCase();
+  const taskNo = (task.daily_task.task_no || "").toLowerCase();
+  
+  return taskName.includes(query) || taskNo.includes(query);
+};
+
+// For reported tasks: Add safety checks for `task.name`
 const filteredTasks = computed(() => {
   return routineTasksReport.value.filter((task) => {
-    // Filter by department
     const departmentMatch =
       selectedDepartments.value.length === 0 ||
       selectedDepartments.value.some(
         (dept) => dept.id === task.daily_task.department?.id
       );
-
-    // Filter by selected date
     const taskDate = new Date(task.created_at).toISOString().split("T")[0];
     const dateMatch = !selectedDate.value || taskDate === selectedDate.value;
+    // Add (task.name || '') to avoid undefined issues
+    // const searchMatch = (task.daily_task.task_name || "")
+    //   .toLowerCase()
+    //   .includes(searchQuery.value.toLowerCase());
 
-    return departmentMatch && dateMatch;
+    //   const searchMatchNo = (task.daily_task.task_no || "").toLowerCase().includes(searchQuery.value.toLowerCase());
+
+    return departmentMatch && dateMatch && searchMatch(task);
+  });
+});
+
+
+//task_no
+// For non-reported tasks: Add safety checks for `task.name` or `task.description`
+const filteredNotReportedTasks = computed(() => {
+  const query = searchQuery.value.toLowerCase();
+  return notReportedTasks.value.filter((task) => {
+    const taskName = (task.daily_task.task_name || "").toLowerCase();
+    const taskNo = (task.daily_task.task_no || "").toLowerCase();
+    return taskName.includes(query)  || taskNo.includes(query);
   });
 });
 </script>
 
 <template>
-  <!-- <LanguageSwitcher /> -->
   <div class="py-4 container-fluid">
     <div class="row">
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
             <p class="mb-0 font-weight-bold">{{ t("reportedTasksTable") }}</p>
-            <div class="d-flex nav-tabs align-items-center">
-              <!-- <argon-button
-                v-show="canCreateRoutineTask || isOwner"
-                class="ml-auto mx-2"
-                @click="openPopup"
-              >
-                <i class="fas fa-plus"></i>
-              </argon-button> -->
-              <!-- Tabs Navigation -->
-              <ul class="nav custom-tabs" role="ttttablist">
-                <li class="nav-item">
-                  <argon-button
-                    class="nav-link"
-                    :class="{ active: reportActiveTab === 'reported' }"
-                    @click="setActiveTab('reported')"
-                  >
-                    {{ t("reported") }}
-                  </argon-button>
-                </li>
-                <li class="nav-item">
-                  <argon-button
-                    class="nav-link"
-                    :class="{ active: reportActiveTab === 'not_reported' }"
-                    @click="setActiveTab('not_reported')"
-                  >
-                    {{ t("not_reported") }}
-                  </argon-button>
-                </li>
-              </ul>
-              <button
-                class="btn btn-link ms-auto"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#filterCollapse"
-                aria-expanded="false"
-                aria-controls="filterCollapse"
-              >
-                <i class="fas fa-filter"></i>
-              </button>
+
+            <div class="row g-2 align-items-center">
+              <!-- Tabs -->
+              <div class="col-12 col-md-4">
+                <ul class="nav custom-tabs flex-nowrap overflow-x-auto">
+                  <li class="nav-item">
+                    <argon-button
+                      class="nav-link"
+                      :class="{ active: reportActiveTab === 'reported' }"
+                      @click="setActiveTab('reported')"
+                    >
+                      {{ t("reported") }}
+                    </argon-button>
+                  </li>
+                  <li class="nav-item">
+                    <argon-button
+                      class="nav-link"
+                      :class="{ active: reportActiveTab === 'not_reported' }"
+                      @click="setActiveTab('not_reported')"
+                    >
+                      {{ t("not_reported") }}
+                    </argon-button>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Search -->
+              <div class="col-12 col-md-4">
+                <div class="input-group" style="max-width: 100%">
+                  <input
+                    type="text"
+                    class="form-control"
+                    :placeholder="t('searchPlaceholder')"
+                    v-model="searchQuery"
+                  />
+                </div>
+              </div>
+
+              <!-- Filter Button -->
+              <div class="col-12 col-md-4 text-end">
+                <button
+                  class="btn btn-link"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#filterCollapse"
+                >
+                  <i class="fas fa-filter"></i>
+                </button>
+              </div>
             </div>
+            <!-- Filter Panel -->
             <div class="collapse" id="filterCollapse">
               <div class="card card-body">
                 <div class="row">
-                  <!-- Filter by Department -->
-                  <div v-if="reportActiveTab === 'reported'" class="col-md-6 mb-3">
+                  <!-- Filter by Department (shown only in 'reported' tab) -->
+                  <div
+                    v-if="reportActiveTab === 'reported'"
+                    class="col-md-6 mb-3"
+                  >
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
                       <button
@@ -744,26 +644,24 @@ const filteredTasks = computed(() => {
                   </div>
 
                   <!-- Filter by Specific Date -->
-                  <!-- Filter by Specific Date -->
-<div class="col-md-6 mb-3">
-  <label class="form-label">{{ t("filterByDate") }}</label>
-  <div v-if="reportActiveTab === 'reported'">
-    <input
-      type="date"
-      class="form-control"
-      v-model="selectedDate"
-    />
-  </div>
-  <div v-if="reportActiveTab === 'not_reported'">
-    <input
-      type="date"
-      class="form-control"
-      v-model="selectedDateForNotReported"
-      @change="applyFilter"
-    />
-  </div>
-</div>
-
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ t("filterByDate") }}</label>
+                    <div v-if="reportActiveTab === 'reported'">
+                      <input
+                        type="date"
+                        class="form-control"
+                        v-model="selectedDate"
+                      />
+                    </div>
+                    <div v-if="reportActiveTab === 'not_reported'">
+                      <input
+                        type="date"
+                        class="form-control"
+                        v-model="selectedDateForNotReported"
+                        @change="applyFilter"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Reset Filters -->
@@ -772,25 +670,11 @@ const filteredTasks = computed(() => {
                     {{ t("resetFilters") }}
                   </button>
                 </div>
-                <!-- <div class="d-flex justify-content-end mb-3">
-      <button
-        class="btn btn-sm btn-primary"
-        @click="showAllTasks = !showAllTasks"
-      >
-        {{ showAllTasks ? "Show Today's Tasks" : "Show All Tasks" }}
-      </button>
-    </div> -->
-                <!-- <div class="d-flex align-items-center">
-              <button
-                class="btn btn-sm btn-primary ms-auto"
-                @click="toggleTasks"
-              >
-                {{ showAllTasks ? "Show Today's Tasks" : "Show All Tasks" }}
-              </button>
-            </div> -->
               </div>
             </div>
           </div>
+
+          <!-- alert for errors and success -->
           <div class="card-body">
             <form @submit.prevent>
               <argon-alert
@@ -810,25 +694,17 @@ const filteredTasks = computed(() => {
                 {{ successMessage }}
               </argon-alert>
             </form>
+
             <div v-if="isLoading" class="d-flex justify-content-center py-5">
               <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
             </div>
 
-            <!-- <div
-              v-else-if="allroutineTasks.length === 0"
-              class="d-flex justify-content-center py-5 flex-column align-items-center"
-            >
-              <h5>{{ t("noRoutineTasks") }}</h5>
-              <p>
-                {{ t("createee") }}
-              </p>
-            </div> -->
             <ReportedTaskTable
               v-else
               :routineTasksReport="filteredTasks"
-              :notReportedTasks="notReportedTasks"
+              :notReportedTasks="filteredNotReportedTasks"
               :reportActiveTab="reportActiveTab"
               :isNotReportedLoading="isNotReportedLoading"
               :key="componentKey"
@@ -840,6 +716,7 @@ const filteredTasks = computed(() => {
     </div>
   </div>
 
+  <!-- Add Routine Task Modal -->
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
       <ArgonModal
@@ -850,7 +727,6 @@ const filteredTasks = computed(() => {
       >
         <template #default>
           <div class="modal-content-scroll">
-            <!-- غلاف للمحتوى -->
             <div class="form-group mb-3">
               <label class="form-label">{{ t("routineTaskName") }}:</label>
               <input
@@ -869,7 +745,6 @@ const filteredTasks = computed(() => {
               ></textarea>
             </div>
 
-            <!-- الحقول الجديدة -->
             <div class="form-group mb-3">
               <label class="form-label">{{ t("taskType") }}:</label>
               <argon-select
@@ -879,17 +754,6 @@ const filteredTasks = computed(() => {
                 class="form-control"
               />
             </div>
-
-            <!-- <div class="form-group mb-3">
-            <label class="form-label">{{ t("recurrentDays") }}:</label>
-            <input
-              type="date"
-              v-model="recurrentDays"
-              class="form-control"
-              :placeholder="t('enterRecurrentDays')"
-              min="1"
-            />
-          </div> -->
 
             <div v-show="taskType === 'weekly'" class="form-group mb-3">
               <label class="form-label">{{ t("recurrentDays") }}:</label>
@@ -943,30 +807,7 @@ const filteredTasks = computed(() => {
                 v-model="startDate"
                 class="form-control"
                 :placeholder="t('enterStartDate')"
-                min="1"
-                max="31"
               />
-            </div>
-
-            <!-- زر الإعدادات المتقدمة -->
-            <div class="d-flex align-items-center">
-              <!-- <ArgonButton
-              class="btn btn-link mb-3"
-              @click="toggleAdvancedSettings"
-            >
-              {{ t("advancedSettings") }} 
-            </ArgonButton> -->
-
-              <!-- <div class="d-flex align-items-center ms-auto">
-              <span class="me-2">{{ t("inactive") }}</span> 
-              <argon-switch
-                class="custom-switch-modal"
-                v-model:checked="routineTaskStatus"
-                aria-label="Routine Task Status"
-                role="switch"
-              ></argon-switch>
-              <span class="ms-2">{{ t("active") }}</span> 
-            </div> -->
             </div>
 
             <div class="form-group mb-3">
@@ -977,28 +818,6 @@ const filteredTasks = computed(() => {
               <label class="form-label">{{ t("to") }}:</label>
               <input type="time" v-model="toDate" class="form-control" />
             </div>
-
-            <!-- الإعدادات المتقدمة -->
-            <!-- <transition name="fade">
-            <div v-if="showAdvancedSettings" class="advanced-settings mx-3">
-              <div class="form-group mb-3">
-                <label class="form-label">{{ t("from") }}:</label>
-                <input
-                  type="date"
-                  v-model="fromDate"
-                  class="form-control"
-                />
-              </div>
-              <div class="form-group mb-3">
-                <label class="form-label">{{ t("to") }}:</label>
-                <input
-                  type="date"
-                  v-model="toDate"
-                  class="form-control"
-                />
-              </div>
-            </div>
-          </transition> -->
           </div>
         </template>
 
@@ -1024,8 +843,6 @@ const filteredTasks = computed(() => {
     </transition>
   </div>
 </template>
-
-/* src/views/RoutineTask.vue */
 
 <style>
 /* تأثيرات الظهور والإخفاء */
@@ -1060,8 +877,7 @@ const filteredTasks = computed(() => {
 .routine-task-modal .modal-content-scroll {
   overflow-y: auto; /* تمكين التمرير العمودي */
   flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
-  /* scroll-behavior: smooth;  */
+  max-height: 80vh; 
   max-height: 65vh;
 }
 
@@ -1078,19 +894,16 @@ const filteredTasks = computed(() => {
   align-items: center;
 }
 
-/* تحسين تصميم المودال الداخلي */
 .routine-task-modal .modal-header,
 .routine-task-modal .modal-footer {
-  flex-shrink: 0; /* منع الانكماش */
+  flex-shrink: 0;
 }
 
 .routine-task-modal .modal-body {
-  flex: 1; /* السماح للمحتوى بالتمدد */
+  flex: 1; 
 }
 
-/* swal */
-
-/* Ensure Swal appears above all other elements */
+/* Ensure Swal appears above other elements */
 .swal2-container {
   z-index: 100000 !important;
 }
@@ -1119,9 +932,7 @@ const filteredTasks = computed(() => {
   padding: 0.5rem 1rem;
   border: none;
   background-color: transparent;
-  transition:
-    color 0.3s ease,
-    background-color 0.3s ease;
+  transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .custom-tabs .nav-link.active {
@@ -1131,7 +942,22 @@ const filteredTasks = computed(() => {
 }
 
 .custom-tabs .nav-link:hover {
-  color: #ffffff; /* نص أبيض عند التمرير */
-  background-color: #a9ca5c; /* خلفية أخضر فاتح عند التمرير */
+  color: #ffffff; 
+  background-color: #a9ca5c; 
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .custom-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .nav-item {
+    display: inline-block;
+    float: none;
+  }
+  .input-group {
+    max-width: 100% !important;
+  }
 }
 </style>
