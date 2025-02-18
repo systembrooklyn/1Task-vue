@@ -655,7 +655,7 @@
         </div>
       </div>
 
-      <div v-if="props.reportActiveTab === 'evaluated_Task' && (isOwner || permissions['view-dailytaskevaluation'])">
+      <div v-if="props.reportActiveTab === 'evaluated_Task' && (isOwner || permissions['view-alldailytaskevaluation'])">
         <!-- Spinner أثناء التحميل -->
         <div
           v-if="props.isNotReportedLoading"
