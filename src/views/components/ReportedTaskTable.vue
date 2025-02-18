@@ -137,6 +137,7 @@
                 </th>
                 <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                  v-if="isOwner || permissions['create-dailytaskevaluation']"
                 >
                   {{ t("evaluate") }}
                 </th>
@@ -295,7 +296,7 @@
               </a> -->
                 </td>
 
-                <td class="align-middle">
+                <td v-if="isOwner || permissions['create-dailytaskevaluation']" class="align-middle">
                   <a
                     href="javascript:;"
                     class="font-weight-bold text-lg me-2"
@@ -433,6 +434,7 @@
                 </th>
                 <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                  v-if="isOwner || permissions['create-dailytaskevaluation']"
                 >
                   {{ t("evaluate") }}
                 </th>
@@ -594,7 +596,7 @@
               </a> -->
                 </td>
 
-                <td class="align-middle">
+                <td v-if="isOwner || permissions['create-dailytaskevaluation']" class="align-middle">
                   <a
                     href="javascript:;"
                     class="font-weight-bold text-lg me-2"
@@ -653,7 +655,7 @@
         </div>
       </div>
 
-      <div v-if="props.reportActiveTab === 'evaluated_Task'">
+      <div v-if="props.reportActiveTab === 'evaluated_Task' && (isOwner || permissions['view-dailytaskevaluation'])">
         <!-- Spinner أثناء التحميل -->
         <div
           v-if="props.isNotReportedLoading"
@@ -1443,7 +1445,7 @@ const props = defineProps({
 console.log("propssssssssss.evaluatedTasks:", props.evaluatedTasks);
 
 const userData = computed(() => store.getters.user);
-// const isOwner = computed(() => store.getters.isOwner);
+const isOwner = computed(() => store.getters.isOwner);
 
 // const reportTypeOptions = [
 //   { value: "done", label: "Done" },
