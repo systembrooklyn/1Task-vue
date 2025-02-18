@@ -27,7 +27,7 @@
         </div>
       </div>
     </div> -->
-    
+
     <!-- Tabs Navigation -->
     <!-- <ul class="nav nav-tabs custom-tabs" role="ttttablist">
       <li class="nav-item">
@@ -67,7 +67,6 @@
     <div class="mt-3">
       <div v-if="props.reportActiveTab === 'reported'">
         <!-- لودر يظهر فقط أثناء تحميل بيانات Not Reported Tasks -->
-         
 
         <div class="table-responsive p-3">
           <table class="table align-items-center table-hover mb-0">
@@ -135,6 +134,11 @@
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
                   {{ t("report") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("evaluate") }}
                 </th>
               </tr>
             </thead>
@@ -268,7 +272,7 @@
                     }"
                     @click="
                       !['done', 'not_done'].includes(task.status) &&
-                        openReportModal(task.id)
+                      openEvaluationModal(task.id)
                     "
                   >
                     <i
@@ -290,20 +294,76 @@
                 {{ t("delete") }}
               </a> -->
                 </td>
+
+                <td class="align-middle">
+                  <a
+                    href="javascript:;"
+                    class="font-weight-bold text-lg me-2"
+                    :class="{
+                      'text-success': task.today_report_status === 'done',
+                      'text-danger': task.today_report_status === 'not_done',
+                      'text-secondary': !['done', 'not_done'].includes(
+                        task.today_report_status
+                      ),
+                    }"
+                    :aria-disabled="
+                      ['done', 'not_done'].includes(task.today_report_status)
+                    "
+                    :style="{
+                      pointerEvents: ['done', 'not_done'].includes(
+                        task.today_report_status
+                      )
+                        ? 'none'
+                        : 'auto',
+                      opacity: ['done', 'not_done'].includes(
+                        task.today_report_status
+                      )
+                        ? 0.6
+                        : 1,
+                    }"
+                    @click="
+                      !['done', 'not_done'].includes(
+                        task.today_report_status
+                      ) && openEvaluationModal(task.daily_task_id)
+                    "
+                  >
+                    <i
+                      :class="{
+                        'fa fa-check-circle':
+                          task.today_report_status === 'done',
+                        'fa fa-times-circle':
+                          task.today_report_status === 'not_done',
+                        'fa fa-star ': !['done', 'not_done'].includes(
+                          task.today_report_status
+                        ),
+                      }"
+                    ></i>
+                  </a>
+
+                  <!-- <a
+                href="javascript:;"
+                class="text-danger font-weight-bold text-xs"
+                @click="confirmDelete(task)"
+              >
+                {{ t("delete") }}
+              </a> -->
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-      
-      <div v-if="props.reportActiveTab === 'not_reported'">
 
+      <div v-if="props.reportActiveTab === 'not_reported'">
         <!-- Spinner أثناء التحميل -->
-    <div v-if="props.isNotReportedLoading" class="d-flex justify-content-center py-5">
-        <div class="spinner-border text-primary" role="status">
+        <div
+          v-if="props.isNotReportedLoading"
+          class="d-flex justify-content-center py-5"
+        >
+          <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
+          </div>
         </div>
-    </div>
         <div v-else class="table-responsive p-3">
           <table class="table align-items-center table-hover mb-0">
             <thead class="thead-light">
@@ -371,6 +431,11 @@
                 >
                   {{ t("report") }}
                 </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("evaluate") }}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -398,7 +463,10 @@
                       @click="openDescriptionModal(task)"
                       title="Open Task Description"
                     >
-                      <h6 class="mb-0 text-sm hover-effect mx-1" style="direction: rtl;">
+                      <h6
+                        class="mb-0 text-sm hover-effect mx-1"
+                        style="direction: rtl"
+                      >
                         {{ task.daily_task.task_name }}
                       </h6>
                       <div
@@ -503,7 +571,7 @@
                     }"
                     @click="
                       !['done', 'not_done'].includes(task.status) &&
-                        openReportModal(task.id)
+                      openEvaluationModal(task.id)
                     "
                   >
                     <i
@@ -525,11 +593,323 @@
                 {{ t("delete") }}
               </a> -->
                 </td>
+
+                <td class="align-middle">
+                  <a
+                    href="javascript:;"
+                    class="font-weight-bold text-lg me-2"
+                    :class="{
+                      'text-success': task.today_report_status === 'done',
+                      'text-danger': task.today_report_status === 'not_done',
+                      'text-secondary': !['done', 'not_done'].includes(
+                        task.today_report_status
+                      ),
+                    }"
+                    :aria-disabled="
+                      ['done', 'not_done'].includes(task.today_report_status)
+                    "
+                    :style="{
+                      pointerEvents: ['done', 'not_done'].includes(
+                        task.today_report_status
+                      )
+                        ? 'none'
+                        : 'auto',
+                      opacity: ['done', 'not_done'].includes(
+                        task.today_report_status
+                      )
+                        ? 0.6
+                        : 1,
+                    }"
+                    @click="
+                      !['done', 'not_done'].includes(
+                        task.today_report_status
+                      ) && openEvaluationModal(task.daily_task_id)
+                    "
+                  >
+                    <i
+                      :class="{
+                        'fa fa-check-circle':
+                          task.today_report_status === 'done',
+                        'fa fa-times-circle':
+                          task.today_report_status === 'not_done',
+                        'fa fa-star ': !['done', 'not_done'].includes(
+                          task.today_report_status
+                        ),
+                      }"
+                    ></i>
+                  </a>
+
+                  <!-- <a
+                href="javascript:;"
+                class="text-danger font-weight-bold text-xs"
+                @click="confirmDelete(task)"
+              >
+                {{ t("delete") }}
+              </a> -->
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+
+      <div v-if="props.reportActiveTab === 'evaluated_Task'">
+        <!-- Spinner أثناء التحميل -->
+        <div
+          v-if="props.isNotReportedLoading"
+          class="d-flex justify-content-center py-5"
+        >
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+        <div v-else class="table-responsive p-3">
+          <table class="table align-items-center table-hover mb-0">
+            <thead class="thead-light">
+              <tr>
+                <!-- <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("status") }}
+            </th> -->
+            <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("taskNumber") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("taskName") }}
+                </th>
+
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("department") }}
+                </th>
+                <!-- <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("taskType") }}
+            </th> -->
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("evaluatedAt") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("evaluatedBy") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("comment") }}
+                </th>
+                <!-- <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("taskCreatedBy") }}
+            </th> -->
+                <!-- <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("lateTime") }}
+                </th> -->
+
+                <!-- <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("notes") }}
+            </th> -->
+
+                <!-- <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("employeeName") }}
+                </th> -->
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("rating") }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="task in props.evaluatedTasks" :key="task.id">
+                <!-- استخدام routineTasks -->
+                <!-- <td>
+              <div class="mb-0 py-1">
+                <div class="d-flex justify-content-center text-sm">
+                  <argon-switch
+                    v-if="isOwner || permissions['edit-dailytask']"
+                    :checked="task.active"
+                    @update:checked="() => toggleStatus(task.id)"
+                  >
+                  </argon-switch>
+                </div>
+              </div>
+            </td> -->
+
+            <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ task.daily_task?.task_no || "No Department" }}
+                  </p>
+                </td>
+
+                <td>
+                  <div
+                    class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
+                  >
+                    <!-- <div
+                      class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
+                      @click="openDescriptionModal(task)"
+                      title="Open Task Description"
+                    >-->
+                      <h6 
+                        class="mb-0 text-sm mx-1"
+                        style="direction: rtl"
+                      >
+                        {{ task.daily_task.task_name }}
+                      </h6>
+                      <!-- <div
+                        v-if="loadingTaskId === task.id"
+                        class="spinner-border spinner-border-sm text-primary"
+                        role="status"
+                      >
+                        <span class="visually-hidden">Loading...</span>
+                      </div> -->
+                    <!-- </div> -->
+                  </div>
+                </td>
+
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ task.department?.name || "No Department" }}
+                  </p>
+                </td>
+
+                <!-- <td>
+              <p class="text-xs font-weight-bold mb-0">
+                {{ task.task_type || "No Task Type" }}
+              </p>
+            </td> -->
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ formatDate(task.evaluation.created_at) }}
+                  </p>
+                </td>
+                <!-- <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ formatTime(task.daily_task.to) }}
+                  </p>
+                </td> -->
+                <!-- <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ formatReportDate(task.created_at) }}
+                  </p>
+                </td> -->
+
+                <!-- <td>
+                  <p
+                    class="text-xs font-weight-bold mb-0"
+                    :class="{
+                      'text-success': calculateTaskStatus(
+                        task.daily_task.from,
+                        task.daily_task.to,
+                        task.created_at
+                      ).includes('early'),
+                      'text-danger': calculateTaskStatus(
+                        task.daily_task.from,
+                        task.daily_task.to,
+                        task.created_at
+                      ).includes('late'),
+                    }"
+                  >
+                    {{
+                      calculateTaskStatus(
+                        task.daily_task.from,
+                        task.daily_task.to,
+                        task.created_at
+                      )
+                    }}
+                  </p>
+                </td> -->
+                
+
+                
+
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ task?.evaluation.evaluator?.name }}
+                  </p>
+                </td>
+
+                <td>
+              <p class="text-xs font-weight-bold mb-0">
+                {{ task?.evaluation?.comment }}
+              </p>
+            </td>
+
+            <td>
+              <p class="text-xs font-weight-bold mb-0">
+                {{ task?.evaluation?.rating }}/10
+              </p>
+            </td>
+
+
+                <!-- <td class="align-middle">
+                  <a
+                    href="javascript:;"
+                    class="font-weight-bold text-lg me-2"
+                    :class="{
+                      'text-success': task.status === 'done',
+                      'text-danger': task.status === 'not_done',
+                      'text-secondary': !['done', 'not_done'].includes(
+                        task.status
+                      ),
+                    }"
+                    :aria-disabled="!['done', 'not_done'].includes(task.status)"
+                    :style="{
+                      pointerEvents: !['done', 'not_done'].includes(task.status)
+                        ? 'none'
+                        : 'auto',
+                      opacity: !['done', 'not_done'].includes(task.status)
+                        ? 0.6
+                        : 1,
+                    }"
+                    @click="
+                      !['done', 'not_done'].includes(task.status) &&
+                      openEvaluationModal(task.id)
+                    "
+                  >
+                    <i
+                      :class="{
+                        'fa fa-check-circle': task.status === 'done',
+                        'fa fa-times-circle': task.status === 'not_done',
+                        'fa fa-circle': !['done', 'not_done'].includes(
+                          task.status
+                        ),
+                      }"
+                    ></i>
+                  </a>
+
+                </td> -->
+                <!-- <a
+              href="javascript:;"
+              class="text-danger font-weight-bold text-xs"
+              @click="confirmDelete(task)"
+            >
+              {{ t("delete") }}
+            </a> -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
     </div>
 
     <!-- <div class="d-flex justify-content-center mt-4">
@@ -637,19 +1017,29 @@
                 />
               </div> -->
 
-              <label class="form-label">{{ t("reportTaskType") }}:</label>
+              <!-- <label class="form-label">{{ t("reportTaskType") }}:</label>
               <argon-select
                 v-model="taskStatus"
                 :options="reportTypeOptions"
                 class="form-control mb-3"
                 :placeholder="t('selectReportTaskType')"
-              />
+              /> -->
 
-              <label class="form-label">{{ t("notes") }}:</label>
-              <textarea
-                v-model="taskNotes"
+              <label class="form-label">{{ t("rating") }}:</label>
+              <ArgonInput
+                v-model="taskRate"
+                type="number"
+                min="0"
+                max="10"
                 class="form-control mb-3"
-                :placeholder="t('enterNotes')"
+                :placeholder="t('rating')"
+              ></ArgonInput>
+
+              <label class="form-label">{{ t("comment") }}:</label>
+              <textarea
+                v-model="taskComment"
+                class="form-control mb-3"
+                :placeholder="t('comment')"
               ></textarea>
 
               <!-- <div
@@ -733,9 +1123,13 @@
           </template>
 
           <template #footer>
+            <argon-button variant="secondary" @click="closeEditPopup">
+              {{ t("close") }}
+            </argon-button>
+            
             <argon-button
               variant="success"
-              @click="reportTask"
+              @click="evaluateTask"
               :disabled="isLoading"
             >
               <span
@@ -744,11 +1138,9 @@
                 role="status"
                 aria-hidden="true"
               ></span>
-              {{ isLoading ? t("saving") : t("report") }}
+              {{ isLoading ? t("saving") : t("evaluate") }}
             </argon-button>
-            <argon-button variant="secondary" @click="closeEditPopup">
-              {{ t("close") }}
-            </argon-button>
+            
           </template>
 
           <template #title>
@@ -779,15 +1171,15 @@
                   {{ t("info") }}
                 </argon-button>
               </li>
-              <!-- <li class="nav-item">
+              <li class="nav-item">
                 <argon-button
                   class="nav-link"
-                  :class="{ active: activeTab === 'log' }"
-                  @click="activeTab = 'log'"
+                  :class="{ active: activeTab === 'evaluation' }"
+                  @click="activeTab = 'evaluation'"
                 >
-                  {{ t("log") }}
+                  {{ t("evaluation") }}
                 </argon-button>
-              </li> -->
+              </li>
             </ul>
             <div class="tab-content">
               <div v-if="activeTab === 'info'">
@@ -880,23 +1272,45 @@
                   </dd>
                 </dl>
               </div>
-              <div v-if="activeTab === 'log'">
-                <div v-if="taskLogs.length > 0">
+              <div v-if="activeTab === 'evaluation'">
+                <div v-if="taskEvaluations.length > 0">
                   <ul class="log-list">
-                    <li v-for="log in taskLogs" :key="log.id" class="log-item">
-                      {{ t("onDate") }}
-                      <strong>{{ formatDate(log.created_at) }}</strong
-                      >,
-                      <strong>{{ log.user.name || "N/A" }}</strong>
-                      {{ t("changedTheField") }}
-                      "<strong>{{ log.field_name }}</strong
-                      >"
-                      {{ t("from") }}
-                      "<strong>{{ log.old_value }}</strong
-                      >"
-                      {{ t("to") }}
-                      "<strong>{{ log.new_value }}</strong
-                      >".
+                    <li
+                      v-for="evaluation in taskEvaluations"
+                      :key="evaluation.id"
+                      class="mb-3"
+                      style="list-style-type: none"
+                    >
+                      <!-- A small card for each evaluation -->
+                      <div class="card">
+                        <div class="card-body p-2">
+                          <table class="table table-sm mb-0">
+                            <tbody>
+                              <tr>
+                                <th class="text-nowrap" style="width: 35%">
+                                  Rating
+                                </th>
+                                <td>{{ evaluation.rating }}/10</td>
+                              </tr>
+                              <tr>
+                                <th>Comment</th>
+                                <td>{{ evaluation.comment }}</td>
+                              </tr>
+                              <tr>
+                                <th>Evaluator</th>
+                                <td>
+                                  {{ evaluation.evaluator?.name || "N/A" }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Created</th>
+                                <!-- Use your existing date formatter method here -->
+                                <td>{{ formatDate(evaluation.created_at) }}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     </li>
                   </ul>
                 </div>
@@ -932,7 +1346,8 @@ import Swal from "sweetalert2";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 // import ArgonSwitch from "@/components/ArgonSwitch.vue";
-import ArgonSelect from "@/components/ArgonSelect.vue";
+// import ArgonSelect from "@/components/ArgonSelect.vue";
+import ArgonInput from "@/components/ArgonInput.vue";
 // import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import {
   savePermissionsToLocalStorage,
@@ -961,15 +1376,20 @@ const props = defineProps({
     // تغيير اسم الخاصية من tasks إلى routineTasks
     type: Array,
     required: true,
-  }, isNotReportedLoading: {
+  },
+  isNotReportedLoading: {
     type: Boolean,
     required: true,
-  }
+  },
+
+  evaluatedTasks: {
+    type: Array,
+    required: true,
+  },
   // ,
   // selectedDateForNotReported: {
   //   type: String,
   // }
-  , 
   reportActiveTab: {
     type: String,
     required: true,
@@ -1018,15 +1438,17 @@ const props = defineProps({
 //   return Math.ceil(props.pagination.total / props.pagination.per_page);
 // });
 
-console.log("props.routineTasks:", props.routineTasksReport);
+// console.log("props.routineTasks:", props.routineTasksReport);
+// console.log("props.notReportedTasks:", props.notReportedTasks);
+console.log("propssssssssss.evaluatedTasks:", props.evaluatedTasks);
 
 const userData = computed(() => store.getters.user);
 // const isOwner = computed(() => store.getters.isOwner);
 
-const reportTypeOptions = [
-  { value: "done", label: "Done" },
-  { value: "not_done", label: "Not Done" },
-];
+// const reportTypeOptions = [
+//   { value: "done", label: "Done" },
+//   { value: "not_done", label: "Not Done" },
+// ];
 
 // استدعاء الصلاحيات من localStorage بناءً على المستخدم الحالي
 const permissions = ref(
@@ -1056,13 +1478,16 @@ const selectedTaskDeadline = ref(null);
 const selectedTaskCreationDate = ref(null);
 const selectedTaskId = ref(null);
 const showDescriptionModal = ref(false);
-const taskLogs = ref([]); // لتخزين سجلات المهمة
+// const taskLogs = ref([]); // لتخزين سجلات المهمة
+const taskEvaluations = ref([]); // لتخزين سجلات التقييمات
 const selectedTaskRecurrentDays = ref([]);
 const selectedTaskStatus = ref(null);
 const selectedTaskAssignedTo = ref(null);
 const selectedTaskDayOfMonth = ref(null);
-const taskNotes = ref("");
-const taskStatus = ref("");
+// const taskNotes = ref("");
+const taskRate = ref("");
+// const taskStatus = ref("");
+const taskComment = ref("");
 // const selectedTaskDepartment = ref(null);
 const loadingTaskId = ref(null);
 const selectedTaskNotes = ref(null);
@@ -1132,7 +1557,7 @@ const componentKey = ref(0);
 
 const showEditPopup = ref(false);
 const currentEditingTaskId = ref(null);
-const selectedManager = ref(null);
+// const selectedManager = ref(null);
 
 const selectedTask = ref(null); // لتخزين المهمة المحددة للتعديل
 
@@ -1148,55 +1573,62 @@ const t = (key) => translations[currentLanguage.value][key];
 //   }));
 // });
 
-const openReportModal = (taskId) => {
-  console.log("taskId:", taskId);
+const openEvaluationModal = (taskId) => {
+  console.log("Opening Evaluation Modal for Task ID:", taskId);
 
-  const task = props.routineTasksReport.find((t) => t.id === taskId);
+  // Determine which task list to search
+  const taskList = props.reportActiveTab === "reported"
+    ? props.routineTasksReport
+    : props.notReportedTasks;
+
+  // Find the task in the relevant list
+  const task = taskList.find((t) => t.daily_task_id === taskId);
+
   if (!task) {
     console.error("Task not found");
+    Swal.fire({
+      title: "Error",
+      text: t("elvatedAllready"),
+      icon: "error",
+      className: "custom-swal fw-bold text-center",
+    });
     return;
   }
 
-  selectedTask.value = {
-    ...task,
-  };
-  console.log("selectedManager.value:", selectedManager.value);
-  console.log("selectedTask.value:", selectedTask.value);
-  // selectedTask.value = {
-  //   ...task,
-  //   recurrent_days: Array.isArray(task.recurrent_days) ? [...task.recurrent_days] : [],
-  // };
-  // selectedManager.value = task.assigned_to?.id || null; // تأكد من أن الخاصية صحيحة
-  // console.log("selectedManager.value:", selectedManager.value);
-  // console.log("selectedTask.value:", selectedTask.value);
+  // Set selected task
+  selectedTask.value = { ...task };
+  console.log("Selected Task:", selectedTask.value);
 
+  // Show modal
   showEditPopup.value = true;
 };
+
 
 const closeEditPopup = () => {
   showEditPopup.value = false;
   selectedTask.value = null;
   currentEditingTaskId.value = null;
-  selectedManager.value = null;
+  taskRate.value = "";
+  taskComment.value = "";
 };
 
 const isLoading = ref(false);
 
-const reportTask = async () => {
+const evaluateTask = async () => {
   isLoading.value = true;
 
   // تجهيز البيانات التي سيتم إرسالها
   const taskData = {
-    id: selectedTask.value.id,
-    notes: taskNotes.value,
-    status: taskStatus.value,
+    id: selectedTask.value.daily_task_id,
+    rating: taskRate.value,
+    comment: taskComment.value,
     // ...selectedTask.value,
   };
 
   try {
     console.log("TaskData:", taskData);
 
-    const result = await store.dispatch("reportRoutineTasks", taskData);
+    const result = await store.dispatch("evaluateTask", taskData);
     console.log("result:", result);
 
     if (result.status === 201) {
@@ -1210,13 +1642,13 @@ const reportTask = async () => {
       });
 
       closeEditPopup();
-      await store.dispatch("fetchRoutineTasks", props.pagination.current_page); // جلب البيانات مع الصفحة الحالية
+      await store.dispatch("fetchEvaluatedTasks");
 
       // await store.dispatch("fetchTasks"); // تأكد من وجود action fetchTasks في Vuex
     } else {
       Swal.fire({
         icon: "error",
-        title: result.message,
+        title: result.response.data.message,
         showConfirmButton: true,
       });
     }
@@ -1305,15 +1737,33 @@ const openDescriptionModal = async (task) => {
   selectedTaskNotes.value = task.notes;
   selectedTaskFound.value = task.task_found;
   // await getTaskLogs(task.id);
+  await getTaskEvaluation(task.daily_task_id);
   showDescriptionModal.value = true; // إظهار المودال
 };
 
 watch(
-  () => taskLogs.value,
+  () => taskEvaluations.value,
   (newLogs) => {
     console.log("Updated logs:", newLogs);
   }
 );
+
+const getTaskEvaluation = async (taskId) => {
+  try {
+    loadingTaskId.value = taskId; // تحديد الرقم المعرف للمهمة المحددة
+    const response = await store.dispatch("fetchEvaluation", taskId);
+    if (response.status === 200) {
+      console.log("Task evaluation fetched successfully:", response.data);
+      taskEvaluations.value = response.data.evaluations;
+    } else {
+      console.error("Failed to fetch logs, status:", response.status);
+    }
+  } catch (error) {
+    console.error("Error fetching task logs:", error);
+  } finally {
+    loadingTaskId.value = null; // تحديد الرقم المعرف للمهمة المحددة
+  }
+};
 
 const closeDescriptionModal = () => {
   showDescriptionModal.value = false; // إغلاق المودال
@@ -1461,6 +1911,18 @@ const translations = {
     found: "Task Found",
     reported: "Reported",
     not_reported: "Not Reported",
+    evaluation: "Evaluation",
+    evaluate: "Evaluate",
+    evaluatedAt: "Evaluated At",
+    evaluatedBy: "Evaluated By",
+    evaluated: "Evaluated",
+    taskFound: "There is task ?",
+    selectTaskFound: "Select Task Found",
+    project: "Project",
+    projectNotFound: "No project found",
+    rating: "Rating",
+    comment: "Comment",
+    elvatedAllready: "this task is evaluated already",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -1535,6 +1997,18 @@ const translations = {
     found: "تم العثور على المهمة",
     reported: "تم التقرير عن المهمة",
     not_reported: "لم يتم التقرير عن المهمة",
+    evaluation: "تقييم",
+    evaluate: "تقييم",
+    evaluatedAt: "تم التقييم في",
+    evaluatedBy: "تم التقييم بواسطة",
+    evaluated: "تم التقييم",
+    taskFound: "هناك مهمة؟",
+    selectTaskFound: "حدد المهمة الموجودة",
+    project: "المشروع",
+    projectNotFound: "لا يوجد مشروع",
+    rating: "التقييم",
+    comment: "التعليق",
+    elvatedAllready: "هذه المهمة تم التقييم عنها بالفعل",
   },
 };
 
@@ -1678,9 +2152,6 @@ const calculateTaskStatus = (fromTime, toTime, createdAt) => {
 //     }
 
 // };
-
-
-
 </script>
 
 <style scoped>
@@ -1873,10 +2344,29 @@ td:hover .hover-icon {
   padding-left: 1rem; /* لتظهر النقط يسارًا */
 }
 
-.log-item {
+/* .log-item {
   margin-bottom: 10px;
   font-size: 0.9rem;
   color: #333;
+} */
+
+.log-item {
+  transition: all 0.3s ease;
+}
+
+.log-item:hover {
+  transform: translateY(-2px);
+}
+
+blockquote {
+  border-left: 3px solid #1976d2;
+  padding-left: 1rem;
+  margin-left: 0.5rem;
+}
+
+.v-card {
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .log-item strong {

@@ -60,6 +60,7 @@ const routineTaskName = ref(""); // تعديل المتغيرات
 const showPopup = ref(false);
 const routineTasksReport = ref([]); // تعديل المتغيرات
 const notReportedTasks = ref([]);
+const evaluatedTasks = ref([]);
 const componentKey = ref(0);
 const body = document.getElementsByTagName("body")[0];
 const isLoading = ref(false);
@@ -135,6 +136,7 @@ onBeforeMount(async () => {
 
   await fetchTasksReports(); 
   await fetchNotReportedTasks();
+  await fetchEvaluatedTasks();
 });
 
 const currentCompanyId = computed(() => store.getters.companyId);
@@ -190,6 +192,32 @@ const fetchNotReportedTasks = async (
   }
 };
 
+const fetchEvaluatedTasks = async (
+  date = selectedDateForNotReported.value
+) => {
+  selectedDateForNotReported.value = date; 
+  isNotReportedLoading.value = true; 
+
+  try {
+    const response = await store.dispatch("fetchEvaluatedTasks", date); 
+    console.log("response fetchEvaluatedTasks:", response);
+
+    if (response.status === 200) {
+      evaluatedTasks.value = store.getters.evaluatedTasks.data;
+      console.log("response fetchEvaluatedTasksسسسسسسسس:", evaluatedTasks.value);
+
+      componentKey.value += 1;
+    }
+  } catch (error) {
+    showAlert.value = true;
+    errorMessage.value = t("generalError");
+  } finally {
+    isNotReportedLoading.value = false; 
+  }
+};
+
+
+
 const fetchTasksReports = async (page = 1) => {
   isLoading.value = true;
 
@@ -234,6 +262,11 @@ const applyFilter = () => {
   if (reportActiveTab.value === "not_reported") {
     isNotReportedLoading.value = true;
     fetchNotReportedTasks(selectedDateForNotReported.value);
+  }
+
+  if (reportActiveTab.value === "evaluated_Task") {
+    isNotReportedLoading.value = true;
+    fetchEvaluatedTasks(selectedDateForNotReported.value);
   }
 };
 
@@ -308,6 +341,7 @@ const translations = {
     reported: "Reported",
     not_reported: "Not Reported",
     searchPlaceholder: "Search tasks...",
+    evaluated_Task: "Evaluated Tasks",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -379,6 +413,7 @@ const translations = {
     reported: "تقرير",
     not_reported: "لم يتم التقرير",
     searchPlaceholder: "...ابحث هنا",
+    evaluated_Task: "المهام المقيدة",
   },
 };
 
@@ -442,10 +477,11 @@ const resetFilters = () => {
   selectedDepartments.value = [];
 
   const today = new Date().toISOString().split("T")[0];
-  if (reportActiveTab.value === "not_reported") {
-    selectedDateForNotReported.value = today;
-  } else {
+  if (reportActiveTab.value === "reported") {
     selectedDate.value = today;
+  } else {
+    selectedDateForNotReported.value = today;
+
   }
   applyFilter();
 };
@@ -490,6 +526,17 @@ const filteredNotReportedTasks = computed(() => {
     return taskName.includes(query)  || taskNo.includes(query);
   });
 });
+
+const filteredEvaluatedTasks = computed(() => {
+  const query = searchQuery.value.toLowerCase();
+  return evaluatedTasks.value.filter((task) => {
+    const taskName = (task.daily_task.task_name || "").toLowerCase();
+    const taskNo = (task.daily_task.task_no || "").toLowerCase();
+    return taskName.includes(query)  || taskNo.includes(query);
+  });
+});
+
+
 </script>
 
 <template>
@@ -502,7 +549,7 @@ const filteredNotReportedTasks = computed(() => {
 
             <div class="row g-2 align-items-center">
               <!-- Tabs -->
-              <div class="col-12 col-md-4">
+              <div class="col">
                 <ul class="nav custom-tabs flex-nowrap overflow-x-auto">
                   <li class="nav-item">
                     <argon-button
@@ -522,11 +569,20 @@ const filteredNotReportedTasks = computed(() => {
                       {{ t("not_reported") }}
                     </argon-button>
                   </li>
+                  <li class="nav-item">
+                    <argon-button
+                      class="nav-link"
+                      :class="{ active: reportActiveTab === 'evaluated_Task' }"
+                      @click="setActiveTab('evaluated_Task')"
+                    >
+                      {{ t("evaluated_Task") }}
+                    </argon-button>
+                  </li>
                 </ul>
               </div>
 
               <!-- Search -->
-              <div class="col-12 col-md-4">
+              <div class="col-12 col-md-auto">
                 <div class="input-group" style="max-width: 100%">
                   <input
                     type="text"
@@ -661,6 +717,14 @@ const filteredNotReportedTasks = computed(() => {
                         @change="applyFilter"
                       />
                     </div>
+                    <div v-if="reportActiveTab === 'evaluated_Task'">
+                      <input
+                        type="date"
+                        class="form-control"
+                        v-model="selectedDateForNotReported"
+                        @change="applyFilter"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -705,6 +769,7 @@ const filteredNotReportedTasks = computed(() => {
               v-else
               :routineTasksReport="filteredTasks"
               :notReportedTasks="filteredNotReportedTasks"
+              :evaluatedTasks="filteredEvaluatedTasks"
               :reportActiveTab="reportActiveTab"
               :isNotReportedLoading="isNotReportedLoading"
               :key="componentKey"

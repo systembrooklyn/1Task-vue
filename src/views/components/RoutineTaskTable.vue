@@ -783,6 +783,7 @@ const t = (key) => translations[currentLanguage.value][key];
 
 const openReportModal = (taskId) => {
   console.log("taskId:", taskId);
+  console.log("props.routineTasks:", props.routineTasks);
 
   const task = props.routineTasks.find((t) => t.id === taskId);
   if (!task) {

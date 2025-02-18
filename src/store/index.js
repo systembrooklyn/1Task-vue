@@ -64,6 +64,8 @@ export default createStore({
     allRoutineTasks: [],
     routineTasksReports: [],
     dashboardData: [],
+    evaluation: [],
+    evaluatedTasks: [],
     pagination: {
       total: 0,
       current_page: 1,
@@ -229,6 +231,21 @@ export default createStore({
     SET_NOT_REPORTED_TASKS(state, tasks) {
       state.notReportedTasks = tasks;
     },
+
+    SET_EVALUATION(state, evaluation) {
+      state.evaluation = evaluation;
+    },
+
+    SET_EVALUATED_TASKS(state, tasks) {
+      state.evaluatedTasks = tasks;
+    },
+
+
+    evaluateTask(state, taskData) {
+      console.log("taskData", taskData);
+      console.log("state.routineTasks", state.evaluatedTasks);
+    },
+    
 
     // end----------------------------------------------------
     // تحميل بيانات المستخدم من `localStorage` عند بدء التشغيل
@@ -1330,7 +1347,45 @@ export default createStore({
         console.error("Error fetching dashboard data:", error);
         return error;
       }
-    }
+    },
+
+    //evaluation
+    async fetchEvaluation({ commit }, taskId) {
+      console.log("dateeeeeeeeeeeeeeeee", taskId);
+      try {
+        const response = await apiClient.getEvaluation(taskId); // Pass date to API
+        commit("SET_EVALUATION", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error fetching not reported tasks:", error);
+        return error;
+      }
+    },
+
+    async fetchEvaluatedTasks({ commit }, date) {
+      console.log("dateeeeeeeeeeeeeeeee", date);
+      try {
+        const response = await apiClient.getEvaluatedTasks(date); // Pass date to API
+        commit("SET_EVALUATED_TASKS", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error fetching not reported tasks:", error);
+        return error;
+      }
+    },
+
+    async evaluateTask({ commit }, payload) {
+      console.log("payload", payload);
+      try {
+        const response = await apiClient.evaluateTask(payload);
+        console.log("evaluateTask-response", response.data);
+        commit("evaluateTask", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error reporting routine tasks:", error);
+        return error;
+      }
+    },
   },
 
   getters: {
@@ -1367,5 +1422,7 @@ export default createStore({
     dashboardData: (state) => state.dashboardData,
     companyName: (state) => state.companyName,
     notReportedTasks: (state) => state.notReportedTasks,
+    evaluation: (state) => state.evaluation,
+    evaluatedTasks: (state) => state.evaluatedTasks,
   },
 });

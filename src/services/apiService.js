@@ -507,6 +507,42 @@ const config = {
 
   // end dashboard---------------------------------------------------
 
+  // start evaluation------------------------------------------------
+
+  getEvaluation(taskId) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get(`/evaluations/${taskId}`, config);
+  },
+
+  getEvaluatedTasks(date) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  
+    return apiClient.get(`/daily-tasks-evaluations/${date}`, config);
+  },
+
+  evaluateTask(taskData) {
+    console.log(taskData);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post(`/evaluations/${taskData.id}`, taskData, config);
+  },
+
+  // end evaluation------------------------------------------------
+
   //end
 
   // PUT: تحديث بيانات موجودة
