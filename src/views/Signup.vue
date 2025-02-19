@@ -1,5 +1,12 @@
 <script setup>
-import { ref, computed, onBeforeMount, onBeforeUnmount, watch, onMounted } from "vue";
+import {
+  ref,
+  computed,
+  onBeforeMount,
+  onBeforeUnmount,
+  watch,
+  onMounted,
+} from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router"; // استدعاء Vue Router
 
@@ -26,10 +33,10 @@ const showPassword = ref(false); // للتحكم في إظهار كلمة الم
 const confirmPassword = ref("");
 const passwordsMatch = computed(() => confirmPassword.value === password.value);
 
-
 // دالة التحقق من قوة كلمة المرور
 const validatePassword = (password) => {
-  const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const regex =
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return regex.test(password);
 };
 
@@ -41,7 +48,6 @@ watch(password, (newPassword) => {
 watch([password, confirmPassword], () => {
   passwordsMatch.value = password.value === confirmPassword.value;
 });
-
 
 // إرسال البيانات عند الضغط على الزر
 const submitForm = async () => {
@@ -61,8 +67,8 @@ const submitForm = async () => {
       industry: selectedIndustry.value,
     };
 
-      await store.dispatch("submitEmail",  formData );
-      router.push("/signin");
+    await store.dispatch("submitEmail", formData);
+    router.push("/signin");
   } catch (error) {
     console.error("Error submitting form:", error);
   }
@@ -127,7 +133,8 @@ const translations = {
     manufacturing: "Manufacturing",
     retail: "Retail",
     other: "Other",
-    passwordRequirements: "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character.",
+    passwordRequirements:
+      "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character.",
     passwordValid: "Password is valid ✅",
     confirmationPassword: "Confirm your Password *",
     passwordsMatch: "Passwords match ✅",
@@ -156,7 +163,8 @@ const translations = {
     manufacturing: "التصنيع",
     retail: "التجزئة",
     other: "أخرى",
-    passwordRequirements: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتشمل حرفًا كبيرًا، حرفًا صغيرًا، رقمًا، وحرفًا خاصًا.",
+    passwordRequirements:
+      "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتشمل حرفًا كبيرًا، حرفًا صغيرًا، رقمًا، وحرفًا خاصًا.",
     passwordValid: "كلمة المرور مطابقة للشروط ✅",
     confirmationPassword: "تأكيد كلمة المرور",
     passwordsMatch: " ✅كلمات المرور متطابقة",
@@ -190,33 +198,65 @@ const industryOptions = computed(() => [
 
 <template>
   <main class="main-content mt-0">
-    <section>
+    <section class="hero-section">
+      >
       <div class="page-header min-vh-100">
         <div class="container">
           <div class="row">
             <!-- قسم النموذج -->
-            <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column">
+            <div class=" col-lg-5 col-md-7 d-flex flex-column">
               <div class="card card-plain">
-                <div class="card-header text-start pb-0">
-                  <h1 class="text-dark mb-2 mt-5">{{ t("myTask") }}</h1>
+                <div class="text-center pb-0">
+                  <img
+                    src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?ik-obj-version=9sTuepUtU27Iw3.FfIbdKOdc7MYL4WM0&updatedAt=1737223784202"
+                    alt="Task Management"
+                    class=" mb-5 mx-auto w-50"
+                  />
                   <h3>{{ t("newOrganization") }}</h3>
                   <p class="mb-0">{{ t("enterDetails") }}</p>
                 </div>
                 <div class="card-body">
                   <form role="form" @submit.prevent="submitForm">
-                    <argon-input id="name" type="text" :placeholder="t('name')" :aria-label="t('name')"
-                      v-model="name" />
-                    <argon-input id="companyName" type="text" :placeholder="t('companyName')"
-                      :aria-label="t('companyName')" v-model="companyName" />
-                    <argon-input id="email" class="email" type="email" :placeholder="t('email')"
-                      :aria-label="t('email')" v-model="email" />
+                    <argon-input
+                      id="name"
+                      type="text"
+                      :placeholder="t('name')"
+                      :aria-label="t('name')"
+                      v-model="name"
+                    />
+                    <argon-input
+                      id="companyName"
+                      type="text"
+                      :placeholder="t('companyName')"
+                      :aria-label="t('companyName')"
+                      v-model="companyName"
+                    />
+                    <argon-input
+                      id="email"
+                      class="email"
+                      type="email"
+                      :placeholder="t('email')"
+                      :aria-label="t('email')"
+                      v-model="email"
+                    />
                     <div class="position-relative mb-3">
                       <div class="position-relative">
-                        <argon-input id="password" :type="showPassword ? 'text' : 'password'"
-                          :placeholder="t('password')" :aria-label="t('password')" v-model="password" />
-                        <span @click="showPassword = !showPassword"
-                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
-                          <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                        <argon-input
+                          id="password"
+                          :type="showPassword ? 'text' : 'password'"
+                          :placeholder="t('password')"
+                          :aria-label="t('password')"
+                          v-model="password"
+                        />
+                        <span
+                          @click="showPassword = !showPassword"
+                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"
+                        >
+                          <i
+                            :class="
+                              showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'
+                            "
+                          ></i>
                         </span>
                       </div>
                       <p v-if="passwordValid" class="text-success mt-2">
@@ -228,60 +268,101 @@ const industryOptions = computed(() => [
                     </div>
                     <div class="position-relative mb-3">
                       <div class="position-relative">
-                        <argon-input id="confirmationPassword" :type="showPassword ? 'text' : 'password'"
-                          :placeholder="t('confirmationPassword')" :aria-label="t('confirmationPassword')"
-                          v-model="confirmPassword" />
-                        <span @click="showPassword = !showPassword"
-                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
-                          <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                        <argon-input
+                          id="confirmationPassword"
+                          :type="showPassword ? 'text' : 'password'"
+                          :placeholder="t('confirmationPassword')"
+                          :aria-label="t('confirmationPassword')"
+                          v-model="confirmPassword"
+                        />
+                        <span
+                          @click="showPassword = !showPassword"
+                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"
+                        >
+                          <i
+                            :class="
+                              showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'
+                            "
+                          ></i>
                         </span>
-                        </div>
-                        
-                        <p v-if="passwordsMatch && confirmPassword" class="text-success mt-2"> {{ t("passwordsMatch") }}</p>
-                        <p v-if="!passwordsMatch && confirmPassword" class="text-danger mt-2"> {{ t("passwordsDoNotMatch") }}</p>
-
-                        <!-- رسالة تطابق أو عدم تطابق كلمة المرور -->
-
                       </div>
-                      <argon-select id="company-size" v-model="selectedCompanySize" :options="companySizeOptions"
-                        :placeholder="t('companySize')" :aria-label="t('companySize')" />
-                      <!-- استخدام الـ argon-select للـ Industry -->
-                      <argon-select id="industry" v-model="selectedIndustry" :options="industryOptions"
-                        :placeholder="t('industry')" :aria-label="t('industry')" />
-                      <argon-checkbox checked>
-                        <label class="form-check-label" for="flexCheckDefault">
-                          {{ t("agreeTerms") }}
-                        </label>
-                      </argon-checkbox>
-                      <div class="text-center">
-                        <argon-button class="mt-4" variant="gradient" color="success" fullWidth size="lg"
-                          :disabled="!passwordValid || !passwordsMatch || companyName === ''">{{ t("signUp")
-                          }}</argon-button>
-                      </div>
+
+                      <p
+                        v-if="passwordsMatch && confirmPassword"
+                        class="text-success mt-2"
+                      >
+                        {{ t("passwordsMatch") }}
+                      </p>
+                      <p
+                        v-if="!passwordsMatch && confirmPassword"
+                        class="text-danger mt-2"
+                      >
+                        {{ t("passwordsDoNotMatch") }}
+                      </p>
+
+                      <!-- رسالة تطابق أو عدم تطابق كلمة المرور -->
+                    </div>
+                    <argon-select
+                      id="company-size"
+                      v-model="selectedCompanySize"
+                      :options="companySizeOptions"
+                      :placeholder="t('companySize')"
+                      :aria-label="t('companySize')"
+                    />
+                    <!-- استخدام الـ argon-select للـ Industry -->
+                    <argon-select
+                      id="industry"
+                      v-model="selectedIndustry"
+                      :options="industryOptions"
+                      :placeholder="t('industry')"
+                      :aria-label="t('industry')"
+                    />
+                    <argon-checkbox checked>
+                      <label class="form-check-label" for="flexCheckDefault">
+                        {{ t("agreeTerms") }}
+                      </label>
+                    </argon-checkbox>
+                    <div class="text-center">
+                      <argon-button
+                        class="mt-4"
+                        variant="gradient"
+                        color="success"
+                        fullWidth
+                        size="lg"
+                        :disabled="
+                          !passwordValid ||
+                          !passwordsMatch ||
+                          companyName === ''
+                        "
+                        >{{ t("signUp") }}</argon-button
+                      >
+                    </div>
                   </form>
                 </div>
-                <div class="card-footer text-center px-lg-2 pt-0 px-1">
+                <!-- <div class="card-footer text-center px-lg-2 pt-0 px-1">
                   <p class="mb-4 text-sm mx-auto">
                     {{ t("alreadyHaveAccount") }}
-                    <a href="javascript:;" class="text-success text-gradient font-weight-bold">{{ t("signIn") }}</a>
+                    <a
+                      href="javascript:;"
+                      class="text-success text-gradient font-weight-bold"
+                      >{{ t("signIn") }}</a
+                    >
                   </p>
-                </div>
+                </div> -->
               </div>
             </div>
             <!-- قسم الصورة والنص -->
-            <div class="col-6 d-none d-lg-flex h-100" :class="currentLanguage === 'ar' ? 'ps-0 start-0' : 'pe-0 end-0'"
-              style="position: absolute; top: 0">
-              <div
-                class="position-relative h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden bg-gradient-primary"
-                style="background-image: url(&quot;https://ik.imagekit.io/ts7pphpbz3/Gemini.jpg?updatedAt=1726592261487&quot;); background-size: cover;">
-                <h4 class="mt-5 text-white font-weight-bolder position-relative">
-                  {{ t("attentionIsNewCurrency") }}
-                </h4>
-                <p class="text-white position-relative">
-                  {{ t("effortlessWriting") }}
-                </p>
-              </div>
+            <!-- Image Column -->
+          <div class="col-lg-6 order-lg-2">
+            <div class="hero-image-wrapper">
+              <img
+                src="https://ik.imagekit.io/ts7pphpbz3/b3905bc5-dacf-4897-8f09-74fa2f122768.jpg"
+                alt="Task Management Interface"
+                class="hero-img rounded-3"
+                loading="lazy"
+              />
             </div>
+          </div>
             <!-- نهاية قسم الصورة والنص -->
           </div>
         </div>
@@ -294,5 +375,12 @@ const industryOptions = computed(() => [
 <style>
 .email {
   pointer-events: none;
+}
+
+.hero-section {
+  background-image: url("https://ik.imagekit.io/ts7pphpbz3/background-gd-gradient-grey.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 </style>

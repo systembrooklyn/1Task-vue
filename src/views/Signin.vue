@@ -7,6 +7,7 @@ import Navbar from "@/examples/PageLayout/Navbar.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue"; // لإضافة تنبيه في حالة الخطأ
+import AppFooter from "@/examples/PageLayout/Footer.vue";
 
 const store = useStore();
 const router = useRouter(); // لاستخدام التوجيه بعد تسجيل الدخول
@@ -89,7 +90,7 @@ const signIn = async () => {
       const user = store.getters.user;
       console.log("useRRRRRRRRr:", user);
       const companyName = user.user.company.name;
-        const companyNameNormalized = companyName.replace(/\s+/g, '-'); // مثلاً
+      const companyNameNormalized = companyName.replace(/\s+/g, "-"); // مثلاً
 
       console.log("companyNamEEEEEe:", companyName);
       if (isOwner.value) {
@@ -105,7 +106,8 @@ const signIn = async () => {
           params: {
             companyName: companyNameNormalized, // أو companyNameNormalized
           },
-        });      }
+        });
+      }
     } else {
       isLoading.value = false;
       errorMessage.value = t("loginError");
@@ -197,17 +199,17 @@ const t = (key) => {
     </div>
   </div>
   <main class="mt-0 main-content">
-    <section>
+    <section class="hero-section">
       <div class="page-header min-vh-100">
         <div class="container">
           <div class="row">
             <!-- قسم النموذج -->
             <div
-              class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto form-container"
+              class="col-lg-6 col-md-7 d-flex flex-column mx-lg-0 mx-auto"
               :class="currentLanguage === 'ar' ? 'order-2' : ''"
             >
               <div class="card card-plain">
-                <div class="pb-0 card-header text-start">
+                <div class="pb-0 text-center">
                   <h4 class="font-weight-bolder">{{ t("signIn") }}</h4>
                   <p class="mb-0">{{ t("enterEmailAndPassword") }}</p>
                 </div>
@@ -297,32 +299,41 @@ const t = (key) => {
               </div>
             </div>
             <!-- قسم الصورة والنص -->
-            <div
+            <!-- <div
               class="col-6 d-none d-lg-flex h-100 justify-content-center flex-column text-center my-auto top-0 position-absolute"
               :class="currentLanguage === 'ar' ? 'start-0 ps-0' : 'end-0 pe-0'"
             >
-              <div
+            <div
                 class="position-relative bg-gradient-primary w-100 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-auto"
                 style="
-                  background-image: url(&quot;https://ik.imagekit.io/dimpx0s2v/Copy%20of%201task%20(1).gif&quot;);
-                  background-size: contain;
-                  background-position: center;
-                  background-repeat: no-repeat;
                   height: 480px;
                   margin-left: -100px;
                   max-height: 90vh;
                 "
               >
-                <span class=""></span>
-                <!-- المحتويات الأخرى يمكن إضافتها هنا -->
-                <!--
-  <h4 class="mt-5 text-white font-weight-bolder position-relative">
-    {{ t("attentionIsNewCurrency") }}
-  </h4>
-  <p class="text-white position-relative">
-    {{ t("effortlessWriting") }}
-  </p>
-  -->
+                <img 
+                  src="https://ik.imagekit.io/dimpx0s2v/Copy%20of%201task%20(1).gif"
+                  alt="Task Management Illustration" 
+                  class="position-absolute top-0 start-0 w-100 h-100 object-contain"
+                  style="
+                    z-index: 1; 
+                    opacity: 0.9; 
+                    object-fit: contain;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                  "
+                />
+              </div>
+            </div> -->
+
+            <div class="col-lg-6 order-lg-2">
+              <div class="hero-image-wrapper">
+                <img
+                  src="https://ik.imagekit.io/dimpx0s2v/Copy%20of%201task%20(1).gif"
+                  alt="Task Management Interface"
+                  class="hero-img rounded-3"
+                  loading="lazy"
+                />
               </div>
             </div>
             <!-- نهاية قسم الصورة والنص -->
@@ -331,6 +342,8 @@ const t = (key) => {
       </div>
     </section>
   </main>
+
+  <AppFooter />
 </template>
 
 <style scoped>
@@ -339,5 +352,120 @@ const t = (key) => {
   border: 2px solid rgba(255, 255, 255, 0.5); /* حدود أكثر سمكًا وشفافية */
   border-radius: 10px;
   padding: 20px;
+}
+
+.hero-section {
+  background-image: url("https://ik.imagekit.io/ts7pphpbz3/background-gd-gradient-grey.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.hero-image-wrapper {
+  position: relative;
+  padding: 1rem;
+  background: white;
+  border-radius: 1rem;
+  transform: rotate(2deg);
+}
+.hero-image-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  background: linear-gradient(45deg, #a7c858, #8aab3a);
+  border-radius: 1rem;
+  z-index: -1;
+  transform: rotate(-2deg);
+}
+
+.hero-image-wrapper:hover .hero-img {
+  transform: perspective(1000px) rotateY(5deg) translateZ(20px);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 4px rgba(167, 200, 88, 0.4);
+}
+
+.hero-image-wrapper {
+  position: relative;
+  padding: 1rem;
+  border-radius: 1rem;
+  transform: rotate(2deg);
+  transition: transform 0.3s ease;
+}
+
+.hero-image-wrapper:hover {
+  transform: rotate(3deg) scale(1.02);
+}
+
+.hero-image-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  background: linear-gradient(45deg, #a7c858 30%, #8aab3a 70%);
+  border-radius: 1rem;
+  z-index: -1;
+  transform: rotate(-2deg);
+  filter: blur(10px);
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+.hero-image-wrapper:hover::before {
+  opacity: 0.5;
+}
+
+/* RTL Adjustments */
+.rtl .featured-words {
+  justify-content: flex-end;
+}
+
+.rtl .hero-image-wrapper {
+  transform: rotate(-2deg);
+}
+
+.rtl .hero-image-wrapper:hover {
+  transform: rotate(-3deg) scale(1.02);
+}
+
+.rtl .hero-image-wrapper::before {
+  transform: rotate(2deg);
+}
+
+.hero-img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+.hero-img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .featured-word {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+  }
+
+  .hero-img {
+    height: 400px;
+  }
+
+  .hero-image-wrapper {
+    display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero-img {
+    height: 400px;
+  }
+  .hero-image-wrapper {
+    display: none;
+  }
 }
 </style>

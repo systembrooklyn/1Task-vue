@@ -7,7 +7,7 @@ import GradientLineChart from "@/examples/Charts/GradientLineChart.vue";
 import { useStore } from "vuex";
 
 const store = useStore();
-const userName = computed(() => store.getters.userName);
+// const userName = computed(() => store.getters.userName);
 
 const isLoading = ref(true);  // Flag to control the loading state
 const dashboardData = computed(() => store.getters.dashboardData || {
@@ -42,7 +42,7 @@ onBeforeMount(async () => {
     <div v-if="!isLoading">
       <!-- If data is loaded, display dashboard content -->
       <div class="row">
-        <h4>Welcome, {{ userName }}</h4>
+        <!-- <h4>Welcome, {{ userName }}</h4> -->
         <div class="col-lg-12">
           <!-- Statistics Cards -->
           <div class="row">

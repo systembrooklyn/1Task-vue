@@ -3,7 +3,7 @@ import { ref, computed, onBeforeMount, onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
-// import AppFooter from "@/examples/PageLayout/Footer.vue";
+import AppFooter from "@/examples/PageLayout/Footer.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 // import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
@@ -119,238 +119,340 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <!-- Navbar ثابت بأصناف Bootstrap 5 -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow ">
-    <div class="container d-flex justify-content-between">
-      <!-- شعار الموقع (يمكن استبداله بالنص أو أي عنصر آخر) -->
-      <a class="navbar-brand fw-bold" href="/start">
+  <!-- Enhanced Navbar -->
+  <nav
+    class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom"
+  >
+    <div class="container">
+      <a class="navbar-brand" href="/start">
         <img
-          class="navbar-brand-img w-20 mx-auto"
           src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?updatedAt=1730567921316"
-          alt=""
+          alt="Logo"
+          class="navbar-logo"
         />
       </a>
 
-      <!-- زر القوائم عند الشاشات الصغيرة -->
       <button
         class="navbar-toggler"
         type="button"
         data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
+        data-bs-target="#navbarNav"
       >
-        <span class="navbar-toggler-icon"></span>
+        <i class="fas fa-bars"></i>
       </button>
 
-      <!-- عناصر القائمة -->
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <!-- مثال على عناصر القائمة -->
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#"> Home </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Pricing</a>
-          </li>
-          <!-- مثال على زر تسجيل الدخول -->
-          <li class="nav-item"></li>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
           <!-- <li class="nav-item">
-            <language-switcher />
+            <a class="nav-link" href="#">Home</a>
           </li> -->
+          <!-- <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+          </li> -->
+          <li class="nav-item ms-3">
+            <a class=" signin  btn " href="/signin">
+              {{ t("signIn") }}
+            </a>
+          </li>
         </ul>
       </div>
-      <a class="signin btn my-2 my-sm-0" href="/signin">
-        {{ t("signIn") }}
-      </a>
     </div>
   </nav>
 
-  <!-- Hero Section -->
+  <!-- Professional Hero Section -->
   <main class="main-content">
-    <section class="hero-section d-flex align-items-center">
-      <div class="container mt-5 pt-5">
-        <div class="row">
-          <!-- قسم النموذج -->
-          <div class="col-xl-5 col-lg-6 col-md-8 d-flex flex-column">
-            <div class="card card-plain">
-              <div class="border-0 p-4 rounded-3">
-                <div class="text-start pb-0 z-index-1">
-                  <!-- يمكنك وضع شعار أو صورة في الأعلى -->
-                  <h1 class="fw-bold mb-2">{{ t("manageYourTasks") }}</h1>
-                  <img
-                    style="width: 50%"
-                    src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?updatedAt=1737223784516"
-                    alt="task"
-                    class="img-fluid"
-                  />
-                  <p class="mb-4">{{ t("fastAndEasyAndSmart") }}</p>
+    <section class="hero-section">
+      <div class="container">
+        <div class="row align-items-center g-5">
+          <!-- Content Column -->
+          <div class="col-lg-6 order-lg-1">
+            <div class="content-card p-5">
+              <h1 class="display-4 fw-bold mb-4">{{ t("manageYourTasks") }}</h1>
+              <img
+                src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?updatedAt=1737223784516"
+                alt="Task Management"
+                class="brand-img mb-4"
+              />
+              <!-- Enhanced Text Section -->
+              <h3 class="display-4 mb-4">{{ t("fastAndEasyAndSmart") }}</h3>
 
-                  <!-- <p class="mb-3">{{ t("enterDetails") }}</p> -->
-                </div>
-                <div class="card-body z-index-1">
-                  <form role="form" @submit.prevent="submitForm">
-                    <!-- حقل البريد الإلكتروني -->
-                    <argon-input
-                      id="email"
-                      type="email"
-                      v-model="email"
-                      :placeholder="t('email')"
-                      :aria-label="t('email')"
-                    />
-                    <!-- تنبيه الخطأ -->
+              <form @submit.prevent="submitForm">
+                <argon-input
+                  id="email"
+                  type="email"
+                  v-model="email"
+                  :placeholder="t('email')"
+                  class="mb-4"
+                />
+                <argon-button
+                  color="success"
+                  size="lg"
+                  class="w-100 py-3 fw-bold"
+                >
+                  {{ t("getStarted") }}
+                  <i class="fas fa-arrow-right ms-2"></i>
+                </argon-button>
+              </form>
 
-                    <!-- الموافقة على الشروط -->
-                    <!-- <argon-checkbox checked class="mt-3">
-                    <label class="form-check-label" for="flexCheckDefault">
-                      {{ t("agreeTerms") }}
-                    </label>
-                  </argon-checkbox> -->
-                    <!-- زر البدء -->
-                    <div class="text-center">
-                      <argon-button
-                        class="mt-4"
-                        color="success"
-                        
-                        size="lg"
-                        >{{ t("getStarted") }} <i class="ml-2 fas fa-arrow-right"></i
-                      ></argon-button>
-                    </div>
-                  </form>
-                  <argon-alert
-                    id="alert"
-                    v-if="showAlert"
-                    color="danger"
-                    dismissible
-                    class="mt-3"
-                  >
-                    {{ errorMessage }}
-                  </argon-alert>
-                </div>
-                <!-- <div class="card-footer text-center px-lg-2 pt-0 px-1 z-index-1">
-                <p class="mb-0 text-sm mx-auto">
-                  {{ t("alreadyHaveAccount") }}
-                  <a href="/signin" class="text-success font-weight-bold ms-1">
-                    {{ t("signIn") }}
-                  </a>
-                </p>
-              </div> -->
-              </div>
+              <argon-alert
+                v-if="showAlert"
+                color="danger"
+                dismissible
+                class="mt-4"
+              >
+                {{ errorMessage }}
+              </argon-alert>
             </div>
           </div>
 
-          <!-- قسم الصورة أو المحتوى الإعلاني -->
-          <div
-            class="col-xl-7 col-lg-6 d-flex align-items-center justify-content-end mt-1 mt-lg-0"
-          >
-            <div class="text-center position-relative">
+          <!-- Image Column -->
+          <div class="col-lg-6 order-lg-2">
+            <div class="hero-image-wrapper">
               <img
-                src="https://ik.imagekit.io/ts7pphpbz3/Blog_Task-Management_Hero-Banner-removebg-preview.png?updatedAt=1737041133541"
-                class="img-fluid rounded position-absolute top-10 start-50 translate-middle-x"
-                alt="Hero Image"
-                style=""
+                src="https://ik.imagekit.io/ts7pphpbz3/WhatsApp%20Image%202025-02-19%20at%2011.46.25%20PM.jpeg"
+                alt="Task Management Interface"
+                class="hero-img rounded-3"
+                loading="lazy"
               />
-              <svg
-                width="550"
-                height="550"
-                viewBox="0 0 200 200"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill="#A7C858"
-                  d="M43.5,-77.4C55.6,-68.3,64.1,-55.1,67.5,-41.5C70.9,-27.9,69.3,-14,67.1,-1.3C64.8,11.4,62,22.8,58.9,36.9C55.7,50.9,52.2,67.7,42.4,72.8C32.5,77.9,16.3,71.2,1.4,68.9C-13.5,66.5,-27,68.3,-38,63.9C-49.1,59.5,-57.6,48.8,-65.9,37.1C-74.3,25.4,-82.5,12.7,-83.2,-0.4C-83.8,-13.5,-77,-27,-68.9,-39.3C-60.9,-51.5,-51.7,-62.6,-40.1,-72C-28.4,-81.4,-14.2,-89.1,0.7,-90.4C15.7,-91.7,31.4,-86.6,43.5,-77.4Z"
-                  transform="translate(100 100)"
-                />
-              </svg>
             </div>
           </div>
         </div>
       </div>
+      
     </section>
   </main>
-
-  <!-- <app-footer /> -->
+  
+  <!-- Footer -->
+  <AppFooter />
 </template>
 
 <style scoped>
-/* تضبيط الحاوية لتحت navbar الثابت */
-main.main-content {
-  margin-top: 70px; /* تعديل حسب ارتفاع النافبار */
-  /* background-image: url("https://ik.imagekit.io/ts7pphpbz3/layered-waves-haikei%20(1).png");
-  background-size: cover;
-  background-position: center; */
+/* Professional Navbar Styling */
+.navbar {
+  padding: 1rem 0;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
 }
 
-/* Hero Section تخصيص */
+.navbar-logo {
+  height: 40px;
+}
+
+/* Hero Section Styling */
 .hero-section {
-  min-height: calc(100vh - 70px); /* ناقص ارتفاع النافبار */
-  background-color: #f4f7fb; /* لون خلفية خفيف لإبراز الهيرو */
-  /* background-image: url("https://ik.imagekit.io/ts7pphpbz3/layered-waves-haikei%20(1).png");
-  background-size: cover;
-  background-position: center; */
-  padding: 40px 0;
-}
-
-h1 {
-  font-family: "Poppins", sans-serif;
-  font-weight: bold;
-  color: #040029;
-}
-
-p {
-  font-family: "Pacifico";
-  font-size: 1.5rem;
-  /* font-weight: bold; */
-  color: #040029;
-}
-
-/* لمحة بسيطة لبطاقة النموذج */
-.card.card-plain {
-  /* background-color: #a7c858;
-  background-image: linear-gradient(
-    to bottom,
-    #a7c858,
-    #f4f7fb
-  );  */
-  /* background-color: #fff; */
-  box-shadow:
-    0 4px 6px rgba(50, 50, 93, 0.11),
-    0 1px 3px rgba(0, 0, 0, 0.08);
-  border-radius: 0.375rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
-  overflow: hidden;
-}
-
-/* تضبيط الصورة الرئيسية في الهيرو */
-.hero-section img {
-  max-width: 100%;
-  height: auto;
-  /* background-image: url("https://ik.imagekit.io/ts7pphpbz3/layered-waves-haikei%20(1).png");
-  background-size: cover;
-  background-position: center; */
-}
-
-.hero-section-div {
-  background-image: url("https://ik.imagekit.io/ts7pphpbz3/layered-waves-haikei%20(1).png");
+  padding: 120px 0 80px;
+  background-image: url("https://ik.imagekit.io/ts7pphpbz3/background-gd-gradient-grey.png");
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 }
 
-/* الطبقات */
-.z-index-1 {
-  z-index: 1;
+
+
+
+
+
+/* .content-card {
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+} */
+
+.brand-img {
+  width: 60%;
+  max-width: 300px;
 }
 
-/* التوافق مع RTL */
-.rtl .hero-section {
-  direction: rtl;
+.hero-img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
 }
 
-.card .card-body {
-  padding: 1.5rem 1.5rem 1.5rem 0;
+.hero-image-wrapper {
+  position: relative;
+  padding: 1rem;
+  background: white;
+  border-radius: 1rem;
+  transform: rotate(2deg);
 }
+
+.hero-image-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  background: linear-gradient(45deg, #a7c858, #8aab3a);
+  border-radius: 1rem;
+  z-index: -1;
+  transform: rotate(-2deg);
+}
+
+/* Enhanced Featured Words */
+.featured-words {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: start;
+}
+
+.featured-word {
+  font-size: 1.75rem;
+  font-weight: 700;
+  position: relative;
+  padding: 0.5rem 1rem;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  transition: transform 0.3s ease;
+}
+
+.featured-word::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 3px;
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+.featured-word:hover {
+  transform: translateY(-3px);
+}
+
+.featured-word:hover::after {
+  width: 100%;
+}
+
+.fast {
+  background-image: linear-gradient(45deg, #ff6b6b, #ff8e53);
+}
+
+.fast::after {
+  background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+}
+
+.easy {
+  background-image: linear-gradient(45deg, #4ecdc4, #45b7af);
+}
+
+.easy::after {
+  background: linear-gradient(45deg, #4ecdc4, #45b7af);
+}
+
+.smart {
+  background-image: linear-gradient(45deg, #a7c858, #8aab3a);
+}
+
+.smart::after {
+  background: linear-gradient(45deg, #a7c858, #8aab3a);
+}
+
+.hero-img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+.hero-image-wrapper {
+  position: relative;
+  padding: 1rem;
+  border-radius: 1rem;
+  transform: rotate(2deg);
+  transition: transform 0.3s ease;
+}
+
+.hero-image-wrapper:hover {
+  transform: rotate(3deg) scale(1.02);
+}
+
+.hero-image-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  background: linear-gradient(45deg, #a7c858 30%, #8aab3a 70%);
+  border-radius: 1rem;
+  z-index: -1;
+  transform: rotate(-2deg);
+  filter: blur(10px);
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+.hero-image-wrapper:hover::before {
+  opacity: 0.5;
+}
+
+/* RTL Adjustments */
+.rtl .featured-words {
+  justify-content: flex-end;
+}
+
+.rtl .hero-image-wrapper {
+  transform: rotate(-2deg);
+}
+
+.rtl .hero-image-wrapper:hover {
+  transform: rotate(-3deg) scale(1.02);
+}
+
+.rtl .hero-image-wrapper::before {
+  transform: rotate(2deg);
+}
+
+@media (max-width: 768px) {
+  .featured-word {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+  }
+
+  .hero-img {
+    height: 400px;
+  }
+}
+
+/* Typography */
+h1 {
+  color: #2d3436;
+  letter-spacing: -0.05em;
+}
+
+/* .lead {
+  font-size: 1.25rem;
+  font-weight: 400;
+} */
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .hero-section {
+    padding: 100px 0 60px;
+  }
+
+  .content-card {
+    padding: 2rem !important;
+  }
+
+  .hero-img {
+    height: 400px;
+  }
+
+  .order-lg-1 {
+    order: 2;
+  }
+
+  .order-lg-2 {
+    order: 1;
+    margin-bottom: 2rem;
+  }
+
+  .navbar-toggler {
+    display: block !important;
+  }
+}
+
 .signin {
   color: #fff;
   background-color: #a7c858;
