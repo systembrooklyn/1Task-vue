@@ -690,11 +690,11 @@
                 >
                   {{ t("department") }}
                 </th>
-                <!-- <th
+                <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("taskType") }}
-            </th> -->
+              {{ t("reportedBy") }}
+            </th>
                 <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
@@ -761,35 +761,62 @@
                   </p>
                 </td>
 
-                <td>
+                <!-- <td>
                   <div
                     class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
                   >
-                    <!-- <div
+                    <div
                       class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
                       @click="openDescriptionModal(task)"
                       title="Open Task Description"
-                    >-->
+                    >
                       <h6 
                         class="mb-0 text-sm mx-1"
                         style="direction: rtl"
                       >
                         {{ task.daily_task.task_name }}
                       </h6>
-                      <!-- <div
+                      
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                </td> -->
+
+                <td>
+                  <div
+                    class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
+                  >
+                    <div
+                      class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
+                      @click="openDescriptionModal(task)"
+                      title="Open Task Description"
+                    >
+                      <h6
+                        class="mb-0 text-sm hover-effect mx-1"
+                        style="direction: rtl"
+                      >
+                        {{ task.daily_task.task_name }}
+                      </h6>
+                      <div
                         v-if="loadingTaskId === task.id"
                         class="spinner-border spinner-border-sm text-primary"
                         role="status"
                       >
                         <span class="visually-hidden">Loading...</span>
-                      </div> -->
-                    <!-- </div> -->
+                      </div>
+                    </div>
                   </div>
                 </td>
 
                 <td>
                   <p class="text-xs font-weight-bold mb-0">
                     {{ task.department?.name || "No Department" }}
+                  </p>
+                </td>
+
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ task.report?.user?.name || "No Employee" }}
                   </p>
                 </td>
 
@@ -1195,6 +1222,13 @@
                   <dd v-show="selectedDescription" class="col-sm-9">
                     {{ selectedDescription }}
                   </dd>
+
+                  
+                  <dt v-if="props.reportActiveTab === 'evaluated_Task'" class="col-sm-3">{{ t("taskStatus") }}:</dt>
+                  <dd v-if="selectedTaskStatus " class="col-sm-9">
+                    {{ selectedTaskStatus }}
+                  </dd>
+                  <dd v-else-if="props.reportActiveTab === 'evaluated_Task'" class="col-sm-9">{{ t("notReported") }}</dd>
 
                   <dt class="col-sm-3">{{ t("notes") }}:</dt>
                   <dd class="col-sm-9">
@@ -1742,13 +1776,14 @@ const openDescriptionModal = async (task) => {
   selectedTaskDeadline.value = task.daily_task.deadline; // تعيين تاريخ انتهاء المهمة
   selectedTaskCreationDate.value = task.daily_task.created_at; // تعيين تاريخ إنشاء المهمة
   selectedTaskId.value = task.daily_task.id;
-  selectedTaskStatus.value = task.status;
+  selectedTaskStatus.value = task.report?.status;
   selectedTaskAssignedTo.value = task.daily_task.assigned_to;
   selectedTaskRecurrentDays.value = task.daily_task.recurrent_days;
   selectedTaskDayOfMonth.value = task.daily_task.day_of_month;
   // selectedTaskDepartment.value = task.daily_task.department.department_name;
   selectedTaskNotes.value = task.notes;
   selectedTaskFound.value = task.task_found;
+
   // await getTaskLogs(task.id);
   await getTaskEvaluation(task.daily_task_id);
   showDescriptionModal.value = true; // إظهار المودال
@@ -1912,6 +1947,9 @@ const translations = {
     reportTask: "Report Task",
     selectReportTaskType: "Select Report Task Type",
     notes: "Notes",
+    taskStatus: "Task Status",
+
+    notReported: "Not Reported",
     enterNotes: "Enter notes",
     employeeName: "Employee Name",
     department: "Department",
@@ -1928,6 +1966,7 @@ const translations = {
     evaluate: "Evaluate",
     evaluatedAt: "Evaluated At",
     evaluatedBy: "Evaluated By",
+    reportedBy: "Reported By",
     evaluated: "Evaluated",
     taskFound: "There is task ?",
     selectTaskFound: "Select Task Found",
@@ -1998,6 +2037,8 @@ const translations = {
     reportTask: "تقرير المهمة",
     selectReportTaskType: "حدد نوع المهمة",
     notes: "ملاحظات",
+    taskStatus: "حالة المهمة",
+    notReported: "لم يتم التقرير عن المهمة",
     enterNotes: "ادخل ملاحظات",
     employeeName: "اسم الموظف",
     department: "القسم",
@@ -2014,6 +2055,7 @@ const translations = {
     evaluate: "تقييم",
     evaluatedAt: "تم التقييم في",
     evaluatedBy: "تم التقييم بواسطة",
+    reportedBy: "تم التقرير بواسطة",
     evaluated: "تم التقييم",
     taskFound: "هناك مهمة؟",
     selectTaskFound: "حدد المهمة الموجودة",
