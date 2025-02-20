@@ -772,6 +772,8 @@ const filteredEvaluatedTasks = computed(() => {
               :evaluatedTasks="filteredEvaluatedTasks"
               :reportActiveTab="reportActiveTab"
               :isNotReportedLoading="isNotReportedLoading"
+              :selectedDateForNotReported="selectedDateForNotReported"
+              :selectedDate="selectedDate"
               :key="componentKey"
               @page-changed="handlePageChange"
             />

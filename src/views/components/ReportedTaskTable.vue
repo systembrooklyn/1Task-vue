@@ -1397,6 +1397,15 @@ const props = defineProps({
     required: true,
   },
 
+  selectedDateForNotReported: {
+    type: String,
+    required: true,
+  },
+  selectedDate: {
+    type: String,
+    required: true,
+  },
+
   // ,
   // showAllTasks: {
   //   type: Boolean,
@@ -1408,6 +1417,7 @@ const props = defineProps({
   //   required: true,
   // },
 });
+
 
 // const showAllTasks = ref(false);
 
@@ -1624,6 +1634,7 @@ const evaluateTask = async () => {
     id: selectedTask.value.daily_task_id,
     rating: taskRate.value,
     comment: taskComment.value,
+    task_for: props.reportActiveTab === "not_reported" ? props.selectedDateForNotReported: props.selectedDate ,
     // ...selectedTask.value,
   };
 
