@@ -329,7 +329,7 @@ const t = (key) => {
             <div class="col-lg-6 order-lg-2">
               <div class="hero-image-wrapper">
                 <img
-                  src="https://ik.imagekit.io/dimpx0s2v/Copy%20of%201task%20(1).gif"
+                  src="https://ik.imagekit.io/ts7pphpbz3/Copy%20of%201task%20(8).gif"
                   alt="Task Management Interface"
                   class="hero-img rounded-3"
                   loading="lazy"
@@ -342,6 +342,8 @@ const t = (key) => {
       </div>
     </section>
   </main>
+
+ 
 
   <AppFooter />
 </template>
