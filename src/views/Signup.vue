@@ -383,4 +383,20 @@ const industryOptions = computed(() => [
   background-position: center;
   background-repeat: no-repeat;
 }
+
+@media (max-width: 768px) {
+  .featured-word {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+  }
+
+  .hero-img {
+    height: 400px;
+  }
+
+  .hero-image-wrapper {
+    display: none;
+  }
+}
+
 </style>
