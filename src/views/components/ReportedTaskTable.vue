@@ -877,7 +877,7 @@
                 </td>
 
                 <td>
-              <p class="text-xs font-weight-bold mb-0">
+              <p class="text-xs font-weight-bold mb-0" dir="rtl">
                 {{ task?.evaluation?.comment }}
               </p>
             </td>

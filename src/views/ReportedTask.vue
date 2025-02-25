@@ -70,6 +70,8 @@ const fromDate = ref("");
 const toDate = ref("");
 const isNotReportedLoading = ref(false); // متغير تحميل خاص بـ Not Reported Tasks
 const searchQuery = ref("");
+const selectedDepartmentForNotReported = ref([]);
+const dynamicDepartmentsForNotReported = ref([]);
 
 const selectedManager = ref("");
 const taskType = ref("");
@@ -134,7 +136,7 @@ onBeforeMount(async () => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 
-  await fetchTasksReports(); 
+  await fetchTasksReports();
   await fetchNotReportedTasks();
   await fetchEvaluatedTasks();
 });
@@ -150,7 +152,7 @@ const reportActiveTab = ref(
 
 const setActiveTab = (tab) => {
   reportActiveTab.value = tab;
-  sessionStorage.setItem("reportActiveTab", tab); 
+  sessionStorage.setItem("reportActiveTab", tab);
   console.log(reportActiveTab.value);
 };
 
@@ -170,16 +172,23 @@ watch(
 const fetchNotReportedTasks = async (
   date = selectedDateForNotReported.value
 ) => {
-  selectedDateForNotReported.value = date; 
-  isNotReportedLoading.value = true; 
+  selectedDateForNotReported.value = date;
+  isNotReportedLoading.value = true;
 
   try {
-    const response = await store.dispatch("fetchNotReportedTasks", date); 
+    const response = await store.dispatch("fetchNotReportedTasks", date);
     console.log("response fetchNotReportedTasks:", response);
 
     if (response.status === 200) {
       notReportedTasks.value = store.getters.notReportedTasks.tasks;
-      console.log("response fetchNotReportedTaskssssssss:", notReportedTasks.value);
+      console.log(
+        "response fetchNotReportedTaskssssssss:",
+        notReportedTasks.value
+      );
+
+
+      buildDynamicDepartments();
+
 
       console.log("notReportedTasks:", notReportedTasks.value);
       componentKey.value += 1;
@@ -188,23 +197,25 @@ const fetchNotReportedTasks = async (
     showAlert.value = true;
     errorMessage.value = t("generalError");
   } finally {
-    isNotReportedLoading.value = false; 
+    isNotReportedLoading.value = false;
   }
 };
 
-const fetchEvaluatedTasks = async (
-  date = selectedDateForNotReported.value
-) => {
-  selectedDateForNotReported.value = date; 
-  isNotReportedLoading.value = true; 
+const fetchEvaluatedTasks = async (date = selectedDateForNotReported.value) => {
+  selectedDateForNotReported.value = date;
+  isNotReportedLoading.value = true;
 
   try {
-    const response = await store.dispatch("fetchEvaluatedTasks", date); 
+    const response = await store.dispatch("fetchEvaluatedTasks", date);
     console.log("response fetchEvaluatedTasks:", response);
 
     if (response.status === 200) {
       evaluatedTasks.value = store.getters.evaluatedTasks.data;
-      console.log("response fetchEvaluatedTasksسسسسسسسس:", evaluatedTasks.value);
+      console.log(
+        "response fetchEvaluatedTasksسسسسسسسس:",
+        evaluatedTasks.value
+      );
+      buildDynamicDepartments();
 
       componentKey.value += 1;
     }
@@ -212,11 +223,9 @@ const fetchEvaluatedTasks = async (
     showAlert.value = true;
     errorMessage.value = t("generalError");
   } finally {
-    isNotReportedLoading.value = false; 
+    isNotReportedLoading.value = false;
   }
 };
-
-
 
 const fetchTasksReports = async (page = 1) => {
   isLoading.value = true;
@@ -241,9 +250,77 @@ watch(
   () => store.getters.routineTasksReports.tasks,
   (newData) => {
     routineTasksReport.value = [...newData];
-    componentKey.value += 1; 
+    componentKey.value += 1;
   }
 );
+
+// For storing selected departments in Not Reported tab
+// const selectedDepartmentForNotReported = ref([]);
+
+// Function that builds the unique departments from `notReportedTasks`
+function buildDynamicDepartments() {
+  const uniqueDepartments = new Map();
+
+  if (reportActiveTab.value === "not_reported") {
+    notReportedTasks.value.forEach((task) => {
+      if (task.department && !uniqueDepartments.has(task.department.id)) {
+        uniqueDepartments.set(task.department.id, {
+          id: task.department.id,
+          name: task.department.name,
+        });
+      }
+    });
+  } else if (reportActiveTab.value === "evaluated_Task") {
+    evaluatedTasks.value.forEach((task) => {
+      if (task.department && !uniqueDepartments.has(task.department.id)) {
+        uniqueDepartments.set(task.department.id, {
+          id: task.department.id,
+          name: task.department.name,
+        });
+      }
+    });
+  }
+
+  dynamicDepartmentsForNotReported.value = Array.from(uniqueDepartments.values());
+}
+
+// 1) Watch when user switches tabs
+watch(
+  () => reportActiveTab.value,
+  (newVal) => {
+    if (newVal === "not_reported" || newVal === "evaluated_Task") {
+      buildDynamicDepartments();
+    } else {
+      dynamicDepartmentsForNotReported.value = [];
+    }
+  }
+);
+
+// 2) Watch notReportedTasks
+watch(
+  () => notReportedTasks.value,
+  () => {
+    if (reportActiveTab.value === "not_reported") {
+      buildDynamicDepartments();
+    }
+  },
+  { deep: true }
+);
+
+// 3) Watch evaluatedTasks
+watch(
+  () => evaluatedTasks.value,
+  () => {
+    if (reportActiveTab.value === "evaluated_Task") {
+      buildDynamicDepartments();
+    }
+  },
+  { deep: true }
+);
+
+
+
+// console.log("dynamicDepartmentsForNotReported:", dynamicDepartmentsForNotReported.value);
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
 
@@ -281,7 +358,8 @@ const translations = {
     routineTaskDeleted: "Routine Task deleted successfully.",
     routineTaskAdded: "Routine Task added successfully.",
     deleteConfirmationTitle: "Delete Routine Task",
-    deleteConfirmationText: "Are you sure you want to delete this Routine Task?",
+    deleteConfirmationText:
+      "Are you sure you want to delete this Routine Task?",
     delete: "Delete",
     addRoutineTask: "Add Routine Task",
     routineTaskName: "Routine Task Name",
@@ -447,6 +525,7 @@ const userDepartment = computed(() => formattedDepartments.value);
 
 // Selected departments for filtering
 const selectedDepartments = ref([]);
+// const selectedDepartmentForNotReported = ref([]);
 
 // Toggle "Select All" functionality
 const toggleAllDepartments = (event) => {
@@ -462,6 +541,19 @@ const toggleAllDepartments = (event) => {
   }
 };
 
+// const toggleAllDepartmentsForNotReported = (event) => {
+//   if (event.target.checked) {
+//     // Select all departments
+//     selectedDepartmentForNotReported.value = userDepartment.value.map((dept) => ({
+//       id: dept.value,
+//       name: dept.label,
+//     }));
+//   } else {
+//     // Deselect all departments
+//     selectedDepartmentForNotReported.value = [];
+//   }
+// };
+
 // Check if all departments are selected
 const areAllDepartmentsSelected = computed(() => {
   return selectedDepartments.value.length === userDepartment.value.length;
@@ -474,23 +566,58 @@ const clearAllDepartments = () => {
 
 // Reset filters
 const resetFilters = () => {
+  // Clear department selections for both tabs
   selectedDepartments.value = [];
+  selectedDepartmentForNotReported.value = [];
 
+  // Reset date for the active tab
   const today = new Date().toISOString().split("T")[0];
   if (reportActiveTab.value === "reported") {
     selectedDate.value = today;
   } else {
     selectedDateForNotReported.value = today;
-
   }
+
+  // Rebuild departments for the active tab
+  if (reportActiveTab.value === "not_reported" || reportActiveTab.value === "evaluated_Task") {
+    buildDynamicDepartments();
+  } else {
+    // If the user goes back to "reported", we can clear out the dynamic list
+    dynamicDepartmentsForNotReported.value = [];
+  }
+
+  // Finally apply the filter
   applyFilter();
 };
+
+
+// // Filter departments for not reported tasks
+// const uniqueDepartments = new Set();
+
+// selectedDepartmentForNotReported.value = notReportedTasks.value.filter((dept) => {
+//   const id = dept.department?.id;
+
+//   if (!uniqueDepartments.has(id)) {
+//     uniqueDepartments.add(id);
+//     return true; // Include this department
+//   }
+//   return false; // Exclude this department
+// }).map((dept) => ({
+//   id: dept.department?.id,
+//   name: dept.department?.name,
+// }));
+
+// const uniqueDepartmentsForNotReported = computed(() => {
+//   return [...selectedDepartmentForNotReported.value];
+// });
+
+// console.log("uniqueDepartmentsForNotReported:", uniqueDepartmentsForNotReported.value);
 
 const searchMatch = (task) => {
   const query = searchQuery.value.toLowerCase();
   const taskName = (task.daily_task.task_name || "").toLowerCase();
   const taskNo = (task.daily_task.task_no || "").toLowerCase();
-  
+
   return taskName.includes(query) || taskNo.includes(query);
 };
 
@@ -515,28 +642,58 @@ const filteredTasks = computed(() => {
   });
 });
 
-
 //task_no
 // For non-reported tasks: Add safety checks for `task.name` or `task.description`
+// In your <script setup>:
 const filteredNotReportedTasks = computed(() => {
   const query = searchQuery.value.toLowerCase();
+  
   return notReportedTasks.value.filter((task) => {
     const taskName = (task.daily_task.task_name || "").toLowerCase();
     const taskNo = (task.daily_task.task_no || "").toLowerCase();
-    return taskName.includes(query)  || taskNo.includes(query);
+    
+    // Department match: if the user hasn't selected any department,
+    // all departments are shown; otherwise, check if the task's department is selected
+    const departmentMatch =
+      selectedDepartmentForNotReported.value.length === 0 ||
+      selectedDepartmentForNotReported.value.some(
+        (dept) => dept.id === task.department?.id
+      );
+
+    // Combine text-search filter with department filter
+    return (taskName.includes(query) || taskNo.includes(query)) && departmentMatch;
   });
 });
+
+
+// const filteredNotReportedTasksByDepartment = computed(() => {
+//   // const query = searchQuery.value.toLowerCase();
+//   return notReportedTasks.value.filter((task) => {
+//     const taskDepartment = task.daily_task.department?.department_name || "";
+//     return taskDepartment.includes(selectedDepartment.value.toLowerCase());
+//   });
+// });
+
+// console.log("filteredNotReportedTasksByDepartment:", filteredNotReportedTasksByDepartment.value);
 
 const filteredEvaluatedTasks = computed(() => {
   const query = searchQuery.value.toLowerCase();
   return evaluatedTasks.value.filter((task) => {
     const taskName = (task.daily_task.task_name || "").toLowerCase();
     const taskNo = (task.daily_task.task_no || "").toLowerCase();
-    return taskName.includes(query)  || taskNo.includes(query);
-  });
+
+     // Department match: if the user hasn't selected any department,
+    // all departments are shown; otherwise, check if the task's department is selected
+    const departmentMatch =
+      selectedDepartmentForNotReported.value.length === 0 ||
+      selectedDepartmentForNotReported.value.some(
+        (dept) => dept.id === task.department?.id
+      );
+
+      
+      return (taskName.includes(query) || taskNo.includes(query)) && departmentMatch;
+    });
 });
-
-
 </script>
 
 <template>
@@ -611,7 +768,6 @@ const filteredEvaluatedTasks = computed(() => {
                 <div class="row">
                   <!-- Filter by Department (shown only in 'reported' tab) -->
                   <div
-                    v-if="reportActiveTab === 'reported'"
                     class="col-md-6 mb-3"
                   >
                     <label class="form-label">{{ t("department") }}</label>
@@ -673,6 +829,7 @@ const filteredEvaluatedTasks = computed(() => {
                         <!-- Department Checkboxes -->
                         <li
                           v-for="department in userDepartment"
+                          v-show="reportActiveTab === 'reported'"
                           :key="department.value"
                           class="px-2"
                         >
@@ -692,6 +849,28 @@ const filteredEvaluatedTasks = computed(() => {
                               :for="'department-' + department.value"
                             >
                               {{ department.label }}
+                            </label>
+                          </div>
+                        </li>
+                        <li
+                          v-for="department in dynamicDepartmentsForNotReported"
+                          v-show="reportActiveTab === 'not_reported' || reportActiveTab === 'evaluated_Task'"
+                          :key="department.id"
+                          class="px-2"
+                        >
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              :id="'notreported-department-' + department.id"
+                              :value="department"
+                              v-model="selectedDepartmentForNotReported"
+                            />
+                            <label
+                              class="form-check-label"
+                              :for="'notreported-department-' + department.id"
+                            >
+                              {{ department.name }}
                             </label>
                           </div>
                         </li>
@@ -944,7 +1123,7 @@ const filteredEvaluatedTasks = computed(() => {
 .routine-task-modal .modal-content-scroll {
   overflow-y: auto; /* تمكين التمرير العمودي */
   flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; 
+  max-height: 80vh;
   max-height: 65vh;
 }
 
@@ -967,7 +1146,7 @@ const filteredEvaluatedTasks = computed(() => {
 }
 
 .routine-task-modal .modal-body {
-  flex: 1; 
+  flex: 1;
 }
 
 /* Ensure Swal appears above other elements */
@@ -999,7 +1178,9 @@ const filteredEvaluatedTasks = computed(() => {
   padding: 0.5rem 1rem;
   border: none;
   background-color: transparent;
-  transition: color 0.3s ease, background-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .custom-tabs .nav-link.active {
@@ -1009,8 +1190,8 @@ const filteredEvaluatedTasks = computed(() => {
 }
 
 .custom-tabs .nav-link:hover {
-  color: #ffffff; 
-  background-color: #a9ca5c; 
+  color: #ffffff;
+  background-color: #a9ca5c;
 }
 
 /* Mobile responsiveness */
