@@ -1018,7 +1018,7 @@
       <transition name="modal-fade">
         <ArgonModal
           v-if="showEditPopup"
-          :title="selectedTask.task_name"
+          :title="selectedTask.daily_task.task_name"
           @close="closeEditPopup"
           class="routine-task-modal"
         >

@@ -18,7 +18,6 @@ const refreshInterval = ref(null); // Will store our setInterval ID
 
 const store = useStore();
 
-
 const userData = computed(() => store.getters.user);
 console.log("userDataaaaaaaaa:", userData.value);
 
@@ -69,9 +68,6 @@ const formattedDepartments = computed(() => {
   }));
 });
 
-
-
-
 const userDepartment = computed(() => {
   const user = userData.value;
   console.log("user.departments:", user);
@@ -103,6 +99,8 @@ const routineTaskDescription = ref(""); // تعديل المتغيرات
 const startDate = ref("");
 const fromDate = ref("");
 const toDate = ref("");
+const searchQuery = ref("");
+
 // const showAdvancedSettings = ref(false);
 const selectedManager = ref("");
 // const routineTaskStatus = ref(false); // تعديل المتغيرات
@@ -472,6 +470,8 @@ const translations = {
     LatedTasks: "Lated Tasks",
     allProjects: "All Projects",
     project: "Project",
+    searchPlaceholder: "Search tasks...",
+
   },
   ar: {
     addMember: "اضافة عضو",
@@ -532,7 +532,7 @@ const translations = {
     // allTypes: 'جميع النوايات',
     // allStatuses: 'جميع الحالات',
     // allDepartments: 'جميع القسوم',
-    allProjects: 'جميع المشاريع',
+    allProjects: "جميع المشاريع",
     weekly: "اسبوعي",
     monthly: "شهري",
     daily: "يومي",
@@ -548,6 +548,8 @@ const translations = {
     LatedTasks: "مهام متاخرة",
     project: "المشروع",
     selectProject: "اختر المشروع",
+    searchPlaceholder: "...ابحث هنا",
+
   },
 };
 
@@ -585,7 +587,7 @@ onMounted(async () => {
   await refreshTasks();
 
   // ====== Auto-refresh every 60 seconds ======
-  refreshInterval.value = setInterval( async () => {
+  refreshInterval.value = setInterval(async () => {
     console.log("Auto-refreshing tasks...");
     await refreshTasks();
   }, 60_000);
@@ -619,22 +621,22 @@ const filteredTasks = computed(() => {
     } else if (selectedStatus.value === "not_done") {
       tasks = tasks.filter((t) => t.today_report_status === "not_done");
     } else if (selectedStatus.value === "null") {
-      tasks = tasks.filter((t) => t.today_report_status === null );
-    }  else if (selectedStatus.value === "lated") {
+      tasks = tasks.filter((t) => t.today_report_status === null);
+    } else if (selectedStatus.value === "lated") {
       tasks = tasks.filter((t) => {
         // Check if task is lated (time passed)
         if (!t.to) return false;
-        
+
         // Parse task's 'to' time
-        const [taskHours, taskMinutes] = t.to.split(':').map(Number);
+        const [taskHours, taskMinutes] = t.to.split(":").map(Number);
         const taskTime = new Date();
         taskTime.setHours(taskHours, taskMinutes, 0, 0);
-        
+
         // Check if task is not done or not reported
-        const isNotDoneOrReported = 
-          t.today_report_status !== "done" && 
+        const isNotDoneOrReported =
+          t.today_report_status !== "done" &&
           t.today_report_status !== "not_done";
-        
+
         // Return true if time has passed and task is not done
         return taskTime < nowTime.value && isNotDoneOrReported;
       });
@@ -652,9 +654,8 @@ const filteredTasks = computed(() => {
     );
   }
 
-
-    // 5. فلتر حسب المشروعات المختارة
-   if (selectedProjects.value.length > 0) {
+  // 5. فلتر حسب المشروعات المختارة
+  if (selectedProjects.value.length > 0) {
     const selectedProjectIds = selectedProjects.value.map(
       (project) => project.id
     );
@@ -664,6 +665,9 @@ const filteredTasks = computed(() => {
       return selectedProjectIds.includes(task.project?.id);
     });
   }
+
+    // search
+    tasks = tasks.filter((task) => searchMatch(task));
 
   return tasks;
 });
@@ -713,7 +717,6 @@ const resetFilters = () => {
   selectedDepartments.value = [];
   selectedProjects.value = [];
 
-
   // Also reset to page 1
   pagination.value.current_page = 1;
 };
@@ -756,6 +759,15 @@ const routineTasksCount = computed(() => {
   return filteredTasks.value.length;
   // or routineTasks.value.length, depending on what you want to display
 });
+
+// search
+const searchMatch = (task) => {
+  const query = searchQuery.value.toLowerCase();
+  const taskName = (task.task_name || "").toLowerCase();
+  const taskNo = (task.task_no || "").toLowerCase();
+
+  return taskName.includes(query) || taskNo.includes(query);
+};
 </script>
 
 <template>
@@ -765,22 +777,46 @@ const routineTasksCount = computed(() => {
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
-            <div class="d-flex align-items-center">
-              <p class="mb-0 font-weight-bold">{{ t("routineTasksTable") }}</p>
-              <small class="mb-0 font-weight-bold mx-2">
-                ({{ routineTasksCount }})
-              </small>
-              <button
-                class="btn btn-link ms-auto"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#filterCollapse"
-                aria-expanded="false"
-                aria-controls="filterCollapse"
-              >
-                <i class="fas fa-filter"></i>
-              </button>
+            <div class="container">
+              <div class="row align-items-center">
+                <!-- القسم الأيسر: العنوان والعدد -->
+                <div class="col-12 col-md-4 d-flex align-items-center">
+                  <p class="mb-0 font-weight-bold me-2">
+                    {{ t("routineTasksTable") }}
+                  </p>
+                  <small class="mb-0 font-weight-bold">
+                    ({{ routineTasksCount }})
+                  </small>
+                </div>
+
+                <!-- القسم الأوسط: شريط البحث -->
+                <div class="col-12 col-md-4 my-2 my-md-0">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      :placeholder="t('searchPlaceholder')"
+                      v-model="searchQuery"
+                    />
+                  </div>
+                </div>
+
+                <!-- القسم الأيمن: زر الفلتر -->
+                <div class="col-12 col-md-4 text-md-end">
+                  <button
+                    class="btn btn-link"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#filterCollapse"
+                    aria-expanded="false"
+                    aria-controls="filterCollapse"
+                  >
+                    <i class="fas fa-filter"></i>
+                  </button>
+                </div>
+              </div>
             </div>
+
             <!-- Collapsible Filter Panel -->
             <div class="collapse" id="filterCollapse">
               <div class="card card-body">
@@ -868,7 +904,10 @@ const routineTasksCount = computed(() => {
 
                   <!-- filter by project -->
 
-                  <div v-if="formattedProjects.length !== 0" class="col-md-4 mb-3">
+                  <div
+                    v-if="formattedProjects.length !== 0"
+                    class="col-md-4 mb-3"
+                  >
                     <label class="form-label">{{ t("project") }}</label>
                     <div class="dropdown">
                       <button
@@ -950,7 +989,6 @@ const routineTasksCount = computed(() => {
                       <option value="lated">{{ t("LatedTasks") }}</option>
                     </select>
                   </div>
-
                 </div>
 
                 <!-- Filter Buttons -->

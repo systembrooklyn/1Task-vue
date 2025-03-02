@@ -98,6 +98,8 @@ const fromDate = ref("");
 const toDate = ref("");
 // const showAdvancedSettings = ref(false);
 const selectedManager = ref("");
+const searchQuery = ref("");
+
 // const routineTaskStatus = ref(false); // تعديل المتغيرات
 const taskType = ref("");
 const dayOfMonth = ref("");
@@ -254,6 +256,9 @@ const filteredTasks = computed(() => {
       return selectedProjectIds.includes(task.project?.id);
     });
   }
+
+  // search
+  tasks = tasks.filter((task) => searchMatch(task));
 
   return tasks;
 });
@@ -436,6 +441,8 @@ const translations = {
     project: "Project",
     allProjects: "All Projects",
     projectsSelected: "Projects Selected",
+    searchPlaceholder: "Search tasks...",
+
 
     // التحكم في الإعدادات المتقدمة
   },
@@ -521,6 +528,8 @@ const translations = {
     project: "مشروع",
     selectProject: "اختر المشروع",
     allProjects: "جميع المشاريع",
+    searchPlaceholder: "...ابحث هنا",
+
   },
 };
 
@@ -591,6 +600,15 @@ const resetFilters = () => {
   // Fetch all routine tasks without filters
   store.dispatch("fetchRoutineTasks");
 };
+
+// search
+const searchMatch = (task) => {
+  const query = searchQuery.value.toLowerCase();
+  const taskName = (task.task_name || "").toLowerCase();
+  const taskNo = (task.task_no || "").toLowerCase();
+
+  return taskName.includes(query) || taskNo.includes(query);
+};
 </script>
 
 <template>
@@ -600,26 +618,49 @@ const resetFilters = () => {
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
-            <div class="d-flex align-items-center">
-              <p class="mb-0 font-weight-bold">{{ t("routineTasksTable") }}</p>
-              <argon-button
-                v-show="canCreateRoutineTask || isOwner"
-                class="ml-auto mx-2"
-                @click="openPopup"
-              >
-                <i class="fas fa-plus"></i>
-              </argon-button>
-              <button
-                class="btn btn-link ms-auto"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#filterCollapse"
-                aria-expanded="false"
-                aria-controls="filterCollapse"
-              >
-                <i class="fas fa-filter"></i>
-              </button>
+            <div class="container">
+              <div class="row align-items-center">
+                <!-- القسم الأيسر: العنوان وزر الإضافة -->
+                <div class="col-12 col-md-4 d-flex align-items-center">
+                  <p class="mb-0 font-weight-bold me-2">
+                    {{ t("routineTasksTable") }}
+                  </p>
+                  <argon-button
+                    v-show="canCreateRoutineTask || isOwner"
+                    @click="openPopup"
+                  >
+                    <i class="fas fa-plus"></i>
+                  </argon-button>
+                </div>
+
+                <!-- القسم الأوسط: شريط البحث -->
+                <div class="col-12 col-md-4 text-center my-2 my-md-0">
+                  <div class="input-group" style="max-width: 100%">
+                    <input
+                      type="text"
+                      class="form-control"
+                      :placeholder="t('searchPlaceholder')"
+                      v-model="searchQuery"
+                    />
+                  </div>
+                </div>
+
+                <!-- القسم الأيمن: زر الفلتر -->
+                <div class="col-12 col-md-4 text-md-end text-end">
+                  <button
+                    class="btn btn-link"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#filterCollapse"
+                    aria-expanded="false"
+                    aria-controls="filterCollapse"
+                  >
+                    <i class="fas fa-filter"></i>
+                  </button>
+                </div>
+              </div>
             </div>
+
             <div class="collapse" id="filterCollapse">
               <div class="card card-body">
                 <div class="row">
