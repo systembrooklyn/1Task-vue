@@ -472,9 +472,9 @@ const config = {
       },
     };
     if (start_date && end_date) {
-      return apiClient.get(`/daily-task-reports?page=${page}&start_date=${start_date}&end_date=${end_date}`, config);
+      return apiClient.get(`/daily-tasks-reports?page=${page}&start_date=${start_date}&end_date=${end_date}`, config);
     } else{
-    return apiClient.get(`/daily-task-reports?page=${page}`,  config);
+    return apiClient.get(`/daily-tasks-reports?page=${page}`,  config);
     }
     
   },
@@ -541,7 +541,123 @@ const config = {
     return apiClient.post(`/evaluations/${taskData.id}`, taskData, config);
   },
 
+
+
   // end evaluation------------------------------------------------
+
+  // start one time tasks------------------------------------------------
+
+  getOneTimeTasks(page = 1, filter = {}) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        page,
+        ...filter,  // هنا بنمزج الفلاتر مع الـ params
+      },
+    };
+  
+    return apiClient.get("/tasks", config);
+  },
+
+  getOneTimeTaskLogs(taskId) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get(`/tasks/${taskId}/revisions`, config);
+  },
+
+  getOneTimeTaskComments(taskId) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get(`/tasks/${taskId}`, config);
+  },
+
+  AddCommentOneTimeTask(comment) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    console.log(comment);
+    console.log(comment.taskId);
+    return apiClient.post(`/tasks/${comment.id}/comments`, comment, config);
+  },
+
+  starOneTimeTask(taskData) {
+    console.log(taskData);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post(`/tasks/${taskData.id}/star`, taskData, config);
+  },
+
+  archiveOneTimeTask(taskData) {
+    console.log(taskData);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post(`/tasks/${taskData.id}/archive`, taskData, config);
+  },
+
+  updateoneTimeTaskStatus(taskData) {
+    console.log(taskData.status);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.put(`/tasks/${taskData.id}/status`, taskData, config);
+  },
+
+  createOneTimeTask(taskData) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post("/tasks", taskData, config);
+  },
+
+  updateOneTimeTask(taskData) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.put(`/tasks/${taskData.id}`, taskData, config);
+  },
+
+  AddReplyCommentOneTimeTask(reply) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    console.log(reply);
+    return apiClient.post(`/taskComments/${reply.id}/replies`, reply, config);
+  },
+  //end one time tasks------------------------------------------------
 
   //end
 
