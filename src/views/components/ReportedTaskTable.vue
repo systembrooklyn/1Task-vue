@@ -67,8 +67,17 @@
     <div class="mt-3">
       <div v-if="props.reportActiveTab === 'reported'">
         <!-- لودر يظهر فقط أثناء تحميل بيانات Not Reported Tasks -->
+        <div
+          v-if="props.isNotReportedLoading"
+          class="d-flex justify-content-center py-5"
+        >
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+         
 
-        <div class="table-responsive p-3">
+        <div v-else class="table-responsive p-3">
           <table class="table align-items-center table-hover mb-0">
             <thead class="thead-light">
               <tr>

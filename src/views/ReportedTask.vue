@@ -227,27 +227,34 @@ const fetchEvaluatedTasks = async (date = selectedDateForNotReported.value) => {
   }
 };
 
-const fetchTasksReports = async (page = 1) => {
-  isLoading.value = true;
+const fetchTasksReports = async (date = selectedDateForNotReported.value) => {
+  selectedDateForNotReported.value = date;
+  isNotReportedLoading.value = true;
 
   try {
-    const response = await store.dispatch("fetchTaskReports", page);
-    console.log("response:", response);
+    const response = await store.dispatch("fetchTaskReports", date);
+    console.log("response routineTasksReportttttttttttttt:", response);
+
     if (response.status === 200) {
       routineTasksReport.value = store.getters.routineTasksReports.reports;
-      console.log("routineTasksReport:", response);
+      console.log(
+        "response routineTasksReportttttttttttttt:",
+        routineTasksReport.value
+      );
+      buildDynamicDepartments();
+
       componentKey.value += 1;
     }
   } catch (error) {
     showAlert.value = true;
     errorMessage.value = t("generalError");
   } finally {
-    isLoading.value = false;
+    isNotReportedLoading.value = false;
   }
 };
 
 watch(
-  () => store.getters.routineTasksReports.tasks,
+  () => store.getters.routineTasksReports.reports,
   (newData) => {
     routineTasksReport.value = [...newData];
     componentKey.value += 1;
@@ -279,6 +286,15 @@ function buildDynamicDepartments() {
         });
       }
     });
+  } else if (reportActiveTab.value === "reported") {
+    routineTasksReport.value.forEach((task) => {
+      if (task.daily_task.department && !uniqueDepartments.has(task.daily_task.department.id)) {
+        uniqueDepartments.set(task.daily_task.department.id, {
+          id: task.daily_task.department.id,
+          name: task.daily_task.department.name,
+        });
+      }
+    });
   }
 
   dynamicDepartmentsForNotReported.value = Array.from(uniqueDepartments.values());
@@ -288,7 +304,7 @@ function buildDynamicDepartments() {
 watch(
   () => reportActiveTab.value,
   (newVal) => {
-    if (newVal === "not_reported" || newVal === "evaluated_Task") {
+    if (newVal === "not_reported" || newVal === "evaluated_Task" || newVal === "reported") {
       buildDynamicDepartments();
     } else {
       dynamicDepartmentsForNotReported.value = [];
@@ -312,6 +328,17 @@ watch(
   () => evaluatedTasks.value,
   () => {
     if (reportActiveTab.value === "evaluated_Task") {
+      buildDynamicDepartments();
+    }
+  },
+  { deep: true }
+);
+
+// 4) Watch tasksReports
+watch(
+  () => routineTasksReport.value,
+  () => {
+    if (reportActiveTab.value === "reported") {
       buildDynamicDepartments();
     }
   },
@@ -345,6 +372,12 @@ const applyFilter = () => {
     isNotReportedLoading.value = true;
     fetchEvaluatedTasks(selectedDateForNotReported.value);
   }
+
+  if (reportActiveTab.value === "reported") {
+    isNotReportedLoading.value = true;
+    fetchTasksReports(selectedDateForNotReported.value);
+  }
+    
 };
 
 const translations = {
@@ -567,7 +600,7 @@ const clearAllDepartments = () => {
 // Reset filters
 const resetFilters = () => {
   // Clear department selections for both tabs
-  selectedDepartments.value = [];
+  // selectedDepartments.value = [];
   selectedDepartmentForNotReported.value = [];
 
   // Reset date for the active tab
@@ -579,7 +612,7 @@ const resetFilters = () => {
   }
 
   // Rebuild departments for the active tab
-  if (reportActiveTab.value === "not_reported" || reportActiveTab.value === "evaluated_Task") {
+  if (reportActiveTab.value === "not_reported" || reportActiveTab.value === "evaluated_Task" || reportActiveTab.value === "reported") {
     buildDynamicDepartments();
   } else {
     // If the user goes back to "reported", we can clear out the dynamic list
@@ -613,32 +646,32 @@ const resetFilters = () => {
 
 // console.log("uniqueDepartmentsForNotReported:", uniqueDepartmentsForNotReported.value);
 
-const searchMatch = (task) => {
-  const query = searchQuery.value.toLowerCase();
-  const taskName = (task.daily_task.task_name || "").toLowerCase();
-  const taskNo = (task.daily_task.task_no || "").toLowerCase();
+// const searchMatch = (task) => {
+//   const query = searchQuery.value.toLowerCase();
+//   const taskName = (task.daily_task.task_name || "").toLowerCase();
+//   const taskNo = (task.daily_task.task_no || "").toLowerCase();
 
-  return taskName.includes(query) || taskNo.includes(query);
-};
+//   return taskName.includes(query) || taskNo.includes(query);
+// };
 
 // For reported tasks: Add safety checks for `task.name`
 const filteredTasks = computed(() => {
+  const query = searchQuery.value.toLowerCase();
+
   return routineTasksReport.value.filter((task) => {
+    const taskName = (task.daily_task.task_name || "").toLowerCase();
+    const taskNo = (task.daily_task.task_no || "").toLowerCase();
+    
+    // Department match: if the user hasn't selected any department,
+    // all departments are shown; otherwise, check if the task's department is selected
     const departmentMatch =
-      selectedDepartments.value.length === 0 ||
-      selectedDepartments.value.some(
+      selectedDepartmentForNotReported.value.length === 0 ||
+      selectedDepartmentForNotReported.value.some(
         (dept) => dept.id === task.daily_task.department?.id
       );
-    const taskDate = new Date(task.created_at).toISOString().split("T")[0];
-    const dateMatch = !selectedDate.value || taskDate === selectedDate.value;
-    // Add (task.name || '') to avoid undefined issues
-    // const searchMatch = (task.daily_task.task_name || "")
-    //   .toLowerCase()
-    //   .includes(searchQuery.value.toLowerCase());
 
-    //   const searchMatchNo = (task.daily_task.task_no || "").toLowerCase().includes(searchQuery.value.toLowerCase());
-
-    return departmentMatch && dateMatch && searchMatch(task);
+    // Combine text-search filter with department filter
+    return (taskName.includes(query) || taskNo.includes(query)) && departmentMatch;
   });
 });
 
@@ -827,7 +860,7 @@ const filteredEvaluatedTasks = computed(() => {
                         <li><hr class="dropdown-divider" /></li>
 
                         <!-- Department Checkboxes -->
-                        <li
+                        <!-- <li
                           v-for="department in userDepartment"
                           v-show="reportActiveTab === 'reported'"
                           :key="department.value"
@@ -851,10 +884,10 @@ const filteredEvaluatedTasks = computed(() => {
                               {{ department.label }}
                             </label>
                           </div>
-                        </li>
+                        </li> -->
                         <li
                           v-for="department in dynamicDepartmentsForNotReported"
-                          v-show="reportActiveTab === 'not_reported' || reportActiveTab === 'evaluated_Task'"
+                          v-show="reportActiveTab === 'not_reported' || reportActiveTab === 'evaluated_Task' || reportActiveTab === 'reported'"
                           :key="department.id"
                           class="px-2"
                         >
@@ -885,7 +918,8 @@ const filteredEvaluatedTasks = computed(() => {
                       <input
                         type="date"
                         class="form-control"
-                        v-model="selectedDate"
+                        v-model="selectedDateForNotReported"
+                        @change="applyFilter"
                       />
                     </div>
                     <div v-if="reportActiveTab === 'not_reported'">
