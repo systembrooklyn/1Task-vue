@@ -464,18 +464,15 @@ const config = {
     return apiClient.post(`/daily-tasks/${taskData.id}/submit-report`, taskData, config);
   },
 
-  getTaskReports(page = 1, start_date = null, end_date = null) { //uses for reports
+  getTaskReports(date) { //uses for reports
     const token = localStorage.getItem("token");
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-    if (start_date && end_date) {
-      return apiClient.get(`/daily-tasks-reports?page=${page}&start_date=${start_date}&end_date=${end_date}`, config);
-    } else{
-    return apiClient.get(`/daily-tasks-reports?page=${page}`,  config);
-    }
+  
+    return apiClient.get(`/daily-tasks-reports/${date}`, config);
     
   },
 

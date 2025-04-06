@@ -60,12 +60,15 @@ export default createStore({
     selectedRole: null,
     projects: [],
     projectLogs: [],
+    oneTimeTaskLogs: [],
+    oneTimeTaskComments: [],
     routineTasks: [],
     allRoutineTasks: [],
     routineTasksReports: [],
     dashboardData: [],
     evaluation: [],
     evaluatedTasks: [],
+    oneTimeTasks: [],
     pagination: {
       total: 0,
       current_page: 1,
@@ -171,6 +174,10 @@ export default createStore({
       state.routineTasks = tasks;
     },
 
+    SET_ONE_TIME_TASKS(state, tasks) {
+      state.oneTimeTasks = tasks;
+    },
+
     SET_PAGINATION(state, pagination) {
       state.pagination = pagination;
     },
@@ -202,6 +209,47 @@ export default createStore({
 
     SET_TASK_LOGS(state, logs) {
       state.taskLogs = logs;
+    },
+
+    SET_ONE_TIME_TASK_LOGS(state, logs) {
+      state.oneTimeTaskLogs = logs;
+    },
+
+    SET_ONE_TIME_TASK_COMMENTS(state, comments) {
+      state.oneTimeTaskComments = comments;
+    },
+
+    ADD_ONE_TIME_TASK_COMMENTS(state, comment) {
+      state.oneTimeTaskComments.push(comment);
+    },
+
+    createOneTimeTask(state, task) {
+      console.log("task", task);
+      console.log("state.oneTimeTasks", state.oneTimeTasks);
+    },
+
+    updateOneTimeTask(state, task) {
+      console.log("task", task);
+      console.log("state.oneTimeTasks", state.oneTimeTasks);
+    },
+
+    AddReplyCommentOneTimeTask(state, comment) {
+      console.log("comment", comment);
+      state.oneTimeTaskComments.push(comment);
+    },
+    starOneTimeTask(state, task) {
+      console.log("task", task);
+      console.log("state.oneTimeTasks", state.oneTimeTasks);
+    },
+
+    archiveOneTimeTask(state, task) {
+      console.log("task", task);
+      console.log("state.oneTimeTasks", state.oneTimeTasks);
+    },
+
+    updateoneTimeTaskStatus(state, task) {
+      console.log("task", task);
+      console.log("state.oneTimeTasks", state.oneTimeTasks);
     },
 
     reportRoutineTasks(state, taskData) {
@@ -1279,8 +1327,7 @@ export default createStore({
         console.error("Error fetching routine tasks:", error);
         throw error;
       }
-    }
-    ,
+    },
   
 
     async reportRoutineTasks({ commit }, payload) {
@@ -1297,28 +1344,41 @@ export default createStore({
     },
 
     // task reports
-    async fetchTaskReports({ commit }, page = 1 , filterData ) {
-      try {
-        // const filterData = {
-        //   start_date: start_date,
-        //   end_date: end_date
-        // }
-        if (filterData) {
-          console.log("with filter");
-          const response = await apiClient.getTaskReports(page , filterData);
-          console.log("response", response.data);
-        commit("SET_TASK_REPORTS", response.data);
-        return response;
-        } else{
-          console.log("without filter");
-          const response = await apiClient.getTaskReports(page);
-          console.log("response", response.data);
-        commit("SET_TASK_REPORTS", response.data);
-        return response;
-        }
+    // async fetchTaskReports({ commit }, page = 1 , filterData ) {
+    //   try {
+    //     // const filterData = {
+    //     //   start_date: start_date,
+    //     //   end_date: end_date
+    //     // }
+    //     if (filterData) {
+    //       console.log("with filter");
+    //       const response = await apiClient.getTaskReports(page , filterData);
+    //       console.log("response", response.data);
+    //     commit("SET_TASK_REPORTS", response.data);
+    //     return response;
+    //     } else{
+    //       console.log("without filter");
+    //       const response = await apiClient.getTaskReports(page);
+    //       console.log("response", response.data);
+    //     commit("SET_TASK_REPORTS", response.data);
+    //     return response;
+    //     }
         
+    //   } catch (error) {
+    //     console.error("Error fetching task reports:", error);
+    //     return error;
+    //   }
+    // },
+
+    async fetchTaskReports({ commit }, date ) {
+      console.log("dateeeeeeeeeeeeeeeee", date);
+      try {
+        const response = await apiClient.getTaskReports(date); // Pass date to API
+        console.log("responseeeeeeeeee", response.data);
+        commit("SET_TASK_REPORTS", response.data);
+        return response;
       } catch (error) {
-        console.error("Error fetching task reports:", error);
+        console.error("Error fetching not reported tasks:", error);
         return error;
       }
     },
@@ -1386,6 +1446,146 @@ export default createStore({
         return error;
       }
     },
+
+    //one time task
+    async fetchOneTimeTasks({ commit }, page = 1, filters = {}) {
+      console.log("filters", filters);
+      try {
+        const response = await apiClient.getOneTimeTasks(page, filters);
+        console.log("responseoneTimeTasks", response.data);
+        if (response.status === 200) {
+          commit("SET_ONE_TIME_TASKS", response.data);
+          return response;
+        } else {
+          console.error("Error fetching tasks:", response);
+          return response;
+        }
+      } catch (error) {
+        console.error("Error fetching routine tasks:", error);
+        throw error;
+      }
+    },
+
+    async getOneTimeTaskLogs({ commit }, taskId) {
+      try {
+        const response = await apiClient.getOneTimeTaskLogs(taskId);
+        console.log("response logsssssssssss" + response);
+        commit("SET_ONE_TIME_TASK_LOGS", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error fetching task logs:", error);
+        return error;
+      }
+    },
+
+    async getOneTimeTaskComments({ commit }, taskId) {
+      try {
+        const response = await apiClient.getOneTimeTaskComments(taskId);
+        commit("SET_ONE_TIME_TASK_LOGS", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error fetching task comments:", error);
+        return error;
+      }
+    },
+
+    async starOneTimeTask({ commit }, task) {
+      console.log("task", task);
+      try {
+        const response = await apiClient.starOneTimeTask(task);
+        console.log("starOneTimeTask-response", response.data);
+        commit("starOneTimeTask", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error starring one time task:", error);
+        return error;
+      }
+    },
+
+    async archiveOneTimeTask({ commit }, task) {
+      console.log("task", task);
+      try {
+        const response = await apiClient.archiveOneTimeTask(task);
+        console.log("archiveOneTimeTask-response", response.data);
+        commit("archiveOneTimeTask", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error archiving one time task:", error);
+        return error;
+      }
+    },
+
+// في الـstore (actions.js أو ما يناسب)
+async updateoneTimeTaskStatus({ commit }, payload) {
+  // payload هنا شكلها: { id: <رقم المهمة>, status: "inProgress" أو "panding" }
+  console.log("payload", payload);
+
+  try {
+    const response = await apiClient.updateoneTimeTaskStatus(payload);
+    console.log("updateoneTimeTaskStatus-response", response.data);
+
+    // (اختياري) لو عندك ميوتation لتحديث الـStore
+    commit("updateoneTimeTaskStatus", response.data);
+
+    return response;
+  } catch (error) {
+    console.error("Error updating one time task status:", error);
+    throw error; // أو return error
+  }
+},
+
+
+    async AddCommentOneTimeTask({ commit }, comment) {
+      console.log("comment", comment);
+      try {
+        const response = await apiClient.AddCommentOneTimeTask(comment);
+        console.log("commentOneTimeTask-response", response.data);
+        commit("ADD_ONE_TIME_TASK_COMMENTS", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error commenting one time task:", error);
+        return error;
+      }
+    },
+
+    async createOneTimeTask({ commit }, task) {
+      console.log("task", task);
+      try {
+        const response = await apiClient.createOneTimeTask(task);
+        console.log("createOneTimeTask-response", response.data);
+        commit("createOneTimeTask", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error creating one time task:", error);
+        return error;
+      }
+    },
+
+    async updateOneTimeTask({ commit }, task) {
+      console.log("task", task);
+      try {
+        const response = await apiClient.updateOneTimeTask(task);
+        console.log("updateOneTimeTask-response", response.data);
+        commit("updateOneTimeTask", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error updating one time task:", error);
+        return error;
+      }
+    },
+
+    async AddReplyCommentOneTimeTask({ commit }, reply) {
+      console.log("reply", reply);
+      try {
+        const response = await apiClient.AddReplyCommentOneTimeTask(reply);
+        console.log("AddReplyCommentOneTimeTask-response", response.data);
+        commit("AddReplyCommentOneTimeTask", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error adding reply comment:", error);
+        return error;
+      }
+    },
   },
 
   getters: {
@@ -1424,5 +1624,8 @@ export default createStore({
     notReportedTasks: (state) => state.notReportedTasks,
     evaluation: (state) => state.evaluation,
     evaluatedTasks: (state) => state.evaluatedTasks,
+    oneTimeTasks: (state) => state.oneTimeTasks,
+    oneTimeTaskLogs: (state) => state.oneTimeTaskLogs,
+    oneTimeTaskComments: (state) => state.oneTimeTaskComments,
   },
 });
