@@ -1677,7 +1677,7 @@ const evaluateTask = async () => {
     id: selectedTask.value.daily_task_id,
     rating: taskRate.value,
     comment: taskComment.value,
-    task_for: props.reportActiveTab === "not_reported" ? props.selectedDateForNotReported: props.selectedDate ,
+    task_for: props.reportActiveTab === "not_reported" || props.reportActiveTab === "reported" ? props.selectedDateForNotReported: props.selectedDate ,
     // ...selectedTask.value,
   };
 
