@@ -2,8 +2,9 @@
   <div v-if="isOpen" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{{ title }}</h5>
-        <button type="button" class="btn-close" @click="closeModal">×</button>
+        <h5 class="modal-title mx-auto">{{ title }}</h5>
+        <!-- <button type="button" class="btn-close" @click="closeModal">×</button> -->
+         <slot name="title"></slot>
       </div>
       <div class="modal-body">
         <slot></slot> <!-- هنا يتم تخصيص محتوى الـ modal -->
@@ -30,16 +31,16 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['close', 'update:modelValue']);
+// const emit = defineEmits(['close', 'update:modelValue']);
 
 const isOpen = ref(!props.modelValue);
 console.log(isOpen.value);
 
-const closeModal = () => {
-  isOpen.value = false;
-  emit('update:modelValue', false); // لإغلاق الـ modal
-  emit('close'); // إطلاق الحدث 'close'
-};
+// const closeModal = () => {
+//   isOpen.value = false;
+//   emit('update:modelValue', false); // لإغلاق الـ modal
+//   emit('close'); // إطلاق الحدث 'close'
+// };
 </script>
 
 <style scoped>
@@ -64,10 +65,14 @@ const closeModal = () => {
   height: fit-content;
 }
 
+
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  /* display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; */
+  text-align: center;
+  display: inline;
 }
 
 .modal-body {

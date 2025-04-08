@@ -1,100 +1,138 @@
 <script setup>
+import { computed } from 'vue';
+
 const emit = defineEmits(["update:modelValue"]);
 
-defineProps({
+const props = defineProps({
   size: {
     type: String,
-    default: "default",
+    default: null,
+    validator: (value) => ['sm', 'lg', null].includes(value)
   },
   success: {
     type: Boolean,
-    default: false,
+    default: false
   },
   error: {
     type: Boolean,
-    default: false,
+    default: false
   },
   icon: {
     type: String,
-    default: "",
+    default: ""
   },
   iconDir: {
     type: String,
-    default: "",
+    default: "left",
+    validator: (value) => ['left', 'right', ''].includes(value)
   },
   name: {
     type: String,
-    default: "",
+    default: ""
   },
   id: {
     type: String,
-    default: "",
+    default: ""
   },
   modelValue: {
     type: [String, Number],
-    default: "",
+    default: ""
   },
   placeholder: {
     type: String,
-    default: "",
+    default: "Select an option"
   },
   isRequired: {
     type: Boolean,
-    default: false,
+    default: false
   },
   options: {
     type: Array,
-    default: () => [],
+    default: () => []
   },
+  errorMessage: {
+    type: String,
+    default: ""
+  }
 });
 
-const getClasses = (size, success, error) => {
-  let sizeValue, isValidValue;
+const controlClasses = computed(() => {
+  return [
+    props.size ? `form-control-${props.size}` : '',
+    {
+      'is-valid': props.success,
+      'is-invalid': props.error
+    }
+  ];
+});
 
-  sizeValue = size ? `form-control-${size}` : "";
-
-  if (error) {
-    isValidValue = "is-invalid";
-  } else if (success) {
-    isValidValue = "is-valid";
-  } else {
-    isValidValue = "";
-  }
-
-  return `${sizeValue} ${isValidValue}`.trim();
-};
-
-const getIcon = (icon) => (icon ? icon : "");
-const hasIcon = (icon) => (icon ? "input-group" : "");
+const inputGroupClasses = computed(() => ({
+  'input-group': props.icon,
+  'input-group-merge': props.icon, // For better icon integration
+  [`input-group-${props.iconDir}`]: props.iconDir
+}));
 </script>
 
 <template>
-  <div class="form-group">
-    <div :class="hasIcon(icon)">
-      <span v-if="iconDir === 'left'" class="input-group-text">
-        <i :class="getIcon(icon)"></i>
+    <label v-if="$slots.label" class="form-label">
+      <slot name="label" />
+      <span v-if="isRequired" class="text-danger">*</span>
+    </label>
+
+    <div :class="inputGroupClasses">
+      <span 
+        v-if="props.icon && props.iconDir === 'left'" 
+        class="input-group-text"
+        :class="{ 'pe-0': props.iconDir === 'left' }"
+      >
+        <i :class="props.icon" class="fas" aria-hidden="true"></i>
       </span>
+
       <select
-        :id="id"
+        :id="props.id"
         class="form-control"
-        :class="getClasses(size, success, error)"
-        :name="name"
-        :value="modelValue"
-        :required="isRequired"
+        :class="controlClasses"
+        :name="props.name"
+        :value="props.modelValue"
+        :required="props.isRequired"
+        :aria-invalid="error"
+        :aria-describedby="error ? `${props.id}-feedback` : null"
         @change="emit('update:modelValue', $event.target.value)"
       >
-        <option disabled value="">{{ placeholder }}</option>
+        <option disabled value="">{{ props.placeholder }}</option>
         <option
-          v-for="option in options"
-          :key="option.value"
+          v-for="(option, index) in props.options"
+          :key="index"
           :value="option.value"
+          :selected="option.value === props.modelValue"
         >
           {{ option.label }}
         </option>
       </select>
-      <span v-if="iconDir === 'right'" class="input-group-text">
-        <i :class="getIcon(icon)"></i>
+
+      <span 
+        v-if="props.icon && props.iconDir === 'right'" 
+        class="input-group-text"
+        :class="{ 'ps-0': props.iconDir === 'right' }"
+      >
+        <i :class="props.icon" class="fas" aria-hidden="true"></i>
       </span>
+
+      <div 
+        v-if="props.error && props.errorMessage" 
+        :id="`${props.id}-feedback`" 
+        class="invalid-feedback"
+      >
+        {{ props.errorMessage }}
+      </div>
     </div>
-  </div>
 </template>
+
+<style scoped>
+.input-group-merge .input-group-text {
+  z-index: 5; /* Ensure icons stay above form control */
+}
+.form-control:focus {
+  box-shadow: none; /* Use Bootstrap's focus state instead */
+}
+</style>

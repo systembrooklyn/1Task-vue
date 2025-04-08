@@ -1,22 +1,21 @@
-// src/views/RoutineTask.vue
+<!-- src/views/RoutineTask.vue -->
 
 <script setup>
-import { ref, computed, onBeforeMount, watch } from "vue";
+import { ref, computed, onBeforeMount, watch, onMounted, onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
-// import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
-import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
-// import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
-// import RoutineTasksTable from "@/views/components/RoutineTaskTable.vue";
-// import ArgonSwitch from "@/components/ArgonSwitch.vue";
-// import Swal from "sweetalert2";
+// import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
+import OneTimeTaskTable from "@/views/components/OneTimeTaskTable.vue";
 
-// const refreshInterval = ref(null); // Will store our setInterval ID
+const refreshInterval = ref(null); // Will store our setInterval ID
+
+const refreshIntervalId = ref(null); // تغيير اسم المتغير ليكون أوضح
 
 const store = useStore();
+// const isOwner = computed(() => store.getters.isOwner);
 
 const userData = computed(() => store.getters.user);
 console.log("userDataaaaaaaaa:", userData.value);
@@ -25,8 +24,12 @@ import {
   savePermissionsToLocalStorage,
   extractPermissionsFromAPI,
   loadPermissionsFromLocalStorage,
-  // hasPermission,
 } from "@/utils/permissions.js";
+import Swal from "sweetalert2";
+
+import {
+  isTaskCommentSeen,
+} from "@/utils/commentCache";
 
 const permissions = ref(
   loadPermissionsFromLocalStorage(userData.value?.id) || {}
@@ -42,22 +45,42 @@ onBeforeMount(async () => {
     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
   await store.dispatch("getCompanyUsers");
-  await store.dispatch("fetchDepartments");
+  // await store.dispatch("fetchDepartments");
+
+   // --- بداية التغييرات ---
+  // جلب المهام لأول مرة
+  await refreshTasks();
+
+  // بدء التحديث الدوري كل 30 ثانية
+  refreshIntervalId.value = setInterval(refreshTasks, 30000); // 30000 مللي ثانية = 30 ثانية
+  // --- نهاية التغييرات ---   
 });
 
-// const dataFromApi = computed(() => store.getters.dataFromApi);
 
-// const employeeOptions = computed(() => {
-//   return dataFromApi.value.map((employee) => ({
-//     value: employee.id,
-//     label: employee.name,
-//   }));
-// });
+// --- بداية التغييرات ---
+// إيقاف التحديث الدوري عند إلغاء تحميل المكون لمنع تسرب الذاكرة
+onBeforeUnmount(() => {
+  if (refreshIntervalId.value) {
+    clearInterval(refreshIntervalId.value);
+    refreshIntervalId.value = null; // إعادة تعيين المعرف
+    console.log("Interval cleared.");
+  }
+});
+// --- نهاية التغييرات ---
 
-// console.log("employeeOptions:", employeeOptions.value);
+const dataFromApi = computed(() => store.getters.dataFromApi);
 
-// const departments = computed(() => store.getters.departments);
-// console.log("departmentssssssssssssss:", departments.value);
+const employeeOptions = computed(() => {
+  return dataFromApi.value.map((employee) => ({
+    value: employee.id,
+    label: employee.name,
+  }));
+});
+
+console.log("employeeOptions:", employeeOptions.value);
+
+const departments = computed(() => store.getters.departments);
+console.log("departmentssssssssssssss:", departments.value);
 
 // const formattedDepartments = computed(() => {
 //   return departments.value.map((department) => ({
@@ -66,103 +89,123 @@ onBeforeMount(async () => {
 //   }));
 // });
 
-// const userDepartment = computed(() => {
-//   const user = userData.value;
-//   console.log("user.departments:", user);
-//   return user.user.departments.map((department) => ({
-//     value: department.id,
-//     label: department.name,
-//   }));
-// });
+const userDepartment = computed(() => {
+  const user = userData.value;
+  console.log("user.departments:", user);
+  return user.user.departments.map((department) => ({
+    value: department.id,
+    label: department.name,
+  }));
+});
 
-// console.log("userDepartment:", userDepartment.value);
-
-// const isOwner = computed(() => store.getters.isOwner);
-
-// const canCreateRoutineTask = computed(
-//   () => hasPermission(permissions.value, "create-routine-task") // تعديل صلاحية
-// );
+console.log("userDepartment:", userDepartment.value);
 
 const showAlert = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
 const showSuccess = ref(false);
-const routineTaskName = ref(""); // تعديل المتغيرات
+
+/* ==== تغييرات هنا: متغيرات الـOneTimeTask ==== */
+const oneTimeTaskName = ref("");
+const oneTimeTaskDescription = ref("");
+const selectedEmployee = ref("");
+const selectedSupervisor = ref("");
+
 const showPopup = ref(false);
-// const routineTasks = ref([]); // تعديل المتغيرات
-// const componentKey = ref(0);
+const oneTimeTasks = ref([]);
+const componentKey = ref(0);
 const body = document.getElementsByTagName("body")[0];
 const isLoading = ref(false);
-const routineTaskDescription = ref(""); // تعديل المتغيرات
+
 const startDate = ref("");
+const endDate = ref("");
 const fromDate = ref("");
 const toDate = ref("");
-// const showAdvancedSettings = ref(false);
+const searchQuery = ref("");
+
+const showEditPopup = ref(false);
+const editMode = ref(false);
+const editedTaskId = ref(null);
+
 const selectedManager = ref("");
-// const routineTaskStatus = ref(false); // تعديل المتغيرات
-const taskType = ref("");
+// const taskType = ref("");
 const dayOfMonth = ref("");
 const deptId = ref("");
-const taskTypeOptions = [
-  { value: "daily", label: "Daily" },
-  { value: "weekly", label: "Weekly" },
-  { value: "monthly", label: "Monthly" },
-  { value: "last_day_of_month", label: "Last Day of Month" },
+const projectId = ref("");
+// const isUrgent = ref(false);
+const priority = ref("");
+const prioritiesOptions = [
+  { value: "low", label: "Low" },
+  { value: "normal", label: "Normal" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" },
 ];
+// const taskTypeOptions = [
+//   { value: "daily", label: "Daily" },
+//   { value: "weekly", label: "Weekly" },
+//   { value: "monthly", label: "Monthly" },
+//   { value: "last_day_of_month", label: "Last Day of Month" },
+// ];
 
 const recurrentDays = ref([]);
 
 // دالة لإضافة أو إزالة اليوم من المصفوفة
-const toggleRecurrentDay = (dayValue, isChecked) => {
-  if (isChecked) {
-    if (!recurrentDays.value.includes(dayValue)) {
-      recurrentDays.value.push(dayValue);
-    }
-  } else {
-    const index = recurrentDays.value.indexOf(dayValue);
-    if (index > -1) {
-      recurrentDays.value.splice(index, 1);
-    }
-  }
-};
+// const toggleRecurrentDay = (dayValue, isChecked) => {
+//   if (isChecked) {
+//     if (!recurrentDays.value.includes(dayValue)) {
+//       recurrentDays.value.push(dayValue);
+//     }
+//   } else {
+//     const index = recurrentDays.value.indexOf(dayValue);
+//     if (index > -1) {
+//       recurrentDays.value.splice(index, 1);
+//     }
+//   }
+// };
 
-// مراقبة التغييرات في `recurrentDays`
 watch(
   () => recurrentDays.value,
   (newVal) => {
     console.log("Recurrent Days:", newVal);
-    // يمكنك إضافة أي عملية أخرى هنا بناءً على التغييرات
   }
 );
 
-// const pagination = ref({
-//   total: 0,
-//   current_page: 1,
-//   per_page: 10,
-//   last_page: 1,
-//   next_page_url: null,
-//   prev_page_url: null,
-// });
+const formattedProjects = computed(() => {
+  return oneTimeTasks.value.map((project) => ({
+    value: project.project?.id,
+    label: project.project?.name,
+  }));
+});
 
-// التحكم في الإعدادات المتقدمة
-// const toggleAdvancedSettings = () => {
-//   showAdvancedSettings.value = !showAdvancedSettings.value;
-// };
-
-// غلق المودال
+// إغلاق النافذة المنبثقة
 const closePopup = () => {
   showPopup.value = false;
-  routineTaskName.value = "";
-  routineTaskDescription.value = "";
+  /* ==== إعادة القيم الفارغة للمتغيرات التي تم تغيير اسمها ==== */
+  oneTimeTaskName.value = "";
+  oneTimeTaskDescription.value = "";
+  selectedEmployee.value = "";
+  selectedSupervisor.value = "";
   startDate.value = "";
+  endDate.value = "";
   fromDate.value = "";
   toDate.value = "";
   selectedManager.value = "";
-  taskType.value = "";
+  // taskType.value = "";
   dayOfMonth.value = "";
   deptId.value = "";
+  projectId.value = "";
+  priority.value = "";
+  // isUrgent.value = false;
   recurrentDays.value = [];
 };
+
+// عند تركيب المكوّن
+onMounted(() => {
+  // استدعِ نفس دالة الـrefreshTasks أو أي دالة XHR ثانية
+  refreshInterval.value = setInterval(() => {
+    refreshTasks();
+  }, 10 * 1000); // 60000 مللي ثانية = 1 دقيقة
+});
 
 onBeforeMount(async () => {
   body.classList.remove("bg-gray-100");
@@ -178,45 +221,83 @@ onBeforeMount(async () => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 
-  // isLoading.value = true;
-  // try {
-  //   // Example of calling your Vuex action:
-  //   const response = await store.dispatch("fetchRoutineTasks");
-  //   if (response.status === 200) {
-  //     // Filter out inactive tasks if desired:
-  //     routineTasks.value = store.getters.routineTasks.tasks.filter(
-  //       (task) => task.active === true
-  //     );
-  //   }
-  // } catch (error) {
-  //   console.error("Error fetching tasks:", error);
-  // } finally {
-  //   isLoading.value = false;
-  // }
+  try {
+    isLoading.value = true;
+    // Example of calling your Vuex action:
+    const response = await store.dispatch("fetchOneTimeTasks");
+    console.log("response:", response);
+    if (response.status === 200) {
+      oneTimeTasks.value = store.getters.oneTimeTasks;
+      oneTimeTasks.value = store.getters.oneTimeTasks.map(task => ({
+    ...task,
+    hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id)
+  }));
+      oneTimeTasks.value.sort((taskA, taskB) => {
+        // 1) مقارنة is_urgent
+        // if (taskA.is_urgent && !taskB.is_urgent) {
+        //   return -1; // taskA قبل taskB
+        // } else if (!taskA.is_urgent && taskB.is_urgent) {
+        //   return 1; // taskB قبل taskA
+        // }
 
-  // // Always clear the interval on unmount
-  // if (refreshInterval.value) {
-  //   clearInterval(refreshInterval.value);
-  // }
+        // 2) إذا تشابهت is_urgent في المهمتين، قارن الأولوية (priority)
+        // لنعرّف ترتيبًا خاصًا للأولويات:
+        const priorityOrder = { urgent: 1, high: 2, normal: 3, low: 4 };
+        // في حال لم توجد أولوية، يمكن افتراض أنها normal أو قيمة بعيدة
+        const aPriority = priorityOrder[taskA.priority] || 99;
+        const bPriority = priorityOrder[taskB.priority] || 99;
+
+        return aPriority - bPriority;
+      });
+    }
+    console.log("oneTimeTasks:", oneTimeTasks.value);
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  } finally {
+    isLoading.value = false;
+  }
+
+  if (refreshInterval.value) {
+    clearInterval(refreshInterval.value);
+  }
 });
 
-// Method to fetch tasks and update local data
-// const refreshTasks = async () => {
-//   try {
-//     // Pass in page if needed: fetchRoutineTasks(pagination.value.current_page)
-//     const response = await store.dispatch("fetchRoutineTasks");
-//     if (response.status === 200) {
-//       routineTasks.value = store.getters.routineTasks.tasks;
-//       // Recompute pagination data
-//       // pagination.value.total = routineTasks.value.length;
-//       // pagination.value.last_page = Math.ceil(
-//       //   routineTasks.value.length / pagination.value.per_page
-//       // );
-//     }
-//   } catch (error) {
-//     console.error("Error fetching tasks:", error);
-//   }
-// };
+// جلب وتجديد المهام
+const refreshTasks = async () => {
+   // --- بداية التغييرات ---
+  // إضافة console.log لتتبع استدعاء الدالة
+  console.log("Refreshing tasks...", new Date().toLocaleTimeString());
+  // --- نهاية التغييرات ---
+  try {
+    const response = await store.dispatch("fetchOneTimeTasks");
+    if (response.status === 200) {
+      oneTimeTasks.value = store.getters.oneTimeTasks;
+      oneTimeTasks.value = store.getters.oneTimeTasks.map(task => ({
+    ...task,
+    hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id)
+  }));
+      oneTimeTasks.value.sort((taskA, taskB) => {
+        // 1) مقارنة is_urgent
+        // if (taskA.is_urgent && !taskB.is_urgent) {
+        //   return -1; // taskA قبل taskB
+        // } else if (!taskA.is_urgent && taskB.is_urgent) {
+        //   return 1; // taskB قبل taskA
+        // }
+
+        // 2) إذا تشابهت is_urgent في المهمتين، قارن الأولوية (priority)
+        // لنعرّف ترتيبًا خاصًا للأولويات:
+        const priorityOrder = { urgent: 1, high: 2, normal: 3, low: 4 };
+        // في حال لم توجد أولوية، يمكن افتراض أنها normal أو قيمة بعيدة
+        const aPriority = priorityOrder[taskA.priority] || 99;
+        const bPriority = priorityOrder[taskB.priority] || 99;
+
+        return aPriority - bPriority;
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  }
+};
 
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
@@ -224,162 +305,318 @@ console.log("currentCompanyId:", currentCompanyId.value);
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
 
-// Pagination
-// const pagination = ref({
-//   current_page: 1, // Current page
-//   per_page: 10, // Items per page
-//   total: 0, // Total number of tasks
-//   last_page: 1, // Total number of pages
-// });
-
-// Fetch all tasks from the API
-// const fetchRoutineTasks = async () => {
-//   try {
-//     const response = await store.dispatch("fetchRoutineTasks");
-//     if (response.status === 200) {
-//       routineTasks.value = store.getters.routineTasks.tasks.filter(task => task.active === true);
-//       pagination.value.total = routineTasks.value.length;
-//       pagination.value.last_page = Math.ceil(routineTasks.value.length / pagination.value.per_page);
-//     }
-//   } catch (error) {
-//     console.error("Error fetching tasks:", error);
-//   }
-// };
-
-// Get tasks for the current page
-// const paginatedTasks = computed(() => {
-//   const start = (pagination.value.current_page - 1) * pagination.value.per_page;
-//   const end = start + pagination.value.per_page;
-//   return tasks.value.slice(start, end);
-// });
+// تحكم في الصفحات
+const pagination = ref({
+  current_page: 1,
+  per_page: 10,
+  total: 0,
+  last_page: 1,
+});
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
+
+watch(
+  () => store.getters.currentLanguage,
+  () => {}
+);
 
 const t = (key) => {
   return translations[currentLanguage.value][key];
 };
 
-// Departments logic
-// const departments = ref([]);
-// const formattedDepartments = computed(() => {
-//   return departments.value.map((department) => ({
-//     value: department.id,
-//     label: department.name,
-//   }));
-// });
+// متغيرات الفلترة
+const selectedTaskType = ref("");
+const selectedDepartments = ref([]);
+const selectedProjects = ref([]);
+const selectedStatus = ref("");
 
-// Filter variables
-// const selectedTaskType = ref("");
-// const selectedDepartments = ref([]);
-// const selectedStatus = ref("");
-// console.log("userDepartment:", userDepartment.value);
-// const toggleAllDepartments = () => {
-//   if (selectedDepartments.value.length === userDepartment.value.length) {
-//     // If all are selected, deselect all
-//     selectedDepartments.value = [];
-//     console.log("selectedDepartments:", selectedDepartments.value);
-//   } else {
-//     // Select all departments
-//     selectedDepartments.value = userDepartment.value.map((dept) => ({
-//       id: dept.value,
-//       name: dept.label,
-//     }));
-//   }
-// };
+console.log("userDepartment:", userDepartment.value);
 
-// const applyFilters = async () => {
-//   const filters = {
-//     dept_filter: selectedDepartments.value.map((dept) => dept.id),
-//     // task_type: selectedTaskType.value,
-//   };
+const nowTime = ref(new Date());
 
-//   console.log("Applying filters:", filters);
+// فلترة البيانات (أماميًا)
+const filteredTasks = computed(() => {
+  let tasks = [...oneTimeTasks.value];
+  console.log(tasks);
 
-//   // هنا بنستدعي الدالة مع تمرير الصفحة والفلاتر
-//   await store.dispatch("fetchRoutineTasks", 1, filters);
+  if (selectedStatus.value) {
+    if (selectedStatus.value === "done") {
+      tasks = tasks.filter((t) => t.today_report_status === "done");
+    } else if (selectedStatus.value === "not_done") {
+      tasks = tasks.filter((t) => t.today_report_status === "not_done");
+    } else if (selectedStatus.value === "null") {
+      tasks = tasks.filter((t) => t.today_report_status === null);
+    } else if (selectedStatus.value === "lated") {
+      tasks = tasks.filter((t) => {
+        if (!t.to) return false;
+        const [taskHours, taskMinutes] = t.to.split(":").map(Number);
+        const taskTime = new Date();
+        taskTime.setHours(taskHours, taskMinutes, 0, 0);
 
-//   // بعد استلام الرد، بنحدث البيانات المُستخدمة في العرض
-//   routineTasks.value = store.getters.routineTasks.tasks.filter(
-//     (task) => task.active === true
-//   );
-//   pagination.value = store.getters.routineTasks.pagination;
-//   componentKey.value += 1;
-// };
+        const isNotDoneOrReported =
+          t.today_report_status !== "done" &&
+          t.today_report_status !== "not_done";
 
-// const resetFilters = () => {
-//   // Reset all filter variables
-//   selectedTaskType.value = "";
-//   selectedDepartments.value = [];
+        return taskTime < nowTime.value && isNotDoneOrReported;
+      });
+    }
+  }
 
-//   // Fetch all routine tasks without filters
-//   // store.dispatch('fetchRoutineTasks');
-// };
+  if (selectedDepartments.value.length > 0) {
+    const departmentIds = selectedDepartments.value.map((d) => d.id);
+    console.log(departmentIds);
+    tasks = tasks.filter(
+      (t) =>
+        t.department.dept_id && departmentIds.includes(t.department.dept_id)
+    );
+  }
 
-// Watch for changes in the tasks array to recalculate pagination
+  if (selectedProjects.value.length > 0) {
+    const selectedProjectIds = selectedProjects.value.map(
+      (project) => project.id
+    );
+    console.log("selectedProjectIds:", selectedProjectIds);
+    tasks = tasks.filter((task) => {
+      return selectedProjectIds.includes(task.project?.id);
+    });
+  }
 
-// Compute the tasks for the current page
-// const paginatedTasks = computed(() => {
-//   const startIndex =
-//     (pagination.value.current_page - 1) * pagination.value.per_page;
-//   const endIndex = startIndex + pagination.value.per_page;
-//   return routineTasks.value.slice(startIndex, endIndex);
-// });
+  tasks = tasks.filter((task) => searchMatch(task));
+  return tasks;
+});
 
-// const openPopup = () => {
-//   showPopup.value = true;
-// };
+watch(
+  () => filteredTasks.value.length,
+  (newLength) => {
+    pagination.value.total = newLength;
+    pagination.value.last_page = Math.ceil(
+      newLength / pagination.value.per_page
+    );
 
-// const addRoutineTask = async () => {
-//   // تعديل الدالة
-//   if (routineTaskName.value) {
-//     isLoading.value = true;
-//     const routineTask = {
-//       task_name: routineTaskName.value, // تعديل المفتاح ليتوافق مع الـ API
-//       description: routineTaskDescription.value,
-//       start_date: startDate.value, // assuming 'from' is the start_date
-//       task_type: taskType.value,
-//       recurrent_days: recurrentDays.value,
-//       day_of_month: dayOfMonth.value,
-//       to: toDate.value,
-//       from: fromDate.value, // قد تحتاج إلى التأكد من تطابق الحقول مع الـ API
-//       dept_id: deptId.value,
-//       assigned_to: selectedManager.value,
-//     };
+    if (pagination.value.current_page > pagination.value.last_page) {
+      pagination.value.current_page = pagination.value.last_page || 1;
+    }
+  },
+  { immediate: true }
+);
 
-//     console.log("routineTask:", routineTask);
-//     try {
-//       const response = await store.dispatch("addRoutineTask", routineTask); // تعديل الـ action
-//       if (response.status === 201) {
-//         Swal.fire({
-//           icon: "success",
-//           title: t("routineTaskAdded"), // تعديل الترجمة
-//           showConfirmButton: false,
-//           timer: 1500,
-//           timerProgressBar: true,
-//         });
-//       }
-//       closePopup();
-//       await fetchRoutineTasks();
-//       componentKey.value += 1;
-//     } catch (error) {
-//       Swal.fire({
-//         icon: "error",
-//         title: t("routineTaskAddedError"), // تعديل الترجمة
-//         showConfirmButton: false,
-//         timer: 1500,
-//         timerProgressBar: true,
-//       });
-//     } finally {
-//       isLoading.value = false;
-//     }
-//   } else {
-//     Swal.fire({
-//       title: t("routineTaskNameRequired"), // تعديل الترجمة
-//       icon: "warning",
-//     });
-//     isLoading.value = false;
-//   }
-// };
+// تقطيع المهام حسب الصفحة
+const paginatedTasks = computed(() => {
+  const startIndex =
+    (pagination.value.current_page - 1) * pagination.value.per_page;
+  const endIndex = startIndex + pagination.value.per_page;
+  return filteredTasks.value.slice(startIndex, endIndex);
+});
+
+// console.log("filteredTasks.value =", filteredTasks.value);
+// console.log("paginatedTasks.value =", paginatedTasks.value);
+
+const resetFilters = () => {
+  selectedTaskType.value = "";
+  selectedStatus.value = "";
+  selectedDepartments.value = [];
+  selectedProjects.value = [];
+  pagination.value.current_page = 1;
+};
+
+const toggleAllDepartments = () => {
+  if (selectedDepartments.value.length === userDepartment.value.length) {
+    selectedDepartments.value = [];
+  } else {
+    selectedDepartments.value = userDepartment.value.map((dept) => ({
+      id: dept.value,
+      name: dept.label,
+    }));
+  }
+};
+
+const toggleAllProjects = () => {
+  if (selectedProjects.value.length === formattedProjects.value.length) {
+    selectedProjects.value = [];
+  } else {
+    selectedProjects.value = formattedProjects.value.map((project) => ({
+      id: project.value,
+      name: project.label,
+    }));
+  }
+};
+
+const handlePageChange = (page) => {
+  if (page >= 1 && page <= pagination.value.last_page) {
+    pagination.value.current_page = page;
+  }
+};
+
+function searchMatch(task) {
+  const query = searchQuery.value.toLowerCase();
+  const taskName = (task.title || "").toLowerCase();
+  return taskName.includes(query);
+}
+
+// عداد يأتي من الابن
+const oneTimeTasksCount = ref(0);
+function handleFilteredCount(newCount) {
+  oneTimeTasksCount.value = newCount;
+}
+
+// فتح النافذة المنبثقة
+function openPopup() {
+  showPopup.value = true;
+}
+
+/* ==== تغيير اسم الدالة من addRoutineTask إلى createOneTimeTask ==== */
+async function createOneTimeTask() {
+  // نفس المنطق السابق لتجميع البيانات
+  if (oneTimeTaskName.value) {
+    isLoading.value = true;
+    const oneTimeTask = {
+      title: oneTimeTaskName.value,
+      description: oneTimeTaskDescription.value,
+      start_date: startDate.value,
+      deadline: endDate.value,
+      department_id: deptId.value,
+      project_id: projectId.value,
+      // is_urgent: isUrgent.value,
+      priority: priority.value,
+      assigned_user_id: selectedEmployee.value,
+      supervisor_user_id: selectedSupervisor.value,
+    };
+
+    console.log("oneTimeTask:", oneTimeTask);
+    try {
+      // تنادي أكشن بـStore لو أردت (كما كان يفعل addRoutineTask)
+      const response = await store.dispatch("createOneTimeTask", oneTimeTask);
+      if (response.status === 201) {
+        // تنبيه نجاح (إن كنت تستخدم Swal أو غيره)
+        // console.log("OneTimeTask created successfully!");
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "OneTimeTask created successfully!",
+        });
+      }
+      closePopup();
+      await refreshTasks();
+      componentKey.value += 1;
+    } catch (error) {
+      // تنبيه خطأ
+      console.error("Error creating oneTimeTask:", error);
+      Swal.fire({
+      icon: "error",
+      title: t("errorOccurred"),
+      html: error,
+      showConfirmButton: true,
+      backdrop: "rgba(0,0,0,0.5)",
+      heightAuto: false,
+      customClass: {
+        popup: "swal-above-modal",
+      },
+    });
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
+    // إن لم يُدخل الاسم
+    // console.log("Please enter the name.");
+    isLoading.value = false;
+  }
+}
+
+function openEditPopupInParent(task) {
+  // نُجهّز الحقول بقيم task
+  editMode.value = true;
+  showEditPopup.value = true;
+  editedTaskId.value = task.id;
+
+  console.log("task:", task.is_urgent);
+
+  oneTimeTaskName.value = task.title || "";
+  oneTimeTaskDescription.value = task.description || "";
+  selectedEmployee.value = task.assigned_user?.id || "";
+  selectedSupervisor.value = task.supervisor?.id || "";
+  deptId.value = task.department?.id || "";
+  projectId.value = task.project?.id || "";
+  // isUrgent.value = task.is_urgent || false;
+  priority.value = task.priority || "";
+  startDate.value = task.start_date || "";
+  endDate.value = task.deadline || "";
+  // ... إلخ
+}
+
+const closeEditPopup = () => {
+  showEditPopup.value = false;
+  editMode.value = false;
+  editedTaskId.value = null;
+  // تنظيف الحقول
+  oneTimeTaskName.value = "";
+  oneTimeTaskDescription.value = "";
+  selectedEmployee.value = "";
+  selectedSupervisor.value = "";
+  deptId.value = "";
+  projectId.value = "";
+  // isUrgent.value = false;
+  priority.value = "";
+  startDate.value = "";
+  endDate.value = "";
+  // ... إلخ
+};
+
+const updateOneTimeTask = async () => {
+  if (!oneTimeTaskName.value) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Please enter the task name.",
+    });
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    const updatedTask = {
+      id: editedTaskId.value,
+      title: oneTimeTaskName.value,
+      description: oneTimeTaskDescription.value,
+      assigned_user_id: selectedEmployee.value,
+      supervisor_user_id: selectedSupervisor.value,
+      department_id: deptId.value,
+      project_id: projectId.value,
+      // is_urgent: isUrgent.value,
+      priority: priority.value,
+      start_date: startDate.value,
+      deadline: endDate.value,
+    };
+
+    const response = await store.dispatch("updateOneTimeTask", updatedTask);
+
+    if (response.status === 200) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "One Time Task updated successfully!",
+      });
+      closeEditPopup();
+      await refreshTasks();
+      componentKey.value += 1;
+    }
+  } catch (error) {
+    // تنبيه خطأ
+    console.error("Error creating oneTimeTask:", error);
+      Swal.fire({
+      icon: "error",
+      title: t("errorOccurred"),
+      html: error,
+      showConfirmButton: true,
+      backdrop: "rgba(0,0,0,0.5)",
+      heightAuto: false,
+      customClass: {
+        popup: "swal-above-modal",
+      },
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 const translations = {
   en: {
@@ -389,44 +626,42 @@ const translations = {
       "This email is already registered. Please use another email.",
     generalError: "An error occurred while submitting. Please try again later.",
     invalidCompanyIdOrUserId: "Invalid Company ID or User ID.",
-    routineTaskDeleted: "Routine Task deleted successfully.", // تعديل الترجمة
-    routineTaskAdded: "Routine Task added successfully.", // تعديل الترجمة
-    deleteConfirmationTitle: "Delete Routine Task", // تعديل الترجمة
+    /* ==== تغيرت routineTask... إلى oneTimeTask... ==== */
+    oneTimeTaskDeleted: "One Time Task deleted successfully.",
+    oneTimeTaskAdded: "One Time Task added successfully.",
+    deleteConfirmationTitle: "Delete One Time Task",
     deleteConfirmationText:
-      "Are you sure you want to delete this Routine Task?", // تعديل الترجمة
+      "Are you sure you want to delete this One Time Task?",
     delete: "Delete",
-    addRoutineTask: "Add Routine Task", // تعديل الترجمة
-    routineTaskName: "Routine Task Name", // تعديل الترجمة
-    description: "Description",
+    addRoutineTask: "Add One Time Task",
+    taskName: "Task Name*",
+    description: "Description*",
+    assignTo: "Assign To*",
+    supervisor: "Supervisor*",
+    editOneTimeTask: "Edit One Time Task",
+    update: "Update",
     close: "Close",
     create: "Create",
-    oneTimeTasks: "One Time Tasks", // تعديل الترجمة
-    routineTaskNameRequired: "Please enter the routine task name.", // تعديل الترجمة
-    routineTaskAddedError:
-      "An error occurred while adding the routine task. Please try again later.", // تعديل الترجمة
+    oneTimeTasks: "One Time Tasks",
+    TaskNameRequired: "Please enter the task name.",
+    TaskAddedError:
+      "An error occurred while adding the task. Please try again later.",
     from: "From",
     to: "To",
-    routineTaskManager: "Routine Task Manager", // تعديل الترجمة
+    TaskManager: "Task Manager",
     assignManager: "Assign Manager",
     enterDescription: "Enter Description",
-    enterRoutineTaskName: "Enter Routine Task Name", // تعديل الترجمة
-    createRoutineTask: "Create Routine Task", // تعديل الترجمة
+    selectProject: "Select Project",
+    selectDepartment: "Select Department",
+    enterTaskName: "Enter Task Name",
+    createOneTimeTask: "Create One Time Task",
     saving: "Saving...",
-    noRoutineTasks: "No routine tasks found.", // تعديل الترجمة
-    createee: "Create your routine tasks", // تعديل الترجمة
-    inactive: "Inactive", // إضافة ترجمة للحالة
+    noRoutineTasks: "No one-time tasks found.",
+    createee: "Create your one-time tasks",
+    inactive: "Inactive",
     active: "Active",
-    advancedSettings: "Advanced Settings", // إضافة ترجمة
+    advancedSettings: "Advanced Settings",
     taskNumber: "Task Number",
-
-    // taskType: "Task Type",
-    // selectTaskType: "Select Task Type",
-    // recurrentDays: "Recurrent Days",
-    // enterRecurrentDays: "Enter number of recurrent days",
-    // dayOfMonth: "Day of Month",
-    // enterDayOfMonth: "Enter day of the month ex: 1, 2,....31",
-    // department: "Department",
-    // selectDepartment: "Select Department",
     sunday: "Sunday",
     monday: "Monday",
     tuesday: "Tuesday",
@@ -435,7 +670,8 @@ const translations = {
     friday: "Friday",
     saturday: "Saturday",
     enterStartDate: "Enter start date",
-    startDate: "Start Date",
+    startDate: "Start Date*",
+    endDate: "End Date*",
     taskType: "Task Type",
     status: "Status",
     department: "Department",
@@ -445,8 +681,6 @@ const translations = {
     weekly: "Weekly",
     monthly: "Monthly",
     daily: "Daily",
-    // active: 'Active',
-    // inactive: 'Inactive',
     applyFilters: "Apply Filters",
     resetFilters: "Reset Filters",
     selectAll: "Select All",
@@ -455,7 +689,11 @@ const translations = {
     not_done: "Not Done",
     not_reported: "Not Reported",
     LatedTasks: "Lated Tasks",
-    commingSoon: "coming soon",
+    allProjects: "All Projects",
+    project: "Project",
+    isUrgent: "Is Urgent",
+    priority: "Priority*",
+    searchPlaceholder: "Search tasks...",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -464,41 +702,44 @@ const translations = {
       "هذا البريد الالكتروني مسجل بالفعل. يرجى استخدام بريد الكتروني اخر.",
     generalError: "حدث خطأ في التقديم. يرجى المحاولة مرة اخرى في وقت لاحق.",
     invalidCompanyIdOrUserId: "معرف الشركة أو معرف المستخدم غير صحيح.",
-    routineTaskDeleted: "تم حذف المهمة الروتينية بنجاح.", // تعديل الترجمة
-    routineTaskAdded: "تم اضافة المهمة الروتينية بنجاح.", // تعديل الترجمة
-    deleteConfirmationTitle: "حذف المهمة الروتينية", // تعديل الترجمة
-    deleteConfirmationText: "هل تريد حذف هذه المهمة الروتينية؟", // تعديل الترجمة
+    oneTimeTaskDeleted: "تم حذف المهمة الواحدة بنجاح.",
+    oneTimeTaskAdded: "تم إضافة المهمة الواحدة بنجاح.",
+    deleteConfirmationTitle: "حذف المهمة الواحدة",
+    deleteConfirmationText: "هل تريد حذف هذه المهمة الواحدة؟",
     delete: "حذف",
-    addRoutineTask: "اضافة مهمة روتينية", // تعديل الترجمة
-    routineTaskName: "اسم المهمة الروتينية", // تعديل الترجمة
-    description: "وصف المشروع",
+    addRoutineTask: "إضافة مهمة واحدة",
+    taskName: "*اسم المهمة",
+    description: "*وصف المهمة",
+    assignTo: "*تعيين",
+    supervisor: "*المشرف",
     close: "اغلاق",
     create: "اضافة",
-    oneTimeTasks: "مهام واحدية", // تعديل الترجمة
-    routineTaskNameRequired: "يرجى ادخال اسم المهمة الروتينية.", // تعديل الترجمة
-    routineTaskAddedError:
-      "حدث خطأ في اضافة المهمة الروتينية. يرجى المحاولة مرة اخرى في وقت لاحق.", // تعديل الترجمة
+    editOneTimeTask: "تعديل المهمة الواحدة",
+    update: "تحديث",
+    oneTimeTasks: "المهام الواحدة",
+    TaskNameRequired: "يرجى ادخال اسم المهمة.",
+    TaskAddedError: "حدث خطأ في إضافة المهمة. يرجى المحاولة لاحقاً.",
     from: "من",
-    to: "إلى",
-    routineTaskManager: "مدير المهمة الروتينية", // تعديل الترجمة
+    to: "إلى",
+    TaskManager: "مدير المهمة",
     assignManager: "تعيين المدير",
     enterDescription: "ادخال الوصف",
-    enterRoutineTaskName: "ادخال اسم المهمة الروتينية", // تعديل الترجمة
-    createRoutineTask: "اضافة مهمة روتينية", // تعديل الترجمة
-    saving: "يتم الحفظ...",
-    noRoutineTasks: "لا يوجد مهام روتينية.", // تعديل الترجمة
-    createee: "انشئ مهامك الروتينية", // تعديل الترجمة
-    inactive: "غير نشط", // إضافة ترجمة للحالة
-    active: "نشط",
-    advancedSettings: "الإعدادات المتقدمة", // إضافة ترجمة
-    taskNumber: "رقم المهمة",
 
+    enterTaskName: "ادخل اسم المهمة",
+    createOneTimeTask: "إنشاء مهمة واحدة",
+    saving: "يتم الحفظ...",
+    noRoutineTasks: "لا توجد مهام واحدة.",
+    createee: "أنشئ مهامك الواحدة",
+    inactive: "غير نشط",
+    active: "نشط",
+    advancedSettings: "الإعدادات المتقدمة",
+    taskNumber: "رقم المهمة",
     taskType: "نوع المهمة",
     selectTaskType: "اختر نوع المهمة",
     recurrentDays: "أيام التكرار",
     enterRecurrentDays: "ادخل عدد أيام التكرار",
     dayOfMonth: "يوم الشهر",
-    enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,....31",
+    enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,... 31",
     department: "القسم",
     selectDepartment: "اختر القسم",
     sunday: "الاحد",
@@ -510,17 +751,11 @@ const translations = {
     saturday: "السبت",
     enterStartDate: "ادخل تاريخ البدء",
     startDate: "تاريخ البدء",
-    // taskType: 'نوع المهمة',
-    // status: 'الحالة',
-    // department: 'القسم',
-    // allTypes: 'جميع النوايات',
-    // allStatuses: 'جميع الحالات',
-    // allDepartments: 'جميع القسوم',
+    endDate: "تاريخ الانتهاء",
+    allProjects: "جميع المشاريع",
     weekly: "اسبوعي",
     monthly: "شهري",
     daily: "يومي",
-    // active: 'نشط',
-    // inactive: 'غير نشط',
     applyFilters: "تطبيق التصفيات",
     resetFilters: "اعادة تعيين التصفيات",
     selectAll: "اختر الكل",
@@ -529,232 +764,91 @@ const translations = {
     not_done: "لم يتم",
     not_reported: "لم يتم التقرير",
     LatedTasks: "مهام متاخرة",
+    project: "المشروع",
+    isUrgent: "هامة جدا*",
+    priority: "الاولوية*",
+    selectProject: "اختر المشروع",
+    searchPlaceholder: "...ابحث هنا",
   },
 };
 
-const daysOfWeek = [
-  { label: t("sunday"), value: 0 },
-  { label: t("monday"), value: 1 },
-  { label: t("tuesday"), value: 2 },
-  { label: t("wednesday"), value: 3 },
-  { label: t("thursday"), value: 4 },
-  { label: t("friday"), value: 5 },
-  { label: t("saturday"), value: 6 },
-];
+// const employees = computed(() => store.getters.dataFromApi);
+// console.log(employees.value);
 
-// Handle page change event from child
-// const handlePageChange = (page) => {
-//   if (page >= 1 && page <= pagination.value.last_page) {
-//     pagination.value.current_page = page;
-//   }
-// };
-
-// onMounted(async () => {
-//   await store.dispatch("fetchDepartments");
-// });
-
-// In created() or setup()
-// onMounted(async () => {
-//   try {
-//     // Fetch departments from your API or Vuex store
-//     const fetchedDepartments = await store.dispatch("fetchDepartments");
-//     console.log("Fetched Departments:", fetchedDepartments);
-//   } catch (error) {
-//     console.error("Error fetching departments:", error);
-//   }
-
-//   await refreshTasks();
-
-//   // ====== Auto-refresh every 60 seconds ======
-//   refreshInterval.value = setInterval( async () => {
-//     console.log("Auto-refreshing tasks...");
-//     await refreshTasks();
-//   }, 60_000);
-// });
-
-// const nowTime = ref(new Date());
-// // const formatTime = (time) => {
-// //   return time.toLocaleTimeString([], {
-// //     hour: "2-digit",
-// //     minute: "2-digit",
-// //     hour12: false  // Use 24-hour format
-// //   });
-// // };
-// // const formattedNowTime = ref(formatTime(nowTime.value));
-
-// const filteredTasks = computed(() => {
-//   let tasks = [...routineTasks.value];
-//   console.log(tasks);
-
-//   // a) Filter by Task Type if selected
-//   // if (selectedTaskType.value) {
-//   //   tasks = tasks.filter((t) => t.task_type === selectedTaskType.value);
-//   // }
-
-//   // b) Filter by Status if selected
-//   if (selectedStatus.value) {
-//     // You need to know how "status" is stored in your tasks
-//     // e.g., t.active === true/false, or t.status === 'active'/'inactive'
-//     if (selectedStatus.value === "done") {
-//       tasks = tasks.filter((t) => t.today_report_status === "done");
-//     } else if (selectedStatus.value === "not_done") {
-//       tasks = tasks.filter((t) => t.today_report_status === "not_done");
-//     } else if (selectedStatus.value === "null") {
-//       tasks = tasks.filter((t) => t.today_report_status === null );
-//     }  else if (selectedStatus.value === "lated") {
-//       tasks = tasks.filter((t) => {
-//         // Check if task is lated (time passed)
-//         if (!t.to) return false;
-
-//         // Parse task's 'to' time
-//         const [taskHours, taskMinutes] = t.to.split(':').map(Number);
-//         const taskTime = new Date();
-//         taskTime.setHours(taskHours, taskMinutes, 0, 0);
-
-//         // Check if task is not done or not reported
-//         const isNotDoneOrReported =
-//           t.today_report_status !== "done" &&
-//           t.today_report_status !== "not_done";
-
-//         // Return true if time has passed and task is not done
-//         return taskTime < nowTime.value && isNotDoneOrReported;
-//       });
-//     }
-//   }
-
-//   // c) Filter by selected departments
-//   if (selectedDepartments.value.length > 0) {
-//     const departmentIds = selectedDepartments.value.map((d) => d.id);
-//     console.log(departmentIds);
-//     tasks = tasks.filter(
-//       (t) =>
-//         // Ensure you have t.dept_id
-//         t.department.dept_id && departmentIds.includes(t.department.dept_id)
-//     );
-//   }
-
-//   return tasks;
-// });
-
-// watch(
-//   () => filteredTasks.value.length,
-//   (newLength) => {
-//     // Update pagination data here (instead of inside computed)
-//     pagination.value.total = newLength;
-//     pagination.value.last_page = Math.ceil(
-//       newLength / pagination.value.per_page
-//     );
-
-//     // If current page is now out of range, reset to last valid page
-//     if (pagination.value.current_page > pagination.value.last_page) {
-//       pagination.value.current_page = pagination.value.last_page || 1;
-//     }
-//   },
-//   { immediate: true }
-// );
-
-// // --------------------------------------
-// // 4) Paginated tasks from "filteredTasks"
-// // --------------------------------------
-// const paginatedTasks = computed(() => {
-//   const startIndex =
-//     (pagination.value.current_page - 1) * pagination.value.per_page;
-//   const endIndex = startIndex + pagination.value.per_page;
-//   return filteredTasks.value.slice(startIndex, endIndex);
-// });
-
-// // --------------------------------------
-// // 5) Handler for "Apply Filter" button
-// // --------------------------------------
-// // const applyFilters = () => {
-// //   // We do not need to call the backend if you want purely front-end filtering
-// //   // The computed "filteredTasks" will re-calc automatically.
-
-// //   // Reset to page 1 so we don't land on an out-of-range page
-// //   pagination.value.current_page = 1;
-// // };
-
-// // "Reset Filter" button
-// const resetFilters = () => {
-//   selectedTaskType.value = "";
-//   selectedStatus.value = "";
-//   selectedDepartments.value = [];
-
-//   // Also reset to page 1
-//   pagination.value.current_page = 1;
-// };
-
-// // Toggling "Select All" departments
-// const toggleAllDepartments = () => {
-//   if (selectedDepartments.value.length === userDepartment.value.length) {
-//     selectedDepartments.value = [];
-//   } else {
-//     selectedDepartments.value = userDepartment.value.map((dept) => ({
-//       id: dept.value,
-//       name: dept.label,
-//     }));
-//   }
-// };
-
-// // --------------------------------------
-// // 6) Pagination change from child
-// // --------------------------------------
-// const handlePageChange = (page) => {
-//   if (page >= 1 && page <= pagination.value.last_page) {
-//     pagination.value.current_page = page;
-//   }
-// };
-
-// If you're filtering tasks
-// const routineTasksCount = computed(() => {
-//   return filteredTasks.value.length;
-//   // or routineTasks.value.length, depending on what you want to display
+// // computed properties
+// const formattEmployees = computed(() => {
+//   return employees.value.map((employee) => ({
+//     value: employee.id,
+//     label: employee.name,
+//   }));
 // });
 </script>
 
 <template>
-  <!-- <LanguageSwitcher /> -->
   <div class="py-4 container-fluid">
     <div class="row">
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
-            <div class="d-flex align-items-center">
-              <p class="mb-0 font-weight-bold">{{ t("oneTimeTasks") }}</p>
-              <!-- <small class="mb-0 font-weight-bold mx-2">
-                ({{ routineTasksCount }})
-              </small> -->
-              <!-- <button
-                class="btn btn-link ms-auto"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#filterCollapse"
-                aria-expanded="false"
-                aria-controls="filterCollapse"
-              >
-                <i class="fas fa-filter"></i>
-              </button> -->
+            <div class="container">
+              <div class="row align-items-center">
+                <!-- القسم الأيسر: العنوان والعدد -->
+                <div class="col-12 col-md-4 d-flex align-items-center">
+                  <p class="mb-0 font-weight-bold me-2">
+                    {{ t("oneTimeTasks") }}
+                  </p>
+                  <small class="mb-0 font-weight-bold me-2">
+                    ({{ oneTimeTasksCount }})
+                  </small>
+
+                  <!-- إذا لديك صلاحية لإنشاء المهمة -->
+                  <argon-button  @click="openPopup">
+                    <i class="fas fa-plus"></i>
+                  </argon-button>
+                </div>
+
+                <!-- شريط البحث -->
+                <div class="col-12 col-md-4 my-2 my-md-0">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      :placeholder="t('searchPlaceholder')"
+                      v-model="searchQuery"
+                    />
+                  </div>
+                </div>
+
+                <!-- زر الفلتر -->
+                <!-- <div
+                  class="col-12 col-md-4"
+                  :class="
+                    currentLanguage === 'ar' ? 'text-md-start' : 'text-md-end'
+                  "
+                >
+                  <button
+                    class="btn btn-link"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#filterCollapse"
+                    aria-expanded="false"
+                    aria-controls="filterCollapse"
+                  >
+                    <i class="fas fa-filter"></i>
+                  </button>
+                </div> -->
+              </div>
             </div>
-            <!-- Collapsible Filter Panel -->
+
+            <!-- لوحة الفلترة -->
             <div class="collapse" id="filterCollapse">
               <div class="card card-body">
                 <div class="row">
-                  <!-- TaskType Filter -->
-                  <!-- <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("taskType") }}</label>
-                    <select class="form-select" v-model="selectedTaskType">
-                      <option value="">{{ t("allTypes") }}</option>
-                      <option value="weekly">{{ t("weekly") }}</option>
-                      <option value="monthly">{{ t("monthly") }}</option>
-                      <option value="daily">{{ t("daily") }}</option>
-                    </select>
-                  </div> -->
-
-                  <!-- Department Filter -->
-                  <div class="col-md-6 mb-3">
+                  <!-- مثلاً فلتر الأقسام -->
+                  <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
-                      <!-- <button
+                      <button
                         class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
                         type="button"
                         id="departmentDropdown"
@@ -768,14 +862,13 @@ const daysOfWeek = [
                               ? selectedDepartments[0].name
                               : `${selectedDepartments.length} ${t("departmentsSelected")}`
                         }}
-                      </button> -->
+                      </button>
                       <ul
                         class="dropdown-menu w-100"
                         aria-labelledby="departmentDropdown"
                       >
                         <li class="px-2">
-                          <!-- "Select All" option -->
-                          <!-- <div class="form-check">
+                          <div class="form-check">
                             <input
                               class="form-check-input"
                               type="checkbox"
@@ -792,10 +885,10 @@ const daysOfWeek = [
                             >
                               {{ t("selectAll") }}
                             </label>
-                          </div> -->
+                          </div>
                         </li>
                         <li><hr class="dropdown-divider" /></li>
-                        <!-- <li
+                        <li
                           v-for="dept in userDepartment"
                           :key="dept.value"
                           class="px-2"
@@ -815,13 +908,88 @@ const daysOfWeek = [
                               {{ dept.label }}
                             </label>
                           </div>
-                        </li> -->
+                        </li>
                       </ul>
                     </div>
                   </div>
 
-                  <!-- Status Filter -->
-                  <!-- <div class="col-md-6 mb-3">
+                  <!-- فلتر المشروع -->
+                  <div
+                    v-if="formattedProjects.length !== 0"
+                    class="col-md-4 mb-3"
+                  >
+                    <label class="form-label">{{ t("project") }}</label>
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+                        type="button"
+                        id="projectDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        {{
+                          selectedProjects.length === 0
+                            ? t("allProjects")
+                            : selectedProjects.length === 1
+                              ? selectedProjects[0].name
+                              : `${selectedProjects.length} ${t("projectsSelected")}`
+                        }}
+                      </button>
+                      <ul
+                        class="dropdown-menu w-100"
+                        aria-labelledby="projectDropdown"
+                      >
+                        <li class="px-2">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="selectAllProjects"
+                              :checked="
+                                selectedProjects.length ===
+                                formattedProjects.length
+                              "
+                              @change="toggleAllProjects"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="selectAllProjects"
+                            >
+                              {{ t("selectAll") }}
+                            </label>
+                          </div>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li
+                          v-for="project in formattedProjects"
+                          :key="project.value"
+                          class="px-2"
+                        >
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              :id="'project-' + project.value"
+                              :value="{
+                                id: project.value,
+                                name: project.label,
+                              }"
+                              v-model="selectedProjects"
+                            />
+                            <label
+                              class="form-check-label"
+                              :for="'project-' + project.value"
+                            >
+                              {{ project.label }}
+                            </label>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- فلتر الحالة -->
+                  <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("status") }}</label>
                     <select class="form-select" v-model="selectedStatus">
                       <option value="">{{ t("allStatuses") }}</option>
@@ -830,14 +998,10 @@ const daysOfWeek = [
                       <option value="null">{{ t("not_reported") }}</option>
                       <option value="lated">{{ t("LatedTasks") }}</option>
                     </select>
-                  </div> -->
+                  </div>
                 </div>
 
-                <!-- Filter Buttons -->
                 <div class="d-flex justify-content-end">
-                  <!-- <button class="btn btn-primary me-2" @click="applyFilters">
-                    {{ t("applyFilters") }}
-                  </button> -->
                   <button class="btn btn-secondary" @click="resetFilters">
                     {{ t("resetFilters") }}
                   </button>
@@ -845,6 +1009,7 @@ const daysOfWeek = [
               </div>
             </div>
           </div>
+
           <div class="card-body">
             <form @submit.prevent>
               <argon-alert
@@ -864,6 +1029,7 @@ const daysOfWeek = [
                 {{ successMessage }}
               </argon-alert>
             </form>
+
             <div v-if="isLoading" class="d-flex justify-content-center py-5">
               <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -871,205 +1037,305 @@ const daysOfWeek = [
             </div>
 
             <div
-              class="coming-soon-container d-flex justify-content-center py-5 flex-column align-items-center"
+              v-else-if="oneTimeTasks.length === 0"
+              class="d-flex justify-content-center py-5 flex-column align-items-center"
             >
-              <h3>{{ t("commingSoon") }}</h3>
-              <!-- <p>{{ t("createee") }}</p> -->
-
-              <!-- Loading bar -->
-              <div class="loading-bar-container w-100 mt-4">
-                <div class="loading-bar"></div>
-              </div>
+              <h5>{{ t("noRoutineTasks") }}</h5>
+              <p>{{ t("createee") }}</p>
             </div>
 
-            <!-- <routine-tasks-table
+            <one-time-task-table
               v-else
-              :routineTasks="paginatedTasks"
+              :oneTimeTasks="paginatedTasks"
               :key="componentKey"
               @page-changed="handlePageChange"
               :pagination="pagination"
               @reload-tasks="refreshTasks"
-            /> -->
-            <!-- تعديل المكون والخصائص -->
+              @filtered-count-changed="handleFilteredCount"
+              @open-edit-popup="openEditPopupInParent"
+            />
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- المودال لإنشاء مهمة واحدة -->
   <div v-if="showPopup" class="popup-overlay">
-    <transition name="modal-fade">
-      <ArgonModal
-        v-if="showPopup"
-        :title="t('createRoutineTask')"
-        @close="closePopup"
-        class="routine-task-modal"
-      >
-        <template #default>
-          <div class="modal-content-scroll">
-            <div class="form-group mb-3">
-              <label class="form-label">{{ t("routineTaskName") }}:</label>
+  <transition name="modal-fade">
+    <ArgonModal
+      v-if="showPopup"
+      :title="t('createOneTimeTask')"
+      @close="closePopup"
+      class="one-time-task-modal"
+    >
+      <template #default>
+        <div class="modal-content-scroll">
+          <!-- بداية الـrow الشامل -->
+          <div class="row">
+
+            <!-- اسم المهمة (سطر كامل) -->
+            <div class="col-12 mb-3">
+              <label class="form-label">{{ t("taskName") }}:</label>
               <input
-                v-model="routineTaskName"
+                v-model="oneTimeTaskName"
                 class="form-control"
-                :placeholder="t('enterRoutineTaskName')"
+                :placeholder="t('enterTaskName')"
+                required
               />
             </div>
 
-            <div class="form-group mb-3">
+            <!-- الوصف (سطر كامل) -->
+            <div class="col-12 mb-3">
               <label class="form-label">{{ t("description") }}:</label>
               <textarea
-                v-model="routineTaskDescription"
+                v-model="oneTimeTaskDescription"
                 class="form-control"
                 :placeholder="t('enterDescription')"
+                required
               ></textarea>
             </div>
 
-            <div class="form-group mb-3">
-              <label class="form-label">{{ t("taskType") }}:</label>
+            <!-- حقل assignTo (نصف العرض) -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("assignTo") }}:</label>
               <argon-select
-                v-model="taskType"
-                :options="taskTypeOptions"
-                :placeholder="t('selectTaskType')"
+                v-model="selectedEmployee"
+                :options="employeeOptions"
+                :placeholder="t('selectEmployee')"
                 class="form-control"
+                required
               />
             </div>
 
-            <div v-show="taskType === 'weekly'" class="form-group mb-3">
-              <label class="form-label">{{ t("recurrentDays") }}:</label>
-              <div class="d-flex flex-wrap">
-                <div
-                  v-for="day in daysOfWeek"
-                  :key="day.value"
-                  class="form-check me-3"
-                >
-                  <argon-checkbox
-                    :id="'day-' + day.value"
-                    :name="'recurrentDays'"
-                    :value="day.value"
-                    :modelValue="recurrentDays"
-                    @update:modelValue="
-                      (checked) => toggleRecurrentDay(day.value, checked)
-                    "
-                  >
-                    {{ day.label }}
-                  </argon-checkbox>
-                </div>
-              </div>
-            </div>
-
-            <div v-show="taskType === 'monthly'" class="form-group mb-3">
-              <label class="form-label">{{ t("dayOfMonth") }}:</label>
-              <input
-                type="number"
-                v-model="dayOfMonth"
-                class="form-control"
-                :placeholder="t('enterDayOfMonth')"
-                min="1"
-                max="31"
-              />
-            </div>
-
-            <div class="form-group mb-3">
-              <label class="form-label">{{ t("department") }}:</label>
+            <!-- حقل supervisor (نصف العرض) -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("supervisor") }}:</label>
               <argon-select
-                v-model="deptId"
-                :options="formattedDepartments"
-                :placeholder="t('selectDepartment')"
+                v-model="selectedSupervisor"
+                :options="employeeOptions"
+                :placeholder="t('selectSupervisor')"
                 class="form-control"
+                required
               />
             </div>
 
-            <div class="form-group mb-3">
+            <!-- مشروع (نصف العرض) -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("project") }}:</label>
+              <argon-select
+                v-model="projectId"
+                :options="formattedProjects"
+                :placeholder="t('selectProject')"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- أولوية (نصف العرض) -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("priority") }}:</label>
+              <argon-select
+                v-model="priority"
+                :options="prioritiesOptions"
+                :placeholder="t('selectPriority')"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- تاريخ البداية (نصف العرض) -->
+            <div class="col-md-6 mb-3">
               <label class="form-label">{{ t("startDate") }}:</label>
               <input
                 type="date"
                 v-model="startDate"
                 class="form-control"
                 :placeholder="t('enterStartDate')"
-                min="1"
-                max="31"
+                required
               />
             </div>
 
-            <!-- زر الإعدادات المتقدمة -->
-            <div class="d-flex align-items-center">
-              <!-- <ArgonButton
-              class="btn btn-link mb-3"
-              @click="toggleAdvancedSettings"
-            >
-              {{ t("advancedSettings") }} 
-            </ArgonButton> -->
-
-              <!-- <div class="d-flex align-items-center ms-auto">
-              <span class="me-2">{{ t("inactive") }}</span> 
-              <argon-switch
-                class="custom-switch-modal"
-                v-model:checked="routineTaskStatus"
-                aria-label="Routine Task Status"
-                role="switch"
-              ></argon-switch>
-              <span class="ms-2">{{ t("active") }}</span> 
-            </div> -->
+            <!-- تاريخ النهاية (نصف العرض) -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("endDate") }}:</label>
+              <input
+                type="date"
+                v-model="endDate"
+                class="form-control"
+                :placeholder="t('enterEndDate')"
+                required
+              />
             </div>
 
-            <div class="form-group mb-3">
-              <label class="form-label">{{ t("from") }}:</label>
-              <input type="time" v-model="fromDate" class="form-control" />
-            </div>
-            <div class="form-group mb-3">
-              <label class="form-label">{{ t("to") }}:</label>
-              <input type="time" v-model="toDate" class="form-control" />
+          </div> 
+          <!-- نهاية الـrow -->
+
+          <!-- أي حقول إضافية أو أقسام أخرى تضعها هنا -->
+        </div>
+      </template>
+
+      <template #footer>
+        <!-- زر الحفظ -->
+        <argon-button
+          variant="success"
+          @click="createOneTimeTask"
+          :disabled="isLoading"
+        >
+          <span
+            v-if="isLoading"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          {{ isLoading ? t("saving") : t("create") }}
+        </argon-button>
+
+        <!-- زر الإغلاق -->
+        <argon-button variant="secondary" @click="closePopup">
+          {{ t("close") }}
+        </argon-button>
+      </template>
+    </ArgonModal>
+  </transition>
+</div>
+
+  <!-- مودال تعديل OneTimeTask -->
+  <!-- داخل مكوّن RoutineTask.vue (المكوّن الأب) -->
+  <!-- مودال تعديل OneTimeTask -->
+  <div v-if="showEditPopup" class="popup-overlay">
+  <transition name="modal-fade">
+    <ArgonModal
+      v-if="showEditPopup"
+      :title="t('editOneTimeTask')"
+      @close="closeEditPopup"
+      class="one-time-task-modal"
+    >
+      <template #default>
+        <div class="modal-content-scroll">
+          <!-- نستخدم row + col لتوزيع الحقول -->
+          <div class="row">
+            
+            <!-- اسم المهمة بعرض كامل -->
+            <div class="col-12 mb-3">
+              <label class="form-label">{{ t("taskName") }}:</label>
+              <input
+                v-model="oneTimeTaskName"
+                class="form-control"
+                :placeholder="t('enterTaskName')"
+                required
+              />
             </div>
 
-            <!-- الإعدادات المتقدمة -->
-            <!-- <transition name="fade">
-            <div v-if="showAdvancedSettings" class="advanced-settings mx-3">
-              <div class="form-group mb-3">
-                <label class="form-label">{{ t("from") }}:</label>
-                <input
-                  type="date"
-                  v-model="fromDate"
-                  class="form-control"
-                />
-              </div>
-              <div class="form-group mb-3">
-                <label class="form-label">{{ t("to") }}:</label>
-                <input
-                  type="date"
-                  v-model="toDate"
-                  class="form-control"
-                />
-              </div>
+            <!-- الوصف بعرض كامل -->
+            <div class="col-12 mb-3">
+              <label class="form-label">{{ t("description") }}:</label>
+              <textarea
+                v-model="oneTimeTaskDescription"
+                class="form-control"
+                :placeholder="t('enterDescription')"
+                required
+              ></textarea>
             </div>
-          </transition> -->
+
+            <!-- assignTo في نصف عرض -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("assignTo") }}:</label>
+              <argon-select
+                v-model="selectedEmployee"
+                :options="employeeOptions"
+                :placeholder="t('selectEmployee')"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- supervisor في نصف عرض -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("supervisor") }}:</label>
+              <argon-select
+                v-model="selectedSupervisor"
+                :options="employeeOptions"
+                :placeholder="t('selectSupervisor')"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- المشروع (project_id) في نصف عرض -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("project") }}:</label>
+              <argon-select
+                v-model="projectId"
+                :options="formattedProjects"
+                :placeholder="t('selectProject')"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- الأولوية (priority) في نصف عرض -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("priority") }}:</label>
+              <argon-select
+                v-model="priority"
+                :options="prioritiesOptions"
+                :placeholder="t('selectPriority')"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- تاريخ البداية في نصف عرض -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("startDate") }}:</label>
+              <input
+                type="date"
+                v-model="startDate"
+                class="form-control"
+                :placeholder="t('enterStartDate')"
+                required
+              />
+            </div>
+
+            <!-- تاريخ النهاية في نصف عرض -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ t("endDate") }}:</label>
+              <input
+                type="date"
+                v-model="endDate"
+                class="form-control"
+                :placeholder="t('enterEndDate')"
+                required
+              />
+            </div>
           </div>
-        </template>
+        </div>
+      </template>
 
-        <template #footer>
-          <argon-button
-            variant="success"
-            @click="addRoutineTask"
-            :disabled="isLoading"
-          >
-            <span
-              v-if="isLoading"
-              class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            {{ isLoading ? t("saving") : t("create") }}
-          </argon-button>
-          <argon-button variant="secondary" @click="closePopup">
-            {{ t("close") }}
-          </argon-button>
-        </template>
-      </ArgonModal>
-    </transition>
-  </div>
+      <template #footer>
+        <ArgonButton
+          variant="success"
+          @click="updateOneTimeTask"
+          :disabled="isLoading"
+        >
+          <span
+            v-if="isLoading"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          {{ isLoading ? t("saving") : t("update") }}
+        </ArgonButton>
+        <ArgonButton variant="secondary" @click="closeEditPopup">
+          {{ t("close") }}
+        </ArgonButton>
+      </template>
+    </ArgonModal>
+  </transition>
+</div>
+
 </template>
-
-/* src/views/RoutineTask.vue */
 
 <style>
 /* تأثيرات الظهور والإخفاء */
@@ -1092,20 +1358,18 @@ const daysOfWeek = [
 }
 
 /* كلاس مخصص للمودال لجعله قابلًا للتمرير */
-.routine-task-modal {
-  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+.one-time-task-modal {
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth; /* تمكين التمرير العمودي */
-  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
-  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
 }
 
-.routine-task-modal .modal-content-scroll {
-  overflow-y: auto; /* تمكين التمرير العمودي */
-  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
-  /* scroll-behavior: smooth;  */
+.one-time-task-modal .modal-content-scroll {
+  overflow-y: auto;
+  flex: 1;
   max-height: 65vh;
 }
 
@@ -1122,72 +1386,20 @@ const daysOfWeek = [
   align-items: center;
 }
 
-/* تحسين تصميم المودال الداخلي */
-.routine-task-modal .modal-header,
-.routine-task-modal .modal-footer {
-  flex-shrink: 0; /* منع الانكماش */
+.one-time-task-modal .modal-header,
+.one-time-task-modal .modal-footer {
+  flex-shrink: 0;
 }
 
-.routine-task-modal .modal-body {
-  flex: 1; /* السماح للمحتوى بالتمدد */
+.one-time-task-modal .modal-body {
+  flex: 1;
 }
 
-/* Container for the coming soon section */
-.coming-soon-container {
-  text-align: center;
-  max-width: 500px; /* Max width to prevent stretching on larger screens */
-  margin: 0 auto;
-  padding: 2rem;
-  /* background-color: #f8f9fa;  */
-  border-radius: 10px;
-  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+.swal2-container {
+  z-index: 100000 !important;
 }
 
-/* Heading Style */
-.coming-soon-container h5 {
-  font-size: 2rem;
-  color: #333;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+.swal-above-modal {
+  z-index: 100001 !important;
 }
-
-/* Paragraph Style */
-.coming-soon-container p {
-  font-size: 1rem;
-  color: #777;
-  margin-bottom: 2rem;
-}
-
-/* Loading Bar Container */
-.loading-bar-container {
-  position: relative;
-  height: 10px;
-  /* background-color: #e0e0e0;  */
-  border-radius: 5px;
-  overflow: hidden;
-  width: 100%;
-}
-
-/* Loading Bar */
-.loading-bar {
-  width: 100%; /* Adjust to represent the loading state */
-  height: 100%;
-  background-color: #28a745; /* Green color */
-  animation: loading 3s ease-in-out;
-}
-
-/* Animation for loading bar */
-@keyframes loading {
-  0% {
-    width: 0%;
-  }
-  50% {
-    width: 50%;
-  }
-  100% {
-    width: 100%;
-  }
-}
-
-/* Optional: You can add additional styles to improve the loading bar effect */
 </style>

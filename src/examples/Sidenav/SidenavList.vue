@@ -159,10 +159,10 @@ const toggleSection = (section) => {
                 </template>
               </sidenav-item>
             </li>
+            <!-- v-if="isOwner || permissions['view-task']" -->
 
             <li
               class="nav-item"
-              v-if="isOwner"
             >
               <sidenav-item
                 :to="{

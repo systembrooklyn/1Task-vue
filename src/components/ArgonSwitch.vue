@@ -69,7 +69,7 @@ watch(
 .custom-switch {
   display: flex;
   align-items: center;
-  gap: 8px;
+  /* gap: 8px; */
 }
 
 /* تنسيق السويتش */

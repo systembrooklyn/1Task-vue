@@ -54,7 +54,6 @@
               {{ t("notes") }}
             </th>
 
-
             <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
@@ -93,7 +92,10 @@
                   @click="openDescriptionModal(task)"
                   title="Open Task Description"
                 >
-                  <h6 class="mb-0 text-sm hover-effect mx-1 " style="direction: rtl;">
+                  <h6
+                    class="mb-0 text-sm hover-effect mx-1"
+                    style="direction: rtl"
+                  >
                     {{ task.task_name }}
                   </h6>
                   <div
@@ -135,18 +137,16 @@
             </td> -->
 
             <td>
-              <p class="text-xs font-weight-bold mb-0" style="direction: rtl;">
+              <p class="text-xs font-weight-bold mb-0" style="direction: rtl">
                 {{ task.project?.name || "No project" }}
               </p>
             </td>
 
             <td>
-              <p class="text-xs font-weight-bold mb-0" style="direction: rtl;">
+              <p class="text-xs font-weight-bold mb-0" style="direction: rtl">
                 {{ task.today_report?.notes || "No Notes" }}
               </p>
             </td>
-
-            
 
             <td>
               <p class="text-xs font-weight-bold mb-0">
@@ -513,65 +513,61 @@
             </ul>
             <div class="tab-content">
               <div v-if="activeTab === 'info'">
-                <dl class="row">
-                  <dt class="col-sm-3">{{ t("taskNumber") }}:</dt>
-                  <dd class="col-sm-9">{{ selectedTaskNumber }}</dd>
+                <dl
+                  class="task-info"
+                  :class="{ 'rtl-mode': currentLanguage === 'ar' }"
+                >
+                  <div class="info-item">
+                    <dt>{{ t("taskNumber") }}:</dt>
+                    <dd>{{ selectedTaskNumber }}</dd>
+                  </div>
 
-                  <dt v-if="selectedDescription" class="col-sm-3">{{ t("description") }}:</dt>
-                  <dd v-if="selectedDescription" class="col-sm-9">{{ selectedDescription }}</dd>
+                  <div v-if="selectedDescription" class="info-item">
+                    <dt>{{ t("description") }}:</dt>
+                    <dd>{{ selectedDescription }}</dd>
+                  </div>
 
-                  <dt class="col-sm-3">{{ t("department") }}:</dt>
-                  <dd class="col-sm-9">
-                    {{ selectedTaskDepartment }}
-                  </dd>
+                  <div class="info-item">
+                    <dt>{{ t("department") }}:</dt>
+                    <dd>{{ selectedTaskDepartment }}</dd>
+                  </div>
 
-                  <dt
+                  <div
                     v-if="
                       selectedTaskRecurrentDays &&
                       selectedTaskRecurrentDays.length
                     "
-                    class="col-sm-3"
+                    class="info-item"
                   >
-                    {{ t("recurrentDays") }}:
-                  </dt>
-                  <dd
-                    v-if="
-                      selectedTaskRecurrentDays &&
-                      selectedTaskRecurrentDays.length
-                    "
-                    class="col-sm-9"
-                  >
-                    {{
-                      selectedTaskRecurrentDays
-                        .map(
-                          (dayValue) =>
-                            daysOfWeek.find((day) => day.value === dayValue)
-                              ?.label
-                        )
-                        .filter(Boolean)
-                        .join(", ")
-                    }}
-                  </dd>
+                    <dt>{{ t("recurrentDays") }}:</dt>
+                    <dd>
+                      {{
+                        selectedTaskRecurrentDays
+                          .map(
+                            (dayValue) =>
+                              daysOfWeek.find((day) => day.value === dayValue)
+                                ?.label
+                          )
+                          .filter(Boolean)
+                          .join(", ")
+                      }}
+                    </dd>
+                  </div>
 
-                  <dt v-if="selectedTaskDayOfMonth" class="col-sm-3">
-                    {{ t("dayOfMonth") }}:
-                  </dt>
-                  <dd v-if="selectedTaskDayOfMonth" class="col-sm-9">
-                    {{ selectedTaskDayOfMonth }}
-                  </dd>
-                  <dt v-if="selectedTaskCreationDate" class="col-sm-3">
-                    {{ t("createdAt") }}:
-                  </dt>
-                  <dd v-if="selectedTaskCreationDate" class="col-sm-9">
-                    {{ formatDate(selectedTaskCreationDate) }}
-                  </dd>
+                  <div v-if="selectedTaskDayOfMonth" class="info-item">
+                    <dt>{{ t("dayOfMonth") }}:</dt>
+                    <dd>{{ selectedTaskDayOfMonth }}</dd>
+                  </div>
 
-                  <dt v-if="selectedTaskStartDate" class="col-sm-3">
-                    {{ t("startDate") }}:
-                  </dt>
-                  <dd v-if="selectedTaskStartDate" class="col-sm-9">
-                    {{ formatDate(selectedTaskStartDate) }}
-                  </dd>
+                  <div v-if="selectedTaskCreationDate" class="info-item">
+                    <dt>{{ t("createdAt") }}:</dt>
+                    <dd>{{ formatDate(selectedTaskCreationDate) }}</dd>
+                  </div>
+
+                  <div v-if="selectedTaskStartDate" class="info-item">
+                    <dt>{{ t("startDate") }}:</dt>
+                    <dd>{{ formatDate(selectedTaskStartDate) }}</dd>
+                  </div>
                 </dl>
               </div>
               <div v-if="activeTab === 'log'">
@@ -1130,16 +1126,28 @@ const translations = {
     project: "المشروع",
   },
 };
+const daysOfWeek = computed(() => {
+  return currentLanguage.value === "ar"
+    ? [
+        { label: "الأحد", value: 0 },
+        { label: "الإثنين", value: 1 },
+        { label: "الثلاثاء", value: 2 },
+        { label: "الأربعاء", value: 3 },
+        { label: "الخميس", value: 4 },
+        { label: "الجمعة", value: 5 },
+        { label: "السبت", value: 6 },
+      ]
+    : [
+        { label: "Sunday", value: 0 },
+        { label: "Monday", value: 1 },
+        { label: "Tuesday", value: 2 },
+        { label: "Wednesday", value: 3 },
+        { label: "Thursday", value: 4 },
+        { label: "Friday", value: 5 },
+        { label: "Saturday", value: 6 },
+      ];
+});
 
-const daysOfWeek = [
-  { label: t("sunday"), value: 0 },
-  { label: t("monday"), value: 1 },
-  { label: t("tuesday"), value: 2 },
-  { label: t("wednesday"), value: 3 },
-  { label: t("thursday"), value: 4 },
-  { label: t("friday"), value: 5 },
-  { label: t("saturday"), value: 6 },
-];
 
 // Emitter when a user clicks a new page
 const changePage = (page) => {
@@ -1152,6 +1160,7 @@ const changePage = (page) => {
 const lastPage = computed(() =>
   Math.ceil(props.pagination.total / props.pagination.per_page)
 );
+
 // التعامل مع تغيير الصفحة
 // const changePage = (page) => {
 //   if (page >= 1 && page <= props.pagination.last_page) {
@@ -1470,5 +1479,56 @@ td {
 .page-item.disabled .page-link {
   pointer-events: none;
   opacity: 0.6;
+}
+
+/* Container */
+.task-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Space between items */
+}
+
+/* Flexbox for alignment */
+.info-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  /* background: #f9f9f9; */
+  border-radius: 6px;
+  border-left: 4px solid #a9ca5c;
+}
+
+/* Default LTR alignment */
+dt {
+  font-weight: bold;
+  min-width: 150px; /* Ensures labels are aligned */
+  text-align: left;
+}
+
+dd {
+  margin: 0;
+  flex-grow: 1;
+  text-align: left; /* Align content properly */
+}
+
+/* RTL Mode (Arabic) */
+.rtl-mode {
+  direction: rtl;
+}
+
+.rtl-mode .info-item {
+  /* flex-direction: row-reverse;  */
+  text-align: right;
+  border-left: none;
+  border-right: 4px solid #a9ca5c; /* Move border to right */
+}
+
+.rtl-mode dt {
+  text-align: right; /* Ensure labels are on the right */
+  justify-content: flex-end; /* Push labels to the right */
+}
+
+.rtl-mode dd {
+  text-align: right; /* Keep values aligned left */
 }
 </style>

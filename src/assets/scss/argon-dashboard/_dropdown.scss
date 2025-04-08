@@ -15,11 +15,11 @@
     .dropdown-toggle {
       &:after {
         content: "\f107";
-        font: normal normal normal 14px/1 ;
+        font: normal normal normal 14px/1 FontAwesome;
         border: none;
         vertical-align: middle;
         font-weight: $font-weight-bold;
-      }
+        margin-left: 5px;      }
       &.show {
         &:after {
           transform: $dropdown-toggle-arrow-transform;
@@ -80,13 +80,13 @@
         font-family: "FontAwesome";
         content: "\f0d8";
         position: absolute;
-        top: 0;
+        top: -7px;
         left: $dropdown-animation-arrow-left-position;
         right: auto;
         font-size: $dropdown-animation-arrow-font-size;
         color: $white;
         transition: $dropdown-animation-arrow-transition;
-      }
+        z-index: 10;      }
     }
 
     .dropdown-item .arrow {

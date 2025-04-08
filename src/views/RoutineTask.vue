@@ -54,6 +54,24 @@ const employeeOptions = computed(() => {
   }));
 });
 
+const statuses = computed(() => {
+  return currentLanguage.value === "ar"
+    ? [
+        { value: "", label: "جميع الحالات" },
+        { value: "done", label: "مكتمل" },
+        { value: "not_done", label: "غير مكتمل" },
+        { value: "null", label: "غير مبلغ" },
+        { value: "lated", label: "متاخر" },
+      ]
+    : [
+        { value: "", label: "All Statuses" },
+        { value: "done", label: "Done" },
+        { value: "not_done", label: "Not Done" },
+        { value: "null", label: "Not Paid" },
+        { value: "lated", label: "Lated" },
+      ];
+});
+
 console.log("employeeOptions:", employeeOptions.value);
 
 const departments = computed(() => store.getters.departments);
@@ -154,10 +172,19 @@ watch(
 // };
 
 const formattedProjects = computed(() => {
-  return routineTasks.value.map((project) => ({
-    value: project.project?.id,
-    label: project.project?.name,
-  }));
+  const uniqueProjects = new Set();
+  return routineTasks.value
+    .map((task) => ({
+      value: task.project?.id,
+      label: task.project?.name,
+    }))
+    .filter((project) => {
+      if (!uniqueProjects.has(project.value)) {
+        uniqueProjects.add(project.value);
+        return true; // Include this project
+      }
+      return false; // Exclude duplicate project
+    });
 });
 
 // غلق المودال
@@ -265,6 +292,8 @@ const pagination = ref({
 // });
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
+
+watch(() => store.getters.currentLanguage);
 
 const t = (key) => {
   return translations[currentLanguage.value][key];
@@ -471,7 +500,6 @@ const translations = {
     allProjects: "All Projects",
     project: "Project",
     searchPlaceholder: "Search tasks...",
-
   },
   ar: {
     addMember: "اضافة عضو",
@@ -530,8 +558,8 @@ const translations = {
     // status: 'الحالة',
     // department: 'القسم',
     // allTypes: 'جميع النوايات',
-    // allStatuses: 'جميع الحالات',
-    // allDepartments: 'جميع القسوم',
+    allStatuses: "جميع الحالات",
+    allDepartments: "جميع الاقسام",
     allProjects: "جميع المشاريع",
     weekly: "اسبوعي",
     monthly: "شهري",
@@ -549,7 +577,6 @@ const translations = {
     project: "المشروع",
     selectProject: "اختر المشروع",
     searchPlaceholder: "...ابحث هنا",
-
   },
 };
 
@@ -660,14 +687,15 @@ const filteredTasks = computed(() => {
       (project) => project.id
     );
     console.log("selectedProjectIds:", selectedProjectIds);
+
     tasks = tasks.filter((task) => {
       // تأكد الـ task.project_id ضمن الـ selectedProjectIds
       return selectedProjectIds.includes(task.project?.id);
     });
   }
 
-    // search
-    tasks = tasks.filter((task) => searchMatch(task));
+  // search
+  tasks = tasks.filter((task) => searchMatch(task));
 
   return tasks;
 });
@@ -737,6 +765,7 @@ const toggleAllDepartments = () => {
 const toggleAllProjects = () => {
   if (selectedProjects.value.length === formattedProjects.value.length) {
     selectedProjects.value = [];
+    console.log(formattedProjects.value.length);
   } else {
     selectedProjects.value = formattedProjects.value.map((project) => ({
       id: project.value,
@@ -802,7 +831,12 @@ const searchMatch = (task) => {
                 </div>
 
                 <!-- القسم الأيمن: زر الفلتر -->
-                <div class="col-12 col-md-4 text-md-end">
+                <div
+                  class="col-12 col-md-4"
+                  :class="
+                    currentLanguage === 'ar' ? 'text-md-start' : 'text-md-end'
+                  "
+                >
                   <button
                     class="btn btn-link"
                     type="button"
@@ -917,13 +951,18 @@ const searchMatch = (task) => {
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                       >
-                        {{
-                          selectedProjects.length === 0
-                            ? t("allProjects")
-                            : selectedProjects.length === 1
-                              ? selectedProjects[0].name
-                              : `${selectedProjects.length} ${t("projectsSelected")}`
-                        }}
+                        <span class="me-2">
+                          {{
+                            selectedProjects.length === 0
+                              ? t("allProjects")
+                              : selectedProjects.length === 1
+                                ? selectedProjects[0].name
+                                : `${selectedProjects.length} ${t("projectsSelected")}`
+                          }}
+                        </span>
+                        <span class="ms-auto">
+                          <i class="fas fa-angle-down"></i>
+                        </span>
                       </button>
                       <ul
                         class="dropdown-menu w-100"
@@ -981,13 +1020,12 @@ const searchMatch = (task) => {
                   <!-- Status Filter -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("status") }}</label>
-                    <select class="form-select" v-model="selectedStatus">
-                      <option value="">{{ t("allStatuses") }}</option>
-                      <option value="done">{{ t("done") }}</option>
-                      <option value="not_done">{{ t("not_done") }}</option>
-                      <option value="null">{{ t("not_reported") }}</option>
-                      <option value="lated">{{ t("LatedTasks") }}</option>
-                    </select>
+                    <argon-select
+                      class="form-select"
+                      v-model="selectedStatus"
+                      :options="statuses"
+                    >
+                    </argon-select>
                   </div>
                 </div>
 

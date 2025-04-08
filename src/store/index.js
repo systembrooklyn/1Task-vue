@@ -77,8 +77,6 @@ export default createStore({
       next_page_url: null,
       prev_page_url: null,
     },
-
-    
   },
   mutations: {
     //بناءا على api laravel
@@ -129,7 +127,6 @@ export default createStore({
 
       // state.dataFromApi = state.dataFromApi.filter(employee => employee.id !== userId);
       // يمكنك أيضًا تحديث `state.user` إذا كان ذلك مطلوبًا
-
     },
 
     SET_SELECTED_ROLE(state, role) {
@@ -137,20 +134,23 @@ export default createStore({
     },
 
     REMOVE_ROLE(state, roleId) {
-      state.dataFromApi = state.dataFromApi.filter(role => role.id !== roleId);
+      state.dataFromApi = state.dataFromApi.filter(
+        (role) => role.id !== roleId
+      );
       // يمكنك أيضًا تحديث `state.user` إذا كان ذلك مطلوبًا
     },
-    
 
     UPDATE_DEPARTMENT(state, department) {
-      const index = state.departments.findIndex(d => d.id === department.id);
+      const index = state.departments.findIndex((d) => d.id === department.id);
       if (index !== -1) {
         state.departments[index] = department;
       }
     },
 
     assignManager(state, manager) {
-      const departmentIndex = state.departments.findIndex(d => d.id === manager.department_id);
+      const departmentIndex = state.departments.findIndex(
+        (d) => d.id === manager.department_id
+      );
       if (departmentIndex !== -1) {
         state.departments[departmentIndex].manager = manager;
       }
@@ -158,7 +158,7 @@ export default createStore({
     },
 
     SET_UPDATE_PROJECT_STATUS(state, project) {
-      const index = state.projects.findIndex(p => p.id === project.id);
+      const index = state.projects.findIndex((p) => p.id === project.id);
       if (index !== -1) {
         state.projects = project;
       }
@@ -183,13 +183,17 @@ export default createStore({
     },
 
     UPDATE_ROUTINE_TASK(state, updatedTask) {
-      const index = state.routineTasks.findIndex(task => task.id === updatedTask.id);
+      const index = state.routineTasks.findIndex(
+        (task) => task.id === updatedTask.id
+      );
       if (index !== -1) {
         state.routineTasks.tasks.splice(index, 1, updatedTask);
       }
     },
     DELETE_ROUTINE_TASK(state, taskId) {
-      state.routineTasks = state.routineTasks.filter(task => task.id !== taskId);
+      state.routineTasks = state.routineTasks.filter(
+        (task) => task.id !== taskId
+      );
     },
 
     updateTaskStatus(state, updatedTask) {
@@ -265,12 +269,11 @@ export default createStore({
     removeRoutineTask(state, taskId) {
       console.log("taskId", taskId);
       console.log("state.routineTasks", state.routineTasks);
-    }, 
-    
+    },
+
     SET_TASK_REPORTS(state, reports) {
       state.routineTasksReports = reports;
     },
-
 
     SET_DASHBOARD_DATA(state, data) {
       state.dashboardData = data;
@@ -288,12 +291,10 @@ export default createStore({
       state.evaluatedTasks = tasks;
     },
 
-
     evaluateTask(state, taskData) {
       console.log("taskData", taskData);
       console.log("state.routineTasks", state.evaluatedTasks);
     },
-    
 
     // end----------------------------------------------------
     // تحميل بيانات المستخدم من `localStorage` عند بدء التشغيل
@@ -355,7 +356,6 @@ export default createStore({
       state.name = name;
       localStorage.setItem("userName", encryptData(name));
     },
-
 
     SET_IS_OWNER(state, isOwner) {
       console.log("isOwner", isOwner);
@@ -447,7 +447,7 @@ export default createStore({
     },
     unassignRole(state, roleId) {
       state.roles = state.roles.filter((role) => role.id !== roleId);
-    },  
+    },
     uanassignDepartment(state, departmentId) {
       state.departments = state.departments.filter(
         (department) => department.id !== departmentId
@@ -599,32 +599,36 @@ export default createStore({
       }
     },
 
-    async updateRole( { commit }, data) {
+    async updateRole({ commit }, data) {
       try {
         const response = await apiClient.updateRolesWithPermissions(data);
         if (response.status === 200) {
           commit("SET_USER", response.data);
           console.log("User data updated:", response);
           return response;
-        } 
+        }
       } catch (error) {
         // استخراج الأخطاء من الرد
         const errorDetails = error.response?.data?.errors;
 
         let errorMessage = "Error adding routine task";
-    
+
         if (errorDetails) {
           // تحويل الأخطاء إلى قائمة نصوص
           errorMessage = Object.entries(errorDetails)
-            .map(([field, messages]) => `<strong>${field}</strong>: ${messages.join(", ")}`)
+            .map(
+              ([field, messages]) =>
+                `<strong>${field}</strong>: ${messages.join(", ")}`
+            )
             .join("<br>");
-            console.log("errorMessage", errorMessage);
+          console.log("errorMessage", errorMessage);
         }
 
         console.error("Error adding routine task:::", errorMessage);
-        throw new Error(errorMessage || error.message || "Unknown error occurred");
+        throw new Error(
+          errorMessage || error.message || "Unknown error occurred"
+        );
       }
-      
     },
 
     async deleteRole({ commit }, roleId) {
@@ -641,7 +645,7 @@ export default createStore({
 
     async deleteEmployee({ commit }, data) {
       try {
-        console.log("response" , data);
+        console.log("response", data);
         const response = await apiClient.deleteUser(data);
         if (response.status === 200) {
           console.log("User deleted:", response.data);
@@ -653,7 +657,6 @@ export default createStore({
         throw error;
       }
     },
-  
 
     // في Vuex
     async updatePassword({ commit }, resetPassData) {
@@ -690,12 +693,11 @@ export default createStore({
       }
     },
 
-    async unassignRole({ commit },data) {
+    async unassignRole({ commit }, data) {
       try {
         // استدعاء API لإزالة الدور
         const response = await apiClient.unassignRole(data);
-        
-        
+
         if (response.status === 200) {
           console.log("Role unassigned successfully:", response.data);
           // تحديث الأدوار في الـ state إذا لزم الأمر
@@ -712,7 +714,6 @@ export default createStore({
         throw error;
       }
     },
-  
 
     async getCompanyUsers({ commit }) {
       // console.log("getCompanyUsers called");
@@ -728,11 +729,14 @@ export default createStore({
           return response;
         }
       } catch (error) {
-        console.error("Error fetching projects:", error.response?.data?.message || error.message);
-        // throw error.response?.data || error; // إعادة الخطأ       
+        console.error(
+          "Error fetching projects:",
+          error.response?.data?.message || error.message
+        );
+        // throw error.response?.data || error; // إعادة الخطأ
       }
     },
-    
+
     async submitCompanyData({ commit }, companyData) {
       try {
         // إرسال بيانات الشركة إلى الخادم
@@ -856,7 +860,6 @@ export default createStore({
       }
     },
 
-
     async fetchRoles({ commit }) {
       try {
         const response = await apiClient.getRoles(); // جلب الأدوار من الـ API
@@ -959,7 +962,9 @@ export default createStore({
         // }
 
         // console.error("Error adding role:::", errorMessage);
-        throw new Error(errorDetails || error.message || "Unknown error occurred");
+        throw new Error(
+          errorDetails || error.message || "Unknown error occurred"
+        );
       }
     },
 
@@ -1068,21 +1073,26 @@ export default createStore({
           return response;
         }
       } catch (error) {
-      // استخراج الأخطاء من الرد
-              const errorDetails = error.response?.data?.errors;
-      
-              let errorMessage = "Error adding routine task";
-          
-              if (errorDetails) {
-                // تحويل الأخطاء إلى قائمة نصوص
-                errorMessage = Object.entries(errorDetails)
-                  .map(([field, messages]) => `<strong>${field}</strong>: ${messages.join(", ")}`)
-                  .join("<br>");
-                  console.log("errorMessage", errorMessage);
-              }
-      
-              console.error("Error adding routine task:::", errorMessage);
-              throw new Error(errorMessage || error.message || "Unknown error occurred");
+        // استخراج الأخطاء من الرد
+        const errorDetails = error.response?.data?.errors;
+
+        let errorMessage = "Error adding routine task";
+
+        if (errorDetails) {
+          // تحويل الأخطاء إلى قائمة نصوص
+          errorMessage = Object.entries(errorDetails)
+            .map(
+              ([field, messages]) =>
+                `<strong>${field}</strong>: ${messages.join(", ")}`
+            )
+            .join("<br>");
+          console.log("errorMessage", errorMessage);
+        }
+
+        console.error("Error adding routine task:::", errorMessage);
+        throw new Error(
+          errorMessage || error.message || "Unknown error occurred"
+        );
       }
     },
 
@@ -1136,15 +1146,17 @@ export default createStore({
           return response;
         }
       } catch (error) {
-        console.error("Error fetching projects:", error.response?.data?.message || error.message);
-        throw error.response?.data || error; // إعادة الخطأ       
+        console.error(
+          "Error fetching projects:",
+          error.response?.data?.message || error.message
+        );
+        throw error.response?.data || error; // إعادة الخطأ
       }
     },
 
     async addProject({ commit }, project) {
       console.log("project", project);
       try {
-
         const response = await apiClient.addProject(project);
         commit("SET_ADD_PROJECT", response.data);
         return response;
@@ -1153,19 +1165,23 @@ export default createStore({
         const errorDetails = error.response?.data?.errors;
 
         let errorMessage = "Error adding routine task";
-    
+
         if (errorDetails) {
           // تحويل الأخطاء إلى قائمة نصوص
           errorMessage = Object.entries(errorDetails)
-            .map(([field, messages]) => `<strong>${field}</strong>: ${messages.join(", ")}`)
+            .map(
+              ([field, messages]) =>
+                `<strong>${field}</strong>: ${messages.join(", ")}`
+            )
             .join("<br>");
-            console.log("errorMessage", errorMessage);
+          console.log("errorMessage", errorMessage);
         }
 
         console.error("Error adding routine task:::", errorMessage);
-        throw new Error(errorMessage || error.message || "Unknown error occurred");
+        throw new Error(
+          errorMessage || error.message || "Unknown error occurred"
+        );
       }
-    
     },
 
     async updateProjectStatus({ commit }, project) {
@@ -1233,9 +1249,9 @@ export default createStore({
         // عرض الخطأ بشكل واضح في وحدة التحكم وتوفيره لـ Swal
         const errorMessage =
           error.response?.data?.message || "Error fetching routine tasks";
-    
+
         console.error("Error fetching routine tasks:", errorMessage);
-    
+
         throw new Error(errorMessage); // رفع الخطأ ليتم التعامل معه في المستوى الأعلى
       }
     },
@@ -1260,23 +1276,28 @@ export default createStore({
         } else {
           return response;
         }
-      }catch (error) {
-              // استخراج الأخطاء من الرد
-              const errorDetails = error.response?.data?.errors;
-      
-              let errorMessage = "Error adding routine task";
-          
-              if (errorDetails) {
-                // تحويل الأخطاء إلى قائمة نصوص
-                errorMessage = Object.entries(errorDetails)
-                  .map(([field, messages]) => `<strong>${field}</strong>: ${messages.join(", ")}`)
-                  .join("<br>");
-                  console.log("errorMessage", errorMessage);
-              }
-      
-              console.error("Error adding routine task:::", errorMessage);
-              throw new Error(errorMessage || error.message || "Unknown error occurred");
-            }
+      } catch (error) {
+        // استخراج الأخطاء من الرد
+        const errorDetails = error.response?.data?.errors;
+
+        let errorMessage = "Error adding routine task";
+
+        if (errorDetails) {
+          // تحويل الأخطاء إلى قائمة نصوص
+          errorMessage = Object.entries(errorDetails)
+            .map(
+              ([field, messages]) =>
+                `<strong>${field}</strong>: ${messages.join(", ")}`
+            )
+            .join("<br>");
+          console.log("errorMessage", errorMessage);
+        }
+
+        console.error("Error adding routine task:::", errorMessage);
+        throw new Error(
+          errorMessage || error.message || "Unknown error occurred"
+        );
+      }
     },
     async updateRoutineTask({ commit }, routineTask) {
       try {
@@ -1315,7 +1336,7 @@ export default createStore({
       console.log("filters", filters);
       try {
         const response = await apiClient.getRoutineTasks(page, filters);
-        
+
         if (response.status === 200) {
           commit("SET_ROUTINE_TASKS", response.data);
           return response;
@@ -1328,7 +1349,6 @@ export default createStore({
         throw error;
       }
     },
-  
 
     async reportRoutineTasks({ commit }, payload) {
       console.log("payload", payload);
@@ -1363,14 +1383,14 @@ export default createStore({
     //     commit("SET_TASK_REPORTS", response.data);
     //     return response;
     //     }
-        
+
     //   } catch (error) {
     //     console.error("Error fetching task reports:", error);
     //     return error;
     //   }
     // },
 
-    async fetchTaskReports({ commit }, date ) {
+    async fetchTaskReports({ commit }, date) {
       console.log("dateeeeeeeeeeeeeeeee", date);
       try {
         const response = await apiClient.getTaskReports(date); // Pass date to API
@@ -1394,7 +1414,6 @@ export default createStore({
         return error;
       }
     },
-    
 
     // dashboard
     async fetchDashboardData({ commit }) {
@@ -1515,25 +1534,24 @@ export default createStore({
       }
     },
 
-// في الـstore (actions.js أو ما يناسب)
-async updateoneTimeTaskStatus({ commit }, payload) {
-  // payload هنا شكلها: { id: <رقم المهمة>, status: "inProgress" أو "panding" }
-  console.log("payload", payload);
+    // في الـstore (actions.js أو ما يناسب)
+    async updateoneTimeTaskStatus({ commit }, payload) {
+      // payload هنا شكلها: { id: <رقم المهمة>, status: "inProgress" أو "panding" }
+      console.log("payload", payload);
 
-  try {
-    const response = await apiClient.updateoneTimeTaskStatus(payload);
-    console.log("updateoneTimeTaskStatus-response", response.data);
+      try {
+        const response = await apiClient.updateoneTimeTaskStatus(payload);
+        console.log("updateoneTimeTaskStatus-response", response.data);
 
-    // (اختياري) لو عندك ميوتation لتحديث الـStore
-    commit("updateoneTimeTaskStatus", response.data);
+        // (اختياري) لو عندك ميوتation لتحديث الـStore
+        commit("updateoneTimeTaskStatus", response.data);
 
-    return response;
-  } catch (error) {
-    console.error("Error updating one time task status:", error);
-    throw error; // أو return error
-  }
-},
-
+        return response;
+      } catch (error) {
+        console.error("Error updating one time task status:", error);
+        throw error; // أو return error
+      }
+    },
 
     async AddCommentOneTimeTask({ commit }, comment) {
       console.log("comment", comment);
@@ -1557,7 +1575,25 @@ async updateoneTimeTaskStatus({ commit }, payload) {
         return response;
       } catch (error) {
         console.error("Error creating one time task:", error);
-        return error;
+        const errorDetails = error.response?.data?.errors;
+
+        let errorMessage = "Error adding routine task";
+
+        if (errorDetails) {
+          // تحويل الأخطاء إلى قائمة نصوص
+          errorMessage = Object.entries(errorDetails)
+            .map(
+              ([field, messages]) =>
+                `<strong>${field}</strong>: ${messages.join(", ")}`
+            )
+            .join("<br>");
+          console.log("errorMessage", errorMessage);
+        }
+
+        console.error("Error adding routine task:::", errorMessage);
+        throw new Error(
+          errorMessage || error.message || "Unknown error occurred"
+        );
       }
     },
 
@@ -1570,7 +1606,27 @@ async updateoneTimeTaskStatus({ commit }, payload) {
         return response;
       } catch (error) {
         console.error("Error updating one time task:", error);
-        return error;
+         // استخراج الأخطاء من الرد
+         const errorDetails = error.response?.data?.errors;
+
+         let errorMessage = "Error adding routine task";
+ 
+         if (errorDetails) {
+           // تحويل الأخطاء إلى قائمة نصوص
+           errorMessage = Object.entries(errorDetails)
+             .map(
+               ([field, messages]) =>
+                 `<strong>${field}</strong>: ${messages.join(", ")}`
+             )
+             .join("<br>");
+           console.log("errorMessage", errorMessage);
+         }
+ 
+         console.error("Error adding routine task:::", errorMessage);
+         throw new Error(
+           errorMessage || error.message || "Unknown error occurred"
+         );
+       
       }
     },
 
