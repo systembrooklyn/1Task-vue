@@ -472,8 +472,8 @@ async function createOneTimeTask() {
     const oneTimeTask = {
       title: oneTimeTaskName.value,
       description: oneTimeTaskDescription.value,
-      start_date: startDate.value,
-      deadline: endDate.value,
+      // start_date: startDate.value,
+      // deadline: endDate.value,
       department_id: deptId.value,
       project_id: projectId.value,
       // is_urgent: isUrgent.value,
@@ -481,6 +481,16 @@ async function createOneTimeTask() {
       assigned_user_id: selectedEmployee.value,
       supervisor_user_id: selectedSupervisor.value,
     };
+
+    // أضف start_date فقط إذا كانت القيمة موجودة
+    if (startDate.value) {
+      oneTimeTask.start_date = startDate.value;
+    }
+
+    // نفس الأمر مع deadline إذا كان اختياريًا
+    if (endDate.value) {
+      oneTimeTask.deadline = endDate.value;
+    }
 
     console.log("oneTimeTask:", oneTimeTask);
     try {
@@ -1061,9 +1071,9 @@ const translations = {
   </div>
 
   <!-- المودال لإنشاء مهمة واحدة -->
-  <div v-if="showPopup" class="popup-overlay">
   <transition name="modal-fade">
-    <ArgonModal
+  <div v-if="showPopup" class="popup-overlay">
+      <ArgonModal
       v-if="showPopup"
       :title="t('createOneTimeTask')"
       @close="closePopup"
@@ -1197,14 +1207,14 @@ const translations = {
         </argon-button>
       </template>
     </ArgonModal>
-  </transition>
-</div>
+  </div>
+</transition>
 
   <!-- مودال تعديل OneTimeTask -->
   <!-- داخل مكوّن RoutineTask.vue (المكوّن الأب) -->
   <!-- مودال تعديل OneTimeTask -->
-  <div v-if="showEditPopup" class="popup-overlay">
   <transition name="modal-fade">
+  <div v-if="showEditPopup" class="popup-overlay">
     <ArgonModal
       v-if="showEditPopup"
       :title="t('editOneTimeTask')"
@@ -1332,8 +1342,8 @@ const translations = {
         </ArgonButton>
       </template>
     </ArgonModal>
-  </transition>
-</div>
+  </div>
+</transition>
 
 </template>
 
@@ -1401,5 +1411,21 @@ const translations = {
 
 .swal-above-modal {
   z-index: 100001 !important;
+}
+
+
+.modal-fade-enter-active, .modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from, .modal-fade-leave-to {
+  opacity: 0;
+}
+
+
+.btn-link {
+  transition: transform 0.2s;
+}
+.btn-link:hover {
+  transform: rotate(90deg);
 }
 </style>

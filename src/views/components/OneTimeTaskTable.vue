@@ -155,7 +155,7 @@
                   data-bs-toggle="tooltip"
                   :title="t('review')"
                 >
-                  <i  class="fa fa-eye"></i>
+                  <i class="fa fa-eye"></i>
                 </button>
               </template>
             </div>
@@ -235,43 +235,46 @@
           </div>
 
           <!-- التفاصيل (عند التوسيع) -->
-          <div v-if="expandedTaskId === task.id" class="task-details">
-            <!-- ملخص أو وصف المهمة -->
-            <p class="task-description">
-              {{ task.description || "No description" }}
-            </p>
+          <transition name="slide-fade">
+            <div v-if="expandedTaskId === task.id" class="task-details">
+              <!-- ملخص أو وصف المهمة -->
+              <p class="task-description">
+                {{ task.description || "No description" }}
+              </p>
 
-            <!-- تاريخ البداية والنهاية -->
-            <small
-              v-if="task.start_date || task.deadline"
-              class="badge"
-              :class="{
-                'badge-danger': isDeadlinePassed(task.deadline),
-                'badge-warning': isDeadlineApproaching(task.deadline),
-                'badge-grey':
-                  !isDeadlinePassed(task.deadline) &&
-                  !isDeadlineApproaching(task.deadline),
-              }"
-            >
-              {{ t("from") }}: {{ formatDate(task.start_date) }} -
-              {{ t("to") }}: {{ formatDate(task.deadline) }}
-            </small>
+              <!-- تاريخ البداية والنهاية -->
+              <small
+                v-if="task.start_date || task.deadline"
+                class="badge"
+                :class="{
+                  'badge-danger': isDeadlinePassed(task.deadline),
+                  'badge-warning': isDeadlineApproaching(task.deadline),
+                  'badge-grey':
+                    !isDeadlinePassed(task.deadline) &&
+                    !isDeadlineApproaching(task.deadline),
+                }"
+              >
+                {{ t("from") }}: {{ formatDate(task.start_date) }} -
+                {{ t("to") }}: {{ formatDate(task.deadline) }}
+              </small>
 
-            <!-- من أنشأ المهمة -->
-            <small v-if="task.creator" class="badge badge-grey">
-              {{ t("createdBy") }}: {{ task.creator?.name || "Unknown" }}
-            </small>
+              <!-- من أنشأ المهمة -->
+              <small v-if="task.creator" class="badge badge-grey">
+                {{ t("createdBy") }}: {{ task.creator?.name || "Unknown" }}
+              </small>
 
-            <!-- المشرف -->
-            <small v-if="task.supervisor" class="badge badge-grey">
-              {{ t("supervisor") }}: {{ task.supervisor?.name || "Unknown" }}
-            </small>
+              <!-- المشرف -->
+              <small v-if="task.supervisor" class="badge badge-grey">
+                {{ t("supervisor") }}: {{ task.supervisor?.name || "Unknown" }}
+              </small>
 
-            <!-- إلى من أُسندت المهمة -->
-            <small v-if="task.assigned_user" class="badge badge-grey">
-              {{ t("assignedTo") }}: {{ task.assigned_user?.name || "No one" }}
-            </small>
-          </div>
+              <!-- إلى من أُسندت المهمة -->
+              <small v-if="task.assigned_user" class="badge badge-grey">
+                {{ t("assignedTo") }}:
+                {{ task.assigned_user?.name || "No one" }}
+              </small>
+            </div>
+          </transition>
         </div>
 
         <!-- الـPagination -->
@@ -328,8 +331,8 @@
     </div>
 
     <!-- مودال التقرير (Report) -->
-    <div v-if="showEditPopup" class="popup-overlay">
-      <transition name="modal-fade">
+    <transition name="fade">
+      <div v-if="showEditPopup" class="popup-overlay">
         <ArgonModal
           v-if="showEditPopup"
           :title="selectedTask.task_name"
@@ -391,75 +394,61 @@
             {{ t("editTask") }}
           </template>
         </ArgonModal>
-      </transition>
-    </div>
+      </div>
+    </transition>
 
     <!-- مودال التعليقات فقط (بدون تبويبات Info/Log) -->
     <!-- مودال التعليقات بكامل الشاشة مع Scroll -->
-    <div v-if="showDescriptionModal" class="popup-overlay">
-      <ArgonModal
-        :title="''"
-        @close="closeDescriptionModal"
-        class="comments-fullscreen-modal"
-      >
-        <!-- عنوان مخصص نضع فيه اسم المهمة والوصف المختصر مع زر see more/less -->
-        <template #title>
-          <div>
-            <!-- اسم المهمة -->
-            <h5 class="mb-1">{{ selectedTaskName }}</h5>
+    <transition name="fade">
+      <div v-if="showDescriptionModal" class="popup-overlay">
+        <ArgonModal
+          :title="''"
+          @close="closeDescriptionModal"
+          class="comments-fullscreen-modal"
+        >
+          <!-- عنوان مخصص نضع فيه اسم المهمة والوصف المختصر مع زر see more/less -->
+          <template #title>
+            <div>
+              <!-- اسم المهمة -->
+              <h5 class="mb-1">{{ selectedTaskName }}</h5>
 
-            <!-- الوصف (بخط صغير) + toggle see more/less -->
-            <small class="text-muted d-block" style="font-size: 0.85rem">
-              <!-- إذا كان الوصف أطول من 100 حرف نعرض جزءًا مع زر المزيد/الأقل -->
-              <template
-                v-if="selectedDescription && selectedDescription.length > 100"
-              >
-                <span v-if="showFullDescription">
-                  {{ selectedDescription }}
-                </span>
-                <span v-else>
-                  {{ truncatedDescription }}
-                </span>
-                <button
-                  @click="toggleDescription"
-                  class="btn btn-link p-0 ms-1"
-                  style="font-size: 0.85rem"
+              <!-- الوصف (بخط صغير) + toggle see more/less -->
+              <small class="text-muted d-block" style="font-size: 0.85rem">
+                <!-- إذا كان الوصف أطول من 100 حرف نعرض جزءًا مع زر المزيد/الأقل -->
+                <template
+                  v-if="selectedDescription && selectedDescription.length > 100"
                 >
-                  {{ showFullDescription ? "See less" : "See more" }}
-                </button>
-              </template>
+                  <span v-if="showFullDescription">
+                    {{ selectedDescription }}
+                  </span>
+                  <span v-else>
+                    {{ truncatedDescription }}
+                  </span>
+                  <button
+                    @click="toggleDescription"
+                    class="btn btn-link p-0 ms-1"
+                    style="font-size: 0.85rem"
+                  >
+                    {{ showFullDescription ? "See less" : "See more" }}
+                  </button>
+                </template>
 
-              <!-- إن كان الوصف أقصر من 100 حرف، نعرضه كله -->
-              <template v-else>
-                {{ selectedDescription }}
-              </template>
-            </small>
-          </div>
-        </template>
-
-        <template #default>
-          <!-- نجعل حاوية التعليقات قابلة للتمرير -->
-          <div class="comments-scroll-container">
-            <!-- الهيكل أثناء التحميل -->
-            <div v-if="isLoadingComments" class="skeleton-loading">
-              <div v-for="i in 3" :key="i" class="skeleton-comment">
-                <div class="skeleton-avatar"></div>
-                <div class="skeleton-content">
-                  <div class="skeleton-line short"></div>
-                  <div class="skeleton-line medium"></div>
-                </div>
-              </div>
+                <!-- إن كان الوصف أقصر من 100 حرف، نعرضه كله -->
+                <template v-else>
+                  {{ selectedDescription }}
+                </template>
+              </small>
             </div>
+          </template>
 
-            <ul v-else class="comment-list">
-              <li
-                v-for="comment in taskComments"
-                :key="comment.id"
-                class="comment-item"
-              >
-                <!-- هيكل الردود أثناء التحميل -->
-                <div v-if="isLoadingReplies" class="skeleton-replies">
-                  <div v-for="i in 2" :key="i" class="skeleton-comment">
+          <template #default>
+            <!-- نجعل حاوية التعليقات قابلة للتمرير -->
+            <div class="comments-scroll-container">
+              <!-- الهيكل أثناء التحميل -->
+              <transition name="fade" mode="out-in">
+                <div v-if="isLoadingComments" class="skeleton-loading">
+                  <div v-for="i in 3" :key="i" class="skeleton-comment">
+                    <div class="skeleton-avatar"></div>
                     <div class="skeleton-content">
                       <div class="skeleton-line short"></div>
                       <div class="skeleton-line medium"></div>
@@ -467,126 +456,187 @@
                   </div>
                 </div>
 
-                <div class="comment-header">
-                  <div class="user-info">
-                    <div>
-                      <span class="user-name">{{ comment.user.name }}</span>
-                      <span class="comment-time">
-                        {{ formatDateWithTime(comment.created_at) }}
-                      </span>
-                    </div>
-                  </div>
-                  <div class="comment-actions">
-                    <button class="btn-reply" @click="toggleReply(comment.id)">
-                      {{ t("reply") }}
-                    </button>
-                  </div>
-                </div>
-                <div class="comment-body" v-html="comment.comment_text"></div>
-
-                <!-- الردود -->
-                <div v-if="comment.replies?.length" class="replies">
-                  <div
-                    v-for="reply in comment.replies"
-                    :key="reply.id"
-                    class="reply-item"
+                <ul v-else class="comment-list">
+                  <li
+                    v-for="comment in taskComments"
+                    :key="comment.id"
+                    class="comment-item"
                   >
-                    <div class="comment-header">
-                      <div class="user-info">
-                        <div>
-                          <span class="user-name">{{ reply.user?.name }}</span>
-                          <span class="comment-time">
-                            {{ formatDateWithTime(reply.created_at) }}
-                          </span>
+                    <!-- هيكل الردود أثناء التحميل -->
+                    <div v-if="isLoadingReplies" class="skeleton-replies">
+                      <div v-for="i in 2" :key="i" class="skeleton-comment">
+                        <div class="skeleton-content">
+                          <div class="skeleton-line short"></div>
+                          <div class="skeleton-line medium"></div>
                         </div>
                       </div>
                     </div>
-                    <div class="comment-body" v-html="reply.reply_text"></div>
-                  </div>
-                </div>
 
-                <!-- لودينج عند إرسال الرد -->
-                <div
-                  v-if="isSubmittingReplyForComment[comment.id]"
-                  class="skeleton-comment"
-                >
-                  <div class="skeleton-line short"></div>
-                  <div class="skeleton-content">
-                    <div class="skeleton-line long"></div>
-                  </div>
-                </div>
+                    <div class="comment-header">
+                      <div class="user-info">
+                        <div>
+                          <span class="user-name">{{ comment.user.name }}</span>
+                          <span class="comment-time">
+                            {{ formatDateWithTime(comment.created_at) }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="comment-actions">
+                        <button
+                          class="btn btn-reply"
+                          @click="toggleReply(comment.id)"
+                        >
+                          {{ t("reply") }}
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="comment-body"
+                      v-html="comment.comment_text"
+                    ></div>
 
-                <!-- مربع الرد -->
-                <div v-if="activeReplyId === comment.id" class="reply-editor">
-                  <quill-editor
-                    v-if="activeReplyId === comment.id"
-                    :ref="(el) => setReplyRef(el, comment.id)"
-                    v-model:content="replyContent"
-                    :options="editorOptions"
-                    @update:content="(val) => (replyContent = val)"
-                    contentType="html"
-                    class="mb-2"
-                  />
-                  <div class="d-flex gap-2">
-                    <ArgonButton @click="submitReply(comment.id)" size="sm">
-                      {{ t("submit") }}
-                    </ArgonButton>
-                    <ArgonButton
-                      variant="outline"
-                      @click="cancelReply"
-                      size="sm"
+                    <small v-if="comment.seen_by?.length">
+  <i class="fa fa-check text-success me-1"></i>
+  <span v-for="(user, index) in comment.seen_by" :key="user.id">
+    {{ user.name }}
+    <span v-if="index !== comment.seen_by.length - 1">, </span>
+  </span>
+</small>
+
+                    <!-- الردود -->
+                    <div v-if="comment.replies?.length" class="replies">
+                      <!-- زر التوسيع/الطي -->
+                      <button
+                        @click="toggleReplies(comment.id)"
+                        class="btn btn-link p-0 mb-2"
+                      >
+                        {{ showReplies[comment.id] ? "Hide" : "View" }}
+                        {{ comment.replies.length }} replies
+                      </button>
+
+                      <transition name="fade">
+                        <div
+                          v-if="showReplies[comment.id]"
+                          class="replies-container"
+                        >
+                          <div
+                            v-for="reply in comment.replies"
+                            :key="reply.id"
+                            class="reply-item"
+                          >
+                            <div class="comment-header">
+                              <div class="user-info">
+                                <div>
+                                  <span class="user-name">{{
+                                    reply.user?.name
+                                  }}</span>
+                                  <span class="comment-time">
+                                    {{ formatDateWithTime(reply.created_at) }}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="comment-body"
+                              v-html="reply.reply_text"
+                            ></div>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
+
+                    <!-- لودينج عند إرسال الرد -->
+                    <div
+                      v-if="isSubmittingReplyForComment[comment.id]"
+                      class="skeleton-comment"
                     >
-                      {{ t("cancel") }}
-                    </ArgonButton>
-                  </div>
-                </div>
-              </li>
-            </ul>
+                      <div class="skeleton-line short"></div>
+                      <div class="skeleton-content">
+                        <div class="skeleton-line long"></div>
+                      </div>
+                    </div>
 
-            <!-- هيكل التعليق الجديد أثناء الإرسال -->
-            <div v-if="isSubmitting" class="skeleton-comment">
-              <div class="skeleton-avatar"></div>
-              <div class="skeleton-content">
-                <div class="skeleton-line long"></div>
+                    <!-- مربع الرد -->
+                    <transition name="fade">
+                      <div
+                        v-if="activeReplyId === comment.id"
+                        class="reply-editor"
+                      >
+                        <quill-editor
+                          v-if="activeReplyId === comment.id"
+                          :ref="(el) => setReplyRef(el, comment.id)"
+                          v-model:content="replyContent"
+                          :options="editorOptions"
+                          @update:content="(val) => (replyContent = val)"
+                          contentType="html"
+                          class="mb-2"
+                        />
+                        <div class="d-flex gap-2">
+                          <ArgonButton
+                            @click="submitReply(comment.id)"
+                            size="sm"
+                          >
+                            {{ t("submit") }}
+                          </ArgonButton>
+                          <ArgonButton
+                            variant="outline"
+                            @click="cancelReply"
+                            size="sm"
+                          >
+                            {{ t("cancel") }}
+                          </ArgonButton>
+                        </div>
+                      </div>
+                    </transition>
+                  </li>
+                </ul>
+              </transition>
+
+              <!-- هيكل التعليق الجديد أثناء الإرسال -->
+              <div v-if="isSubmitting" class="skeleton-comment">
+                <div class="skeleton-avatar"></div>
+                <div class="skeleton-content">
+                  <div class="skeleton-line long"></div>
+                </div>
+              </div>
+
+              <!-- إضافة تعليق جديد -->
+              <div class="new-comment">
+                <h6 class="mb-2">{{ t("write_comment") }}</h6>
+                <quill-editor
+                  v-model:content="taskComment"
+                  :options="editorOptions"
+                  @update:content="(val) => (taskComment = val)"
+                  ref="editorRef"
+                  contentType="html"
+                  class="mb-2"
+                />
+                <ArgonButton
+                  @click="submitComment"
+                  :disabled="isSubmitting"
+                  class="mt-1"
+                >
+                  <i class="fas fa-paper-plane me-2"></i>
+                  {{ isSubmitting ? t("submitting") : t("submit") }}
+                </ArgonButton>
               </div>
             </div>
+          </template>
 
-            <!-- إضافة تعليق جديد -->
-            <div class="new-comment">
-              <h6 class="mb-2">{{ t("write_comment") }}</h6>
-              <quill-editor
-                v-model:content="taskComment"
-                :options="editorOptions"
-                @update:content="(val) => (taskComment = val)"
-                ref="editorRef"
-                contentType="html"
-                class="mb-2"
-              />
-              <ArgonButton
-                @click="submitComment"
-                :disabled="isSubmitting"
-                class="mt-1"
-              >
-                <i class="fas fa-paper-plane me-2"></i>
-                {{ isSubmitting ? t("submitting") : t("submit") }}
-              </ArgonButton>
-            </div>
-          </div>
-        </template>
-
-        <template #footer>
-          <ArgonButton variant="secondary" @click="closeDescriptionModal">
-            {{ t("close") }}
-          </ArgonButton>
-        </template>
-      </ArgonModal>
-    </div>
+          <template #footer>
+            <ArgonButton variant="secondary" @click="closeDescriptionModal">
+              {{ t("close") }}
+            </ArgonButton>
+          </template>
+        </ArgonModal>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
 /* نفس السكربت الأصلي تمامًا دون تغيير أسماء الدوال أو المنطق الأساسي */
-import { computed, ref, onBeforeMount, watch } from "vue";
+import { computed, ref, reactive, onBeforeMount, watch } from "vue";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
 // import { Tooltip } from 'bootstrap'
@@ -642,6 +692,13 @@ const isLoadingComments = ref(false);
 const isLoadingReplies = ref(false);
 const isSubmitting = ref(false);
 const isSubmittingReplyForComment = ref({});
+const showReplies = reactive({});
+
+function toggleReplies(commentId) {
+  // تأكد من أن commentId هو string لتجنب مشاكل المفاتيح
+  const id = String(commentId);
+  showReplies[id] = !showReplies[id];
+}
 
 const props = defineProps({
   oneTimeTasks: {
@@ -1574,9 +1631,9 @@ const updateTaskStatus = async (task, status) => {
   scrollbar-color: transparent transparent;
 }
 .comments-scroll-container {
+  max-height: 60vh; /* تقليل الارتفاع الكلي */
   overflow-y: auto;
-  flex: 1;
-  max-height: 65vh;
+  padding: 1rem;
 }
 
 /* تعليقات */
@@ -1586,46 +1643,76 @@ const updateTaskStatus = async (task, status) => {
   padding: 0;
 }
 .comment-item {
-  background: #f9f9f9;
-  border: 1px solid #eee;
-  border-radius: 6px;
+  background: #f8f9fa;
+  border-radius: 8px;
   padding: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
+
+/* تأثير عند المرور على التعليق */
+.comment-item:hover {
+  transform: translateX(5px);
+  transition: transform 0.2s ease;
+}
+
+/* تأثير عند فتح مربع الرد */
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 .comment-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 5px;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 .user-info {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 .user-name {
   font-weight: 600;
-  color: #2d3436;
+  color: #333;
+  font-size: 0.9rem;
 }
 .comment-time {
-  font-size: 0.85rem;
-  color: #666;
+  color: #6c757d;
+  font-size: 0.8rem;
   margin-left: 0.5rem;
 }
 .comment-body {
-  margin-top: 5px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
 }
 .comment-actions {
   display: flex;
   gap: 0.5rem;
 }
+/* زر الرد */
 .btn-reply {
-  background: none;
-  border: none;
-  color: #3498db;
-  font-size: 0.85rem;
-  cursor: pointer;
+  color: #a6c956;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  transition: color 0.2s;
+  border: 1px solid #a6c956;
 }
 .btn-reply:hover {
-  text-decoration: underline;
+  color: #fff;
+  background-color: #a6c956;
+  /* border-radius: 4px; */
+  /* text-decoration: underline; */
 }
 .replies {
   margin-top: 1rem;
@@ -1633,25 +1720,69 @@ const updateTaskStatus = async (task, status) => {
   padding-left: 1rem;
 }
 .reply-item {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
+  background: #ffffff;
+  border-left: 2px solid #e9ecef;
+  margin-left: 1.5rem;
+  padding-left: 0.75rem;
+  margin-top: 0.5rem;
 }
 .reply-editor {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 6px;
+  background: #ffffff;
   padding: 1rem;
-  margin-top: 1rem;
+  border-radius: 8px;
+  margin-top: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
+
+.ql-editor {
+  min-height: 80px !important;
+  font-size: 0.9rem;
+}
+
+/* .argon-button {
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+} */
+
+/* مربع إضافة التعليق */
 .new-comment {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 6px;
   padding: 1rem;
-  margin-bottom: 2rem;
+  /* background: #f8f9fa; */
+  border-top: 1px solid #e9ecef;
+}
+
+.skeleton-comment {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  background: #e9ecef;
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-line {
+  height: 0.8rem;
+  background: #e9ecef;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-line.medium {
+  width: 80%;
+}
+
+.skeleton-line.long {
+  width: 100%;
 }
 
 /* مهمة عاجلة */
@@ -1718,5 +1849,96 @@ const updateTaskStatus = async (task, status) => {
   line-height: 1.5;
   margin-bottom: 0.5rem;
   word-break: break-word; /* تجنب امتداد النص خارج الحاوية */
+}
+
+/* في قسم <style scoped> */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* إضافة تأثير Hover للزر */
+.review-buttons button {
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.review-buttons button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.task-header {
+  transition:
+    background-color 0.2s,
+    transform 0.2s;
+}
+/* .task-header:hover {
+  transform: translateX(5px);
+} */
+
+.argon-switch {
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+.argon-switch:hover {
+  transform: scale(1.1);
+}
+
+/* تأثير الانتقال */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* تنسيق الزر */
+.btn-view-replies {
+  font-size: 0.85rem;
+  color: #6c757d;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-view-replies:hover {
+  background: #f8f9fa;
+}
+
+/* حاوية الردود */
+.replies-container {
+  margin-top: 0.5rem;
+  /* padding-left: 1.5rem; */
+  /* border-left: 2px solid #e9ecef; */
+}
+
+.btn-link {
+  color: #a6c956;
+  text-decoration: none;
+  cursor: pointer;
 }
 </style>
