@@ -210,6 +210,7 @@
             <!-- أيقونة التعديل -->
             <i
               class="fa fa-edit edit-icon ms-1 text-success"
+              v-if="isOwner"
               @click.stop="openEditPopup(task)"
               data-bs-toggle="tooltip"
               :title="t('edit')"
@@ -496,12 +497,17 @@
                     ></div>
 
                     <small v-if="comment.seen_by?.length">
-  <i class="fa fa-check text-success me-1"></i>
-  <span v-for="(user, index) in comment.seen_by" :key="user.id">
-    {{ user.name }}
-    <span v-if="index !== comment.seen_by.length - 1">, </span>
-  </span>
-</small>
+                      <i class="fa fa-check text-success me-1"></i>
+                      <span
+                        v-for="(user, index) in comment.seen_by"
+                        :key="user.id"
+                      >
+                        {{ user.name }}
+                        <span v-if="index !== comment.seen_by.length - 1"
+                          >,
+                        </span>
+                      </span>
+                    </small>
 
                     <!-- الردود -->
                     <div v-if="comment.replies?.length" class="replies">
@@ -693,6 +699,9 @@ const isLoadingReplies = ref(false);
 const isSubmitting = ref(false);
 const isSubmittingReplyForComment = ref({});
 const showReplies = reactive({});
+
+const isOwner = computed(() => store.getters.isOwner);
+
 
 function toggleReplies(commentId) {
   // تأكد من أن commentId هو string لتجنب مشاكل المفاتيح
