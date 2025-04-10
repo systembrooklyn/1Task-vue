@@ -654,6 +654,16 @@ const config = {
     console.log(reply);
     return apiClient.post(`/taskComments/${reply.id}/replies`, reply, config);
   },
+
+  markReplyAsSeen(replyId) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post(`/taskReplies/read`, replyId, config);
+  },
   //end one time tasks------------------------------------------------
 
   //end

@@ -1,3 +1,5 @@
+// src/components
+
 <script setup>
 import { computed } from 'vue';
 

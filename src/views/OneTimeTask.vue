@@ -170,12 +170,7 @@ watch(
   }
 );
 
-const formattedProjects = computed(() => {
-  return oneTimeTasks.value.map((project) => ({
-    value: project.project?.id,
-    label: project.project?.name,
-  }));
-});
+
 
 // إغلاق النافذة المنبثقة
 const closePopup = () => {
@@ -221,6 +216,8 @@ onBeforeMount(async () => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 
+
+
   try {
     isLoading.value = true;
     // Example of calling your Vuex action:
@@ -250,6 +247,8 @@ onBeforeMount(async () => {
         return aPriority - bPriority;
       });
     }
+  await store.dispatch("fetchProjects");
+
     console.log("oneTimeTasks:", oneTimeTasks.value);
   } catch (error) {
     console.error("Error fetching tasks:", error);
@@ -301,6 +300,7 @@ const refreshTasks = async () => {
 
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
+const projects = computed(() => store.getters.projects);
 
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
@@ -323,6 +323,18 @@ watch(
 const t = (key) => {
   return translations[currentLanguage.value][key];
 };
+
+
+// في المكان الذي تُحدد فيه الخيارات (مثل projects أو departments)
+const formattedProjects = computed(() => {
+  return [
+    { value: null, label: "No Project" }, // خيار جديد لعدم اختيار مشروع
+    ...projects.value.map(project => ({
+      value: project.id,
+      label: project.name
+    }))
+  ];
+});
 
 // متغيرات الفلترة
 const selectedTaskType = ref("");
@@ -401,12 +413,12 @@ watch(
 );
 
 // تقطيع المهام حسب الصفحة
-const paginatedTasks = computed(() => {
-  const startIndex =
-    (pagination.value.current_page - 1) * pagination.value.per_page;
-  const endIndex = startIndex + pagination.value.per_page;
-  return filteredTasks.value.slice(startIndex, endIndex);
-});
+// const paginatedTasks = computed(() => {
+//   const startIndex =
+//     (pagination.value.current_page - 1) * pagination.value.per_page;
+//   const endIndex = startIndex + pagination.value.per_page;
+//   return filteredTasks.value.slice(startIndex, endIndex);
+// });
 
 // console.log("filteredTasks.value =", filteredTasks.value);
 // console.log("paginatedTasks.value =", paginatedTasks.value);
@@ -474,12 +486,12 @@ async function createOneTimeTask() {
       description: oneTimeTaskDescription.value,
       // start_date: startDate.value,
       // deadline: endDate.value,
-      department_id: deptId.value,
-      project_id: projectId.value,
+      department_id: deptId.value || null,
+      project_id: projectId.value || null,
       // is_urgent: isUrgent.value,
       priority: priority.value,
-      assigned_user_id: selectedEmployee.value,
-      supervisor_user_id: selectedSupervisor.value,
+      assigned_user_id: selectedEmployee.value || null,
+      supervisor_user_id: selectedSupervisor.value || null,
     };
 
     // أضف start_date فقط إذا كانت القيمة موجودة
@@ -583,14 +595,16 @@ const updateOneTimeTask = async () => {
 
   try {
     isLoading.value = true;
+
+    // إنشاء الكائن بشكل ديناميكي
     const updatedTask = {
       id: editedTaskId.value,
       title: oneTimeTaskName.value,
       description: oneTimeTaskDescription.value,
-      assigned_user_id: selectedEmployee.value,
-      supervisor_user_id: selectedSupervisor.value,
-      department_id: deptId.value,
-      project_id: projectId.value,
+      assigned_user_id: selectedEmployee.value || null,
+      supervisor_user_id: selectedSupervisor.value || null, 
+      department_id: deptId.value || null,
+      project_id: projectId.value || null,
       // is_urgent: isUrgent.value,
       priority: priority.value,
       start_date: startDate.value,
@@ -610,12 +624,11 @@ const updateOneTimeTask = async () => {
       componentKey.value += 1;
     }
   } catch (error) {
-    // تنبيه خطأ
-    console.error("Error creating oneTimeTask:", error);
-      Swal.fire({
+    console.error("Error updating oneTimeTask:", error);
+    Swal.fire({
       icon: "error",
       title: t("errorOccurred"),
-      html: error,
+      text: error.message || "Something went wrong!",
       showConfirmButton: true,
       backdrop: "rgba(0,0,0,0.5)",
       heightAuto: false,
@@ -1056,7 +1069,7 @@ const translations = {
 
             <one-time-task-table
               v-else
-              :oneTimeTasks="paginatedTasks"
+              :oneTimeTasks="filteredTasks"
               :key="componentKey"
               @page-changed="handlePageChange"
               :pagination="pagination"

@@ -102,7 +102,7 @@
             <!-- زر التعليقات -->
             <div
               @click.stop="openDescriptionModal(task)"
-              class="border rounded px-2"
+              class="border rounded px-2 position-relative"
               :class="{ loading: taskLoading[task.id] }"
             >
               <template v-if="taskLoading[task.id]">
@@ -111,6 +111,11 @@
               <template v-else>
                 <i class="fa fa-comments"></i>
                 <span class="ms-1">{{ task.comments_count || 0 }}</span>
+                <!-- علامة التعليقات الجديدة -->
+                <span
+                  v-if="!task.read_comments"
+                  class="red-dot position-absolute top-0 start-100 translate-middle"
+                ></span>
               </template>
             </div>
 
@@ -279,13 +284,12 @@
         </div>
 
         <!-- الـPagination -->
-        <nav
+        <!-- <nav
           v-if="pagination.total > pagination.per_page"
           aria-label="Page navigation"
           class="pagination-container"
         >
           <ul class="pagination">
-            <!-- السابق -->
             <li
               class="page-item"
               :class="{ disabled: pagination.current_page === 1 }"
@@ -299,7 +303,6 @@
               </a>
             </li>
 
-            <!-- الصفحات -->
             <li
               v-for="page in lastPage"
               :key="page"
@@ -313,7 +316,6 @@
               </a>
             </li>
 
-            <!-- التالي -->
             <li
               class="page-item"
               :class="{ disabled: pagination.current_page === lastPage }"
@@ -327,7 +329,7 @@
               </a>
             </li>
           </ul>
-        </nav>
+        </nav> -->
       </div>
     </div>
 
@@ -511,45 +513,46 @@
 
                     <!-- الردود -->
                     <div v-if="comment.replies?.length" class="replies">
-                      <!-- زر التوسيع/الطي -->
-                      <button
-                        @click="toggleReplies(comment.id)"
-                        class="btn btn-link p-0 mb-2"
-                      >
-                        {{ showReplies[comment.id] ? "Hide" : "View" }}
-                        {{ comment.replies.length }} replies
-                      </button>
+  <!-- زر التوسيع/الطي -->
+  <button
+    @click="toggleReplies(comment.id)"
+    class="btn btn-link p-0 mb-2"
+    :class="{ 'new-reply': hasUnseenReplies(comment) }"
+  >
+    {{ showReplies[comment.id] ? "Hide" : "View" }}
+    {{ comment.replies.length }} replies
+    <!-- علامة جديدة إذا كان هناك ردود غير مقروءة -->
+    <span v-if="hasUnseenReplies(comment)" class="new-reply-dot"></span>
+  </button>
 
-                      <transition name="fade">
-                        <div
-                          v-if="showReplies[comment.id]"
-                          class="replies-container"
-                        >
-                          <div
-                            v-for="reply in comment.replies"
-                            :key="reply.id"
-                            class="reply-item"
-                          >
-                            <div class="comment-header">
-                              <div class="user-info">
-                                <div>
-                                  <span class="user-name">{{
-                                    reply.user?.name
-                                  }}</span>
-                                  <span class="comment-time">
-                                    {{ formatDateWithTime(reply.created_at) }}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div
-                              class="comment-body"
-                              v-html="reply.reply_text"
-                            ></div>
-                          </div>
-                        </div>
-                      </transition>
-                    </div>
+  <!-- الردود -->
+  <transition name="fade">
+    <div v-if="showReplies[comment.id]" class="replies-container">
+      <div
+        v-for="reply in comment.replies"
+        :key="reply.id"
+        class="reply-item"
+        @click="markReplyAsSeen(reply.id)"
+      >
+        <div class="comment-header">
+          <div class="user-info">
+            <div>
+              <span class="user-name">{{ reply.user?.name }}</span>
+              <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="comment-body" v-html="reply.reply_text"></div>
+
+        <!-- علامة جديدة إذا كان الرد غير مقروء -->
+        <span
+          v-if="!reply.is_seen"
+          class="new-reply-dot position-absolute top-0 start-100 translate-middle"
+        ></span>
+      </div>
+    </div>
+  </transition>
+</div>
 
                     <!-- لودينج عند إرسال الرد -->
                     <div
@@ -642,7 +645,7 @@
 
 <script setup>
 /* نفس السكربت الأصلي تمامًا دون تغيير أسماء الدوال أو المنطق الأساسي */
-import { computed, ref, reactive, onBeforeMount, watch } from "vue";
+import { computed, ref, reactive, onBeforeMount, watch, nextTick } from "vue";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
 // import { Tooltip } from 'bootstrap'
@@ -703,11 +706,6 @@ const showReplies = reactive({});
 const isOwner = computed(() => store.getters.isOwner);
 
 
-function toggleReplies(commentId) {
-  // تأكد من أن commentId هو string لتجنب مشاكل المفاتيح
-  const id = String(commentId);
-  showReplies[id] = !showReplies[id];
-}
 
 const props = defineProps({
   oneTimeTasks: {
@@ -922,8 +920,13 @@ async function openDescriptionModal(task) {
     task.hasNewUpdate = false;
 
     await getOneTimeTaskComments(task.id);
+    task.read_comments = true; // تحديث الحالة إلى مقروء
 
     showDescriptionModal.value = true;
+
+    // التمرير التلقائي إلى التعليق الذي يحتوي على رد جديد
+    await nextTick(); // انتظر حتى يتم تحميل التعليقات
+    scrollToFirstUnseenReply();
   } catch (error) {
     console.error("Error fetching comments:", error);
   } finally {
@@ -1101,13 +1104,13 @@ async function submitReply(commentId) {
   }
 }
 
-function changePage(page) {
-  if (page < 1 || page > lastPage.value) return;
-  emit("page-changed", page);
-}
-const lastPage = computed(() =>
-  Math.ceil(props.pagination.total / props.pagination.per_page)
-);
+// function changePage(page) {
+//   if (page < 1 || page > lastPage.value) return;
+//   emit("page-changed", page);
+// }
+// const lastPage = computed(() =>
+//   Math.ceil(props.pagination.total / props.pagination.per_page)
+// );
 
 function openEditPopup(task) {
   emit("open-edit-popup", task);
@@ -1378,6 +1381,68 @@ const updateTaskStatus = async (task, status) => {
     taskLoadingAction.value[task.id] = false; // إيقاف الـ loading
   }
 };
+
+// دالة للتحقق من وجود ردود غير مقروءة
+function hasUnseenReplies(comment) {
+  return comment.replies.find(r => !r.is_seen);
+}
+
+// دالة للتمرير التلقائي إلى التعليق الذي يحتوي على رد جديد
+function scrollToFirstUnseenReply() {
+  const firstUnseenComment = taskComments.value.find((comment) =>
+    comment.replies.some((reply) => !reply.is_seen)
+  );
+
+  if (firstUnseenComment) {
+    // ابحث عن العنصر باستخدام ID أو فئة معينة
+    const commentElement = document.querySelector(
+      `#comment-${firstUnseenComment.id}`
+    );
+    if (commentElement) {
+      commentElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+}
+
+async function markReplyAsSeen(replyId) {
+  try {
+    // البحث عن الرد المحدد في قائمة الردود
+    const replyToUpdate = taskComments.value
+      .flatMap(comment => comment.replies) // جلب جميع الردود من جميع التعليقات
+      .find(reply => reply.id === replyId);
+
+      const replyIds = {
+      reply_id : replyId
+      }
+
+     if (replyToUpdate) {
+      // تحديث الحالة محليًا
+       replyToUpdate.is_seen = true;
+
+      // تحديث الحالة عبر API
+      await store.dispatch("markReplyAsSeen", replyIds);
+    }
+  } catch (error) {
+    console.error("Error marking reply as seen:", error);
+  }
+}
+
+function toggleReplies(commentId) {
+  const id = String(commentId);
+  showReplies[id] = !showReplies[id];
+
+  // إذا تم فتح الردود، نقوم بتحديث حالة الردود إلى مقروءة
+  if (showReplies[id]) {
+    const comment = taskComments.value.find(c => c.id === commentId);
+    if (comment) {
+      comment.replies.forEach(reply => {
+        if (!reply.is_seen) {
+          markReplyAsSeen(reply.id); // تحديث كل رد غير مقروء
+        }
+      });
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -1484,12 +1549,9 @@ const updateTaskStatus = async (task, status) => {
 .red-dot {
   width: 8px;
   height: 8px;
-  background: red;
+  background-color: #ff4444;
   border-radius: 50%;
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
+  display: inline-block;
 }
 
 .task-details {
@@ -1949,5 +2011,38 @@ const updateTaskStatus = async (task, status) => {
   color: #a6c956;
   text-decoration: none;
   cursor: pointer;
+}
+
+.new-reply {
+  position: relative;
+}
+
+.new-reply-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ff4444;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.new-reply {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.top-0 {
+  top: 0;
+}
+
+.start-100 {
+  left: 100%;
+}
+
+.translate-middle {
+  transform: translate(-50%, -50%);
 }
 </style>

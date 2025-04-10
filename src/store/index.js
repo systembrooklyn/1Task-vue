@@ -296,6 +296,11 @@ export default createStore({
       console.log("state.routineTasks", state.evaluatedTasks);
     },
 
+    markRepliesAsSeen(state, replyId) {
+      console.log("taskData", replyId);
+      console.log("state.routineTasks", state.replyId);
+    },
+
     // end----------------------------------------------------
     // تحميل بيانات المستخدم من `localStorage` عند بدء التشغيل
     LOAD_USER_FROM_STORAGE(state) {
@@ -1606,12 +1611,12 @@ export default createStore({
         return response;
       } catch (error) {
         console.error("Error updating one time task:", error);
-         // استخراج الأخطاء من الرد
-         const errorDetails = error.response?.data?.errors;
+        // استخراج الأخطاء من الرد
+        const errorDetails = error.response?.data?.errors;
 
-         let errorMessage = "Error adding routine task";
+        let errorMessage = "Error updating one time task";
  
-         if (errorDetails) {
+        if (errorDetails) {
            // تحويل الأخطاء إلى قائمة نصوص
            errorMessage = Object.entries(errorDetails)
              .map(
@@ -1639,6 +1644,18 @@ export default createStore({
         return response;
       } catch (error) {
         console.error("Error adding reply comment:", error);
+        return error;
+      }
+    },
+
+    async markReplyAsSeen({ commit }, replyId) {
+      try {
+        const response = await apiClient.markReplyAsSeen(replyId);
+        console.log("markRepliesAsSeen-response", response.data);
+        commit("markRepliesAsSeen", { replyId });
+        return response;
+      } catch (error) {
+        console.error("Error marking replies as seen:", error);
         return error;
       }
     },
