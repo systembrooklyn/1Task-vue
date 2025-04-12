@@ -215,7 +215,6 @@
             <!-- أيقونة التعديل -->
             <i
               class="fa fa-edit edit-icon ms-1 text-success"
-              v-if="isOwner"
               @click.stop="openEditPopup(task)"
               data-bs-toggle="tooltip"
               :title="t('edit')"
@@ -703,7 +702,7 @@ const isSubmitting = ref(false);
 const isSubmittingReplyForComment = ref({});
 const showReplies = reactive({});
 
-const isOwner = computed(() => store.getters.isOwner);
+// const isOwner = computed(() => store.getters.isOwner);
 
 
 
