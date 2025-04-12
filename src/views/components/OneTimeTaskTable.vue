@@ -214,6 +214,7 @@
 
             <!-- أيقونة التعديل -->
             <i
+            v-if="task.creator.id === userData.user.id"
               class="fa fa-edit edit-icon ms-1 text-success"
               @click.stop="openEditPopup(task)"
               data-bs-toggle="tooltip"
