@@ -328,10 +328,10 @@ const t = (key) => {
 // في المكان الذي تُحدد فيه الخيارات (مثل projects أو departments)
 const formattedProjects = computed(() => {
   return [
-    { value: null, label: "No Project" }, // خيار جديد لعدم اختيار مشروع
+    { value: null, label: "No Project" }, // خيار عدم اختيار مشروع
     ...projects.value.map(project => ({
       value: project.id,
-      label: project.name
+      label: project.name,
     }))
   ];
 });
@@ -443,10 +443,13 @@ const toggleAllDepartments = () => {
 };
 
 const toggleAllProjects = () => {
-  if (selectedProjects.value.length === formattedProjects.value.length) {
+  // استبعاد الخيار "No Project" (value: null)
+  const actualProjects = formattedProjects.value.filter(p => p.value !== null);
+  
+  if (selectedProjects.value.length === actualProjects.length) {
     selectedProjects.value = [];
   } else {
-    selectedProjects.value = formattedProjects.value.map((project) => ({
+    selectedProjects.value = actualProjects.map(project => ({
       id: project.value,
       name: project.label,
     }));
@@ -487,7 +490,7 @@ async function createOneTimeTask() {
       // start_date: startDate.value,
       // deadline: endDate.value,
       department_id: deptId.value || null,
-      project_id: projectId.value || null,
+      project_id: projectId.value,
       // is_urgent: isUrgent.value,
       priority: priority.value,
       assigned_user_id: selectedEmployee.value || null,
@@ -554,10 +557,11 @@ function openEditPopupInParent(task) {
 
   oneTimeTaskName.value = task.title || "";
   oneTimeTaskDescription.value = task.description || "";
-  selectedEmployee.value = task.assigned_user?.id || "";
-  selectedSupervisor.value = task.supervisor?.id || "";
+  selectedEmployee.value = task.assigned_user?.id || null;
+  selectedSupervisor.value = task.supervisor?.id || null;
   deptId.value = task.department?.id || "";
-  projectId.value = task.project?.id || "";
+  projectId.value = task.project?.id ;
+  console.log(task.project?.id);
   // isUrgent.value = task.is_urgent || false;
   priority.value = task.priority || "";
   startDate.value = task.start_date || "";
@@ -596,20 +600,32 @@ const updateOneTimeTask = async () => {
   try {
     isLoading.value = true;
 
-    // إنشاء الكائن بشكل ديناميكي
     const updatedTask = {
       id: editedTaskId.value,
       title: oneTimeTaskName.value,
       description: oneTimeTaskDescription.value,
-      assigned_user_id: selectedEmployee.value || null,
+      assigned_user_id: selectedEmployee.value,
       supervisor_user_id: selectedSupervisor.value || null, 
-      department_id: deptId.value || null,
-      project_id: projectId.value || null,
+      department_id: deptId.value,
+      project_id: projectId.value === "No Project" ? null : projectId.value,
       // is_urgent: isUrgent.value,
       priority: priority.value,
-      start_date: startDate.value,
-      deadline: endDate.value,
+      // start_date: startDate.value,
+      // deadline: endDate.value,
     };
+
+    console.log("updatedTask" + updatedTask);
+
+   
+    // أضف start_date فقط إذا كانت القيمة موجودة
+    if (startDate.value) {
+      updatedTask.start_date = startDate.value;
+    }
+
+    // نفس الأمر مع deadline إذا كان اختياريًا
+    if (endDate.value) {
+      updatedTask.deadline = endDate.value;
+    }
 
     const response = await store.dispatch("updateOneTimeTask", updatedTask);
 
@@ -624,11 +640,12 @@ const updateOneTimeTask = async () => {
       componentKey.value += 1;
     }
   } catch (error) {
-    console.error("Error updating oneTimeTask:", error);
-    Swal.fire({
+    // تنبيه خطأ
+    console.error("Error creating oneTimeTask:", error);
+      Swal.fire({
       icon: "error",
       title: t("errorOccurred"),
-      text: error.message || "Something went wrong!",
+      html: error,
       showConfirmButton: true,
       backdrop: "rgba(0,0,0,0.5)",
       heightAuto: false,
@@ -640,6 +657,9 @@ const updateOneTimeTask = async () => {
     isLoading.value = false;
   }
 };
+
+
+
 
 const translations = {
   en: {
@@ -1155,6 +1175,7 @@ const translations = {
               />
             </div>
 
+
             <!-- أولوية (نصف العرض) -->
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ t("priority") }}:</label>
@@ -1286,16 +1307,17 @@ const translations = {
             </div>
 
             <!-- المشروع (project_id) في نصف عرض -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("project") }}:</label>
-              <argon-select
-                v-model="projectId"
-                :options="formattedProjects"
-                :placeholder="t('selectProject')"
-                class="form-control"
-                required
-              />
-            </div>
+            <!-- في القالب -->
+<div class="col-md-6 mb-3">
+  <label class="form-label">{{ t("project") }}:</label>
+  <argon-select
+    v-model="projectId"
+    :options="formattedProjects"
+    :placeholder="t('selectProject')"
+    class="form-control"
+    required
+  />
+</div>
 
             <!-- الأولوية (priority) في نصف عرض -->
             <div class="col-md-6 mb-3">
