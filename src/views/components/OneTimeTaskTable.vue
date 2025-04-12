@@ -260,8 +260,8 @@
                     !isDeadlineApproaching(task.deadline),
                 }"
               >
-                {{ t("from") }}: {{ formatDate(task.start_date) }} -
-                {{ t("to") }}: {{ formatDate(task.deadline) }}
+                {{ t("from") }}: {{ formatDate(task.start_date) }}
+                <span v-if="task.deadline"> - {{ t("to") }}: {{ formatDate(task.deadline) }}</span>
               </small>
 
               <!-- من أنشأ المهمة -->

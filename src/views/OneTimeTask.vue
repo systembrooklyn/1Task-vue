@@ -1208,7 +1208,7 @@ const translations = {
                 v-model="endDate"
                 class="form-control"
                 :placeholder="t('enterEndDate')"
-                required
+                
               />
             </div>
 
