@@ -18,9 +18,11 @@ function getCompanyName() {
   // اعمل أي Normalization للمسافات أو الرموز
   const store = useStore();
   const companyNameValue = computed(() => store.getters.companyName);
+  const isOwner = computed(() => store.getters.isOwner);
   const companyName = companyNameValue.value;
+  const isOwnerValue = isOwner.value;
 
-  return companyName.replace(/\s+/g, "-");
+  return { companyName: companyName.replace(/\s+/g, "-"), isOwner: isOwnerValue };
 }
 
 const routes = [
@@ -34,7 +36,7 @@ const routes = [
     path: "/:companyName/dashboard-default",
     name: "Dashboard",
     component: Dashboard,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiredPermission: 'view_dashboard', isOwner: true },
   },
   {
     path: "/:companyName/tables",
@@ -203,14 +205,17 @@ router.beforeEach((to, from, next) => {
   }
 
   // 3) التحقق من companyName (لو المسار يحتوي عليه)
-  const userCompanyName = getCompanyName(); // دالة هننشئها أسفل للكشف من الـ Store
-  if (to.params.companyName && to.meta.requiresAuth) {
+  const userCompanyName = getCompanyName().companyName; // دالة هننشئها أسفل للكشف من الـ Store
+  const isOwner = getCompanyName().isOwner;
+  if (to.params.companyName && to.meta.requiresAuth && (to.meta.requiredPermission || to.meta.isOwner)) {
     // لو الشركة غير مطابقة
     if (to.params.companyName !== userCompanyName) {
       // حمايتك: إما توجيهه لصفحة خطأ، أو صفحة الشركة الصحيحة
       // return next({ name: "Error" });
       // أو:
-      return next({ name: "Dashboard", params: { companyName: userCompanyName } });
+      return next({ name: "Dashboard", params: { companyName: userCompanyName, isOwner: isOwner } });
+    } else if (to.meta.isOwner && !isOwner) {
+      return next({ name: "routine task", params: { companyName: userCompanyName, isOwner: true } });
     }
   }
 
