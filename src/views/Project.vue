@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onBeforeMount, watch } from "vue";
+import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
 import { useStore } from "vuex";
 // import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonModal from "@/components/ArgonModal.vue";
@@ -9,6 +9,8 @@ import ArgonSelect from "@/components/ArgonSelect.vue";
 // import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 import ProjectsTable from "@/views/components/ProjectsTable.vue";
 import ArgonSwitch from "@/components/ArgonSwitch.vue";
+import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
+
 import Swal from "sweetalert2";
 const store = useStore();
 
@@ -39,7 +41,26 @@ onBeforeMount(async () => {
   await store.dispatch("getCompanyUsers");
 });
 
+// في الـ component
+onMounted(async () => {
+  try {
+    await store.dispatch("fetchDepartments");
+    console.log("Departments:", store.getters.departments); // تحقق من البيانات
+  } catch (error) {
+    console.error("Error:", error);
+  }
+});
+
+const departments = computed(() => store.getters.departments || []);
+const formattedDepartments = computed(() => {
+  return departments.value?.map(dept => ({
+    value: dept.id,
+    label: dept.name
+  })) || [];
+});
+
 const dataFromApi = computed(() => store.getters.dataFromApi);
+
 
 const employeeOptions = computed(() => {
   return dataFromApi.value.map((employee) => ({
@@ -49,6 +70,8 @@ const employeeOptions = computed(() => {
 });
 
 console.log("employeeOptionssssssssssss:", employeeOptions.value);
+
+
 
 const isOwner = computed(() => store.getters.isOwner);
 
@@ -73,6 +96,8 @@ const showAdvancedSettings = ref(false);
 // const projectManager = ref("");
 const selectedManager = ref("");
 const projectStatus = ref(false);
+const departmentNames = ref([]);
+const departmentIds = ref([]);
 
 // التحكم في الإعدادات المتقدمة
 const toggleAdvancedSettings = () => {
@@ -87,6 +112,7 @@ const closePopup = () => {
   fromDate.value = "";
   toDate.value = "";
   selectedManager.value = "";
+  departmentIds.value = [];
   projectStatus.value = false;
 };
 
@@ -174,6 +200,7 @@ const addProject = async () => {
       deadline: toDate.value,
       leader_id: selectedManager.value,
       status: projectStatus.value,
+      department_ids: departmentIds.value,
     };
 
     console.log("project:", project);
@@ -247,6 +274,8 @@ const translations = {
     saving: "Saving...",
     noProjects: "No projects found.",
     createee: "Create your project",
+    departments: "Departments",
+    selectDepartment: "Select Department",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -279,8 +308,14 @@ const translations = {
     saving: "يتم الحفظ...",
     noProjects: "لا يوجد مشاريع.",
     createee: "انشئ مشروعك من الزر المتواجد بالاعلي",
+    departments: "الاقسام",
+    selectDepartment: "اختر قسم",
   },
 };
+
+
+
+
 </script>
 
 <template>
@@ -372,6 +407,17 @@ const translations = {
               :options="employeeOptions"
               :placeholder="t('assignManager')"
               class="form-control"
+            />
+          </div>
+
+          <div class="mb-3">
+          <label class="form-label">{{ t("departments") }}:</label>
+            <argon-multiple-select
+              v-model="departmentIds"
+              :model-names="departmentNames"
+              :options="formattedDepartments"
+              :placeholder="t('selectDepartment')"
+              class="form-control mb-3"
             />
           </div>
 

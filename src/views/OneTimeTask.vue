@@ -15,7 +15,7 @@ const refreshInterval = ref(null); // Will store our setInterval ID
 const refreshIntervalId = ref(null); // تغيير اسم المتغير ليكون أوضح
 
 const store = useStore();
-// const isOwner = computed(() => store.getters.isOwner);
+const isOwner = computed(() => store.getters.isOwner);
 
 const userData = computed(() => store.getters.user);
 console.log("userDataaaaaaaaa:", userData.value);
@@ -24,7 +24,13 @@ import {
   savePermissionsToLocalStorage,
   extractPermissionsFromAPI,
   loadPermissionsFromLocalStorage,
+  // hasPermission,
 } from "@/utils/permissions.js";
+
+// const canCreateProject = computed(() =>
+//   hasPermission(permissions.value, "create-project")
+// );
+
 import Swal from "sweetalert2";
 
 import {
@@ -45,9 +51,11 @@ onBeforeMount(async () => {
     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
   await store.dispatch("getCompanyUsers");
+  await store.dispatch("fetchProjects");
+  // if (canCreateProject.value) {
+  // }
   // await store.dispatch("fetchDepartments");
-
-   // --- بداية التغييرات ---
+  // --- بداية التغييرات ---
   // جلب المهام لأول مرة
   await refreshTasks();
 
@@ -247,7 +255,6 @@ onBeforeMount(async () => {
         return aPriority - bPriority;
       });
     }
-  await store.dispatch("fetchProjects");
 
     console.log("oneTimeTasks:", oneTimeTasks.value);
   } catch (error) {
@@ -301,6 +308,7 @@ const refreshTasks = async () => {
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
 const projects = computed(() => store.getters.projects);
+console.log("projectsssssssssssss:", projects.value);
 
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
@@ -845,7 +853,7 @@ const translations = {
                   </small>
 
                   <!-- إذا لديك صلاحية لإنشاء المهمة -->
-                  <argon-button  @click="openPopup">
+                  <argon-button v-if="isOwner || permissions['create-task']"  @click="openPopup">
                     <i class="fas fa-plus"></i>
                   </argon-button>
                 </div>

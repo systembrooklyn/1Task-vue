@@ -1252,13 +1252,14 @@ const filteredTasks = computed(() => {
     case "Inbox":
       return props.oneTimeTasks.filter((task) => {
         return (
-          task.assigned_user?.id === userData.value?.user?.id ||
-          task.supervisor?.id === userData.value?.user?.id
+          (task.assigned_user?.id === userData.value?.user?.id ||
+          task.supervisor?.id === userData.value?.user?.id ) &&
+          task.is_archived == false
         );
       });
     case "Own":
       return props.oneTimeTasks.filter((task) => {
-        return task.creator?.id === userData.value.user?.id;
+        return task.creator?.id === userData.value.user?.id && task.is_archived == false;
       });
     case "Archive":
       return props.oneTimeTasks.filter((task) => task.is_archived == true);
