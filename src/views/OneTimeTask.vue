@@ -688,7 +688,7 @@ const translations = {
     taskName: "Task Name*",
     description: "Description*",
     assignTo: "Assign To*",
-    supervisor: "Supervisor*",
+    supervisor: "Supervisor",
     editOneTimeTask: "Edit One Time Task",
     update: "Update",
     close: "Close",
@@ -722,7 +722,7 @@ const translations = {
     saturday: "Saturday",
     enterStartDate: "Enter start date",
     startDate: "Start Date*",
-    endDate: "End Date*",
+    endDate: "End Date",
     taskType: "Task Type",
     status: "Status",
     department: "Department",
@@ -743,7 +743,7 @@ const translations = {
     allProjects: "All Projects",
     project: "Project",
     isUrgent: "Is Urgent",
-    priority: "Priority*",
+    priority: "Priority",
     searchPlaceholder: "Search tasks...",
   },
   ar: {
@@ -762,7 +762,7 @@ const translations = {
     taskName: "*اسم المهمة",
     description: "*وصف المهمة",
     assignTo: "*تعيين",
-    supervisor: "*المشرف",
+    supervisor: "المشرف",
     close: "اغلاق",
     create: "اضافة",
     editOneTimeTask: "تعديل المهمة الواحدة",
@@ -816,8 +816,8 @@ const translations = {
     not_reported: "لم يتم التقرير",
     LatedTasks: "مهام متاخرة",
     project: "المشروع",
-    isUrgent: "هامة جدا*",
-    priority: "الاولوية*",
+    isUrgent: "هامة جدا",
+    priority: "الاولوية",
     selectProject: "اختر المشروع",
     searchPlaceholder: "...ابحث هنا",
   },
@@ -1228,6 +1228,10 @@ const translations = {
       </template>
 
       <template #footer>
+        <!-- زر الإغلاق -->
+        <argon-button variant="secondary" @click="closePopup">
+          {{ t("close") }}
+        </argon-button>
         <!-- زر الحفظ -->
         <argon-button
           variant="success"
@@ -1243,10 +1247,6 @@ const translations = {
           {{ isLoading ? t("saving") : t("create") }}
         </argon-button>
 
-        <!-- زر الإغلاق -->
-        <argon-button variant="secondary" @click="closePopup">
-          {{ t("close") }}
-        </argon-button>
       </template>
     </ArgonModal>
   </div>
@@ -1367,6 +1367,9 @@ const translations = {
       </template>
 
       <template #footer>
+        <ArgonButton variant="secondary" @click="closeEditPopup">
+          {{ t("close") }}
+        </ArgonButton>
         <ArgonButton
           variant="success"
           @click="updateOneTimeTask"
@@ -1379,9 +1382,6 @@ const translations = {
             aria-hidden="true"
           ></span>
           {{ isLoading ? t("saving") : t("update") }}
-        </ArgonButton>
-        <ArgonButton variant="secondary" @click="closeEditPopup">
-          {{ t("close") }}
         </ArgonButton>
       </template>
     </ArgonModal>
@@ -1418,6 +1418,37 @@ const translations = {
   scroll-behavior: smooth;
   scrollbar-width: none;
   scrollbar-color: transparent transparent;
+}
+
+/* إضافة هذه الأنماط لشريط التمرير */
+.modal-content-scroll {
+  overflow-y: auto; /* تفعيل التمرير الرأسي */
+  overflow-x: hidden; /* إخفاء التمرير الأفقي */
+  max-height: 65vh; /* الحد الأقصى لارتفاع المحتوى */
+  scrollbar-width: thin; /* لـ Firefox */
+  scrollbar-color: #888 #f1f1f1; /* لـ Firefox */
+}
+
+/* إصلاح عرض المودال لتجنب التمرير الأفقي\ */
+
+/* إخفاء التمرير الأفقي في المحتوى الداخلي */
+.modal-content-scroll::-webkit-scrollbar {
+  width: 8px; /* عرض شريط التمرير الرأسي */
+  height: 0px; /* تعطيل شريط التمرير الأفقي */
+}
+
+/* حل مشكلة العرض الزائد */
+.modal-content-scroll > .row {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* إصلاح حجم الحقول */
+.modal-content-scroll input,
+.modal-content-scroll select,
+.modal-content-scroll textarea {
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .one-time-task-modal .modal-content-scroll {

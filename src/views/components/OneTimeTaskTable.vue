@@ -214,7 +214,7 @@
 
             <!-- أيقونة التعديل -->
             <i
-            v-if="task.creator.id === userData.user.id"
+              v-if="task.creator.id === userData.user.id"
               class="fa fa-edit edit-icon ms-1 text-success"
               @click.stop="openEditPopup(task)"
               data-bs-toggle="tooltip"
@@ -261,7 +261,9 @@
                 }"
               >
                 {{ t("from") }}: {{ formatDate(task.start_date) }}
-                <span v-if="task.deadline"> - {{ t("to") }}: {{ formatDate(task.deadline) }}</span>
+                <span v-if="task.deadline">
+                  - {{ t("to") }}: {{ formatDate(task.deadline) }}</span
+                >
               </small>
 
               <!-- من أنشأ المهمة -->
@@ -446,7 +448,7 @@
 
           <template #default>
             <!-- نجعل حاوية التعليقات قابلة للتمرير -->
-            <div class="comments-scroll-container">
+            <div class="comments-scroll-container modal-content-scroll">
               <!-- الهيكل أثناء التحميل -->
               <transition name="fade" mode="out-in">
                 <div v-if="isLoadingComments" class="skeleton-loading">
@@ -461,7 +463,7 @@
 
                 <ul v-else class="comment-list">
                   <li
-                    v-for="comment in taskComments"
+                    v-for="comment in taskCommentsLogs"
                     :key="comment.id"
                     class="comment-item"
                   >
@@ -475,28 +477,47 @@
                       </div>
                     </div>
 
-                    <div class="comment-header">
-                      <div class="user-info">
-                        <div>
-                          <span class="user-name">{{ comment.user.name }}</span>
+                    <div v-if="comment.is_log" class=".replies">
+                      <div class="comment-header">
+                        <div class="user-info">
+                          <span class="user-name">System Log ({{ comment.user.name }})</span>
                           <span class="comment-time">
                             {{ formatDateWithTime(comment.created_at) }}
                           </span>
                         </div>
                       </div>
-                      <div class="comment-actions">
-                        <button
-                          class="btn btn-reply"
-                          @click="toggleReply(comment.id)"
-                        >
-                          {{ t("reply") }}
-                        </button>
+                      <div class="comment-body">
+                        {{ comment.user.name }} changed "{{ comment.field }}" from "{{ comment.old_value }}" to "{{ comment.new_value }}"
                       </div>
                     </div>
-                    <div
-                      class="comment-body"
-                      v-html="comment.comment_text"
-                    ></div>
+
+                    <div v-else>
+                      <div class="comment-header">
+                        <div class="user-info">
+                          <div>
+                            <span class="user-name">{{
+                              comment.user.name
+                            }}</span>
+                            <span class="comment-time">
+                              {{ formatDateWithTime(comment.created_at) }}
+                            </span>
+                          </div>
+                        </div>
+                        <div class="comment-actions">
+                          <button
+                            class="btn btn-reply"
+                            @click="toggleReply(comment.id)"
+                          >
+                            {{ t("reply") }}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div
+                        class="comment-body"
+                        v-html="comment.comment_text"
+                      ></div>
+                    </div>
 
                     <small v-if="comment.seen_by?.length">
                       <i class="fa fa-check text-success me-1"></i>
@@ -513,46 +534,58 @@
 
                     <!-- الردود -->
                     <div v-if="comment.replies?.length" class="replies">
-  <!-- زر التوسيع/الطي -->
-  <button
-    @click="toggleReplies(comment.id)"
-    class="btn btn-link p-0 mb-2"
-    :class="{ 'new-reply': hasUnseenReplies(comment) }"
-  >
-    {{ showReplies[comment.id] ? "Hide" : "View" }}
-    {{ comment.replies.length }} replies
-    <!-- علامة جديدة إذا كان هناك ردود غير مقروءة -->
-    <span v-if="hasUnseenReplies(comment)" class="new-reply-dot"></span>
-  </button>
+                      <!-- زر التوسيع/الطي -->
+                      <button
+                        @click="toggleReplies(comment.id)"
+                        class="btn btn-link p-0 mb-2"
+                        :class="{ 'new-reply': hasUnseenReplies(comment) }"
+                      >
+                        {{ showReplies[comment.id] ? "Hide" : "View" }}
+                        {{ comment.replies.length }} replies
+                        <!-- علامة جديدة إذا كان هناك ردود غير مقروءة -->
+                        <span
+                          v-if="hasUnseenReplies(comment)"
+                          class="new-reply-dot"
+                        ></span>
+                      </button>
 
-  <!-- الردود -->
-  <transition name="fade">
-    <div v-if="showReplies[comment.id]" class="replies-container">
-      <div
-        v-for="reply in comment.replies"
-        :key="reply.id"
-        class="reply-item"
-        @click="markReplyAsSeen(reply.id)"
-      >
-        <div class="comment-header">
-          <div class="user-info">
-            <div>
-              <span class="user-name">{{ reply.user?.name }}</span>
-              <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="comment-body" v-html="reply.reply_text"></div>
-
-        <!-- علامة جديدة إذا كان الرد غير مقروء -->
-        <span
-          v-if="!reply.is_seen"
-          class="new-reply-dot position-absolute top-0 start-100 translate-middle"
-        ></span>
-      </div>
-    </div>
-  </transition>
-</div>
+                      <!-- الردود -->
+                      <transition name="fade">
+                        <div
+                          v-if="showReplies[comment.id]"
+                          class="replies-container"
+                        >
+                          <div
+                            v-for="reply in comment.replies"
+                            :key="reply.id"
+                            class="reply-item"
+                            @click="markReplyAsSeen(reply.id)"
+                          >
+                            <div class="comment-header">
+                              <div class="user-info">
+                                <div> 
+                                  <span class="user-name">{{
+                                    reply.user?.name
+                                  }}</span>
+                                  <span class="comment-time">{{
+                                    formatDateWithTime(reply.created_at)
+                                  }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="comment-body"
+                              v-html="reply.reply_text"
+                            ></div>
+                            <!-- علامة جديدة إذا كان الرد غير مقروء -->
+                            <span
+                              v-if="!reply.is_seen"
+                              class="new-reply-dot position-absolute top-0 start-100 translate-middle"
+                            ></span>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
 
                     <!-- لودينج عند إرسال الرد -->
                     <div
@@ -705,8 +738,6 @@ const showReplies = reactive({});
 
 // const isOwner = computed(() => store.getters.isOwner);
 
-
-
 const props = defineProps({
   oneTimeTasks: {
     type: Array,
@@ -761,6 +792,7 @@ const selectedTaskDepartment = ref(null);
 const loadingTaskId = ref(null);
 const taskLogs = ref([]);
 const taskComments = ref([]);
+const taskCommentsLogs = ref([]);
 const taskComment = ref("");
 const replyContent = ref("");
 
@@ -914,12 +946,23 @@ async function openDescriptionModal(task) {
     selectedTaskDayOfMonth.value = task.day_of_month;
     selectedTaskDepartment.value = task.department;
 
+    await getOneTimeTaskComments(task.id);
+    await getOneTimeTaskLogs(task.id); // تأكد من تخزين السجلات في taskLogs
+
+    taskCommentsLogs.value = [
+      ...taskComments.value,
+      ...taskLogs.value.map((log) => ({
+        ...log,
+        is_log: true,
+        created_at: log.created_at,
+      })),
+    ].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    console.log("taskComments", taskComments.value);
     // ❶ حدد هذا التاسك كـ تمّت رؤية تعليقاته
     markTaskCommentsAsSeen(task.id);
     // ❷ أطفئ النقطة الحمراء مباشرة
     task.hasNewUpdate = false;
 
-    await getOneTimeTaskComments(task.id);
     task.read_comments = true; // تحديث الحالة إلى مقروء
 
     showDescriptionModal.value = true;
@@ -1253,13 +1296,18 @@ const filteredTasks = computed(() => {
       return props.oneTimeTasks.filter((task) => {
         return (
           (task.assigned_user?.id === userData.value?.user?.id ||
-          task.supervisor?.id === userData.value?.user?.id ) &&
-          task.is_archived == false
+            task.supervisor?.id === userData.value?.user?.id) &&
+          task.is_archived == false &&
+          task.status !== "done"
         );
       });
     case "Own":
       return props.oneTimeTasks.filter((task) => {
-        return task.creator?.id === userData.value.user?.id && task.is_archived == false;
+        return (
+          task.creator?.id === userData.value.user?.id &&
+          task.is_archived == false &&
+          task.status !== "done"
+        );
       });
     case "Archive":
       return props.oneTimeTasks.filter((task) => task.is_archived == true);
@@ -1385,7 +1433,7 @@ const updateTaskStatus = async (task, status) => {
 
 // دالة للتحقق من وجود ردود غير مقروءة
 function hasUnseenReplies(comment) {
-  return comment.replies.find(r => !r.is_seen);
+  return comment.replies.find((r) => !r.is_seen);
 }
 
 // دالة للتمرير التلقائي إلى التعليق الذي يحتوي على رد جديد
@@ -1406,19 +1454,21 @@ function scrollToFirstUnseenReply() {
 }
 
 async function markReplyAsSeen(replyId) {
+  console.log(replyId);
   try {
     // البحث عن الرد المحدد في قائمة الردود
     const replyToUpdate = taskComments.value
-      .flatMap(comment => comment.replies) // جلب جميع الردود من جميع التعليقات
-      .find(reply => reply.id === replyId);
+      .flatMap((comment) => comment.replies) // جلب جميع الردود من جميع التعليقات
+      .find((reply) => reply.id === replyId);
 
-      const replyIds = {
-      reply_id : replyId
-      }
+    const replyIds = {
+      reply_id: replyId,
+    };
+    console.log(replyToUpdate);
 
-     if (replyToUpdate) {
+    if (replyToUpdate) {
       // تحديث الحالة محليًا
-       replyToUpdate.is_seen = true;
+      replyToUpdate.is_seen = true;
 
       // تحديث الحالة عبر API
       await store.dispatch("markReplyAsSeen", replyIds);
@@ -1434,9 +1484,9 @@ function toggleReplies(commentId) {
 
   // إذا تم فتح الردود، نقوم بتحديث حالة الردود إلى مقروءة
   if (showReplies[id]) {
-    const comment = taskComments.value.find(c => c.id === commentId);
+    const comment = taskComments.value.find((c) => c.id === commentId);
     if (comment) {
-      comment.replies.forEach(reply => {
+      comment.replies.forEach((reply) => {
         if (!reply.is_seen) {
           markReplyAsSeen(reply.id); // تحديث كل رد غير مقروء
         }
@@ -2045,5 +2095,48 @@ function toggleReplies(commentId) {
 
 .translate-middle {
   transform: translate(-50%, -50%);
+}
+
+/* إضافة هذه الأنماط لشريط التمرير */
+.modal-content-scroll {
+  overflow-y: auto; /* تفعيل التمرير الرأسي */
+  overflow-x: hidden; /* إخفاء التمرير الأفقي */
+  max-height: 65vh; /* الحد الأقصى لارتفاع المحتوى */
+  scrollbar-width: thin; /* لـ Firefox */
+  scrollbar-color: #888 #f1f1f1; /* لـ Firefox */
+}
+
+/* إخفاء التمرير الأفقي في المحتوى الداخلي */
+.modal-content-scroll::-webkit-scrollbar {
+  width: 8px; /* عرض شريط التمرير الرأسي */
+  height: 0px; /* تعطيل شريط التمرير الأفقي */
+}
+
+/* حل مشكلة العرض الزائد */
+.modal-content-scroll > .row {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* إصلاح حجم الحقول */
+.modal-content-scroll input,
+.modal-content-scroll select,
+.modal-content-scroll textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.log-item {
+  background-color: #f8f9fa;
+  border-left: 10px solid #9b9b9b;
+}
+
+.log-item .comment-body {
+  border-left: 3px solid #ddd;
+  font-style: italic;
+}
+
+.log-item .user-name {
+  font-weight: 600;
 }
 </style>

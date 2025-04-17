@@ -1505,7 +1505,7 @@ export default createStore({
     async getOneTimeTaskComments({ commit }, taskId) {
       try {
         const response = await apiClient.getOneTimeTaskComments(taskId);
-        commit("SET_ONE_TIME_TASK_LOGS", response.data);
+        commit("SET_ONE_TIME_TASK_COMMENTS", response.data);
         return response;
       } catch (error) {
         console.error("Error fetching task comments:", error);
