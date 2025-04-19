@@ -349,10 +349,11 @@ const selectedTaskType = ref("");
 const selectedDepartments = ref([]);
 const selectedProjects = ref([]);
 const selectedStatus = ref("");
+const selectedPriority = ref("");
 
 console.log("userDepartment:", userDepartment.value);
 
-const nowTime = ref(new Date());
+// const nowTime = ref(new Date());
 
 // فلترة البيانات (أماميًا)
 const filteredTasks = computed(() => {
@@ -360,26 +361,33 @@ const filteredTasks = computed(() => {
   console.log(tasks);
 
   if (selectedStatus.value) {
-    if (selectedStatus.value === "done") {
-      tasks = tasks.filter((t) => t.today_report_status === "done");
-    } else if (selectedStatus.value === "not_done") {
-      tasks = tasks.filter((t) => t.today_report_status === "not_done");
-    } else if (selectedStatus.value === "null") {
-      tasks = tasks.filter((t) => t.today_report_status === null);
-    } else if (selectedStatus.value === "lated") {
-      tasks = tasks.filter((t) => {
-        if (!t.to) return false;
-        const [taskHours, taskMinutes] = t.to.split(":").map(Number);
-        const taskTime = new Date();
-        taskTime.setHours(taskHours, taskMinutes, 0, 0);
-
-        const isNotDoneOrReported =
-          t.today_report_status !== "done" &&
-          t.today_report_status !== "not_done";
-
-        return taskTime < nowTime.value && isNotDoneOrReported;
-      });
+    if (selectedStatus.value === "inProgress") {
+      tasks = tasks.filter((t) => t.status === "inProgress");
+    } else if (selectedStatus.value === "pending") {
+      tasks = tasks.filter((t) => t.status === "pending");
+    } else if (selectedStatus.value === "review") {
+      tasks = tasks.filter((t) => t.status === "review");
+    } else if (selectedStatus.value === "hasNewUpdate") {
+      tasks = tasks.filter((t) => t.read_comments === false);
     }
+    // else if (selectedStatus.value === "lated") {
+    //   tasks = tasks.filter((t) => {
+    //     if (!t.to) return false;
+    //     const [taskHours, taskMinutes] = t.to.split(":").map(Number);
+    //     const taskTime = new Date();
+    //     taskTime.setHours(taskHours, taskMinutes, 0, 0);
+
+    //     const isNotDoneOrReported =
+    //       t.status !== "done" &&
+    //       t.status !== "not_done";
+
+    //     return taskTime < nowTime.value && isNotDoneOrReported;
+    //   });
+    // }
+  }
+
+  if (selectedPriority.value) {
+    tasks = tasks.filter((t) => t.priority === selectedPriority.value);
   }
 
   if (selectedDepartments.value.length > 0) {
@@ -391,15 +399,18 @@ const filteredTasks = computed(() => {
     );
   }
 
-  if (selectedProjects.value.length > 0) {
-    const selectedProjectIds = selectedProjects.value.map(
-      (project) => project.id
-    );
-    console.log("selectedProjectIds:", selectedProjectIds);
-    tasks = tasks.filter((task) => {
-      return selectedProjectIds.includes(task.project?.id);
-    });
-  }
+// داخل computed property filteredTasks
+if (selectedProjects.value.length > 0) {
+  const selectedProjectIds = selectedProjects.value.map(project => project.id);
+  tasks = tasks.filter(task => {
+    // إذا كان المشروع غير موجود (null)، تحقق من وجود null في selectedProjectIds
+    if (!task.project) {
+      return selectedProjectIds.includes(null);
+    }
+    // وإلا تحقق من مطابقة project.id
+    return selectedProjectIds.includes(task.project.id);
+  });
+}
 
   tasks = tasks.filter((task) => searchMatch(task));
   return tasks;
@@ -439,25 +450,25 @@ const resetFilters = () => {
   pagination.value.current_page = 1;
 };
 
-const toggleAllDepartments = () => {
-  if (selectedDepartments.value.length === userDepartment.value.length) {
-    selectedDepartments.value = [];
-  } else {
-    selectedDepartments.value = userDepartment.value.map((dept) => ({
-      id: dept.value,
-      name: dept.label,
-    }));
-  }
-};
+// const toggleAllDepartments = () => {
+//   if (selectedDepartments.value.length === userDepartment.value.length) {
+//     selectedDepartments.value = [];
+//   } else {
+//     selectedDepartments.value = userDepartment.value.map((dept) => ({
+//       id: dept.value,
+//       name: dept.label,
+//     }));
+//   }
+// };
 
 const toggleAllProjects = () => {
   // استبعاد الخيار "No Project" (value: null)
-  const actualProjects = formattedProjects.value.filter(p => p.value !== null);
+  // const actualProjects = formattedProjects.value.filter(p => p.value !== null);
   
-  if (selectedProjects.value.length === actualProjects.length) {
+  if (selectedProjects.value.length === formattedProjects.value.length) {
     selectedProjects.value = [];
   } else {
-    selectedProjects.value = actualProjects.map(project => ({
+    selectedProjects.value = formattedProjects.value.map(project => ({
       id: project.value,
       name: project.label,
     }));
@@ -686,7 +697,7 @@ const translations = {
     delete: "Delete",
     addRoutineTask: "Add One Time Task",
     taskName: "Task Name*",
-    description: "Description*",
+    description: "Description",
     assignTo: "Assign To*",
     supervisor: "Supervisor",
     editOneTimeTask: "Edit One Time Task",
@@ -738,6 +749,15 @@ const translations = {
     departmentsSelected: "Departments Selected",
     done: "Done",
     not_done: "Not Done",
+    inProgress: "In Progress",
+    pending: "Pending",
+    review: "Review",
+    allPriorities: "All Priorities",
+    high: "High",
+    normal: "Normal",
+    low: "Low",
+    urgent: "Urgent",
+    hasNewUpdate: "Has New Update",
     not_reported: "Not Reported",
     LatedTasks: "Lated Tasks",
     allProjects: "All Projects",
@@ -760,7 +780,7 @@ const translations = {
     delete: "حذف",
     addRoutineTask: "إضافة مهمة واحدة",
     taskName: "*اسم المهمة",
-    description: "*وصف المهمة",
+    description: "وصف المهمة",
     assignTo: "*تعيين",
     supervisor: "المشرف",
     close: "اغلاق",
@@ -813,6 +833,15 @@ const translations = {
     departmentsSelected: "اقسام محددة",
     done: "تم",
     not_done: "لم يتم",
+    inProgress: "قيد التنفيذ",
+    pending: "قيد الانتظار",
+    review: "قيد المراجعة",
+    allPriorities: "جميع الأولويات",
+    high: "عالية",
+    normal: "معادية",
+    low: "منخفضة",
+    urgent: "عاجلة",
+    hasNewUpdate: "يوجد تحديث جديد",
     not_reported: "لم يتم التقرير",
     LatedTasks: "مهام متاخرة",
     project: "المشروع",
@@ -871,7 +900,7 @@ const translations = {
                 </div>
 
                 <!-- زر الفلتر -->
-                <!-- <div
+                <div
                   class="col-12 col-md-4"
                   :class="
                     currentLanguage === 'ar' ? 'text-md-start' : 'text-md-end'
@@ -887,7 +916,7 @@ const translations = {
                   >
                     <i class="fas fa-filter"></i>
                   </button>
-                </div> -->
+                </div>
               </div>
             </div>
 
@@ -896,7 +925,7 @@ const translations = {
               <div class="card card-body">
                 <div class="row">
                   <!-- مثلاً فلتر الأقسام -->
-                  <div class="col-md-4 mb-3">
+                  <!-- <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
                       <button
@@ -962,7 +991,7 @@ const translations = {
                         </li>
                       </ul>
                     </div>
-                  </div>
+                  </div> -->
 
                   <!-- فلتر المشروع -->
                   <div
@@ -1044,10 +1073,23 @@ const translations = {
                     <label class="form-label">{{ t("status") }}</label>
                     <select class="form-select" v-model="selectedStatus">
                       <option value="">{{ t("allStatuses") }}</option>
-                      <option value="done">{{ t("done") }}</option>
-                      <option value="not_done">{{ t("not_done") }}</option>
-                      <option value="null">{{ t("not_reported") }}</option>
-                      <option value="lated">{{ t("LatedTasks") }}</option>
+                      <option value="inProgress">{{ t("inProgress") }}</option>
+                      <option value="review">{{ t("review") }}</option>
+                      <option value="pending">{{ t("pending") }}</option>
+                      <option value="hasNewUpdate">{{ t("hasNewUpdate") }}</option>
+                      <!-- <option value="lated">{{ t("LatedTasks") }}</option> -->
+                    </select>
+                  </div>
+
+                  <!-- فلتر الأولوية -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("priority") }}</label>
+                    <select class="form-select" v-model="selectedPriority">
+                      <option value="">{{ t("allPriorities") }}</option>
+                      <option value="high">{{ t("high") }}</option>
+                      <option value="normal">{{ t("normal") }}</option>
+                      <option value="low">{{ t("low") }}</option>
+                      <option value="urgent">{{ t("urgent") }}</option>
                     </select>
                   </div>
                 </div>
