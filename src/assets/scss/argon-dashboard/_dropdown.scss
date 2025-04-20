@@ -14,19 +14,18 @@
 
     .dropdown-toggle {
       &:after {
-        content: "\f107";
-        font: normal normal normal 14px/1 FontAwesome;
+        content: $dropdown-caret-icon; // Unicode لـ caret-down-fill في Bootstrap Icons
+        font-family: "bootstrap-icons" !important;
+        font-size: 0.75rem;
         border: none;
         vertical-align: middle;
         font-weight: $font-weight-bold;
-        margin-left: 5px;      }
+        margin-left: 5px;
+      }
       &.show {
         &:after {
-          transform: $dropdown-toggle-arrow-transform;
+          transform: rotate(180deg); // لقلب السهم عند الفتح
         }
-      }
-      &:after {
-        transition: $dropdown-toggle-arrow-transition;
       }
     }
   }
@@ -62,7 +61,7 @@
 
     &.dropdown-hover {
       &:after {
-        content: "\f0d7";
+        content: $dropdown-caret-icon-rotate; // Unicode لـ caret-up-fill
         position: absolute;
         left: 0;
         bottom: $dropdown-hover-after-bottom-pos;
@@ -77,16 +76,14 @@
 
     .dropdown-menu {
       &:before {
-        font-family: "FontAwesome";
-        content: "\f0d8";
+        font-family: "bootstrap-icons" !important;
+        content: $dropdown-caret-icon; // Unicode لـ caret-down-fill
         position: absolute;
-        top: -7px;
-        left: $dropdown-animation-arrow-left-position;
-        right: auto;
-        font-size: $dropdown-animation-arrow-font-size;
-        color: $white;
-        transition: $dropdown-animation-arrow-transition;
-        z-index: 10;      }
+        left: -15px;
+        top: 10px;
+        font-size: 0.75rem;
+        color: #333;
+      }
     }
 
     .dropdown-item .arrow {
@@ -118,8 +115,8 @@
         box-shadow: $dropdown-box-shadow;
 
         &:before {
-          font-family: "FontAwesome";
-          content: "\f0d8";
+          font-family: "bootstrap-icons" !important;
+          content: $dropdown-caret-icon; // Unicode لـ caret-down-fill
           position: absolute;
           top: 0;
           left: $dropdown-animation-arrow-left-position;
@@ -165,14 +162,14 @@
       box-shadow: $dropdown-box-shadow;
 
       &:before {
-        font-family: "FontAwesome";
-        content: "\f0d8";
+        font-family: "bootstrap-icons" !important;
+        content: $dropdown-caret-icon; // Unicode لـ caret-down-fill
         position: absolute;
         top: 15;
         left: 25;
         color: chartreuse;
         right: auto;
-        font-size: $dropdown-animation-arrow-font-size;
+        font-size: $dropdown-animation-arrow-font-size; 
         color: $white;
         transition: $dropdown-animation-arrow-transition;
       }

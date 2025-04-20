@@ -77,15 +77,15 @@ onBeforeUnmount(() => {
 // --- نهاية التغييرات ---
 
 const dataFromApi = computed(() => store.getters.dataFromApi);
+const employeeOptions = ref([]);
 
-const employeeOptions = computed(() => {
-  return dataFromApi.value.map((employee) => ({
+watch(() => dataFromApi.value, () => {
+  console.log("dataFromApi changed:", dataFromApi.value);
+  employeeOptions.value = dataFromApi.value.map((employee) => ({
     value: employee.id,
     label: employee.name,
   }));
 });
-
-console.log("employeeOptions:", employeeOptions.value);
 
 const departments = computed(() => store.getters.departments);
 console.log("departmentssssssssssssss:", departments.value);
@@ -344,14 +344,25 @@ const formattedProjects = computed(() => {
   ];
 });
 
+
 // متغيرات الفلترة
 const selectedTaskType = ref("");
 const selectedDepartments = ref([]);
 const selectedProjects = ref([]);
 const selectedStatus = ref("");
 const selectedPriority = ref("");
+const selectedDeadLine = ref("");
 
 console.log("userDepartment:", userDepartment.value);
+
+function formatDate(dateString) {
+  if (!dateString) return "N/A";
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(dateString).toLocaleDateString(
+    currentLanguage.value,
+    options
+  );
+}
 
 // const nowTime = ref(new Date());
 
@@ -388,6 +399,24 @@ const filteredTasks = computed(() => {
 
   if (selectedPriority.value) {
     tasks = tasks.filter((t) => t.priority === selectedPriority.value);
+  }
+
+  if (selectedEmployee.value) {
+    tasks = tasks.filter((t) => (t.assigned_user?.id || t.supervisor?.id) === selectedEmployee.value);
+  }
+
+  const today = formatDate(new Date());
+  console.log(today);
+
+  if (selectedDeadLine.value) {
+    tasks = tasks.filter((t) => {
+      if (selectedDeadLine.value === "overdue") {
+        return formatDate(t.deadline) < today;
+      } else if (selectedDeadLine.value === "noDueDate") {
+        return !t.deadline;
+      }
+      return true;
+    });
   }
 
   if (selectedDepartments.value.length > 0) {
@@ -445,6 +474,9 @@ watch(
 const resetFilters = () => {
   selectedTaskType.value = "";
   selectedStatus.value = "";
+  selectedDeadLine.value = "";
+  selectedPriority.value = "";
+  selectedEmployee.value = "";
   selectedDepartments.value = [];
   selectedProjects.value = [];
   pagination.value.current_page = 1;
@@ -753,10 +785,14 @@ const translations = {
     pending: "Pending",
     review: "Review",
     allPriorities: "All Priorities",
+    allEmployees: "All Employees",
+    allDeadLines: "All DeadLines",
     high: "High",
     normal: "Normal",
     low: "Low",
     urgent: "Urgent",
+    overDue: "Overdue",
+    noDueDate: "No Due Date",
     hasNewUpdate: "Has New Update",
     not_reported: "Not Reported",
     LatedTasks: "Lated Tasks",
@@ -764,6 +800,7 @@ const translations = {
     project: "Project",
     isUrgent: "Is Urgent",
     priority: "Priority",
+    employee: "Employee",
     searchPlaceholder: "Search tasks...",
   },
   ar: {
@@ -837,16 +874,21 @@ const translations = {
     pending: "قيد الانتظار",
     review: "قيد المراجعة",
     allPriorities: "جميع الأولويات",
+    allEmployees: "جميع الموظفين",
+    allDeadLines: "جميع المواعيد",
     high: "عالية",
     normal: "معادية",
     low: "منخفضة",
     urgent: "عاجلة",
+    overDue: "متأخر",
+    noDueDate: "غير محدد",
     hasNewUpdate: "يوجد تحديث جديد",
     not_reported: "لم يتم التقرير",
     LatedTasks: "مهام متاخرة",
     project: "المشروع",
     isUrgent: "هامة جدا",
     priority: "الاولوية",
+    employee: "الموظف",
     selectProject: "اختر المشروع",
     searchPlaceholder: "...ابحث هنا",
   },
@@ -1007,6 +1049,7 @@ const translations = {
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                       >
+                        
                         {{
                           selectedProjects.length === 0
                             ? t("allProjects")
@@ -1091,6 +1134,28 @@ const translations = {
                       <option value="low">{{ t("low") }}</option>
                       <option value="urgent">{{ t("urgent") }}</option>
                     </select>
+                  </div>
+
+                  <!-- فلترة الموظف -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("employee") }}</label>
+                    <select class="form-select" v-model="selectedEmployee">
+                      <option value="">{{ t("allEmployees") }}</option>
+                      <option v-for="employeeOption in employeeOptions" :key="employeeOption.value" :value="employeeOption.value">
+                        {{ employeeOption.label }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- فلترة الموعد النهائي -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("deadLine") }}</label>
+                    <select class="form-select" v-model="selectedDeadLine">
+                      <option value="">{{ t("allDeadLines") }}</option>
+                      <option value="overdue">{{ t("overDue") }}</option>
+                      <option value="noDueDate">{{ t("noDueDate") }}</option>
+                    </select>
+
                   </div>
                 </div>
 

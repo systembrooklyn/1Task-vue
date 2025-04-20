@@ -721,7 +721,7 @@ export default createStore({
     },
 
     async getCompanyUsers({ commit }) {
-      // console.log("getCompanyUsers called");
+      console.log("getCompanyUsers called");
       try {
         const response = await apiClient.getCompanyUsers();
         // console.log("API Response:", response);

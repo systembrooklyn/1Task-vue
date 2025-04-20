@@ -26,6 +26,8 @@ import store from "./store";
 import router from "./router";
 import "./assets/css/nucleo-icons.css";
 import "./assets/css/nucleo-svg.css";
+// main.js
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import ArgonDashboard from "./argon-dashboard";
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
