@@ -76,14 +76,25 @@
             </td>
 
             <td>
-              <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
-                <div 
-                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer" 
+              <div
+                class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
+              >
+                <div
+                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
                   @click="openDescriptionModal(task)"
                   title="Open Task Description"
                 >
-                  <h6 class=" mb-0 text-sm hover-effect mx-1 " style="direction: rtl;">{{ task.task_name }}</h6>
-                  <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary" role="status">
+                  <h6
+                    class="mb-0 text-sm hover-effect mx-1"
+                    style="direction: rtl"
+                  >
+                    {{ task.task_name }}
+                  </h6>
+                  <div
+                    v-if="loadingTaskId === task.id"
+                    class="spinner-border spinner-border-sm text-primary"
+                    role="status"
+                  >
                     <span class="visually-hidden">Loading...</span>
                   </div>
                 </div>
@@ -139,83 +150,99 @@
       </table>
     </div>
     <div class="d-flex justify-content-center mt-4">
-    <nav aria-label="Page navigation">
-    <ul class="pagination">
-      <!-- زر الانتقال للصفحة السابقة -->
-      <li 
-        :class="['page-item', { disabled: pagination.current_page === 1 }]"
-      >
-        <a
-          class="page-link"
-          href="#"
-          @click.prevent="$emit('page-changed', pagination.current_page - 1)"
-        >
-          &laquo;
-        </a>
-      </li>
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          <!-- زر الانتقال للصفحة السابقة -->
+          <li
+            :class="['page-item', { disabled: pagination.current_page === 1 }]"
+          >
+            <a
+              class="page-link"
+              href="#"
+              @click.prevent="
+                $emit('page-changed', pagination.current_page - 1)
+              "
+            >
+              &laquo;
+            </a>
+          </li>
 
-      <!-- لو في صفحات قبل الـ startIndex نعرض أول صفحة ... -->
-      <li 
-        v-if="startIndex > 1" 
-        class="page-item" 
-        :class="{ active: 1 === pagination.current_page }"
-      >
-        <a class="page-link" href="#" @click.prevent="$emit('page-changed', 1)">
-          1
-        </a>
-      </li>
-      <li v-if="startIndex > 2" class="page-item disabled">
-        <span class="page-link">...</span>
-      </li>
+          <!-- لو في صفحات قبل الـ startIndex نعرض أول صفحة ... -->
+          <li
+            v-if="startIndex > 1"
+            class="page-item"
+            :class="{ active: 1 === pagination.current_page }"
+          >
+            <a
+              class="page-link"
+              href="#"
+              @click.prevent="$emit('page-changed', 1)"
+            >
+              1
+            </a>
+          </li>
+          <li v-if="startIndex > 2" class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
 
-      <!-- الصفحات الوسيطة اللي هتعرضها -->
-      <li
-        v-for="page in pagesToShow"
-        :key="page"
-        :class="['page-item', { active: page === pagination.current_page }]"
-      >
-        <a
-          class="page-link"
-          href="#"
-          @click.prevent="$emit('page-changed', page)"
-        >
-          {{ page }}
-        </a>
-      </li>
+          <!-- الصفحات الوسيطة اللي هتعرضها -->
+          <li
+            v-for="page in pagesToShow"
+            :key="page"
+            :class="['page-item', { active: page === pagination.current_page }]"
+          >
+            <a
+              class="page-link"
+              href="#"
+              @click.prevent="$emit('page-changed', page)"
+            >
+              {{ page }}
+            </a>
+          </li>
 
-      <!-- لو في صفحات بعد الـ endIndex نعرض آخر صفحة ... -->
-      <li v-if="endIndex < pagination.last_page - 1" class="page-item disabled">
-        <span class="page-link">...</span>
-      </li>
-      <li 
-        v-if="endIndex < pagination.last_page" 
-        class="page-item" 
-        :class="{ active: pagination.last_page === pagination.current_page }"
-      >
-        <a 
-          class="page-link" 
-          href="#" 
-          @click.prevent="$emit('page-changed', pagination.last_page)"
-        >
-          {{ pagination.last_page }}
-        </a>
-      </li>
+          <!-- لو في صفحات بعد الـ endIndex نعرض آخر صفحة ... -->
+          <li
+            v-if="endIndex < pagination.last_page - 1"
+            class="page-item disabled"
+          >
+            <span class="page-link">...</span>
+          </li>
+          <li
+            v-if="endIndex < pagination.last_page"
+            class="page-item"
+            :class="{
+              active: pagination.last_page === pagination.current_page,
+            }"
+          >
+            <a
+              class="page-link"
+              href="#"
+              @click.prevent="$emit('page-changed', pagination.last_page)"
+            >
+              {{ pagination.last_page }}
+            </a>
+          </li>
 
-      <!-- زر الانتقال للصفحة التالية -->
-      <li 
-        :class="['page-item', { disabled: pagination.current_page === pagination.last_page }]"
-      >
-        <a
-          class="page-link"
-          href="#"
-          @click.prevent="$emit('page-changed', pagination.current_page + 1)"
-        >
-          &raquo;
-        </a>
-      </li>
-    </ul>
-  </nav>
-  </div>
+          <!-- زر الانتقال للصفحة التالية -->
+          <li
+            :class="[
+              'page-item',
+              { disabled: pagination.current_page === pagination.last_page },
+            ]"
+          >
+            <a
+              class="page-link"
+              href="#"
+              @click.prevent="
+                $emit('page-changed', pagination.current_page + 1)
+              "
+            >
+              &raquo;
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
     <!-- <div class="d-flex justify-content-center mt-4">
       
       <nav aria-label="Page navigation">
@@ -367,12 +394,38 @@
                 />
               </div>
 
-              <label class="form-label">{{ t("from") }}:</label>
-              <input
-                v-model="selectedTask.from"
-                type="time"
-                class="form-control mb-3"
-              />
+              <!-- select Department -->
+              <!-- في نموذج التعديل -->
+              <div class="mb-3">
+                <label class="form-label">{{ t("department") }}</label>
+                <select v-model="selectedDepartment" class="form-control mb-3">
+                  <option
+                    v-for="dept in departments"
+                    :key="dept.id"
+                    :value="dept.id"
+                  >
+                    {{ dept.name }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- select Project -->
+              <div class="mb-3">
+  <label class="form-label">{{ t("project") }}</label>
+  <select v-model="selectedProject" class="form-control mb-3">
+    <!-- خيار "بدون مشروع" -->
+    <option :value="null">{{ t("noProject") }}</option>
+    
+    <!-- الخيارات الحالية -->
+    <option
+      v-for="project in projects"
+      :key="project.id"
+      :value="project.id"
+    >
+      {{ project.name }}
+    </option>
+  </select>
+</div>
 
               <label class="form-label">{{ t("to") }}:</label>
               <input
@@ -514,9 +567,7 @@
                     {{ selectedTaskDayOfMonth }}
                   </dd>
 
-                  <dt  class="col-sm-3">
-                    {{ t("taskCreatedBy") }}:
-                  </dt>
+                  <dt class="col-sm-3">{{ t("taskCreatedBy") }}:</dt>
                   <dd class="col-sm-9">
                     {{ selectedTaskCreatedBy }}
                   </dd>
@@ -609,8 +660,8 @@ const props = defineProps({
     // تغيير اسم الخاصية من tasks إلى routineTasks
     type: Array,
     required: true,
-  }
-  ,pagination: {
+  },
+  pagination: {
     type: Object,
     required: true,
   },
@@ -650,7 +701,26 @@ onBeforeMount(() => {
     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
   store.dispatch("getCompanyUsers");
+  store.dispatch("getDepartments");
+  store.dispatch("getProjects");
 });
+
+const departments = computed(() => store.state.departments); // افترض أن الأقسام مخزنة في Vuex
+const projects = computed(() => store.state.projects); // افترض أن المشاريع مخزنة في Vuex
+
+// const formattedDepartments = computed(() => {
+//   return departments.value.map((department) => ({
+//     value: department.id,
+//     label: department.name,
+//   }));
+// });
+
+// const formattedProjects = computed(() => {
+//   return projects.value.map((project) => ({
+//     value: project.id,
+//     label: project.name,
+//   }));
+// });
 
 // تعريف المتغيرات الجديدة لتخزين بيانات المهمة
 const selectedTaskName = ref("");
@@ -727,6 +797,9 @@ const componentKey = ref(0);
 const showEditPopup = ref(false);
 const currentEditingTaskId = ref(null);
 const selectedManager = ref(null);
+// في قسم التعريفات
+const selectedDepartment = ref(null); // لتخزين department_id
+const selectedProject = ref(null); // لتخزين project_id
 
 const selectedTask = ref(null); // لتخزين المهمة المحددة للتعديل
 
@@ -752,6 +825,8 @@ const openEditModal = (task) => {
   selectedManager.value = task.assigned_to?.id || null; // تأكد من أن الخاصية صحيحة
   console.log("selectedManager.value:", selectedManager.value);
   console.log("selectedTask.value:", selectedTask.value);
+  selectedDepartment.value = task.department?.dept_id; // تأكد من أن الخاصية صحيحة
+  selectedProject.value = task.project?.id; // تأكد من أن الخاصية صحيحة
 
   showEditPopup.value = true;
 };
@@ -761,6 +836,7 @@ const closeEditPopup = () => {
   selectedTask.value = null;
   currentEditingTaskId.value = null;
   selectedManager.value = null;
+  selectedDepartment.value = null; // تأكد من تهيئة قيمة
 };
 
 const isLoading = ref(false);
@@ -779,7 +855,8 @@ const updateTask = async () => {
     day_of_month: selectedTask.value.day_of_month,
     from: selectedTask.value.from.slice(0, 5),
     to: selectedTask.value.to.slice(0, 5),
-    dept_id: selectedTask.value.department.dept_id,
+    dept_id: selectedDepartment.value,
+    project_id: selectedProject.value,
     // ...selectedTask.value,
   };
 
@@ -999,6 +1076,7 @@ const translations = {
     enterDayOfMonth: "Enter day of the month ex: 1, 2,....31",
     department: "Department",
     project: "Project",
+    noProject: "No Project",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -1058,6 +1136,7 @@ const translations = {
     enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,....31",
     department: "القسم",
     project: "المشروع",
+    noProject: "بدون مشروع",
   },
 };
 
@@ -1100,17 +1179,16 @@ const formatTime = (time) => {
 //   return props.pagination.last_page;
 // });
 
-
 const MAX_VISIBLE_PAGES = 6;
 
 const startIndex = computed(() => {
   // لو الصفحة الحالية في النص، نفترض -2 +2
   // بس نحد أقصى 6 صفحات، هنعمل منطق صغير يظبط الموضوع
   let half = Math.floor(MAX_VISIBLE_PAGES / 2);
-  
+
   // بداية النطاق
   let start = props.pagination.current_page - half;
-  
+
   // ما ينفعش نبدأ من أقل من 1
   return start < 1 ? 1 : start;
 });
@@ -1378,7 +1456,6 @@ td:hover .hover-icon {
   background-color: #e9ecef;
   color: #a9ca5c;
 }
-
 
 /* تنسيق للنصوص الاختيارية */
 

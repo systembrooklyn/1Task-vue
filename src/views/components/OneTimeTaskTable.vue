@@ -72,7 +72,14 @@
               >
 
               <!-- deadline -->
-              <small v-if="task.status === 'inProgress' && userData?.user?.id === task.creator?.id" class="badge badge-success" >{{ task.status }}</small>
+              <small
+                v-if="
+                  task.status === 'inProgress' &&
+                  userData?.user?.id === task.creator?.id
+                "
+                class="badge badge-success"
+                >{{ task.status }}</small
+              >
 
               <!-- priority -->
               <span class="task-priority ms-2">
@@ -217,7 +224,7 @@
 
             <!-- أيقونة التعديل -->
             <i
-            v-if="task.creator.id === userData.user.id"
+              v-if="task.creator.id === userData.user.id"
               class="fa fa-edit edit-icon ms-1 text-success"
               @click.stop="openEditPopup(task)"
               data-bs-toggle="tooltip"
@@ -260,11 +267,14 @@
                   'badge-warning': isDeadlineApproaching(task.deadline),
                   'badge-grey':
                     (!isDeadlinePassed(task.deadline) &&
-                    !isDeadlineApproaching(task.deadline)) || !task.deadline
+                      !isDeadlineApproaching(task.deadline)) ||
+                    !task.deadline,
                 }"
               >
                 {{ t("from") }}: {{ formatDate(task.start_date) }}
-                <span v-if="task.deadline"> - {{ t("to") }}: {{ formatDate(task.deadline) }}</span>
+                <span v-if="task.deadline">
+                  - {{ t("to") }}: {{ formatDate(task.deadline) }}</span
+                >
               </small>
 
               <!-- من أنشأ المهمة -->
@@ -410,7 +420,7 @@
         <ArgonModal
           :title="''"
           @close="closeDescriptionModal"
-          class="comments-fullscreen-modal "
+          class="comments-fullscreen-modal"
         >
           <!-- عنوان مخصص نضع فيه اسم المهمة والوصف المختصر مع زر see more/less -->
           <template #title>
@@ -478,7 +488,7 @@
                       </div>
                     </div>
 
-                    <div class="comment-header">
+                    <div v-if="comment.comment_text" class="comment-header">
                       <div class="user-info">
                         <div>
                           <span class="user-name">{{ comment.user.name }}</span>
@@ -516,46 +526,71 @@
 
                     <!-- الردود -->
                     <div v-if="comment.replies?.length" class="replies">
-  <!-- زر التوسيع/الطي -->
-  <button
-    @click="toggleReplies(comment.id)"
-    class="btn btn-link p-0 mb-2"
-    :class="{ 'new-reply': hasUnseenReplies(comment) }"
-  >
-    {{ showReplies[comment.id] ? "Hide" : "View" }}
-    {{ comment.replies.length }} replies
-    <!-- علامة جديدة إذا كان هناك ردود غير مقروءة -->
-    <span v-if="hasUnseenReplies(comment)" class="new-reply-dot"></span>
-  </button>
+                      <!-- زر التوسيع/الطي -->
+                      <button
+                        @click="toggleReplies(comment.id)"
+                        class="btn btn-link p-0 mb-2"
+                        :class="{ 'new-reply': hasUnseenReplies(comment) }"
+                      >
+                        {{ showReplies[comment.id] ? "Hide" : "View" }}
+                        {{ comment.replies.length }} replies
+                        <!-- علامة جديدة إذا كان هناك ردود غير مقروءة -->
+                        <span
+                          v-if="hasUnseenReplies(comment)"
+                          class="new-reply-dot"
+                        ></span>
+                      </button>
 
-  <!-- الردود -->
-  <transition name="fade">
-    <div v-if="showReplies[comment.id]" class="replies-container">
-      <div
-        v-for="reply in comment.replies"
-        :key="reply.id"
-        class="reply-item"
-        @click="markReplyAsSeen(reply.id)"
-      >
-        <div class="comment-header">
-          <div class="user-info">
-            <div>
-              <span class="user-name">{{ reply.user?.name }}</span>
-              <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="comment-body" v-html="reply.reply_text"></div>
+                      <!-- الردود -->
+                      <transition name="fade">
+                        <div
+                          v-if="showReplies[comment.id]"
+                          class="replies-container"
+                        >
+                          <div
+                            v-for="reply in comment.replies"
+                            :key="reply.id"
+                            class="reply-item"
+                            @click="markReplyAsSeen(reply.id)"
+                          >
+                            <div class="comment-header">
+                              <div class="user-info">
+                                <div>
+                                  <span class="user-name">{{
+                                    reply.user?.name
+                                  }}</span>
+                                  <span class="comment-time">{{
+                                    formatDateWithTime(reply.created_at)
+                                  }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="comment-body"
+                              v-html="reply.reply_text"
+                            ></div>
+                            <small v-if="reply.seen_by?.length">
+                              <i class="fa fa-check text-success me-1"></i>
+                              <span
+                                v-for="(user, index) in reply.seen_by"
+                                :key="user.id"
+                              >
+                                {{ user.name }}
+                                <span v-if="index !== reply.seen_by?.length - 1"
+                                  >,
+                                </span>
+                              </span>
+                            </small>
 
-        <!-- علامة جديدة إذا كان الرد غير مقروء -->
-        <span
-          v-if="!reply.is_seen"
-          class="new-reply-dot position-absolute top-0 start-100 translate-middle"
-        ></span>
-      </div>
-    </div>
-  </transition>
-</div>
+                            <!-- علامة جديدة إذا كان الرد غير مقروء -->
+                            <span
+                              v-if="!reply.is_seen"
+                              class="new-reply-dot position-absolute top-0 start-100 translate-middle"
+                            ></span>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
 
                     <!-- لودينج عند إرسال الرد -->
                     <div
@@ -614,23 +649,59 @@
 
               <!-- إضافة تعليق جديد -->
               <div class="new-comment">
-                <h6 class="mb-2">{{ t("write_comment") }}</h6>
+                <!-- <h6 class="mb-2">{{ t("write_comment") }}</h6> -->
                 <quill-editor
                   v-model:content="taskComment"
                   :options="editorOptions"
                   @update:content="(val) => (taskComment = val)"
                   ref="editorRef"
                   contentType="html"
-                  class="mb-2"
                 />
-                <ArgonButton
-                  @click="submitComment"
-                  :disabled="isSubmitting"
-                  class="mt-1"
+                <div class="d-flex ">
+                  <ArgonInput
+                    type="file"
+                    @change="handleFileUpload"
+                    accept="image/*, .pdf, .docx, .xlsx"
+                    :key="fileInputKey"
+                    class="mt-1 flex-grow-1 me-2"
+                  />
+                  <ArgonButton
+                    @click="submitFile"
+                    :disabled="isUploading"
+                    class="mt-1 upload-btn"
+                    v-if="fileToUpload"
+                  >
+                    <i class="fas fa-paper-plane me-2"></i>
+                    {{ isUploading ? t("uploading") : t("upload") }}
+                  </ArgonButton>
+                </div>
+                <div class="d-flex gap-2">
+                  <ArgonButton
+                    @click="submitComment"
+                    :disabled="isCommentEmpty || isSubmitting"  
+                    class=" w-25"
+                  >
+                    <i class="fas fa-paper-plane me-2"></i>
+                    {{ isSubmitting ? t("submitting") : t("submit") }}
+                  </ArgonButton>
+                  <!-- <quill-editor v-model:content="taskComment" /> -->
+                  <!-- <ArgonButton
+                    @click="submitFile"
+                    :disabled="isUploading"
+                    class="mt-1 w-25"
+                    v-if="fileToUpload"
+                  >
+                    <i class="fas fa-paper-plane me-2"></i>
+                    {{ isUploading ? t("uploading") : t("upload") }}
+                  </ArgonButton> -->
+                </div>
+                <!-- <ArgonButton
+                  @click="submitFile"
+                  variant="outline"
+                  class="mt-1 w-25"
                 >
-                  <i class="fas fa-paper-plane me-2"></i>
-                  {{ isSubmitting ? t("submitting") : t("submit") }}
-                </ArgonButton>
+                  {{ t("upload_file") }}
+                </ArgonButton> -->
               </div>
             </div>
           </template>
@@ -658,6 +729,7 @@ import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
 import ArgonSwitch from "@/components/ArgonSwitch.vue";
+import ArgonInput from "@/components/ArgonInput.vue";
 
 import { markTaskCommentsAsSeen } from "@/utils/commentCache"; // فوق السكربت
 
@@ -703,12 +775,11 @@ const taskLoadingAction = ref({}); // { [taskId]: boolean }
 const isLoadingComments = ref(false);
 const isLoadingReplies = ref(false);
 const isSubmitting = ref(false);
+const isUploading = ref(false);
 const isSubmittingReplyForComment = ref({});
 const showReplies = reactive({});
 
 // const isOwner = computed(() => store.getters.isOwner);
-
-
 
 const props = defineProps({
   oneTimeTasks: {
@@ -773,6 +844,14 @@ const taskNotes = ref("");
 const isLoading = ref(false);
 
 const t = (key) => translations[currentLanguage.value][key];
+
+// في قسم <script setup>
+const isCommentEmpty = computed(() => {
+  // استخراج النص الصافي من المحتوى HTML
+  const plainText = taskComment.value.replace(/<[^>]+>/g, '').trim();
+  return plainText === '';
+});
+
 
 // خيارات التقرير
 const reportTypeOptions = [
@@ -1150,7 +1229,9 @@ const translations = {
     editTask: "Edit Task",
     comment_text: "Comment",
     write_comment: "Write a comment",
+    upload: "Upload",
     submitting: "Submitting...",
+    uploading: "Uploading...",
     taskNumber: "Task Code",
     description: "Description",
     changedTheField: "changed the field",
@@ -1214,6 +1295,8 @@ const translations = {
     comment_text: "التعليق",
     write_comment: "اكتب تعليقًا",
     submitting: "جاري الإرسال...",
+    upload: "رفع الملف",
+    uploading: "جاري رفع الملف...",
     taskNumber: "رقم المهمة",
     description: "وصف المهمة",
     changedTheField: "غير الحقل",
@@ -1256,13 +1339,18 @@ const filteredTasks = computed(() => {
       return props.oneTimeTasks.filter((task) => {
         return (
           (task.assigned_user?.id === userData.value?.user?.id ||
-          task.supervisor?.id === userData.value?.user?.id ) &&
-          task.is_archived == false && task.status !== "done"
+            task.supervisor?.id === userData.value?.user?.id) &&
+          task.is_archived == false &&
+          task.status !== "done"
         );
       });
     case "Own":
       return props.oneTimeTasks.filter((task) => {
-        return task.creator?.id === userData.value.user?.id && task.is_archived == false && task.status !== "done";
+        return (
+          task.creator?.id === userData.value.user?.id &&
+          task.is_archived == false &&
+          task.status !== "done"
+        );
       });
     case "Archive":
       return props.oneTimeTasks.filter((task) => task.is_archived == true);
@@ -1388,7 +1476,7 @@ const updateTaskStatus = async (task, status) => {
 
 // دالة للتحقق من وجود ردود غير مقروءة
 function hasUnseenReplies(comment) {
-  return comment.replies.find(r => !r.is_seen);
+  return comment.replies.find((r) => !r.is_seen);
 }
 
 // دالة للتمرير التلقائي إلى التعليق الذي يحتوي على رد جديد
@@ -1412,16 +1500,16 @@ async function markReplyAsSeen(replyId) {
   try {
     // البحث عن الرد المحدد في قائمة الردود
     const replyToUpdate = taskComments.value
-      .flatMap(comment => comment.replies) // جلب جميع الردود من جميع التعليقات
-      .find(reply => reply.id === replyId);
+      .flatMap((comment) => comment.replies) // جلب جميع الردود من جميع التعليقات
+      .find((reply) => reply.id === replyId);
 
-      const replyIds = {
-      reply_id : replyId
-      }
+    const replyIds = {
+      reply_id: replyId,
+    };
 
-     if (replyToUpdate) {
+    if (replyToUpdate) {
       // تحديث الحالة محليًا
-       replyToUpdate.is_seen = true;
+      replyToUpdate.is_seen = true;
 
       // تحديث الحالة عبر API
       await store.dispatch("markReplyAsSeen", replyIds);
@@ -1437,9 +1525,9 @@ function toggleReplies(commentId) {
 
   // إذا تم فتح الردود، نقوم بتحديث حالة الردود إلى مقروءة
   if (showReplies[id]) {
-    const comment = taskComments.value.find(c => c.id === commentId);
+    const comment = taskComments.value.find((c) => c.id === commentId);
     if (comment) {
-      comment.replies.forEach(reply => {
+      comment.replies.forEach((reply) => {
         if (!reply.is_seen) {
           markReplyAsSeen(reply.id); // تحديث كل رد غير مقروء
         }
@@ -1447,6 +1535,60 @@ function toggleReplies(commentId) {
     }
   }
 }
+
+//upload file
+const fileToUpload = ref(null);
+const fileInputKey = ref(0); // أضف هذا السطر في قسم التعريفات
+
+// في دالة submitFile بعد رفع الملف بنجاح:
+fileToUpload.value = null;
+fileInputKey.value++; // تحديث الـ key لإعادة تهيئة الحقل
+
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (file) {
+    fileToUpload.value = file;
+  }
+}
+
+// استبدال الدالة submitFile بـ:
+const submitFile = async () => {
+  if (!fileToUpload.value) return;
+
+  const formData = new FormData();
+  formData.append("file", fileToUpload.value); // تأكد من أن 'file' هو الاسم المتوقع في الـbackend
+  isUploading.value = true;
+
+  try {
+    await store.dispatch("AddAttachmentOneTimeTask", {
+      data: formData,
+      taskId: selectedTaskId.value,
+    });
+    fileToUpload.value = null;
+
+
+    // تحديث حالة التعليق
+    await getOneTimeTaskComments(selectedTaskId.value);
+  } catch (error) {
+    console.error("Upload failed:", error);
+  } finally {
+    isUploading.value = false;
+    fileToUpload.value = null; // مسح الملف من الحالة
+    fileInputKey.value++; // تفريغ الحقل عن طريق تغيير الـ key
+  }
+};
+
+// const submitCommentWithFile = async () => {
+//   try {
+//     isSubmitting.value = true;
+//     await submitFile();
+//     await submitComment();
+//   } catch (error) {
+//     console.error("Error submitting comment with file:", error);
+//   } finally {
+//     isSubmitting.value = false;
+//   }
+// };
 </script>
 
 <style scoped>
@@ -1604,8 +1746,6 @@ function toggleReplies(commentId) {
   /* padding: 8px; */
   margin-left: 0.5rem;
 }
-
-
 
 /* الصفحة */
 .pagination-container {
@@ -1829,6 +1969,9 @@ function toggleReplies(commentId) {
 
 /* مربع إضافة التعليق */
 .new-comment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 1rem;
   /* background: #f8f9fa; */
   border-top: 1px solid #e9ecef;
@@ -2067,8 +2210,6 @@ function toggleReplies(commentId) {
   scrollbar-color: #888 #f1f1f1; /* لـ Firefox */
 }
 
-
-
 /* إخفاء التمرير الأفقي في المحتوى الداخلي */
 .modal-content-scroll::-webkit-scrollbar {
   width: 8px; /* عرض شريط التمرير الرأسي */
@@ -2087,5 +2228,23 @@ function toggleReplies(commentId) {
 .modal-content-scroll textarea {
   max-width: 100%;
   box-sizing: border-box;
+}
+
+
+/* تعديلات على الزر والملف */
+.upload-btn {
+  /* توحيد الارتفاع مع حقل الملف */
+  height: calc(1.5em + 0.75rem + 2px); /* نفس ارتفاع .form-control من Bootstrap */
+  padding: 0.375rem 0.75rem; /* تنسيق التباعد الداخلي */
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+}
+
+/* إصلاح التحديد في حقل الملف */
+.form-control[type="file"] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

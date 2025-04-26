@@ -62,6 +62,7 @@ export default createStore({
     projectLogs: [],
     oneTimeTaskLogs: [],
     oneTimeTaskComments: [],
+    oneTimeTaskAttachments: [],
     routineTasks: [],
     allRoutineTasks: [],
     routineTasksReports: [],
@@ -225,6 +226,10 @@ export default createStore({
 
     ADD_ONE_TIME_TASK_COMMENTS(state, comment) {
       state.oneTimeTaskComments.push(comment);
+    },
+
+    ADD_ONE_TIME_TASK_ATTACHMENTS(state, attachment) {
+      state.oneTimeTaskAttachments.push(attachment);
     },
 
     createOneTimeTask(state, task) {
@@ -1571,6 +1576,17 @@ export default createStore({
       }
     },
 
+    async AddAttachmentOneTimeTask({ commit }, { data, taskId }) {
+      try {
+        const response = await apiClient.AddAttachmentOneTimeTask(data, taskId);
+        commit("ADD_ONE_TIME_TASK_ATTACHMENTS", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error adding attachment:", error);
+        throw error;
+      }
+    },
+    
     async createOneTimeTask({ commit }, task) {
       console.log("task", task);
       try {
@@ -1700,5 +1716,6 @@ export default createStore({
     oneTimeTasks: (state) => state.oneTimeTasks,
     oneTimeTaskLogs: (state) => state.oneTimeTaskLogs,
     oneTimeTaskComments: (state) => state.oneTimeTaskComments,
+    oneTimeTaskAttachments: (state) => state.oneTimeTaskAttachments,
   },
 });

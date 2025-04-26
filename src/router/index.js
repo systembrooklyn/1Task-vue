@@ -80,6 +80,12 @@ const routes = [
     component: Signin,
     meta: { public: true }, // صفحة عامة
   },
+  // {
+  //   path: "/:companyName/upload",
+  //   name: "Upload",
+  //   component: () => import("@/views/Upload.vue"),
+  //   meta: { requiresAuth: true },
+  // },
   {
     path: "/signup",
     name: "Signup",

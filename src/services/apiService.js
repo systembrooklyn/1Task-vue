@@ -591,6 +591,17 @@ const config = {
     return apiClient.post(`/tasks/${comment.id}/comments`, comment, config);
   },
 
+  // تعديل الدالة لاستخدام FormData مع الـheaders الصحيحة
+AddAttachmentOneTimeTask(formData, taskId) {
+  const token = localStorage.getItem("token");
+  return apiClient.post(`/tasks/${taskId}/attachments`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+},
+
   starOneTimeTask(taskData) {
     console.log(taskData);
     const token = localStorage.getItem("token");
