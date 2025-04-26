@@ -8,6 +8,7 @@ import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue"; // لإضافة تنبيه في حالة الخطأ
 import AppFooter from "@/examples/PageLayout/Footer.vue";
+import { loadPermissionsFromLocalStorage } from "@/utils/permissions.js";
 
 const store = useStore();
 const router = useRouter(); // لاستخدام التوجيه بعد تسجيل الدخول
@@ -21,6 +22,11 @@ const isOwner = computed(() => store.getters.isOwner);
 
 const body = document.getElementsByTagName("body")[0];
 const isLoading = ref(false);
+const userData = computed(() => store.getters.user);
+
+const permissions = ref(
+  loadPermissionsFromLocalStorage(userData.value?.id) || {}
+);
 
 onBeforeMount(() => {
   store.state.hideConfigButton = true;
@@ -93,7 +99,7 @@ const signIn = async () => {
       const companyNameNormalized = companyName.replace(/\s+/g, "-"); // مثلاً
 
       console.log("companyNamEEEEEe:", companyName);
-      if (isOwner.value) {
+      if (isOwner.value || permissions.value['view-dashboard']) {
         router.push({
           name: "Dashboard",
           params: {

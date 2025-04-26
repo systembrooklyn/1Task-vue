@@ -115,7 +115,7 @@ const toggleSection = (section) => {
             name: 'Dashboard',
             params: { companyName: companyNameNormalized },
           }"
-          v-if="permissions['view-dashboard-owner'] || isOwner"
+          v-if="permissions['view-dashboard'] || isOwner"
           :class="getRoute() === 'dashboard-default' ? 'active' : ''"
           :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
         >

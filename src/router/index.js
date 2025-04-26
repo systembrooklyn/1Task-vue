@@ -12,6 +12,7 @@ import ErrorPage from "@/views/ErrorPage.vue";
 
 import { useStore } from "vuex";
 
+
 // خارج حارس المسارات أو داخله في نفس الملف
 function getCompanyName() {
   // لو عندك user => user.company => company.name
@@ -25,6 +26,21 @@ function getCompanyName() {
   return { companyName: companyName.replace(/\s+/g, "-"), isOwner: isOwnerValue };
 }
 
+const requiredPermission = (permission) => {
+  return (to, from, next) => {
+  const store = useStore();
+
+    const isOwner = computed(() => store.getters.isOwner);
+    const permissions = computed(() => store.getters.permissions);
+    const hasPermission = permissions.value[permission];
+    if (isOwner.value || hasPermission) {
+      next();
+    } else {
+      next(false);
+    }
+  };
+};
+
 const routes = [
   {
     path: "/",
@@ -36,7 +52,8 @@ const routes = [
     path: "/:companyName/dashboard-default",
     name: "Dashboard",
     component: Dashboard,
-    meta: { requiresAuth: true, requiredPermission: 'view_dashboard', isOwner: true },
+    meta: { requiresAuth: true },
+    beforeEnter: requiredPermission('view-dashboard'),
   },
   {
     path: "/:companyName/tables",
