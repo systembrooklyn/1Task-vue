@@ -336,7 +336,6 @@ const t = (key) => {
 // في المكان الذي تُحدد فيه الخيارات (مثل projects أو departments)
 const formattedProjects = computed(() => {
   return [
-    { value: null, label: "No Project" }, // خيار عدم اختيار مشروع
     ...projects.value.filter(project => project.status == true).map(project => ({
       value: project.id,
       label: project.name,

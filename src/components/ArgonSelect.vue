@@ -5,6 +5,13 @@ import { computed } from 'vue';
 
 const emit = defineEmits(["update:modelValue"]);
 
+const inputGroupClasses = computed(() => ({
+  'input-group': props.icon || props.modelValue, // Add modelValue condition
+  'input-group-merge': props.icon,
+  [`input-group-${props.iconDir}`]: props.iconDir,
+  'has-clear-btn': !!props.modelValue // Add class when clear button is visible
+}));
+
 const props = defineProps({
   size: {
     type: String,
@@ -68,11 +75,11 @@ const controlClasses = computed(() => {
   ];
 });
 
-const inputGroupClasses = computed(() => ({
-  'input-group': props.icon,
-  'input-group-merge': props.icon, // For better icon integration
-  [`input-group-${props.iconDir}`]: props.iconDir
-}));
+// const inputGroupClasses = computed(() => ({
+//   'input-group': props.icon,
+//   'input-group-merge': props.icon, // For better icon integration
+//   [`input-group-${props.iconDir}`]: props.iconDir
+// }));
 </script>
 
 <template>
@@ -112,6 +119,15 @@ const inputGroupClasses = computed(() => ({
         </option>
       </select>
 
+  <!-- Clear button -->
+  <span 
+    v-if="props.modelValue" 
+    class="input-group-text clear-btn"
+    @click="emit('update:modelValue', '')"
+  >
+    <i class="fas fa-times"></i>
+  </span>
+
       <span 
         v-if="props.icon && props.iconDir === 'right'" 
         class="input-group-text"
@@ -136,5 +152,28 @@ const inputGroupClasses = computed(() => ({
 }
 .form-control:focus {
   box-shadow: none; /* Use Bootstrap's focus state instead */
+}
+/* Add padding to the select input when the clear button is present */
+.input-group.has-clear-btn .form-control {
+  padding-right: 2.5rem;
+}
+
+/* Position the clear button absolutely within the input group */
+.clear-btn {
+  position: absolute;
+  right: 0.8rem; /* Adjust as needed */
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  z-index: 10; 
+}
+
+/* Adjust position if there's a right icon */
+.input-group.input-group-right.has-clear-btn .clear-btn {
+  right: 2.5rem; 
 }
 </style>
