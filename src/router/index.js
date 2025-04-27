@@ -12,7 +12,6 @@ import ErrorPage from "@/views/ErrorPage.vue";
 
 import { useStore } from "vuex";
 
-
 // خارج حارس المسارات أو داخله في نفس الملف
 function getCompanyName() {
   // لو عندك user => user.company => company.name
@@ -23,12 +22,15 @@ function getCompanyName() {
   const companyName = companyNameValue.value;
   const isOwnerValue = isOwner.value;
 
-  return { companyName: companyName.replace(/\s+/g, "-"), isOwner: isOwnerValue };
+  return {
+    companyName: companyName.replace(/\s+/g, "-"),
+    isOwner: isOwnerValue,
+  };
 }
 
 const requiredPermission = (permission) => {
   return (to, from, next) => {
-  const store = useStore();
+    const store = useStore();
 
     const isOwner = computed(() => store.getters.isOwner);
     const permissions = computed(() => store.getters.permissions);
@@ -36,7 +38,13 @@ const requiredPermission = (permission) => {
     if (isOwner.value || hasPermission) {
       next();
     } else {
-      next(false);
+      // جلب اسم الشركة من الدالة الموجودة
+      const { companyName } = getCompanyName();
+      // تحويل المستخدم إلى الصفحة المطلوبة
+      next({
+        name: "routine task",
+        params: { companyName },
+      });
     }
   };
 };
@@ -53,7 +61,7 @@ const routes = [
     name: "Dashboard",
     component: Dashboard,
     meta: { requiresAuth: true },
-    beforeEnter: requiredPermission('view-dashboard'),
+    beforeEnter: requiredPermission("view-dashboard"),
   },
   {
     path: "/:companyName/tables",
@@ -212,7 +220,6 @@ function isUserAuthenticated() {
   return !!localStorage.getItem("token"); // تحقق إذا كان `token` موجودًا
 }
 
-
 // حراسة المسارات
 router.beforeEach((to, from, next) => {
   const isAuthenticated = isUserAuthenticated();
@@ -224,33 +231,44 @@ router.beforeEach((to, from, next) => {
 
   // 2) لو المستخدم مسجّل، والصفحة عامة، واسمها Signin (مثال)، نوديه للـ Dashboard
   if (isAuthenticated && to.meta.public && to.name === "Signin") {
-    return next({ name: "Dashboard", params: { companyName: getCompanyName() } });
+    return next({
+      name: "Dashboard",
+      params: { companyName: getCompanyName() },
+    });
   }
 
   // 3) التحقق من companyName (لو المسار يحتوي عليه)
   const userCompanyName = getCompanyName().companyName; // دالة هننشئها أسفل للكشف من الـ Store
   const isOwner = getCompanyName().isOwner;
-  if (to.params.companyName && to.meta.requiresAuth && (to.meta.requiredPermission || to.meta.isOwner)) {
+  if (
+    to.params.companyName &&
+    to.meta.requiresAuth &&
+    (to.meta.requiredPermission || to.meta.isOwner)
+  ) {
     // لو الشركة غير مطابقة
     if (to.params.companyName !== userCompanyName) {
       // حمايتك: إما توجيهه لصفحة خطأ، أو صفحة الشركة الصحيحة
       // return next({ name: "Error" });
       // أو:
-      return next({ name: "Dashboard", params: { companyName: userCompanyName, isOwner: isOwner } });
+      return next({
+        name: "Dashboard",
+        params: { companyName: userCompanyName, isOwner: isOwner },
+      });
     } else if (to.meta.isOwner && !isOwner) {
-      return next({ name: "routine task", params: { companyName: userCompanyName, isOwner: true } });
+      return next({
+        name: "routine task",
+        params: { companyName: userCompanyName, isOwner: true },
+      });
     }
   }
 
   return next(); // السماح بالانتقال
 });
 
-
 router.afterEach((to) => {
-  window.gtag('config', 'G-VGLP578ZCJ', {
-    page_path: to.fullPath
+  window.gtag("config", "G-VGLP578ZCJ", {
+    page_path: to.fullPath,
   });
 });
-
 
 export default router;
