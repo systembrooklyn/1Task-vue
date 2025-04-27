@@ -98,11 +98,11 @@ console.log("departmentssssssssssssss:", departments.value);
 // });
 
 const userDepartment = computed(() => {
-  const user = userData.value;
+  const user = userData?.value;
   console.log("user.departments:", user);
-  return user.user.departments.map((department) => ({
-    value: department.id,
-    label: department.name,
+  return user?.user?.departments?.map((department) => ({
+    value: department?.id,
+    label: department?.name,
   }));
 });
 

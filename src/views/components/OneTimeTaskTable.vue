@@ -224,7 +224,7 @@
 
             <!-- أيقونة التعديل -->
             <i
-              v-if="task.creator.id === userData.user.id"
+              v-if="task.creator.id === userData?.user?.id"
               class="fa fa-edit edit-icon ms-1 text-success"
               @click.stop="openEditPopup(task)"
               data-bs-toggle="tooltip"
@@ -1338,8 +1338,8 @@ const filteredTasks = computed(() => {
     case "Inbox":
       return props.oneTimeTasks.filter((task) => {
         return (
-          (task.assigned_user?.id === userData.value?.user?.id ||
-            task.supervisor?.id === userData.value?.user?.id) &&
+          (task.assigned_user?.id === userData?.value?.user?.id ||
+            task.supervisor?.id === userData?.value?.user?.id) &&
           task.is_archived == false &&
           task.status !== "done"
         );
@@ -1347,7 +1347,7 @@ const filteredTasks = computed(() => {
     case "Own":
       return props.oneTimeTasks.filter((task) => {
         return (
-          task.creator?.id === userData.value.user?.id &&
+          task.creator?.id === userData?.value?.user?.id &&
           task.is_archived == false &&
           task.status !== "done"
         );

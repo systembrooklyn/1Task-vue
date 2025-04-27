@@ -22,8 +22,8 @@
 
 import { createApp, nextTick } from "vue";
 import App from "./App.vue";
-import store from "./store";
 import router from "./router";
+import store from "./store";
 import "./assets/css/nucleo-icons.css";
 import "./assets/css/nucleo-svg.css";
 // main.js
