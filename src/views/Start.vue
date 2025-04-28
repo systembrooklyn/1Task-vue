@@ -126,7 +126,7 @@ onBeforeUnmount(() => {
     <div class="container">
       <a class="navbar-brand" href="/start">
         <img
-          src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?updatedAt=1730567921316"
+          src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?ik-obj-version=9sTuepUtU27Iw3.FfIbdKOdc7MYL4WM0&updatedAt=1737223784202"
           alt="Logo"
           class="navbar-logo"
         />
