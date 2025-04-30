@@ -70,6 +70,7 @@ export default createStore({
     evaluation: [],
     evaluatedTasks: [],
     oneTimeTasks: [],
+    chartDeptPerformance: null,
     pagination: {
       total: 0,
       current_page: 1,
@@ -304,6 +305,10 @@ export default createStore({
     markRepliesAsSeen(state, replyId) {
       console.log("taskData", replyId);
       console.log("state.routineTasks", state.replyId);
+    },
+
+    getChartDeptPerformance(state, data) {
+      state.chartDeptPerformance = data;
     },
 
     // end----------------------------------------------------
@@ -1675,6 +1680,19 @@ export default createStore({
         return error;
       }
     },
+
+    // ChartDeptPerformance vuex
+    // In your Vuex module
+async getChartDeptPerformance({ commit }, range) {
+  try {
+    const response = await apiClient.getChartDeptPerformance(range);
+    commit("getChartDeptPerformance", response.data.data);
+    return response;
+  } catch (error) {
+    console.error("Error:", error);
+    return error;
+  }
+},
   },
 
   getters: {
@@ -1717,5 +1735,6 @@ export default createStore({
     oneTimeTaskLogs: (state) => state.oneTimeTaskLogs,
     oneTimeTaskComments: (state) => state.oneTimeTaskComments,
     oneTimeTaskAttachments: (state) => state.oneTimeTaskAttachments,
+    chartDeptPerformance: (state) => state.chartDeptPerformance,
   },
 });

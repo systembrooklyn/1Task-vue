@@ -297,7 +297,6 @@ onBeforeMount(async () => {
 
     <!-- Skeleton Loader if data is loading -->
     <div v-else class="text-center">
-      <p>Loading data...</p>
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>

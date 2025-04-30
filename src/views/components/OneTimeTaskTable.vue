@@ -649,60 +649,56 @@
 
               <!-- إضافة تعليق جديد -->
               <div class="new-comment">
-                <!-- <h6 class="mb-2">{{ t("write_comment") }}</h6> -->
-                <quill-editor
-                  v-model:content="taskComment"
-                  :options="editorOptions"
-                  @update:content="(val) => (taskComment = val)"
-                  ref="editorRef"
-                  contentType="html"
-                />
-                <div class="d-flex ">
-                  <ArgonInput
-                    type="file"
-                    @change="handleFileUpload"
-                    accept="image/*, .pdf, .docx, .xlsx"
-                    :key="fileInputKey"
-                    class="mt-1 flex-grow-1 me-2"
-                  />
-                  <ArgonButton
-                    @click="submitFile"
-                    :disabled="isUploading"
-                    class="mt-1 upload-btn"
-                    v-if="fileToUpload"
-                  >
-                    <i class="fas fa-paper-plane me-2"></i>
-                    {{ isUploading ? t("uploading") : t("upload") }}
-                  </ArgonButton>
-                </div>
-                <div class="d-flex gap-2">
-                  <ArgonButton
-                    @click="submitComment"
-                    :disabled="isCommentEmpty || isSubmitting"  
-                    class=" w-25"
-                  >
-                    <i class="fas fa-paper-plane me-2"></i>
-                    {{ isSubmitting ? t("submitting") : t("submit") }}
-                  </ArgonButton>
-                  <!-- <quill-editor v-model:content="taskComment" /> -->
-                  <!-- <ArgonButton
-                    @click="submitFile"
-                    :disabled="isUploading"
-                    class="mt-1 w-25"
-                    v-if="fileToUpload"
-                  >
-                    <i class="fas fa-paper-plane me-2"></i>
-                    {{ isUploading ? t("uploading") : t("upload") }}
-                  </ArgonButton> -->
-                </div>
-                <!-- <ArgonButton
-                  @click="submitFile"
-                  variant="outline"
-                  class="mt-1 w-25"
-                >
-                  {{ t("upload_file") }}
-                </ArgonButton> -->
-              </div>
+  <quill-editor
+    v-model:content="taskComment"
+    :options="editorOptions"
+    @update:content="(val) => (taskComment = val)"
+    ref="editorRef"
+    contentType="html"
+  />
+  
+  <!-- File Input with Remove Button -->
+  <div class="d-flex align-items-center mt-1">
+    <ArgonInput
+      type="file"
+      @change="handleFileUpload"
+      accept="image/*, .pdf, .docx, .xlsx"
+      :key="fileInputKey"
+      class="flex-grow-1 me-2"
+    />
+    <button 
+      v-if="fileToUpload"
+      @click="removeFile"
+      class="btn btn-sm btn-danger"
+      title="Remove file"
+    >
+      &times;
+    </button>
+  </div>
+
+  <!-- Combined Action Buttons -->
+  <div class="d-flex gap-2">
+    <ArgonButton
+      v-if="fileToUpload"
+      @click="submitFile"
+      :disabled="isUploading"
+      class="w-25"
+    >
+      <i class="fas fa-paper-plane me-2"></i>
+      {{ isUploading ? t("submitting") : t("submit") }}
+    </ArgonButton>
+
+    <ArgonButton
+      v-else
+      @click="submitComment"
+      :disabled="isCommentEmpty || isSubmitting"
+      class="w-25"
+    >
+      <i class="fas fa-paper-plane me-2"></i>
+      {{ isSubmitting ? t("submitting") : t("submit") }}
+    </ArgonButton>
+  </div>
+</div>
             </div>
           </template>
 
@@ -1554,11 +1550,13 @@ function handleFileUpload(event) {
 // استبدال الدالة submitFile بـ:
 const submitFile = async () => {
   if (!fileToUpload.value) return;
-
+  
+  const htmlContent = editorRef.value.getHTML();
   const formData = new FormData();
-  formData.append("file", fileToUpload.value); // تأكد من أن 'file' هو الاسم المتوقع في الـbackend
+  formData.append("file", fileToUpload.value);
+  formData.append("comment_text", htmlContent);
   isUploading.value = true;
-
+  
   try {
     await store.dispatch("AddAttachmentOneTimeTask", {
       data: formData,
@@ -1569,12 +1567,15 @@ const submitFile = async () => {
 
     // تحديث حالة التعليق
     await getOneTimeTaskComments(selectedTaskId.value);
+
+    taskComment.value = "";
+    editorRef.value.setHTML("");
   } catch (error) {
     console.error("Upload failed:", error);
   } finally {
     isUploading.value = false;
-    fileToUpload.value = null; // مسح الملف من الحالة
-    fileInputKey.value++; // تفريغ الحقل عن طريق تغيير الـ key
+    fileToUpload.value = null;
+    fileInputKey.value++; // Clear the file input
   }
 };
 
@@ -1589,6 +1590,11 @@ const submitFile = async () => {
 //     isSubmitting.value = false;
 //   }
 // };
+
+const removeFile = () => {
+  fileToUpload.value = null;
+  fileInputKey.value++; // This will reset the file input
+};
 </script>
 
 <style scoped>
@@ -2246,5 +2252,12 @@ const submitFile = async () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.new-comment .btn-danger {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1;
+  margin-left: -2.5rem; /* Adjust based on your layout */
 }
 </style>

@@ -28,21 +28,26 @@ function getCompanyName() {
   };
 }
 
-const requiredPermission = (permission) => {
-  return (to, from, next) => {
+// في ملف router.js أو guards.js
+const requiredPermission = (...requiredPermissions) => {
+  return async (to, from, next) => {
     const store = useStore();
+    await store.dispatch("fetchUserPermissions"); // Ensure permissions are loaded
 
     const isOwner = computed(() => store.getters.isOwner);
-    const permissions = computed(() => store.getters.permissions);
-    const hasPermission = permissions.value[permission];
+    const userPermissions = computed(() => store.getters.permissions);
+
+    // Check if user is owner OR has any of the required permissions
+    const hasPermission = requiredPermissions.some(permission => 
+      userPermissions.value[permission]
+    );
+
     if (isOwner.value || hasPermission) {
       next();
     } else {
-      // جلب اسم الشركة من الدالة الموجودة
       const { companyName } = getCompanyName();
-      // تحويل المستخدم إلى الصفحة المطلوبة
       next({
-        name: "routine task",
+        name: "routine task", // Redirect to a safe route
         params: { companyName },
       });
     }
@@ -61,7 +66,7 @@ const routes = [
     name: "Dashboard",
     component: Dashboard,
     meta: { requiresAuth: true },
-    beforeEnter: requiredPermission("view-dashboard"),
+    beforeEnter: requiredPermission("view-dashboard", "view-dashboard-owner"),
   },
   {
     path: "/:companyName/tables",
@@ -207,6 +212,12 @@ const routes = [
     component: () => import("@/views/OneTimeTask.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/:companyName/chart-reported",
+    name: "chart reported",
+    component: () => import("@/views/ChartReported.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({
@@ -252,7 +263,7 @@ router.beforeEach((to, from, next) => {
       // أو:
       return next({
         name: "Dashboard",
-        params: { companyName: userCompanyName, isOwner: isOwner },
+        params: { companyName: userCompanyName, isOwner: true },
       });
     } else if (to.meta.isOwner && !isOwner) {
       return next({

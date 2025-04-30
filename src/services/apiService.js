@@ -487,6 +487,19 @@ const config = {
     return apiClient.get(`/daily-task-reports/${date}`, config);
   },
   
+  // In your API service
+getChartDeptPerformance(range) {
+  const token = localStorage.getItem("token");
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  };
+
+  return apiClient.post("/deptPerformance", range, config);
+},
+  
 
   // end routine tasks------------------------------------------------
 

@@ -115,7 +115,7 @@ const toggleSection = (section) => {
             name: 'Dashboard',
             params: { companyName: companyNameNormalized },
           }"
-          v-if="permissions['view-dashboard'] || isOwner"
+          v-if="permissions['view-dashboard'] || permissions['view-dashboard-owner'] || isOwner"
           :class="getRoute() === 'dashboard-default' ? 'active' : ''"
           :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
         >
@@ -249,6 +249,25 @@ const toggleSection = (section) => {
                 <template v-slot:icon>
                   <i
                     class="fas fa-clipboard-check text-primary text-sm opacity-10"
+                  ></i>
+                </template>
+              </sidenav-item>
+            </li>
+            <li
+              class="nav-item"
+              v-if="isOwner || permissions['view-chartReports']"
+            >
+              <sidenav-item
+                :to="{
+                  name: 'chart reported',
+                  params: { companyName: companyNameNormalized },
+                }"
+                :class="getRoute() === 'chart reported' ? 'active' : ''"
+                :navText="isRTL ? ' تقرير المهام' : ' Chart Reports'"
+              >
+                <template v-slot:icon>
+                  <i
+                    class="fas fa-chart-pie text-warning text-sm opacity-10"
                   ></i>
                 </template>
               </sidenav-item>
