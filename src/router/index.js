@@ -18,9 +18,9 @@ function getCompanyName() {
   // اعمل أي Normalization للمسافات أو الرموز
   const store = useStore();
   const companyNameValue = computed(() => store.getters.companyName);
-  const isOwner = computed(() => store.getters.isOwner);
+  const isOwner = localStorage.getItem("isOwner");
   const companyName = companyNameValue.value;
-  const isOwnerValue = isOwner.value;
+  const isOwnerValue = isOwner;
 
   return {
     companyName: companyName.replace(/\s+/g, "-"),
@@ -34,7 +34,7 @@ const requiredPermission = (...requiredPermissions) => {
     const store = useStore();
     await store.dispatch("fetchUserPermissions"); // Ensure permissions are loaded
 
-    const isOwner = computed(() => store.getters.isOwner);
+    const isOwner = localStorage.getItem("isOwner");
     const userPermissions = computed(() => store.getters.permissions);
 
     // Check if user is owner OR has any of the required permissions
@@ -42,7 +42,7 @@ const requiredPermission = (...requiredPermissions) => {
       userPermissions.value[permission]
     );
 
-    if (isOwner.value || hasPermission) {
+    if (isOwner || hasPermission) {
       next();
     } else {
       const { companyName } = getCompanyName();
