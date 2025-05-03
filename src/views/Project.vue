@@ -380,8 +380,12 @@ const translations = {
         v-if="showPopup"
         :title="t('createProject')"
         @close="closePopup"
+        class="project-modal"
+
       >
         <template #default>
+          <div class="modal-content-scroll">
+
           <div class="form-group mb-3">
             <label class="form-label">{{ t("projectName") }}:</label>
             <input
@@ -463,6 +467,8 @@ const translations = {
               </div>
             </div>
           </transition>
+
+          </div>
         </template>
 
         <template #footer>
@@ -509,4 +515,52 @@ const translations = {
   margin-top: 10px;
   background-color: #f9f9f9;
 }
+
+.project-modal {
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+}
+
+/* إضافة هذه الأنماط لشريط التمرير */
+.modal-content-scroll {
+  overflow-y: auto; /* تفعيل التمرير الرأسي */
+  overflow-x: hidden; /* إخفاء التمرير الأفقي */
+  max-height: 65vh; /* الحد الأقصى لارتفاع المحتوى */
+  scrollbar-width: thin; /* لـ Firefox */
+  scrollbar-color: #888 #f1f1f1; /* لـ Firefox */
+}
+
+/* إصلاح عرض المودال لتجنب التمرير الأفقي\ */
+
+/* إخفاء التمرير الأفقي في المحتوى الداخلي */
+.modal-content-scroll::-webkit-scrollbar {
+  width: 8px; /* عرض شريط التمرير الرأسي */
+  height: 0px; /* تعطيل شريط التمرير الأفقي */
+}
+
+/* حل مشكلة العرض الزائد */
+.modal-content-scroll > .row {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* إصلاح حجم الحقول */
+.modal-content-scroll input,
+.modal-content-scroll select,
+.modal-content-scroll textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.project-modal .modal-content-scroll {
+  overflow-y: auto;
+  flex: 1;
+  max-height: 65vh;
+}
+
+
 </style>

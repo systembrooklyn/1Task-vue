@@ -125,24 +125,7 @@ const toggleSection = (section) => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item">
-        <div
-          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
-          @click="toggleSection('tasks')"
-        >
-          <div class="d-flex align-items-center">
-            <i class="fas fa-tasks text-success me-2"></i>
-            <span>{{ isRTL ? "المهام" : "Tasks" }}</span>
-          </div>
-          <i
-            class="fas fa-chevron-right transition-transform"
-            :class="{ 'rotate-180': collapsibleSections.tasks }"
-          ></i>
-        </div>
-
-        <transition name="dropdown">
-          <ul v-if="collapsibleSections.tasks" class="nav nav-sm flex-column">
-            <li
+      <li
               class="nav-item"
               v-if="permissions['view-dailytask'] || isOwner"
             >
@@ -177,6 +160,25 @@ const toggleSection = (section) => {
                 </template>
               </sidenav-item>
             </li>
+
+      <li class="nav-item">
+        <div
+          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
+          @click="toggleSection('tasks')"
+        >
+          <div class="d-flex align-items-center">
+            <i class="fas fa-tasks text-success me-2"></i>
+            <span>{{ isRTL ? "المهام" : "Tasks" }}</span>
+          </div>
+          <i
+            class="fas fa-chevron-right transition-transform"
+            :class="{ 'rotate-180': collapsibleSections.tasks }"
+          ></i>
+        </div>
+
+        <transition name="dropdown">
+          <ul v-if="collapsibleSections.tasks" class="nav nav-sm flex-column">
+            
 
             <li
               class="nav-item"
