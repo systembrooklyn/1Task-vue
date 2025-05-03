@@ -649,56 +649,56 @@
 
               <!-- إضافة تعليق جديد -->
               <div class="new-comment">
-  <quill-editor
-    v-model:content="taskComment"
-    :options="editorOptions"
-    @update:content="(val) => (taskComment = val)"
-    ref="editorRef"
-    contentType="html"
-  />
-  
-  <!-- File Input with Remove Button -->
-  <div class="d-flex align-items-center mt-1">
-    <ArgonInput
-      type="file"
-      @change="handleFileUpload"
-      accept="image/*, .pdf, .docx, .xlsx"
-      :key="fileInputKey"
-      class="flex-grow-1 me-2"
-    />
-    <button 
-      v-if="fileToUpload"
-      @click="removeFile"
-      class="btn btn-sm btn-danger"
-      title="Remove file"
-    >
-      &times;
-    </button>
-  </div>
+                <quill-editor
+                  v-model:content="taskComment"
+                  :options="editorOptions"
+                  @update:content="(val) => (taskComment = val)"
+                  ref="editorRef"
+                  contentType="html"
+                />
 
-  <!-- Combined Action Buttons -->
-  <div class="d-flex gap-2">
-    <ArgonButton
-      v-if="fileToUpload"
-      @click="submitFile"
-      :disabled="isUploading"
-      class="w-25"
-    >
-      <i class="fas fa-paper-plane me-2"></i>
-      {{ isUploading ? t("submitting") : t("submit") }}
-    </ArgonButton>
+                <!-- File Input with Remove Button -->
+                <div class="d-flex align-items-center mt-1">
+                  <ArgonInput
+                    type="file"
+                    @change="handleFileUpload"
+                    accept="image/*, .pdf, .docx, .xlsx"
+                    :key="fileInputKey"
+                    class="flex-grow-1 me-2"
+                  />
+                  <button
+                    v-if="fileToUpload"
+                    @click="removeFile"
+                    class="btn btn-sm btn-danger"
+                    title="Remove file"
+                  >
+                    &times;
+                  </button>
+                </div>
 
-    <ArgonButton
-      v-else
-      @click="submitComment"
-      :disabled="isCommentEmpty || isSubmitting"
-      class="w-25"
-    >
-      <i class="fas fa-paper-plane me-2"></i>
-      {{ isSubmitting ? t("submitting") : t("submit") }}
-    </ArgonButton>
-  </div>
-</div>
+                <!-- Combined Action Buttons -->
+                <div class="d-flex gap-2">
+                  <ArgonButton
+                    v-if="fileToUpload"
+                    @click="submitFile"
+                    :disabled="isUploading"
+                    class="w-25"
+                  >
+                    <i class="fas fa-paper-plane me-2"></i>
+                    {{ isUploading ? t("submitting") : t("submit") }}
+                  </ArgonButton>
+
+                  <ArgonButton
+                    v-else
+                    @click="submitComment"
+                    :disabled="isCommentEmpty || isSubmitting"
+                    class="w-25"
+                  >
+                    <i class="fas fa-paper-plane me-2"></i>
+                    {{ isSubmitting ? t("submitting") : t("submit") }}
+                  </ArgonButton>
+                </div>
+              </div>
             </div>
           </template>
 
@@ -844,10 +844,9 @@ const t = (key) => translations[currentLanguage.value][key];
 // في قسم <script setup>
 const isCommentEmpty = computed(() => {
   // استخراج النص الصافي من المحتوى HTML
-  const plainText = taskComment.value.replace(/<[^>]+>/g, '').trim();
-  return plainText === '';
+  const plainText = taskComment.value.replace(/<[^>]+>/g, "").trim();
+  return plainText === "";
 });
-
 
 // خيارات التقرير
 const reportTypeOptions = [
@@ -1550,20 +1549,19 @@ function handleFileUpload(event) {
 // استبدال الدالة submitFile بـ:
 const submitFile = async () => {
   if (!fileToUpload.value) return;
-  
+
   const htmlContent = editorRef.value.getHTML();
   const formData = new FormData();
   formData.append("file", fileToUpload.value);
   formData.append("comment_text", htmlContent);
   isUploading.value = true;
-  
+
   try {
     await store.dispatch("AddAttachmentOneTimeTask", {
       data: formData,
       taskId: selectedTaskId.value,
     });
     fileToUpload.value = null;
-
 
     // تحديث حالة التعليق
     await getOneTimeTaskComments(selectedTaskId.value);
@@ -2236,11 +2234,12 @@ const removeFile = () => {
   box-sizing: border-box;
 }
 
-
 /* تعديلات على الزر والملف */
 .upload-btn {
   /* توحيد الارتفاع مع حقل الملف */
-  height: calc(1.5em + 0.75rem + 2px); /* نفس ارتفاع .form-control من Bootstrap */
+  height: calc(
+    1.5em + 0.75rem + 2px
+  ); /* نفس ارتفاع .form-control من Bootstrap */
   padding: 0.375rem 0.75rem; /* تنسيق التباعد الداخلي */
   font-size: 1rem;
   line-height: 1.5;

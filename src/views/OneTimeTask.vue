@@ -1,7 +1,14 @@
 <!-- src/views/RoutineTask.vue -->
 
 <script setup>
-import { ref, computed, onBeforeMount, watch, onMounted, onBeforeUnmount } from "vue";
+import {
+  ref,
+  computed,
+  onBeforeMount,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+} from "vue";
 import { useStore } from "vuex";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
@@ -33,9 +40,7 @@ import {
 
 import Swal from "sweetalert2";
 
-import {
-  isTaskCommentSeen,
-} from "@/utils/commentCache";
+import { isTaskCommentSeen } from "@/utils/commentCache";
 
 const permissions = ref(
   loadPermissionsFromLocalStorage(userData.value?.id) || {}
@@ -61,9 +66,8 @@ onBeforeMount(async () => {
 
   // بدء التحديث الدوري كل 30 ثانية
   refreshIntervalId.value = setInterval(refreshTasks, 30000); // 30000 مللي ثانية = 30 ثانية
-  // --- نهاية التغييرات ---   
+  // --- نهاية التغييرات ---
 });
-
 
 // --- بداية التغييرات ---
 // إيقاف التحديث الدوري عند إلغاء تحميل المكون لمنع تسرب الذاكرة
@@ -79,13 +83,16 @@ onBeforeUnmount(() => {
 const dataFromApi = computed(() => store.getters.dataFromApi);
 const employeeOptions = ref([]);
 
-watch(() => dataFromApi.value, () => {
-  console.log("dataFromApi changed:", dataFromApi.value);
-  employeeOptions.value = dataFromApi.value.map((employee) => ({
-    value: employee.id,
-    label: employee.name,
-  }));
-});
+watch(
+  () => dataFromApi.value,
+  () => {
+    console.log("dataFromApi changed:", dataFromApi.value);
+    employeeOptions.value = dataFromApi.value.map((employee) => ({
+      value: employee.id,
+      label: employee.name,
+    }));
+  }
+);
 
 const departments = computed(() => store.getters.departments);
 console.log("departmentssssssssssssss:", departments.value);
@@ -178,8 +185,6 @@ watch(
   }
 );
 
-
-
 // إغلاق النافذة المنبثقة
 const closePopup = () => {
   showPopup.value = false;
@@ -224,8 +229,6 @@ onBeforeMount(async () => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 
-
-
   try {
     isLoading.value = true;
     // Example of calling your Vuex action:
@@ -233,10 +236,10 @@ onBeforeMount(async () => {
     console.log("response:", response);
     if (response.status === 200) {
       oneTimeTasks.value = store.getters.oneTimeTasks;
-      oneTimeTasks.value = store.getters.oneTimeTasks.map(task => ({
-    ...task,
-    hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id)
-  }));
+      oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => ({
+        ...task,
+        hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id),
+      }));
       oneTimeTasks.value.sort((taskA, taskB) => {
         // 1) مقارنة is_urgent
         // if (taskA.is_urgent && !taskB.is_urgent) {
@@ -270,7 +273,7 @@ onBeforeMount(async () => {
 
 // جلب وتجديد المهام
 const refreshTasks = async () => {
-   // --- بداية التغييرات ---
+  // --- بداية التغييرات ---
   // إضافة console.log لتتبع استدعاء الدالة
   console.log("Refreshing tasks...", new Date().toLocaleTimeString());
   // --- نهاية التغييرات ---
@@ -278,10 +281,10 @@ const refreshTasks = async () => {
     const response = await store.dispatch("fetchOneTimeTasks");
     if (response.status === 200) {
       oneTimeTasks.value = store.getters.oneTimeTasks;
-      oneTimeTasks.value = store.getters.oneTimeTasks.map(task => ({
-    ...task,
-    hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id)
-  }));
+      oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => ({
+        ...task,
+        hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id),
+      }));
       oneTimeTasks.value.sort((taskA, taskB) => {
         // 1) مقارنة is_urgent
         // if (taskA.is_urgent && !taskB.is_urgent) {
@@ -332,17 +335,17 @@ const t = (key) => {
   return translations[currentLanguage.value][key];
 };
 
-
 // في المكان الذي تُحدد فيه الخيارات (مثل projects أو departments)
 const formattedProjects = computed(() => {
   return [
-    ...projects.value.filter(project => project.status == true).map(project => ({
-      value: project.id,
-      label: project.name,
-    }))
+    ...projects.value
+      .filter((project) => project.status == true)
+      .map((project) => ({
+        value: project.id,
+        label: project.name,
+      })),
   ];
 });
-
 
 // متغيرات الفلترة
 const selectedTaskType = ref("");
@@ -401,7 +404,10 @@ const filteredTasks = computed(() => {
   }
 
   if (selectedEmployee.value) {
-    tasks = tasks.filter((t) => (t.assigned_user?.id || t.supervisor?.id) === selectedEmployee.value);
+    tasks = tasks.filter(
+      (t) =>
+        (t.assigned_user?.id || t.supervisor?.id) === selectedEmployee.value
+    );
   }
 
   const today = formatDate(new Date());
@@ -427,18 +433,20 @@ const filteredTasks = computed(() => {
     );
   }
 
-// داخل computed property filteredTasks
-if (selectedProjects.value.length > 0) {
-  const selectedProjectIds = selectedProjects.value.map(project => project.id);
-  tasks = tasks.filter(task => {
-    // إذا كان المشروع غير موجود (null)، تحقق من وجود null في selectedProjectIds
-    if (!task.project) {
-      return selectedProjectIds.includes(null);
-    }
-    // وإلا تحقق من مطابقة project.id
-    return selectedProjectIds.includes(task.project.id);
-  });
-}
+  // داخل computed property filteredTasks
+  if (selectedProjects.value.length > 0) {
+    const selectedProjectIds = selectedProjects.value.map(
+      (project) => project.id
+    );
+    tasks = tasks.filter((task) => {
+      // إذا كان المشروع غير موجود (null)، تحقق من وجود null في selectedProjectIds
+      if (!task.project) {
+        return selectedProjectIds.includes(null);
+      }
+      // وإلا تحقق من مطابقة project.id
+      return selectedProjectIds.includes(task.project.id);
+    });
+  }
 
   tasks = tasks.filter((task) => searchMatch(task));
   return tasks;
@@ -495,11 +503,11 @@ const resetFilters = () => {
 const toggleAllProjects = () => {
   // استبعاد الخيار "No Project" (value: null)
   // const actualProjects = formattedProjects.value.filter(p => p.value !== null);
-  
+
   if (selectedProjects.value.length === formattedProjects.value.length) {
     selectedProjects.value = [];
   } else {
-    selectedProjects.value = formattedProjects.value.map(project => ({
+    selectedProjects.value = formattedProjects.value.map((project) => ({
       id: project.value,
       name: project.label,
     }));
@@ -577,16 +585,16 @@ async function createOneTimeTask() {
       // تنبيه خطأ
       console.error("Error creating oneTimeTask:", error);
       Swal.fire({
-      icon: "error",
-      title: t("errorOccurred"),
-      html: error,
-      showConfirmButton: true,
-      backdrop: "rgba(0,0,0,0.5)",
-      heightAuto: false,
-      customClass: {
-        popup: "swal-above-modal",
-      },
-    });
+        icon: "error",
+        title: t("errorOccurred"),
+        html: error,
+        showConfirmButton: true,
+        backdrop: "rgba(0,0,0,0.5)",
+        heightAuto: false,
+        customClass: {
+          popup: "swal-above-modal",
+        },
+      });
     } finally {
       isLoading.value = false;
     }
@@ -610,7 +618,7 @@ function openEditPopupInParent(task) {
   selectedEmployee.value = task.assigned_user?.id || null;
   selectedSupervisor.value = task.supervisor?.id || null;
   deptId.value = task.department?.id || "";
-  projectId.value = task.project?.id ;
+  projectId.value = task.project?.id;
   console.log(task.project?.id);
   // isUrgent.value = task.is_urgent || false;
   priority.value = task.priority || "";
@@ -655,7 +663,7 @@ const updateOneTimeTask = async () => {
       title: oneTimeTaskName.value,
       description: oneTimeTaskDescription.value,
       assigned_user_id: selectedEmployee.value,
-      supervisor_user_id: selectedSupervisor.value || null, 
+      supervisor_user_id: selectedSupervisor.value || null,
       department_id: deptId.value,
       project_id: projectId.value === "No Project" ? null : projectId.value,
       // is_urgent: isUrgent.value,
@@ -666,7 +674,6 @@ const updateOneTimeTask = async () => {
 
     console.log("updatedTask" + updatedTask);
 
-   
     // أضف start_date فقط إذا كانت القيمة موجودة
     if (startDate.value) {
       updatedTask.start_date = startDate.value;
@@ -692,7 +699,7 @@ const updateOneTimeTask = async () => {
   } catch (error) {
     // تنبيه خطأ
     console.error("Error creating oneTimeTask:", error);
-      Swal.fire({
+    Swal.fire({
       icon: "error",
       title: t("errorOccurred"),
       html: error,
@@ -707,9 +714,6 @@ const updateOneTimeTask = async () => {
     isLoading.value = false;
   }
 };
-
-
-
 
 const translations = {
   en: {
@@ -923,7 +927,10 @@ const translations = {
                   </small>
 
                   <!-- إذا لديك صلاحية لإنشاء المهمة -->
-                  <argon-button v-if="isOwner || permissions['create-task']"  @click="openPopup">
+                  <argon-button
+                    v-if="isOwner || permissions['create-task']"
+                    @click="openPopup"
+                  >
                     <i class="fas fa-plus"></i>
                   </argon-button>
                 </div>
@@ -1048,7 +1055,6 @@ const translations = {
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                       >
-                        
                         {{
                           selectedProjects.length === 0
                             ? t("allProjects")
@@ -1118,7 +1124,9 @@ const translations = {
                       <option value="inProgress">{{ t("inProgress") }}</option>
                       <option value="review">{{ t("review") }}</option>
                       <option value="pending">{{ t("pending") }}</option>
-                      <option value="hasNewUpdate">{{ t("hasNewUpdate") }}</option>
+                      <option value="hasNewUpdate">
+                        {{ t("hasNewUpdate") }}
+                      </option>
                       <!-- <option value="lated">{{ t("LatedTasks") }}</option> -->
                     </select>
                   </div>
@@ -1140,7 +1148,11 @@ const translations = {
                     <label class="form-label">{{ t("employee") }}</label>
                     <select class="form-select" v-model="selectedEmployee">
                       <option value="">{{ t("allEmployees") }}</option>
-                      <option v-for="employeeOption in employeeOptions" :key="employeeOption.value" :value="employeeOption.value">
+                      <option
+                        v-for="employeeOption in employeeOptions"
+                        :key="employeeOption.value"
+                        :value="employeeOption.value"
+                      >
                         {{ employeeOption.label }}
                       </option>
                     </select>
@@ -1154,7 +1166,6 @@ const translations = {
                       <option value="overdue">{{ t("overDue") }}</option>
                       <option value="noDueDate">{{ t("noDueDate") }}</option>
                     </select>
-
                   </div>
                 </div>
 
@@ -1219,281 +1230,274 @@ const translations = {
 
   <!-- المودال لإنشاء مهمة واحدة -->
   <transition name="modal-fade">
-  <div v-if="showPopup" class="popup-overlay">
+    <div v-if="showPopup" class="popup-overlay">
       <ArgonModal
-      v-if="showPopup"
-      :title="t('createOneTimeTask')"
-      @close="closePopup"
-      class="one-time-task-modal"
-    >
-      <template #default>
-        <div class="modal-content-scroll">
-          <!-- بداية الـrow الشامل -->
-          <div class="row">
+        v-if="showPopup"
+        :title="t('createOneTimeTask')"
+        @close="closePopup"
+        class="one-time-task-modal"
+      >
+        <template #default>
+          <div class="modal-content-scroll">
+            <!-- بداية الـrow الشامل -->
+            <div class="row">
+              <!-- اسم المهمة (سطر كامل) -->
+              <div class="col-12 mb-3">
+                <label class="form-label">{{ t("taskName") }}:</label>
+                <input
+                  v-model="oneTimeTaskName"
+                  class="form-control"
+                  :placeholder="t('enterTaskName')"
+                  required
+                />
+              </div>
 
-            <!-- اسم المهمة (سطر كامل) -->
-            <div class="col-12 mb-3">
-              <label class="form-label">{{ t("taskName") }}:</label>
-              <input
-                v-model="oneTimeTaskName"
-                class="form-control"
-                :placeholder="t('enterTaskName')"
-                required
-              />
+              <!-- الوصف (سطر كامل) -->
+              <div class="col-12 mb-3">
+                <label class="form-label">{{ t("description") }}:</label>
+                <textarea
+                  v-model="oneTimeTaskDescription"
+                  class="form-control"
+                  :placeholder="t('enterDescription')"
+                  required
+                ></textarea>
+              </div>
+
+              <!-- حقل assignTo (نصف العرض) -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("assignTo") }}:</label>
+                <argon-select
+                  v-model="selectedEmployee"
+                  :options="employeeOptions"
+                  :placeholder="t('selectEmployee')"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- حقل supervisor (نصف العرض) -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("supervisor") }}:</label>
+                <argon-select
+                  v-model="selectedSupervisor"
+                  :options="employeeOptions"
+                  :placeholder="t('selectSupervisor')"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- مشروع (نصف العرض) -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("project") }}:</label>
+                <argon-select
+                  v-model="projectId"
+                  :options="formattedProjects"
+                  :placeholder="t('selectProject')"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- أولوية (نصف العرض) -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("priority") }}:</label>
+                <argon-select
+                  v-model="priority"
+                  :options="prioritiesOptions"
+                  :placeholder="t('selectPriority')"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- تاريخ البداية (نصف العرض) -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("startDate") }}:</label>
+                <input
+                  type="date"
+                  v-model="startDate"
+                  class="form-control"
+                  :placeholder="t('enterStartDate')"
+                  required
+                />
+              </div>
+
+              <!-- تاريخ النهاية (نصف العرض) -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("endDate") }}:</label>
+                <input
+                  type="date"
+                  v-model="endDate"
+                  class="form-control"
+                  :placeholder="t('enterEndDate')"
+                />
+              </div>
             </div>
+            <!-- نهاية الـrow -->
 
-            <!-- الوصف (سطر كامل) -->
-            <div class="col-12 mb-3">
-              <label class="form-label">{{ t("description") }}:</label>
-              <textarea
-                v-model="oneTimeTaskDescription"
-                class="form-control"
-                :placeholder="t('enterDescription')"
-                required
-              ></textarea>
-            </div>
+            <!-- أي حقول إضافية أو أقسام أخرى تضعها هنا -->
+          </div>
+        </template>
 
-            <!-- حقل assignTo (نصف العرض) -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("assignTo") }}:</label>
-              <argon-select
-                v-model="selectedEmployee"
-                :options="employeeOptions"
-                :placeholder="t('selectEmployee')"
-                class="form-control"
-                required
-              />
-            </div>
-
-            <!-- حقل supervisor (نصف العرض) -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("supervisor") }}:</label>
-              <argon-select
-                v-model="selectedSupervisor"
-                :options="employeeOptions"
-                :placeholder="t('selectSupervisor')"
-                class="form-control"
-                required
-              />
-            </div>
-
-            <!-- مشروع (نصف العرض) -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("project") }}:</label>
-              <argon-select
-                v-model="projectId"
-                :options="formattedProjects"
-                :placeholder="t('selectProject')"
-                class="form-control"
-                required
-              />
-            </div>
-
-
-            <!-- أولوية (نصف العرض) -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("priority") }}:</label>
-              <argon-select
-                v-model="priority"
-                :options="prioritiesOptions"
-                :placeholder="t('selectPriority')"
-                class="form-control"
-                required
-              />
-            </div>
-
-            <!-- تاريخ البداية (نصف العرض) -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("startDate") }}:</label>
-              <input
-                type="date"
-                v-model="startDate"
-                class="form-control"
-                :placeholder="t('enterStartDate')"
-                required
-              />
-            </div>
-
-            <!-- تاريخ النهاية (نصف العرض) -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("endDate") }}:</label>
-              <input
-                type="date"
-                v-model="endDate"
-                class="form-control"
-                :placeholder="t('enterEndDate')"
-                
-              />
-            </div>
-
-          </div> 
-          <!-- نهاية الـrow -->
-
-          <!-- أي حقول إضافية أو أقسام أخرى تضعها هنا -->
-        </div>
-      </template>
-
-      <template #footer>
-        <!-- زر الإغلاق -->
-        <argon-button variant="secondary" @click="closePopup">
-          {{ t("close") }}
-        </argon-button>
-        <!-- زر الحفظ -->
-        <argon-button
-          variant="success"
-          @click="createOneTimeTask"
-          :disabled="isLoading"
-        >
-          <span
-            v-if="isLoading"
-            class="spinner-border spinner-border-sm"
-            role="status"
-            aria-hidden="true"
-          ></span>
-          {{ isLoading ? t("saving") : t("create") }}
-        </argon-button>
-
-      </template>
-    </ArgonModal>
-  </div>
-</transition>
+        <template #footer>
+          <!-- زر الإغلاق -->
+          <argon-button variant="secondary" @click="closePopup">
+            {{ t("close") }}
+          </argon-button>
+          <!-- زر الحفظ -->
+          <argon-button
+            variant="success"
+            @click="createOneTimeTask"
+            :disabled="isLoading"
+          >
+            <span
+              v-if="isLoading"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            {{ isLoading ? t("saving") : t("create") }}
+          </argon-button>
+        </template>
+      </ArgonModal>
+    </div>
+  </transition>
 
   <!-- مودال تعديل OneTimeTask -->
   <!-- داخل مكوّن RoutineTask.vue (المكوّن الأب) -->
   <!-- مودال تعديل OneTimeTask -->
   <transition name="modal-fade">
-  <div v-if="showEditPopup" class="popup-overlay">
-    <ArgonModal
-      v-if="showEditPopup"
-      :title="t('editOneTimeTask')"
-      @close="closeEditPopup"
-      class="one-time-task-modal"
-    >
-      <template #default>
-        <div class="modal-content-scroll">
-          <!-- نستخدم row + col لتوزيع الحقول -->
-          <div class="row">
-            
-            <!-- اسم المهمة بعرض كامل -->
-            <div class="col-12 mb-3">
-              <label class="form-label">{{ t("taskName") }}:</label>
-              <input
-                v-model="oneTimeTaskName"
-                class="form-control"
-                :placeholder="t('enterTaskName')"
-                required
-              />
-            </div>
+    <div v-if="showEditPopup" class="popup-overlay">
+      <ArgonModal
+        v-if="showEditPopup"
+        :title="t('editOneTimeTask')"
+        @close="closeEditPopup"
+        class="one-time-task-modal"
+      >
+        <template #default>
+          <div class="modal-content-scroll">
+            <!-- نستخدم row + col لتوزيع الحقول -->
+            <div class="row">
+              <!-- اسم المهمة بعرض كامل -->
+              <div class="col-12 mb-3">
+                <label class="form-label">{{ t("taskName") }}:</label>
+                <input
+                  v-model="oneTimeTaskName"
+                  class="form-control"
+                  :placeholder="t('enterTaskName')"
+                  required
+                />
+              </div>
 
-            <!-- الوصف بعرض كامل -->
-            <div class="col-12 mb-3">
-              <label class="form-label">{{ t("description") }}:</label>
-              <textarea
-                v-model="oneTimeTaskDescription"
-                class="form-control"
-                :placeholder="t('enterDescription')"
-                required
-              ></textarea>
-            </div>
+              <!-- الوصف بعرض كامل -->
+              <div class="col-12 mb-3">
+                <label class="form-label">{{ t("description") }}:</label>
+                <textarea
+                  v-model="oneTimeTaskDescription"
+                  class="form-control"
+                  :placeholder="t('enterDescription')"
+                  required
+                ></textarea>
+              </div>
 
-            <!-- assignTo في نصف عرض -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("assignTo") }}:</label>
-              <argon-select
-                v-model="selectedEmployee"
-                :options="employeeOptions"
-                :placeholder="t('selectEmployee')"
-                class="form-control"
-                required
-              />
-            </div>
+              <!-- assignTo في نصف عرض -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("assignTo") }}:</label>
+                <argon-select
+                  v-model="selectedEmployee"
+                  :options="employeeOptions"
+                  :placeholder="t('selectEmployee')"
+                  class="form-control"
+                  required
+                />
+              </div>
 
-            <!-- supervisor في نصف عرض -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("supervisor") }}:</label>
-              <argon-select
-                v-model="selectedSupervisor"
-                :options="employeeOptions"
-                :placeholder="t('selectSupervisor')"
-                class="form-control"
-                required
-              />
-            </div>
+              <!-- supervisor في نصف عرض -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("supervisor") }}:</label>
+                <argon-select
+                  v-model="selectedSupervisor"
+                  :options="employeeOptions"
+                  :placeholder="t('selectSupervisor')"
+                  class="form-control"
+                  required
+                />
+              </div>
 
-            <!-- المشروع (project_id) في نصف عرض -->
-            <!-- في القالب -->
-<div class="col-md-6 mb-3">
-  <label class="form-label">{{ t("project") }}:</label>
-  <argon-select
-    v-model="projectId"
-    :options="formattedProjects"
-    :placeholder="t('selectProject')"
-    class="form-control"
-    required
-  />
-</div>
+              <!-- المشروع (project_id) في نصف عرض -->
+              <!-- في القالب -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("project") }}:</label>
+                <argon-select
+                  v-model="projectId"
+                  :options="formattedProjects"
+                  :placeholder="t('selectProject')"
+                  class="form-control"
+                  required
+                />
+              </div>
 
-            <!-- الأولوية (priority) في نصف عرض -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("priority") }}:</label>
-              <argon-select
-                v-model="priority"
-                :options="prioritiesOptions"
-                :placeholder="t('selectPriority')"
-                class="form-control"
-                required
-              />
-            </div>
+              <!-- الأولوية (priority) في نصف عرض -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("priority") }}:</label>
+                <argon-select
+                  v-model="priority"
+                  :options="prioritiesOptions"
+                  :placeholder="t('selectPriority')"
+                  class="form-control"
+                  required
+                />
+              </div>
 
-            <!-- تاريخ البداية في نصف عرض -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("startDate") }}:</label>
-              <input
-                type="date"
-                v-model="startDate"
-                class="form-control"
-                :placeholder="t('enterStartDate')"
-                required
-              />
-            </div>
+              <!-- تاريخ البداية في نصف عرض -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("startDate") }}:</label>
+                <input
+                  type="date"
+                  v-model="startDate"
+                  class="form-control"
+                  :placeholder="t('enterStartDate')"
+                  required
+                />
+              </div>
 
-            <!-- تاريخ النهاية في نصف عرض -->
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ t("endDate") }}:</label>
-              <input
-                type="date"
-                v-model="endDate"
-                class="form-control"
-                :placeholder="t('enterEndDate')"
-                required
-              />
+              <!-- تاريخ النهاية في نصف عرض -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("endDate") }}:</label>
+                <input
+                  type="date"
+                  v-model="endDate"
+                  class="form-control"
+                  :placeholder="t('enterEndDate')"
+                  required
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </template>
+        </template>
 
-      <template #footer>
-        <ArgonButton variant="secondary" @click="closeEditPopup">
-          {{ t("close") }}
-        </ArgonButton>
-        <ArgonButton
-          variant="success"
-          @click="updateOneTimeTask"
-          :disabled="isLoading"
-        >
-          <span
-            v-if="isLoading"
-            class="spinner-border spinner-border-sm"
-            role="status"
-            aria-hidden="true"
-          ></span>
-          {{ isLoading ? t("saving") : t("update") }}
-        </ArgonButton>
-      </template>
-    </ArgonModal>
-  </div>
-</transition>
-
+        <template #footer>
+          <ArgonButton variant="secondary" @click="closeEditPopup">
+            {{ t("close") }}
+          </ArgonButton>
+          <ArgonButton
+            variant="success"
+            @click="updateOneTimeTask"
+            :disabled="isLoading"
+          >
+            <span
+              v-if="isLoading"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            {{ isLoading ? t("saving") : t("update") }}
+          </ArgonButton>
+        </template>
+      </ArgonModal>
+    </div>
+  </transition>
 </template>
 
 <style>
@@ -1593,14 +1597,14 @@ const translations = {
   z-index: 100001 !important;
 }
 
-
-.modal-fade-enter-active, .modal-fade-leave-active {
+.modal-fade-enter-active,
+.modal-fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.modal-fade-enter-from, .modal-fade-leave-to {
+.modal-fade-enter-from,
+.modal-fade-leave-to {
   opacity: 0;
 }
-
 
 .btn-link {
   transition: transform 0.2s;

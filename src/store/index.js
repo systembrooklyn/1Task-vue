@@ -1686,7 +1686,8 @@ export default createStore({
 async getChartDeptPerformance({ commit }, range) {
   try {
     const response = await apiClient.getChartDeptPerformance(range);
-    commit("getChartDeptPerformance", response.data.data);
+    console.log("getChartDeptPerformance-responseeeeeeeeee", response.data);
+    commit("getChartDeptPerformance", response.data);
     return response;
   } catch (error) {
     console.error("Error:", error);

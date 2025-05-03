@@ -12,7 +12,7 @@ const props = defineProps({
   },
   height: {
     type: String,
-    default: "200",
+    default: "300",
   },
   title: {
     type: String,
@@ -54,10 +54,10 @@ onMounted(() => {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: "70%", // Create doughnut hole
+      cutout: "60%", 
       plugins: {
         legend: {
-          display: false // Hide default legend
+          display: false 
         },
         datalabels: {
           formatter: (value) => {
@@ -68,7 +68,10 @@ onMounted(() => {
           font: {
             size: 14,
             weight: "bold"
-          }
+          },
+          tooltip: {
+            display: false,
+          },
         }
       }
     }
@@ -90,7 +93,7 @@ onMounted(() => {
           <!-- Center text -->
           <div class="center-text">
             <h4>{{ props.chart.compPerformance }}</h4>
-            <p>Company Performance</p>
+            <small>Company Performance</small>
           </div>
         </div>
 
@@ -125,6 +128,7 @@ onMounted(() => {
 
 .legend {
   padding-left: 20px;
+  display: grid;
 }
 
 .color-box {
@@ -169,4 +173,5 @@ onMounted(() => {
   min-width: 50px;
   text-align: right;
 }
+
 </style>
