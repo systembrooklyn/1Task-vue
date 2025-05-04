@@ -26,7 +26,8 @@ const isRTL = computed(() => store.state.isRTL);
 
 // جلب بيانات المستخدم من Vuex
 const userData = computed(() => store.getters.user);
-const currentCompanyName = computed(() => store.getters.companyName || "DefaultCompany"
+const currentCompanyName = computed(
+  () => store.getters.companyName || "DefaultCompany"
 );
 const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, "-"); // مثلاً
 
@@ -115,7 +116,11 @@ const toggleSection = (section) => {
             name: 'Dashboard',
             params: { companyName: companyNameNormalized },
           }"
-          v-if="permissions['view-dashboard'] || permissions['view-dashboard-owner'] || isOwner"
+          v-if="
+            permissions['view-dashboard'] ||
+            permissions['view-dashboard-owner'] ||
+            isOwner
+          "
           :class="getRoute() === 'dashboard-default' ? 'active' : ''"
           :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
         >
@@ -125,50 +130,46 @@ const toggleSection = (section) => {
         </sidenav-item>
       </li>
 
-      <li
-              class="nav-item"
-              v-if="permissions['view-dailytask'] || isOwner"
-            >
-              <sidenav-item
-                :to="{
-                  name: 'routine task',
-                  params: { companyName: companyNameNormalized },
-                }"
-                :class="getRoute() === 'routine-task' ? 'active' : ''"
-                :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'"
-              >
-                <template v-slot:icon>
-                  <i class="fa fa-tasks text-success text-sm opacity-10"></i>
-                </template>
-              </sidenav-item>
-            </li>
-            <!-- v-if="isOwner || permissions['view-task']" -->
+      <li class="nav-item" v-if="permissions['view-dailytask'] || isOwner">
+        <sidenav-item
+          :to="{
+            name: 'routine task',
+            params: { companyName: companyNameNormalized },
+          }"
+          :class="getRoute() === 'routine-task' ? 'active' : ''"
+          :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'"
+        >
+          <template v-slot:icon>
+            <i class="fa fa-tasks text-success text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+      <!-- v-if="isOwner || permissions['view-task']" -->
 
-            <li
-              class="nav-item"
-            >
-              <sidenav-item
-                :to="{
-                  name: 'one time task',
-                  params: { companyName: companyNameNormalized },
-                }"
-                :class="getRoute() === 'one-time-task' ? 'active' : ''"
-                :navText="isRTL ? 'المهام الاحتياطية' : 'One Time Tasks'"
-              >
-                <template v-slot:icon>
-                  <i class="fa fa-clock text-warning text-sm opacity-10"></i>
-                </template>
-              </sidenav-item>
-            </li>
+      <li class="nav-item">
+        <sidenav-item
+          :to="{
+            name: 'one time task',
+            params: { companyName: companyNameNormalized },
+          }"
+          :class="getRoute() === 'one-time-task' ? 'active' : ''"
+          :navText="isRTL ? 'المهام الاحتياطية' : 'One Time Tasks'"
+        >
+          <template v-slot:icon>
+            <i class="fa fa-clock text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
 
       <li class="nav-item">
         <div
           class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
+          v-if="permissions['view-alldailytask'] || isOwner"
           @click="toggleSection('tasks')"
         >
           <div class="d-flex align-items-center">
             <i class="fas fa-tasks text-success me-2"></i>
-            <span>{{ isRTL ? "المهام" : "Tasks" }}</span>
+            <span>{{ isRTL ? "إعدادات المهام" : "Tasks Settings" }}</span>
           </div>
           <i
             class="fas fa-chevron-right transition-transform"
@@ -177,9 +178,10 @@ const toggleSection = (section) => {
         </div>
 
         <transition name="dropdown">
-          <ul v-if="collapsibleSections.tasks" class="nav nav-sm flex-column">
-            
-
+          <ul
+            v-if="collapsibleSections.tasks || isOwner"
+            class="nav nav-sm flex-column"
+          >
             <li
               class="nav-item"
               v-if="permissions['view-alldailytask'] || isOwner"
@@ -235,7 +237,10 @@ const toggleSection = (section) => {
         </div>
 
         <transition name="dropdown">
-          <ul v-if="collapsibleSections.reports" class="nav nav-sm flex-column">
+          <ul
+            v-if="collapsibleSections.reports || isOwner"
+            class="nav nav-sm flex-column"
+          >
             <li
               class="nav-item"
               v-if="isOwner || permissions['view-dailyTaskReports']"
@@ -377,7 +382,14 @@ const toggleSection = (section) => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item" v-if="permissions['view-project'] || permissions['view-Allproject'] || isOwner">
+      <li
+        class="nav-item"
+        v-if="
+          permissions['view-project'] ||
+          permissions['view-Allproject'] ||
+          isOwner
+        "
+      >
         <sidenav-item
           :to="{
             name: 'project',

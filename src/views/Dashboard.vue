@@ -38,7 +38,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div class="py-4 container-fluid">
+  <div class="py-1 container-fluid">
     <div v-if="!isLoading">
       <!-- If data is loaded, display dashboard content -->
       <div class="row">

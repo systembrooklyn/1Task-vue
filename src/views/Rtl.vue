@@ -38,7 +38,7 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div class="py-4 container-fluid">
+  <div class="py-1 container-fluid">
     <div class="row">
       <div class="col-lg-3 col-sm-6 mb-lg-0">
         <mini-statistics-card

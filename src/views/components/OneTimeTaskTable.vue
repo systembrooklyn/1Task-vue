@@ -2070,15 +2070,15 @@ const removeFile = () => {
 }
 
 .task-description {
-  max-height: 150px; /* تحديد أقصى ارتفاع */
-  overflow: hidden;
+  max-height: 100%;
+  /* overflow: hidden; */
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 5; /* عدد الأسعار الظاهرة قبل الاختصار */
-  -webkit-box-orient: vertical;
+  /* display: -webkit-box; */
+  /* -webkit-line-clamp: 5; */
+  /* -webkit-box-orient: vertical; */
   line-height: 1.5;
   margin-bottom: 0.5rem;
-  word-break: break-word; /* تجنب امتداد النص خارج الحاوية */
+  word-break: break-word;
 }
 
 /* في قسم <style scoped> */

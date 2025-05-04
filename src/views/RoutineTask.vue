@@ -801,7 +801,7 @@ const searchMatch = (task) => {
 
 <template>
   <!-- <LanguageSwitcher /> -->
-  <div class="py-4 container-fluid">
+  <div class="py-1 container-fluid">
     <div class="row">
       <div class="col-md-12">
         <div class="card">
