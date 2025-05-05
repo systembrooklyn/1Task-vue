@@ -179,7 +179,7 @@ const toggleSection = (section) => {
 
         <transition name="dropdown">
           <ul
-            v-if="collapsibleSections.tasks || isOwner"
+            v-if="collapsibleSections.tasks"
             class="nav nav-sm flex-column"
           >
             <li
@@ -238,7 +238,7 @@ const toggleSection = (section) => {
 
         <transition name="dropdown">
           <ul
-            v-if="collapsibleSections.reports || isOwner"
+            v-if="collapsibleSections.reports"
             class="nav nav-sm flex-column"
           >
             <li

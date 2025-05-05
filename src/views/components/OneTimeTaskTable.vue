@@ -68,7 +68,7 @@
               <small
                 class="task-date"
                 :class="{ 'text-white': task.is_urgent }"
-                >{{ formatDateWithTime(task.start_date) }}</small
+                >{{ formatDateWithTime(task.created_at ) }}</small
               >
 
               <!-- deadline -->
