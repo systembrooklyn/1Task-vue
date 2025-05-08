@@ -41,20 +41,17 @@ const updateTitle = () => {
   document.title = companyName || "1Task"; // تحديث العنوان حسب اسم الشركة أو 1Task إذا لم توجد شركة
 };
 
-// عند تحميل الصفحة أو عند تحديث اسم الشركة
 onMounted(() => {
   updateTitle();
 });
 
-// مراقبة التغييرات على حالة المستخدم (عند تسجيل الدخول أو الخروج)
 watch(
   () => store.getters.companyName,
   () => {
-    updateTitle(); // تحديث العنوان عند تغيير حالة المستخدم
+    updateTitle();
   }
 );
 
-// مراقبة التغيرات في `token` داخل `localStorage`، إذا كان غير موجود يعيد العنوان إلى 1Task
 watch(
   () => localStorage.getItem("token"), // مراقبة الـ token في localStorage
   (newToken) => {
