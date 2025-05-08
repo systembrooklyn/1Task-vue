@@ -11,8 +11,8 @@
           'Started',
           'Review',
           'Done',
-          'Upcoming',
-          'Label',
+          // 'Upcoming',
+          // 'Label',
         ]"
         :key="tab"
         :class="{ active: activeTab === tab }"
@@ -64,7 +64,7 @@
 
             <!-- عنوان المهمة + تاريخ -->
             <span class="task-title" :class="{ 'text-white': task.is_urgent }">
-              {{ task.title }}
+              <span dir="rtl">{{ task.title }}</span>
               <small
                 class="task-date"
                 :class="{ 'text-white': task.is_urgent }"
@@ -258,6 +258,8 @@
                 {{ task.description || "No description" }}
               </p>
 
+              <div class="badge-container">
+                
               <!-- تاريخ البداية والنهاية -->
               <small
                 v-if="task.start_date || task.deadline"
@@ -292,6 +294,18 @@
                 {{ t("assignedTo") }}:
                 {{ task.assigned_user?.name || "No one" }}
               </small>
+
+              <!-- المشرف -->
+              <small v-if="task.consult" class="badge badge-grey">
+                {{ t("consult") }}: {{ task.consult?.name || "Unknown" }}
+              </small>
+
+              <!-- المشرف -->
+              <small v-if="task.informer" class="badge badge-grey">
+                {{ t("informer") }}: {{ task.informer?.name || "Unknown" }}
+              </small>
+            </div>
+
             </div>
           </transition>
         </div>
@@ -354,6 +368,7 @@
           :title="selectedTask.task_name"
           @close="closeEditPopup"
           class="routine-task-modal"
+          style="direction: rtl;"
         >
           <template #default>
             <div class="mb-3 modal-content-scroll">
@@ -426,7 +441,7 @@
           <template #title>
             <div>
               <!-- اسم المهمة -->
-              <h5 class="mb-1">{{ selectedTaskName }}</h5>
+              <h5 class="mb-1" dir="auto">{{ selectedTaskName }}</h5>
 
               <!-- الوصف (بخط صغير) + toggle see more/less -->
               <small class="text-muted d-block" style="font-size: 0.85rem">
@@ -1226,7 +1241,7 @@ const translations = {
     project: "Project",
     assignedTo: "Assigned To",
     createdBy: "Created By",
-    supervisor: "Supervisor",
+    supervisor: "ِAccountable",
     noLogsAvailable: "No logs available",
     deleteConfirmationTitle: "Delete Task",
     deleteConfirmationText: "Are you sure you want to delete this task?",
@@ -1279,6 +1294,8 @@ const translations = {
     uploadError: "Upload Error",
     fileSizeExceedsLimit: "The file size exceeds the allowed limit of {size}.",
     maxFileSize: "Max file size: {size}",
+    informer: "Informer",
+    consult: "Consult",
   },
   ar: {
     tasksTable: "عدد المهام",
@@ -1294,7 +1311,7 @@ const translations = {
     project: "المشروع",
     assignedTo: "إلى",
     createdBy: "أنشئت بواسطة",
-    supervisor: "المشرف",
+    supervisor: "المسؤول",
     noLogsAvailable: "لا توجد سجلات",
     deleteConfirmationTitle: "حذف المهمة",
     deleteConfirmationText: "هل تريد حذف هذه المهمة؟",
@@ -1347,6 +1364,8 @@ const translations = {
     uploadError: "خطأ في الرفع",
     fileSizeExceedsLimit: "حجم الملف يتجاوز الحد المسموح به وهو {size}.",
     maxFileSize: "الحجم الأقصى للملف: {size}",
+    informer: "تم إخبار",
+    consult: "مُستشار",  
   },
 };
 
@@ -2302,5 +2321,21 @@ const removeFile = () => {
 .text-muted {
   color: #666 !important; /* Darker gray */
   font-size: 0.85rem;
+}
+
+.badge-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem; /* Vertical and horizontal spacing */
+}
+
+/* Reduce badge padding for smaller size */
+.badge-danger,
+.badge-grey {
+  padding: 0.3rem 0.8rem !important; /* Adjust as needed */
+}
+
+.badge-container > * {
+  margin-bottom: 0.5rem; /* Bottom margin for wrapped badges */
 }
 </style>

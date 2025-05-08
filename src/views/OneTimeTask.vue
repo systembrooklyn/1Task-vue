@@ -127,6 +127,8 @@ const oneTimeTaskName = ref("");
 const oneTimeTaskDescription = ref("");
 const selectedEmployee = ref("");
 const selectedSupervisor = ref("");
+const selectedConsultant = ref("");
+const selectedInformer = ref("");
 
 const showPopup = ref(false);
 const oneTimeTasks = ref([]);
@@ -195,6 +197,8 @@ const closePopup = () => {
   oneTimeTaskDescription.value = "";
   selectedEmployee.value = "";
   selectedSupervisor.value = "";
+  selectedConsultant.value = "";
+  selectedInformer.value = "";
   startDate.value = "";
   endDate.value = "";
   fromDate.value = "";
@@ -555,6 +559,8 @@ async function createOneTimeTask() {
       priority: priority.value,
       assigned_user_id: selectedEmployee.value || null,
       supervisor_user_id: selectedSupervisor.value || null,
+      inform_user_id: selectedInformer.value || null,
+      consult_user_id: selectedConsultant.value || null,
     };
 
     // أضف start_date فقط إذا كانت القيمة موجودة
@@ -619,6 +625,8 @@ function openEditPopupInParent(task) {
   oneTimeTaskDescription.value = task.description || "";
   selectedEmployee.value = task.assigned_user?.id || null;
   selectedSupervisor.value = task.supervisor?.id || null;
+  selectedInformer.value = task.inform_user?.id || null;
+  selectedConsultant.value = task.consult_user?.id || null;
   deptId.value = task.department?.id || "";
   projectId.value = task.project?.id;
   console.log(task.project?.id);
@@ -638,6 +646,8 @@ const closeEditPopup = () => {
   oneTimeTaskDescription.value = "";
   selectedEmployee.value = "";
   selectedSupervisor.value = "";
+  selectedInformer.value = "";
+  selectedConsultant.value = "";
   deptId.value = "";
   projectId.value = "";
   // isUrgent.value = false;
@@ -666,6 +676,8 @@ const updateOneTimeTask = async () => {
       description: oneTimeTaskDescription.value,
       assigned_user_id: selectedEmployee.value,
       supervisor_user_id: selectedSupervisor.value || null,
+      inform_user_id: selectedInformer.value || null,
+      consult_user_id: selectedConsultant.value || null,
       department_id: deptId.value,
       project_id: projectId.value === "No Project" ? null : projectId.value,
       // is_urgent: isUrgent.value,
@@ -737,6 +749,8 @@ const translations = {
     description: "Description",
     assignTo: "Assign To*",
     supervisor: "Supervisor",
+    informer: "Informer",
+    consultant: "Consultant",
     editOneTimeTask: "Edit One Time Task",
     update: "Update",
     close: "Close",
@@ -825,6 +839,8 @@ const translations = {
     description: "وصف المهمة",
     assignTo: "*تعيين",
     supervisor: "المشرف",
+    informer: "المعلوم",
+    consultant: "الاستشارات",
     close: "اغلاق",
     create: "اضافة",
     editOneTimeTask: "تعديل المهمة الواحدة",
@@ -1289,6 +1305,30 @@ const translations = {
                 />
               </div>
 
+              <!-- informer في نصف عرض -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("informer") }}:</label>
+                <argon-select
+                  v-model="selectedInformer"
+                  :options="employeeOptions"
+                  :placeholder="t('selectInformer')"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- consultant في نصف عرض -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("consultant") }}:</label>
+                <argon-select
+                  v-model="selectedConsultant"
+                  :options="employeeOptions"
+                  :placeholder="t('selectConsultant')"
+                  class="form-control"
+                  required
+                />
+              </div>
+
               <!-- مشروع (نصف العرض) -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("project") }}:</label>
@@ -1422,6 +1462,30 @@ const translations = {
                   v-model="selectedSupervisor"
                   :options="employeeOptions"
                   :placeholder="t('selectSupervisor')"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- informer في نصف عرض -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("informer") }}:</label>
+                <argon-select
+                  v-model="selectedInformer"
+                  :options="employeeOptions"
+                  :placeholder="t('selectInformer')"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- consultant في نصف عرض -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ t("consultant") }}:</label>
+                <argon-select
+                  v-model="selectedConsultant"
+                  :options="employeeOptions"
+                  :placeholder="t('selectConsultant')"
                   class="form-control"
                   required
                 />
