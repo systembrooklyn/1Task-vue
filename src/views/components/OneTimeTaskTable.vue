@@ -68,7 +68,7 @@
               <small
                 class="task-date"
                 :class="{ 'text-white': task.is_urgent }"
-                >{{ formatDateWithTime(task.created_at ) }}</small
+                >{{ formatDateWithTime(task.created_at) }}</small
               >
 
               <!-- deadline -->
@@ -658,23 +658,31 @@
                 />
 
                 <!-- File Input with Remove Button -->
-                <div class="d-flex align-items-center mt-1">
+                <div class="d-flex flex-column">
+                  <div class="d-flex align-items-center ">
+                    
+                 
                   <ArgonInput
                     type="file"
                     @change="handleFileUpload"
                     accept="image/*, .pdf, .docx, .xlsx"
                     :key="fileInputKey"
-                    class="flex-grow-1 me-2"
+                    class="flex-grow-1 "
                   />
                   <button
                     v-if="fileToUpload"
                     @click="removeFile"
-                    class="btn btn-sm btn-danger"
+                    class="btn btn-sm btn-danger ms-2"
                     title="Remove file"
                   >
                     &times;
                   </button>
                 </div>
+                  <small class="text-muted mt-0 pt-0 ">
+                    {{ t("maxFileSize", { size: "1.99MB" }) }}
+                  </small>
+                </div>
+                
 
                 <!-- Combined Action Buttons -->
                 <div class="d-flex gap-2">
@@ -694,7 +702,7 @@
                     :disabled="isCommentEmpty || isSubmitting"
                     class="w-25"
                   >
-                    <i class="fas fa-paper-plane me-2"></i>
+                    <i class="fas fa-paper-plane"></i>
                     {{ isSubmitting ? t("submitting") : t("submit") }}
                   </ArgonButton>
                 </div>
@@ -839,8 +847,18 @@ const taskFound = ref(null);
 const taskNotes = ref("");
 const isLoading = ref(false);
 
-const t = (key) => translations[currentLanguage.value][key];
+// Example implementation of t()
+const t = (key, params = {}) => {
+  const lang = store.getters.currentLanguage; // Get current language from Vuex
+  let translation = translations[lang][key] || key; // Fallback to key if not found
 
+  // Replace placeholders like {size}
+  Object.entries(params).forEach(([placeholder, value]) => {
+    translation = translation.replace(`{${placeholder}}`, value);
+  });
+
+  return translation;
+};
 // في قسم <script setup>
 const isCommentEmpty = computed(() => {
   // استخراج النص الصافي من المحتوى HTML
@@ -1258,6 +1276,9 @@ const translations = {
     taskRestoredSuccessfully: "Task restored successfully",
     delete: "Delete",
     edit: "Edit",
+    uploadError: "Upload Error",
+    fileSizeExceedsLimit: "The file size exceeds the allowed limit of {size}.",
+    maxFileSize: "Max file size: {size}",
   },
   ar: {
     tasksTable: "عدد المهام",
@@ -1323,6 +1344,9 @@ const translations = {
     taskArchivedSuccessfully: "تم أرشفة المهمة بنجاح",
     taskRestoredSuccessfully: "تم استرجاع المهمة بنجاح",
     edit: "تعديل",
+    uploadError: "خطأ في الرفع",
+    fileSizeExceedsLimit: "حجم الملف يتجاوز الحد المسموح به وهو {size}.",
+    maxFileSize: "الحجم الأقصى للملف: {size}",
   },
 };
 
@@ -1541,9 +1565,24 @@ fileInputKey.value++; // تحديث الـ key لإعادة تهيئة الحق�
 
 function handleFileUpload(event) {
   const file = event.target.files[0];
-  if (file) {
-    fileToUpload.value = file;
+  const maxSizeInBytes = 1.99 * 1024 * 1024; // 1.99 MB
+
+  if (!file) return;
+
+  if (file.size > maxSizeInBytes) {
+    Swal.fire({
+      icon: "error",
+      title: t("uploadError"),
+      text: t("fileSizeExceedsLimit", { size: "1.99MB" }),
+    });
+
+    // Reset file input
+    fileToUpload.value = null;
+    fileInputKey.value++;
+    return;
   }
+
+  fileToUpload.value = file;
 }
 
 // استبدال الدالة submitFile بـ:
@@ -1860,7 +1899,7 @@ const removeFile = () => {
 .comments-scroll-container {
   max-height: 60vh; /* تقليل الارتفاع الكلي */
   overflow-y: auto;
-  padding: 1rem;
+  padding: 0 1rem;
 }
 
 /* تعليقات */
@@ -2258,5 +2297,10 @@ const removeFile = () => {
   font-size: 0.8rem;
   line-height: 1;
   margin-left: -2.5rem; /* Adjust based on your layout */
+}
+
+.text-muted {
+  color: #666 !important; /* Darker gray */
+  font-size: 0.85rem;
 }
 </style>

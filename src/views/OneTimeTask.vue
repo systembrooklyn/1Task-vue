@@ -81,6 +81,7 @@ onBeforeUnmount(() => {
 // --- نهاية التغييرات ---
 
 const dataFromApi = computed(() => store.getters.dataFromApi);
+console.log("dataFromApi:", dataFromApi.value);
 const employeeOptions = ref([]);
 
 watch(
@@ -90,6 +91,7 @@ watch(
     employeeOptions.value = dataFromApi.value.map((employee) => ({
       value: employee.id,
       label: employee.name,
+      // department: employee.department[0].name,
     }));
   }
 );
