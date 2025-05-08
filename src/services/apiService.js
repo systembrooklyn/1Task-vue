@@ -610,7 +610,9 @@ AddAttachmentOneTimeTask(formData, taskId) {
   return apiClient.post(`/tasks/${taskId}/attachments`, formData, {
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'multipart/form-data',
+      'Accept': 'application/json',
+      // 'Accept': 'application/pdf',
     }
   });
 },
