@@ -1077,6 +1077,8 @@ const filteredEvaluatedTasks = computed(() => {
                 :options="formattedDepartments"
                 :placeholder="t('selectDepartment')"
                 class="form-control"
+                searchable
+                searchPlaceholder="Search departments..."
               />
             </div>
 

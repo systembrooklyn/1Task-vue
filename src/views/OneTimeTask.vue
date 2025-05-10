@@ -1289,6 +1289,8 @@ const translations = {
                   :options="employeeOptions"
                   :placeholder="t('selectEmployee')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search employees..."
                   required
                 />
               </div>
@@ -1301,6 +1303,8 @@ const translations = {
                   :options="employeeOptions"
                   :placeholder="t('selectSupervisor')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search employees..."
                   required
                 />
               </div>
@@ -1313,6 +1317,8 @@ const translations = {
                   :options="employeeOptions"
                   :placeholder="t('selectInformer')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search employees..."
                   required
                 />
               </div>
@@ -1325,6 +1331,8 @@ const translations = {
                   :options="employeeOptions"
                   :placeholder="t('selectConsultant')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search employees..."
                   required
                 />
               </div>
@@ -1337,6 +1345,8 @@ const translations = {
                   :options="formattedProjects"
                   :placeholder="t('selectProject')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search projects..."
                   required
                 />
               </div>
@@ -1349,6 +1359,8 @@ const translations = {
                   :options="prioritiesOptions"
                   :placeholder="t('selectPriority')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search priorities..."
                   required
                 />
               </div>
@@ -1451,6 +1463,8 @@ const translations = {
                   :options="employeeOptions"
                   :placeholder="t('selectEmployee')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search employees..."
                   required
                 />
               </div>
@@ -1463,6 +1477,8 @@ const translations = {
                   :options="employeeOptions"
                   :placeholder="t('selectSupervisor')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search employees..."
                   required
                 />
               </div>
@@ -1475,6 +1491,8 @@ const translations = {
                   :options="employeeOptions"
                   :placeholder="t('selectInformer')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search employees..."
                   required
                 />
               </div>
@@ -1487,6 +1505,8 @@ const translations = {
                   :options="employeeOptions"
                   :placeholder="t('selectConsultant')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search employees..."
                   required
                 />
               </div>
@@ -1500,6 +1520,8 @@ const translations = {
                   :options="formattedProjects"
                   :placeholder="t('selectProject')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search projects..."
                   required
                 />
               </div>
@@ -1512,6 +1534,8 @@ const translations = {
                   :options="prioritiesOptions"
                   :placeholder="t('selectPriority')"
                   class="form-control"
+                  searchable
+                  searchPlaceholder="Search priorities..."
                   required
                 />
               </div>

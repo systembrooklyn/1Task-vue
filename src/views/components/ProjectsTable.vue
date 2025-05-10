@@ -151,7 +151,7 @@
       <transition name="modal-fade">
         <ArgonModal
           v-if="showEditPopup"
-          :title="t('editDepartment')"
+          :title="selectedProject.name"
           @close="closeEditPopup"
         >
           <template #default>
@@ -168,6 +168,8 @@
                 :options="employeeOptions"
                 :placeholder="t('assignManager')"
                 class="form-control"
+                searchable
+                searchPlaceholder="Search manager..."
               />
             </div>
 
@@ -224,10 +226,10 @@
             </argon-button>
           </template>
 
-          <template #title>
+          <!-- <template #title>
             <i class="fas fa-user-edit me-2"></i>
             {{ t("editProject") }}
-          </template>
+          </template> -->
         </ArgonModal>
       </transition>
     </div>

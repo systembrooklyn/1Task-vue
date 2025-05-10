@@ -411,6 +411,8 @@ const translations = {
               :options="employeeOptions"
               :placeholder="t('assignManager')"
               class="form-control"
+              searchable
+              searchPlaceholder="Search employees..."
             />
           </div>
 

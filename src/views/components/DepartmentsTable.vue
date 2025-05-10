@@ -58,12 +58,12 @@
             <div v-if="employeeOptions.length > 0" class="mb-3">
               <label class="form-label">{{ t("assignManager") }}:</label>
               <argon-select v-model="selectedManager" :options="employeeOptions" :placeholder="t('assignManager')"
-                class="form-control" />
+                class="form-control" searchable searchPlaceholder="Search manager..." />
             </div>
             <div v-if="employees.length > 0" class="mb-3">
               <label class="form-label">{{ t("viceManager") }}:</label>
               <argon-select v-model="selectedViceManager" :options="employeeOptions" :placeholder="t('viceManager')"
-                class="form-control" />
+                class="form-control" searchable searchPlaceholder="Search vice manager..." />
             </div>
           </template>
 

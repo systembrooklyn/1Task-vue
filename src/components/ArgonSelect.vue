@@ -1,167 +1,206 @@
-// src/components
+<template>
+  <label v-if="$slots.label" class="form-label">
+    <slot name="label" />
+    <span v-if="isRequired" class="text-danger">*</span>
+  </label>
+
+  <div :class="inputGroupClasses">
+    <!-- Custom Dropdown Trigger -->
+    <div class="custom-select-container position-relative">
+      <div
+        class="form-control"
+        :class="controlClasses"
+        @click="toggleDropdown"
+        role="combobox"
+        aria-haspopup="listbox"
+        :aria-expanded="isDropdownOpen"
+        :aria-controls="dropdownId"
+      >
+        {{ selectedLabel || placeholder }}
+      </div>
+
+      <!-- Dropdown Menu -->
+      <div
+        v-if="isDropdownOpen"
+        class="custom-select-dropdown border rounded shadow-sm bg-white"
+        :id="dropdownId"
+        role="listbox"
+      >
+        <!-- Search Input Inside Dropdown -->
+        <div class="px-2 pt-2 pb-1" v-if="searchable">
+          <input
+            v-model="searchQuery"
+            type="text"
+            class="form-control form-control-sm"
+            :placeholder="searchPlaceholder"
+            @click.stop
+            autofocus
+          />
+        </div>
+
+        <!-- Options List -->
+        <div class="options-container py-1" :class="{ 'pt-0': !searchable }">
+          <div
+            v-for="(option, index) in filteredOptions"
+            :key="index"
+            class="custom-select-option px-3 py-2"
+            role="option"
+            :aria-selected="option.value === modelValue"
+            @click="selectOption(option)"
+            @keydown.enter="selectOption(option)"
+            tabindex="0"
+          >
+            {{ option.label }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clear Button -->
+    <span
+      v-if="modelValue"
+      class="input-group-text clear-btn"
+      @click="emit('update:modelValue', '')"
+    >
+      <i class="fas fa-times"></i>
+    </span>
+
+    <!-- Icon -->
+    <span
+      v-if="icon && iconDir === 'right'"
+      class="input-group-text"
+      :class="{ 'ps-0': iconDir === 'right' }"
+    >
+      <i :class="icon" class="fas" aria-hidden="true"></i>
+    </span>
+
+    <!-- Error Message -->
+    <div
+      v-if="error && errorMessage"
+      :id="`${id}-feedback`"
+      class="invalid-feedback"
+    >
+      {{ errorMessage }}
+    </div>
+  </div>
+</template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+
+// =========== PROPS ===========
+const props = defineProps({
+  size: { type: String, default: null, validator: (v) => ['sm', 'lg', null].includes(v) },
+  success: { type: Boolean, default: false },
+  error: { type: Boolean, default: false },
+  icon: { type: String, default: "" },
+  iconDir: { type: String, default: "left", validator: (v) => ['left', 'right', ''].includes(v) },
+  name: { type: String, default: "" },
+  id: { type: String, default: "" },
+  modelValue: { type: [String, Number], default: "" },
+  placeholder: { type: String, default: "Select an option" },
+  isRequired: { type: Boolean, default: false },
+  options: { type: Array, default: () => [] },
+  errorMessage: { type: String, default: "" },
+  searchable: { type: Boolean, default: false },
+  searchPlaceholder: { type: String, default: "Search..." }
+});
+// =========== END PROPS ===========
 
 const emit = defineEmits(["update:modelValue"]);
 
+// =========== INTERNAL STATE ===========
+const isDropdownOpen = ref(false);
+const searchQuery = ref('');
+const selectedLabel = ref('');
+const dropdownId = ref(`select-dropdown-${Math.random().toString(36).substr(2, 9)}`);
+// =========== END INTERNAL STATE ===========
+
+// =========== FILTERED OPTIONS ===========
+const filteredOptions = computed(() => {
+  if (!props.searchable || !searchQuery.value.trim()) {
+    return props.options;
+  }
+
+  const query = searchQuery.value.toLowerCase();
+  return props.options.filter(option => option.label?.toLowerCase().includes(query));
+});
+// =========== END FILTERED OPTIONS ===========
+
+// =========== CLASSES ===========
+const controlClasses = computed(() => [
+  props.size ? `form-control-${props.size}` : '',
+  { 'is-valid': props.success, 'is-invalid': props.error }
+]);
+
 const inputGroupClasses = computed(() => ({
-  'input-group': props.icon || props.modelValue, // Add modelValue condition
+  'input-group': props.icon || props.modelValue,
   'input-group-merge': props.icon,
   [`input-group-${props.iconDir}`]: props.iconDir,
-  'has-clear-btn': !!props.modelValue // Add class when clear button is visible
+  'has-clear-btn': !!props.modelValue
 }));
+// =========== END CLASSES ===========
 
-const props = defineProps({
-  size: {
-    type: String,
-    default: null,
-    validator: (value) => ['sm', 'lg', null].includes(value)
+// =========== WATCHERS ===========
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    const selected = props.options.find(opt => opt.value === newVal);
+    selectedLabel.value = selected?.label || '';
+    searchQuery.value = '';
   },
-  success: {
-    type: Boolean,
-    default: false
-  },
-  error: {
-    type: Boolean,
-    default: false
-  },
-  icon: {
-    type: String,
-    default: ""
-  },
-  iconDir: {
-    type: String,
-    default: "left",
-    validator: (value) => ['left', 'right', ''].includes(value)
-  },
-  name: {
-    type: String,
-    default: ""
-  },
-  id: {
-    type: String,
-    default: ""
-  },
-  modelValue: {
-    type: [String, Number],
-    default: ""
-  },
-  placeholder: {
-    type: String,
-    default: "Select an option"
-  },
-  isRequired: {
-    type: Boolean,
-    default: false
-  },
-  options: {
-    type: Array,
-    default: () => []
-  },
-  errorMessage: {
-    type: String,
-    default: ""
+  { immediate: true }
+);
+// =========== END WATCHERS ===========
+
+// =========== METHODS ===========
+function toggleDropdown() {
+  isDropdownOpen.value = !isDropdownOpen.value;
+  if (!isDropdownOpen.value) {
+    searchQuery.value = '';
   }
-});
+}
 
-const controlClasses = computed(() => {
-  return [
-    props.size ? `form-control-${props.size}` : '',
-    {
-      'is-valid': props.success,
-      'is-invalid': props.error
-    }
-  ];
-});
-
-// const inputGroupClasses = computed(() => ({
-//   'input-group': props.icon,
-//   'input-group-merge': props.icon, // For better icon integration
-//   [`input-group-${props.iconDir}`]: props.iconDir
-// }));
+function selectOption(option) {
+  emit('update:modelValue', option.value);
+  isDropdownOpen.value = false;
+}
+// =========== END METHODS ===========
 </script>
 
-<template>
-    <label v-if="$slots.label" class="form-label">
-      <slot name="label" />
-      <span v-if="isRequired" class="text-danger">*</span>
-    </label>
-
-    <div :class="inputGroupClasses">
-      <span 
-        v-if="props.icon && props.iconDir === 'left'" 
-        class="input-group-text"
-        :class="{ 'pe-0': props.iconDir === 'left' }"
-      >
-        <i :class="props.icon" class="fas" aria-hidden="true"></i>
-      </span>
-
-      <select
-        :id="props.id"
-        class="form-control"
-        :class="controlClasses"
-        :name="props.name"
-        :value="props.modelValue"
-        :required="props.isRequired"
-        :aria-invalid="error"
-        :aria-describedby="error ? `${props.id}-feedback` : null"
-        @change="emit('update:modelValue', $event.target.value)"
-      >
-        <option disabled value="">{{ props.placeholder }}</option>
-        <option
-          v-for="(option, index) in props.options"
-          :key="index"
-          :value="option.value"
-          :selected="option.value === props.modelValue"
-        >
-          {{ option.label }}
-        </option>
-      </select>
-
-  <!-- Clear button -->
-  <span 
-    v-if="props.modelValue" 
-    class="input-group-text clear-btn"
-    @click="emit('update:modelValue', '')"
-  >
-    <i class="fas fa-times"></i>
-  </span>
-
-      <span 
-        v-if="props.icon && props.iconDir === 'right'" 
-        class="input-group-text"
-        :class="{ 'ps-0': props.iconDir === 'right' }"
-      >
-        <i :class="props.icon" class="fas" aria-hidden="true"></i>
-      </span>
-
-      <div 
-        v-if="props.error && props.errorMessage" 
-        :id="`${props.id}-feedback`" 
-        class="invalid-feedback"
-      >
-        {{ props.errorMessage }}
-      </div>
-    </div>
-</template>
-
 <style scoped>
-.input-group-merge .input-group-text {
-  z-index: 5; /* Ensure icons stay above form control */
-}
-.form-control:focus {
-  box-shadow: none; /* Use Bootstrap's focus state instead */
-}
-/* Add padding to the select input when the clear button is present */
-.input-group.has-clear-btn .form-control {
-  padding-right: 2.5rem;
+.custom-select-container {
+  flex-grow: 1;
 }
 
-/* Position the clear button absolutely within the input group */
+.custom-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.options-container {
+  max-height: calc(200px - 38px);
+  overflow-y: auto;
+}
+
+.options-container.pt-0 {
+  max-height: 200px;
+}
+
+.custom-select-option:hover,
+.custom-select-option:focus {
+  background-color: #f1f1f1;
+  outline: none;
+}
+
 .clear-btn {
   position: absolute;
-  right: 0.8rem; /* Adjust as needed */
+  right: 0.8rem;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
@@ -169,11 +208,10 @@ const controlClasses = computed(() => {
   border: none;
   padding: 0.25rem;
   border-radius: 0.25rem;
-  z-index: 10; 
+  z-index: 10;
 }
 
-/* Adjust position if there's a right icon */
 .input-group.input-group-right.has-clear-btn .clear-btn {
-  right: 2.5rem; 
+  right: 2.5rem;
 }
 </style>
