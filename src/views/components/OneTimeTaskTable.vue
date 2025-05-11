@@ -1377,7 +1377,10 @@ const filteredTasks = computed(() => {
       return props.oneTimeTasks.filter((task) => {
         return (
           (task.assigned_user?.id === userData?.value?.user?.id ||
-            task.supervisor?.id === userData?.value?.user?.id) &&
+            task.supervisor?.id === userData?.value?.user?.id ||
+            task.consult?.id === userData?.value?.user?.id ||
+            task.informer?.id === userData?.value?.user?.id) &&
+
           task.is_archived == false &&
           task.status !== "done"
         );

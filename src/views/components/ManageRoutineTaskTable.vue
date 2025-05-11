@@ -84,10 +84,7 @@
                   @click="openDescriptionModal(task)"
                   title="Open Task Description"
                 >
-                  <h6
-                    class="mb-0 text-sm hover-effect mx-1"
-                    style="direction: rtl"
-                  >
+                  <h6 class="mb-0 text-sm hover-effect mx-1" dir="auto">
                     {{ task.task_name }}
                   </h6>
                   <div
@@ -411,21 +408,17 @@
 
               <!-- select Project -->
               <div class="mb-3">
-  <label class="form-label">{{ t("project") }}</label>
-  <select v-model="selectedProject" class="form-control mb-3">
-    <!-- خيار "بدون مشروع" -->
-    <option :value="null">{{ t("noProject") }}</option>
-    
-    <!-- الخيارات الحالية -->
-    <option
-      v-for="project in projects"
-      :key="project.id"
-      :value="project.id"
-    >
-      {{ project.name }}
-    </option>
-  </select>
-</div>
+                <label class="form-label">{{ t("project") }}:</label>
+                <argon-select
+                  v-model="projectId"
+                  :options="formattedProjects"
+                  :placeholder="t('selectProject')"
+                  class="form-control"
+                  searchable
+                  searchPlaceholder="Search projects..."
+                  required
+                />
+              </div>
 
               <label class="form-label">{{ t("to") }}:</label>
               <input
@@ -463,6 +456,9 @@
           </template>
 
           <template #footer>
+            <argon-button variant="secondary" @click="closeEditPopup">
+              {{ t("close") }}
+            </argon-button>
             <argon-button
               variant="success"
               @click="updateTask"
@@ -476,15 +472,12 @@
               ></span>
               {{ isLoading ? t("saving") : t("update") }}
             </argon-button>
-            <argon-button variant="secondary" @click="closeEditPopup">
-              {{ t("close") }}
-            </argon-button>
           </template>
 
-          <template #title>
+          <!-- <template #title>
             <i class="fas fa-user-edit me-2"></i>
             {{ t("editTask") }}
-          </template>
+          </template> -->
         </ArgonModal>
       </transition>
     </div>
@@ -715,12 +708,30 @@ const projects = computed(() => store.state.projects); // افترض أن الم
 //   }));
 // });
 
-// const formattedProjects = computed(() => {
-//   return projects.value.map((project) => ({
-//     value: project.id,
-//     label: project.name,
-//   }));
-// });
+const formattedProjects = computed(() => {
+  return [
+    ...projects.value
+      .filter((project) => project.status == true)
+      .map((project) => ({
+        value: project.id,
+        label: project.name,
+      })),
+  ];
+});
+
+// const toggleAllProjects = () => {
+//   // استبعاد الخيار "No Project" (value: null)
+//   // const actualProjects = formattedProjects.value.filter(p => p.value !== null);
+
+//   if (selectedProjects.value.length === formattedProjects.value.length) {
+//     selectedProjects.value = [];
+//   } else {
+//     selectedProjects.value = formattedProjects.value.map((project) => ({
+//       id: project.value,
+//       name: project.label,
+//     }));
+//   }
+// };
 
 // تعريف المتغيرات الجديدة لتخزين بيانات المهمة
 const selectedTaskName = ref("");
@@ -739,8 +750,10 @@ const selectedTaskAssignedTo = ref(null);
 const selectedTaskDayOfMonth = ref(null);
 const selectedTaskCreatedBy = ref(null);
 const loadingTaskId = ref(null);
+const selectedTaskProject = ref(null);
 
 const activeTab = ref("info"); // علامة تبويب البداية
+const projectId = ref("");
 
 const toggleStatus = async (taskId) => {
   console.log("taskId:", taskId);
@@ -827,6 +840,7 @@ const openEditModal = (task) => {
   console.log("selectedTask.value:", selectedTask.value);
   selectedDepartment.value = task.department?.dept_id; // تأكد من أن الخاصية صحيحة
   selectedProject.value = task.project?.id; // تأكد من أن الخاصية صحيحة
+  projectId.value = task.project?.id;
 
   showEditPopup.value = true;
 };
@@ -837,6 +851,8 @@ const closeEditPopup = () => {
   currentEditingTaskId.value = null;
   selectedManager.value = null;
   selectedDepartment.value = null; // تأكد من تهيئة قيمة
+  projectId.value = "";
+
 };
 
 const isLoading = ref(false);
@@ -856,7 +872,7 @@ const updateTask = async () => {
     from: selectedTask.value.from.slice(0, 5),
     to: selectedTask.value.to.slice(0, 5),
     dept_id: selectedDepartment.value,
-    project_id: selectedProject.value,
+    project_id: projectId.value,
     // ...selectedTask.value,
   };
 
@@ -973,6 +989,7 @@ const openDescriptionModal = async (task) => {
   selectedTaskDayOfMonth.value = task.day_of_month;
   selectedTaskCreatedBy.value = task.created_by.name;
   selectedTaskDepartment.value = task.department.department_name;
+  selectedTaskProject.value = task.project.name;
   await getTaskLogs(task.id);
   showDescriptionModal.value = true; // إظهار المودال
 };
@@ -999,6 +1016,7 @@ const closeDescriptionModal = () => {
   selectedTaskRecurrentDays.value = [];
   selectedTaskDayOfMonth.value = null;
   selectedTaskCreatedBy.value = null;
+  selectedTaskProject.value = null;
 };
 
 const formatDate = (dateString) => {
