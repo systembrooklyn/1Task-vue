@@ -68,7 +68,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="task in routineTasks" :key="task.id">
+          <tr v-for="task in routineTasks" :key="task.id" :class="{ 'critical-routine-task': task.priority === 'critical' }">
             <!-- استخدام routineTasks -->
             <!-- <td>
               <div class="mb-0 py-1">
@@ -209,6 +209,10 @@
           </tr>
         </tbody>
       </table>
+    </div>
+    <div class="d-flex align-items-center">
+      <span class="circle-critical-routine-task me-2"></span>
+      <small>{{ t("criticalRoutineTasks") }}</small>
     </div>
 
     <!-- Pagination Controls -->
@@ -1056,6 +1060,7 @@ const translations = {
     taskFound: "There is task ?",
     selectTaskFound: "Select Task Found",
     project: "Project",
+    criticalRoutineTasks: "Critical Routine Tasks",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -1124,6 +1129,7 @@ const translations = {
     taskFound: "هل يوجد مهمة؟",
     selectTaskFound: "حدد المهمة موجودة",
     project: "المشروع",
+    criticalRoutineTasks: "المهام الحرجة",
   },
 };
 const daysOfWeek = computed(() => {
@@ -1193,6 +1199,18 @@ const lastPage = computed(() =>
 /* تأثير hover على الصفوف */
 .table tbody tr:hover {
   background: #f1f1f1;
+}
+
+.critical-routine-task {
+  background-color:#FCE4E4;
+}
+
+.circle-critical-routine-task {
+  background-color:#FCE4E4;
+  border-radius: 50%;
+  border: 1px solid rgb(0, 0, 0);
+  width: 20px;
+  height: 20px;
 }
 
 .table td,

@@ -898,7 +898,7 @@ const translations = {
     allEmployees: "جميع الموظفين",
     allDeadLines: "جميع المواعيد",
     high: "عالية",
-    normal: "معادية",
+    normal: "عادية",
     low: "منخفضة",
     urgent: "عاجلة",
     overDue: "متأخر",

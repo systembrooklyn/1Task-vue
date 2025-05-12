@@ -30,11 +30,11 @@ const isChecked = ref(props.checked);
 console.log(isChecked.value);
 
 // tooltip ديناميكي
-const tooltipText = ref(isChecked.value ? "Close" : "Open");
+const tooltipText = ref(isChecked.value ? "Active" : "Inactive");
 
 // مراقبة التغييرات في الحالة المحلية وتحديث النص
 watch(isChecked, (newVal) => {
-  tooltipText.value = newVal ? "Close" : "Open";
+  tooltipText.value = newVal ? "Active" : "Inactive";
 });
 
 // إعادة التفاعل مع التغييرات القادمة من props

@@ -420,6 +420,20 @@
                 />
               </div>
 
+              <!-- أولوية (priority) في نصف عرض -->
+              <div class=" mb-3">
+                <label class="form-label">{{ t("priority") }}:</label>
+                <argon-select
+                  v-model="selectedTaskPriority"
+                  :options="prioritiesOptions"
+                  :placeholder="t('selectPriority')"
+                  class="form-control"
+                  searchable
+                  searchPlaceholder="Search priorities..."
+                  required
+                />
+              </div>
+
               <label class="form-label">{{ t("to") }}:</label>
               <input
                 v-model="selectedTask.to"
@@ -785,6 +799,14 @@ const toggleStatus = async (taskId) => {
   }
 };
 
+
+// const priority = ref("");
+const prioritiesOptions = [
+  { value: "normal", label: "Normal" },
+  { value: "critical", label: "Critical" },
+];
+
+
 // دالة مساعدة لتبديل حالة المهمة
 // const toggleTaskStatus = async (taskId) => {
 //   console.log("taskId:", taskId);
@@ -815,6 +837,7 @@ const selectedDepartment = ref(null); // لتخزين department_id
 const selectedProject = ref(null); // لتخزين project_id
 
 const selectedTask = ref(null); // لتخزين المهمة المحددة للتعديل
+const selectedTaskPriority = ref(null); // لتخزين priority
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
 const t = (key) => translations[currentLanguage.value][key];
@@ -841,7 +864,7 @@ const openEditModal = (task) => {
   selectedDepartment.value = task.department?.dept_id; // تأكد من أن الخاصية صحيحة
   selectedProject.value = task.project?.id; // تأكد من أن الخاصية صحيحة
   projectId.value = task.project?.id;
-
+  selectedTaskPriority.value = task.priority;
   showEditPopup.value = true;
 };
 
@@ -852,6 +875,7 @@ const closeEditPopup = () => {
   selectedManager.value = null;
   selectedDepartment.value = null; // تأكد من تهيئة قيمة
   projectId.value = "";
+  selectedTaskPriority.value = null;
 
 };
 
@@ -873,6 +897,7 @@ const updateTask = async () => {
     to: selectedTask.value.to.slice(0, 5),
     dept_id: selectedDepartment.value,
     project_id: projectId.value,
+    priority: selectedTaskPriority.value,
     // ...selectedTask.value,
   };
 
@@ -1095,6 +1120,8 @@ const translations = {
     department: "Department",
     project: "Project",
     noProject: "No Project",
+    priority: "Priority",
+    selectPriority: "Select Priority",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -1155,6 +1182,8 @@ const translations = {
     department: "القسم",
     project: "المشروع",
     noProject: "بدون مشروع",
+    priority: "الأولوية",
+    selectPriority: "اختر الأولوية",
   },
 };
 

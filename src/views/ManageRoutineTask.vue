@@ -112,6 +112,12 @@ const taskTypeOptions = [
   { value: "last_day_of_month", label: "Last Day of Month" },
 ];
 
+const priority = ref("");
+const prioritiesOptions = [
+  { value: "normal", label: "Normal" },
+  { value: "critical", label: "Critical" },
+];
+
 const recurrentDays = ref([]);
 
 // دالة لإضافة أو إزالة اليوم من المصفوفة
@@ -154,6 +160,9 @@ const selectedDepartments = ref([]);
 // فلتر: المشروعات المختارة
 const selectedProjects = ref([]);
 
+const selectedPriority = ref("");
+
+
 // التحكم في الإعدادات المتقدمة
 // const toggleAdvancedSettings = () => {
 //   showAdvancedSettings.value = !showAdvancedSettings.value;
@@ -172,6 +181,7 @@ const closePopup = () => {
   dayOfMonth.value = "";
   deptId.value = "";
   projectId.value = "";
+  priority.value = "";
   recurrentDays.value = [];
 };
 
@@ -257,6 +267,11 @@ const filteredTasks = computed(() => {
     });
   }
 
+  // 6. فلتر حسب الأولوية المختارة
+  if (selectedPriority.value) {
+    tasks = tasks.filter((t) => t.priority === selectedPriority.value);
+  }
+
   // search
   tasks = tasks.filter((task) => searchMatch(task));
 
@@ -326,6 +341,7 @@ const addRoutineTask = async () => {
     dept_id: deptId.value,
     project_id: projectId.value,
     assigned_to: selectedManager.value,
+    priority: priority.value,
   };
 
   console.log("routineTask:", routineTask);
@@ -442,6 +458,11 @@ const translations = {
     allProjects: "All Projects",
     projectsSelected: "Projects Selected",
     searchPlaceholder: "Search tasks...",
+    allPriorities: "All Priorities",
+    priority: "Priority",
+    normal: "Normal",
+    critical: "Critical",
+
 
 
     // التحكم في الإعدادات المتقدمة
@@ -524,12 +545,14 @@ const translations = {
 
     // active: 'نشط',
     // inactive: 'غير نشط',
-
+    allPriorities: "جميع الأولويات",
+    priority: "الاولوية",
     project: "مشروع",
     selectProject: "اختر المشروع",
     allProjects: "جميع المشاريع",
     searchPlaceholder: "...ابحث هنا",
-
+    normal: "عادية",
+    critical: "حرجة",
   },
 };
 
@@ -596,6 +619,7 @@ const resetFilters = () => {
   selectedDepartments.value = [];
   selectedProjects.value = [];
   selectedStatus.value = "";
+  selectedPriority.value = "";
 
   // Fetch all routine tasks without filters
   store.dispatch("fetchRoutineTasks");
@@ -685,6 +709,16 @@ const searchMatch = (task) => {
                       <option value="">{{ t("allStatuses") }}</option>
                       <option value="active">{{ t("active") }}</option>
                       <option value="inactive">{{ t("inactive") }}</option>
+                    </select>
+                  </div>
+
+                  <!-- Filter by Priority -->
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ t("priority") }}</label>
+                    <select class="form-select" v-model="selectedPriority">
+                      <option value="">{{ t("allPriorities") }}</option>
+                      <option value="normal">{{ t("normal") }}</option>
+                      <option value="critical">{{ t("critical") }}</option>
                     </select>
                   </div>
 
@@ -1006,6 +1040,20 @@ const searchMatch = (task) => {
               />
             </div>
 
+            <!-- أولوية (نصف العرض) -->
+            <div class=" mb-3">
+                <label class="form-label">{{ t("priority") }}:</label>
+                <argon-select
+                  v-model="priority"
+                  :options="prioritiesOptions"
+                  :placeholder="t('selectPriority')"
+                  class="form-control"
+                  searchable
+                  searchPlaceholder="Search priorities..."
+                  required
+                />
+              </div>
+
             <!-- start date -->
             <div class="form-group mb-3">
               <label class="form-label">{{ t("startDate") }}:</label>
@@ -1074,6 +1122,9 @@ const searchMatch = (task) => {
         </template>
 
         <template #footer>
+          <argon-button variant="secondary" @click="closePopup">
+            {{ t("close") }}
+          </argon-button>
           <argon-button
             variant="success"
             @click="addRoutineTask"
@@ -1086,9 +1137,6 @@ const searchMatch = (task) => {
               aria-hidden="true"
             ></span>
             {{ isLoading ? t("saving") : t("create") }}
-          </argon-button>
-          <argon-button variant="secondary" @click="closePopup">
-            {{ t("close") }}
           </argon-button>
         </template>
       </ArgonModal>
