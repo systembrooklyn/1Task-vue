@@ -72,6 +72,8 @@ const isNotReportedLoading = ref(false); // متغير تحميل خاص بـ No
 const searchQuery = ref("");
 const selectedDepartmentForNotReported = ref([]);
 const dynamicDepartmentsForNotReported = ref([]);
+const rundomTask = ref([]);
+
 
 const selectedManager = ref("");
 const taskType = ref("");
@@ -98,6 +100,16 @@ const toggleRecurrentDay = (dayValue, isChecked) => {
       recurrentDays.value.splice(index, 1);
     }
   }
+};
+
+const getRundomTask = async () => {
+    try {
+        const response = await store.dispatch("getRundomTask");
+        console.log("rundomTask dddd:", response.data);
+        rundomTask.value = response.data;
+    } catch (error) {
+        console.error("Error fetching rundom task:", error);
+    }
 };
 
 watch(
@@ -139,6 +151,7 @@ onBeforeMount(async () => {
   await fetchTasksReports();
   await fetchNotReportedTasks();
   await fetchEvaluatedTasks();
+  await getRundomTask();
 });
 
 const currentCompanyId = computed(() => store.getters.companyId);
@@ -987,6 +1000,7 @@ const filteredEvaluatedTasks = computed(() => {
               :isNotReportedLoading="isNotReportedLoading"
               :selectedDateForNotReported="selectedDateForNotReported"
               :selectedDate="selectedDate"
+              :rundomTask="rundomTask"
               :key="componentKey"
               @page-changed="handlePageChange"
             />

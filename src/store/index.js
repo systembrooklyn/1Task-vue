@@ -70,6 +70,7 @@ export default createStore({
     evaluation: [],
     evaluatedTasks: [],
     oneTimeTasks: [],
+    rundomTask: [],
     chartDeptPerformance: null,
     pagination: {
       total: 0,
@@ -309,6 +310,10 @@ export default createStore({
 
     getChartDeptPerformance(state, data) {
       state.chartDeptPerformance = data;
+    },
+
+    getRundomTask(state, data) {
+      state.rundomTask = data;
     },
 
     // end----------------------------------------------------
@@ -1694,6 +1699,19 @@ async getChartDeptPerformance({ commit }, range) {
     return error;
   }
 },
+
+async getRundomTask({ commit }) {
+  try {
+    const response = await apiClient.getRundomTask();
+    console.log("getRundomTask-responseeeeeeeeee", response.data);
+    commit("getRundomTask", response.data);
+    return response;
+  } catch (error) {
+    console.error("Error:", error);
+    return error;
+  }
+},
+
   },
 
   getters: {

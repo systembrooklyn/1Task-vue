@@ -75,7 +75,6 @@
             <span class="visually-hidden">Loading...</span>
           </div>
         </div>
-         
 
         <div v-else class="table-responsive p-3">
           <table class="table align-items-center table-hover mb-0">
@@ -115,7 +114,7 @@
                 <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
-                  {{ t("reporttime") }}
+                  {{ t("priority") }}
                 </th>
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
@@ -213,8 +212,16 @@
                   </p>
                 </td>
                 <td>
-                  <p class="text-xs font-weight-bold mb-0">
-                    {{ formatReportDate(task.created_at) }}
+                  <p
+                    class="text-xs font-weight-bold mb-0"
+                    :class="
+                      task.daily_task.priority === 'critical'
+                        ? 'text-danger'
+                        : ''
+                    "
+                  >
+                    <!-- {{ formatReportDate(task.created_at) }} -->
+                    {{ task.daily_task.priority || "No Priority" }}
                   </p>
                 </td>
 
@@ -282,7 +289,7 @@
                     }"
                     @click="
                       !['done', 'not_done'].includes(task.status) &&
-                      openEvaluationModal(task.id)
+                        openEvaluationModal(task.id)
                     "
                   >
                     <i
@@ -305,7 +312,10 @@
               </a> -->
                 </td>
 
-                <td v-if="isOwner || permissions['create-dailytaskevaluation']" class="align-middle">
+                <td
+                  class="align-middle"
+                  v-if="isOwner || permissions['create-dailytaskevaluation']"
+                >
                   <a
                     href="javascript:;"
                     class="font-weight-bold text-lg me-2"
@@ -349,14 +359,16 @@
                       }"
                     ></i>
                   </a>
-
-                  <!-- <a
-                href="javascript:;"
-                class="text-danger font-weight-bold text-xs"
-                @click="confirmDelete(task)"
-              >
-                {{ t("delete") }}
-              </a> -->
+                  <!-- ✅ الأيقونة الجديدة -->
+                  <i
+                    class="fa fa-check-circle text-success"
+                    v-if="
+                      props.rundomTask?.data?.dailytask_ids?.includes(
+                        task.daily_task_id
+                      ) && props.selectedDate === props.rundomTask?.data?.date
+                    "
+                    title="موجود في المهام العشوائية"
+                  ></i>
                 </td>
               </tr>
             </tbody>
@@ -408,6 +420,11 @@
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
                   {{ t("to") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("priority") }}
                 </th>
                 <!-- <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
@@ -512,6 +529,19 @@
                     {{ formatTime(task.daily_task.to) }}
                   </p>
                 </td>
+                <td>
+                  <p
+                    class="text-xs font-weight-bold mb-0"
+                    :class="
+                      task.daily_task.priority === 'critical'
+                        ? 'text-danger'
+                        : ''
+                    "
+                  >
+                    <!-- {{ formatReportDate(task.created_at) }} -->
+                    {{ task.daily_task.priority || "No Priority" }}
+                  </p>
+                </td>
                 <!-- <td>
                   <p class="text-xs font-weight-bold mb-0">
                     {{ formatReportDate(task.created_at) }}
@@ -582,7 +612,7 @@
                     }"
                     @click="
                       !['done', 'not_done'].includes(task.status) &&
-                      openEvaluationModal(task.id)
+                        openEvaluationModal(task.id)
                     "
                   >
                     <i
@@ -605,7 +635,10 @@
               </a> -->
                 </td>
 
-                <td v-if="isOwner || permissions['create-dailytaskevaluation']" class="align-middle">
+                <td
+                  v-if="isOwner || permissions['create-dailytaskevaluation']"
+                  class="align-middle"
+                >
                   <a
                     href="javascript:;"
                     class="font-weight-bold text-lg me-2"
@@ -664,7 +697,12 @@
         </div>
       </div>
 
-      <div v-if="props.reportActiveTab === 'evaluated_Task' && (isOwner || permissions['view-alldailytaskevaluation'])">
+      <div
+        v-if="
+          props.reportActiveTab === 'evaluated_Task' &&
+          (isOwner || permissions['view-alldailytaskevaluation'])
+        "
+      >
         <!-- Spinner أثناء التحميل -->
         <div
           v-if="props.isNotReportedLoading"
@@ -683,11 +721,11 @@
             >
               {{ t("status") }}
             </th> -->
-            <th
+                <!-- <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
                   {{ t("taskNumber") }}
-                </th>
+                </th> -->
                 <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
@@ -700,10 +738,15 @@
                   {{ t("department") }}
                 </th>
                 <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
-              {{ t("reportedBy") }}
-            </th>
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("priority") }}
+                </th>
+                <th
+                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                >
+                  {{ t("reportedBy") }}
+                </th>
                 <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
@@ -764,11 +807,11 @@
               </div>
             </td> -->
 
-            <td>
+                <!-- <td>
                   <p class="text-xs font-weight-bold mb-0">
                     {{ task.daily_task?.task_no || "No Department" }}
                   </p>
-                </td>
+                </td> -->
 
                 <!-- <td>
                   <div
@@ -800,10 +843,7 @@
                       @click="openDescriptionModal(task)"
                       title="Open Task Description"
                     >
-                      <h6
-                        class="mb-0 text-sm hover-effect mx-1"
-                        style="direction: rtl"
-                      >
+                      <h6 class="mb-0 text-sm hover-effect mx-1" dir="auto">
                         {{ task.daily_task.task_name }}
                       </h6>
                       <div
@@ -820,6 +860,20 @@
                 <td>
                   <p class="text-xs font-weight-bold mb-0">
                     {{ task.department?.name || "No Department" }}
+                  </p>
+                </td>
+
+                <td>
+                  <p
+                    class="text-xs font-weight-bold mb-0"
+                    :class="
+                      task.daily_task.priority === 'critical'
+                        ? 'text-danger'
+                        : ''
+                    "
+                  >
+                    <!-- {{ formatReportDate(task.created_at) }} -->
+                    {{ task.daily_task.priority || "No Priority" }}
                   </p>
                 </td>
 
@@ -875,9 +929,6 @@
                     }}
                   </p>
                 </td> -->
-                
-
-                
 
                 <td>
                   <p class="text-xs font-weight-bold mb-0">
@@ -886,17 +937,16 @@
                 </td>
 
                 <td>
-              <p class="text-xs font-weight-bold mb-0" dir="rtl">
-                {{ task?.evaluation?.comment }}
-              </p>
-            </td>
+                  <p class="text-xs font-weight-bold mb-0" dir="rtl">
+                    {{ task?.evaluation?.comment }}
+                  </p>
+                </td>
 
-            <td>
-              <p class="text-xs font-weight-bold mb-0">
-                {{ task?.evaluation?.rating }}/10
-              </p>
-            </td>
-
+                <td>
+                  <p class="text-xs font-weight-bold mb-0">
+                    {{ task?.evaluation?.rating }}/10
+                  </p>
+                </td>
 
                 <!-- <td class="align-middle">
                   <a
@@ -947,7 +997,6 @@
           </table>
         </div>
       </div>
-      
     </div>
 
     <!-- <div class="d-flex justify-content-center mt-4">
@@ -1164,7 +1213,7 @@
             <argon-button variant="secondary" @click="closeEditPopup">
               {{ t("close") }}
             </argon-button>
-            
+
             <argon-button
               variant="success"
               @click="evaluateTask"
@@ -1178,7 +1227,6 @@
               ></span>
               {{ isLoading ? t("saving") : t("evaluate") }}
             </argon-button>
-            
           </template>
 
           <template #title>
@@ -1232,12 +1280,21 @@
                     {{ selectedDescription }}
                   </dd>
 
-                  
-                  <dt v-if="props.reportActiveTab === 'evaluated_Task'" class="col-sm-3">{{ t("taskStatus") }}:</dt>
-                  <dd v-if="selectedTaskStatus " class="col-sm-9">
+                  <dt
+                    v-if="props.reportActiveTab === 'evaluated_Task'"
+                    class="col-sm-3"
+                  >
+                    {{ t("taskStatus") }}:
+                  </dt>
+                  <dd v-if="selectedTaskStatus" class="col-sm-9">
                     {{ selectedTaskStatus }}
                   </dd>
-                  <dd v-else-if="props.reportActiveTab === 'evaluated_Task'" class="col-sm-9">{{ t("notReported") }}</dd>
+                  <dd
+                    v-else-if="props.reportActiveTab === 'evaluated_Task'"
+                    class="col-sm-9"
+                  >
+                    {{ t("notReported") }}
+                  </dd>
 
                   <dt class="col-sm-3">{{ t("notes") }}:</dt>
                   <dd class="col-sm-9">
@@ -1301,6 +1358,12 @@
                   </dt>
                   <dd v-if="selectedTaskDayOfMonth" class="col-sm-9">
                     {{ selectedTaskDayOfMonth }}
+                  </dd>
+                  <dt v-if="selectedTaskReportedTime" class="col-sm-3">
+                    {{ t("reporttime") }}:
+                  </dt>
+                  <dd v-if="selectedTaskReportedTime" class="col-sm-9">
+                    {{ formatDate(selectedTaskReportedTime) }}
                   </dd>
                   <dt v-if="selectedTaskCreationDate" class="col-sm-3">
                     {{ t("createdAt") }}:
@@ -1448,6 +1511,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  rundomTask: {
+    type: Object,
+    required: true,
+  },
 
   // ,
   // showAllTasks: {
@@ -1461,6 +1528,13 @@ const props = defineProps({
   // },
 });
 
+// const rundomTask = ref([]);
+
+console.log("props.rundomTask:", props.rundomTask);
+
+// onMounted( async() => {
+//     await getRundomTask();
+// });
 
 // const showAllTasks = ref(false);
 
@@ -1531,6 +1605,7 @@ const selectedTaskNumber = ref(null);
 const selectedTaskStartDate = ref(null);
 const selectedTaskDeadline = ref(null);
 const selectedTaskCreationDate = ref(null);
+const selectedTaskReportedTime = ref(null);
 const selectedTaskId = ref(null);
 const showDescriptionModal = ref(false);
 // const taskLogs = ref([]); // لتخزين سجلات المهمة
@@ -1632,9 +1707,10 @@ const openEvaluationModal = (taskId) => {
   console.log("Opening Evaluation Modal for Task ID:", taskId);
 
   // Determine which task list to search
-  const taskList = props.reportActiveTab === "reported"
-    ? props.routineTasksReport
-    : props.notReportedTasks;
+  const taskList =
+    props.reportActiveTab === "reported"
+      ? props.routineTasksReport
+      : props.notReportedTasks;
 
   // Find the task in the relevant list
   const task = taskList.find((t) => t.daily_task_id === taskId);
@@ -1658,7 +1734,6 @@ const openEvaluationModal = (taskId) => {
   showEditPopup.value = true;
 };
 
-
 const closeEditPopup = () => {
   showEditPopup.value = false;
   selectedTask.value = null;
@@ -1677,7 +1752,11 @@ const evaluateTask = async () => {
     id: selectedTask.value.daily_task_id,
     rating: taskRate.value,
     comment: taskComment.value,
-    task_for: props.reportActiveTab === "not_reported" || props.reportActiveTab === "reported" ? props.selectedDateForNotReported: props.selectedDate ,
+    task_for:
+      props.reportActiveTab === "not_reported" ||
+      props.reportActiveTab === "reported"
+        ? props.selectedDateForNotReported
+        : props.selectedDate,
     // ...selectedTask.value,
   };
 
@@ -1784,6 +1863,7 @@ const openDescriptionModal = async (task) => {
   selectedTaskStartDate.value = task.daily_task.start_date; // تعيين تاريخ بدء المهمة
   selectedTaskDeadline.value = task.daily_task.deadline; // تعيين تاريخ انتهاء المهمة
   selectedTaskCreationDate.value = task.daily_task.created_at; // تعيين تاريخ إنشاء المهمة
+  selectedTaskReportedTime.value = task?.created_at;
   selectedTaskId.value = task.daily_task.id;
   selectedTaskStatus.value = task.report?.status;
   selectedTaskAssignedTo.value = task.daily_task.assigned_to;
@@ -1830,6 +1910,7 @@ const closeDescriptionModal = () => {
   selectedTaskStartDate.value = null;
   selectedTaskDeadline.value = null;
   selectedTaskCreationDate.value = null;
+  selectedTaskReportedTime.value = null;
   selectedTaskId.value = null;
   selectedTaskStatus.value = null;
   selectedTaskAssignedTo.value = null;
@@ -1914,7 +1995,7 @@ const translations = {
     taskCreatedBy: "Created By",
     description: "Description",
     taskDetails: "Task Details",
-    createdAt: "Created At",
+    createdAt: "Task Created At",
     deadline: "Deadline",
     startDate: "Start Date",
     active: "Active",
@@ -1984,6 +2065,7 @@ const translations = {
     rating: "Rating",
     comment: "Comment",
     elvatedAllready: "this task is evaluated already",
+    priority: "Priority",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -2004,7 +2086,7 @@ const translations = {
     taskCreatedBy: "تم الإنشاء بواسطة",
     description: "وصف المهمة",
     taskDetails: "تفاصيل المهمة",
-    createdAt: "تاريخ الإنشاء",
+    createdAt: "تاريخ إنشاء المهمة",
     deadline: "المهلة النهائية",
     startDate: "تاريخ البدء",
     active: "نشط",
@@ -2073,6 +2155,7 @@ const translations = {
     rating: "التقييم",
     comment: "التعليق",
     elvatedAllready: "هذه المهمة تم التقييم عنها بالفعل",
+    priority: "الاولوية",
   },
 };
 

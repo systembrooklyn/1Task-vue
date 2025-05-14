@@ -499,7 +499,18 @@ getChartDeptPerformance(range) {
 
   return apiClient.post("/deptPerformance", range, config);
 },
-  
+
+getRundomTask() {
+  const token = localStorage.getItem("token");
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  };
+
+  return apiClient.get("/dailyTasks/yesterday", config);
+},
 
   // end routine tasks------------------------------------------------
 
