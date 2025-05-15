@@ -176,7 +176,7 @@
                       @click="openDescriptionModal(task)"
                       title="Open Task Description"
                     >
-                      <h6 class="mb-0 text-sm hover-effect mx-1">
+                      <h6 dir="auto" class="mb-0 text-sm hover-effect mx-1">
                         {{ task.daily_task.task_name }}
                       </h6>
                       <div
@@ -361,12 +361,12 @@
                   </a>
                   <!-- ✅ الأيقونة الجديدة -->
                   <i
-                    class="fa fa-check-circle text-success"
-                    v-if="
-                      props.rundomTask?.data?.dailytask_ids?.includes(
-                        task.daily_task_id
-                      ) && props.selectedDate === props.rundomTask?.data?.date
-                    "
+                    class="fa fa-bolt text-warning"
+                  v-if="
+                    props.rundomTask?.data?.dailytask_ids?.includes(
+                      task.daily_task_id
+                    ) && props.rundomTask?.data?.date == formatDateWithoutTime(task?.created_at)
+                  "
                     title="موجود في المهام العشوائية"
                   ></i>
                 </td>
@@ -1530,7 +1530,9 @@ const props = defineProps({
 
 // const rundomTask = ref([]);
 
-console.log("props.rundomTask:", props.rundomTask);
+console.log("props.rundomTask:", {...props.rundomTask});
+
+console.log("props.selectedDate:", typeof(props.selectedDate));
 
 // onMounted( async() => {
 //     await getRundomTask();
@@ -1934,6 +1936,8 @@ const formatDate = (dateString) => {
   );
 };
 
+
+
 // In your script
 function formatReportDate(dateTimeString) {
   const date = new Date(dateTimeString);
@@ -1972,6 +1976,19 @@ const formatTime = (time) => {
 
   // إرجاع الوقت بالتنسيق الجديد
   return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+};
+
+const formatDateWithoutTime = (dateString) => {
+  if (!dateString) return null;
+
+  // تحويل النص إلى كائن تاريخ
+  const date = new Date(dateString);
+
+  // التأكد من أن التاريخ صالح
+  if (isNaN(date.getTime())) return null;
+
+  // تنسيق التاريخ إلى "YYYY-MM-DD"
+  return date.toISOString().split("T")[0]; // مثل: "2025-05-13"
 };
 
 // الترجمات المحدثة
