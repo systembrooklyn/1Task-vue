@@ -290,19 +290,19 @@
               </small>
 
               <!-- إلى من أُسندت المهمة -->
-              <small v-if="task.assigned_user" class="badge badge-grey">
+              <small v-if="task.assignedUser.length > 0" class="badge badge-grey">
                 {{ t("assignedTo") }}:
-                {{ task.assigned_user?.name || "No one" }}
+                {{ task.assignedUser.map((user) => user.name).join(", ") || "Unknown" }}
               </small>
 
               <!-- المشرف -->
-              <small v-if="task.consult" class="badge badge-grey">
-                {{ t("consult") }}: {{ task.consult?.name || "Unknown" }}
+              <small v-if="task.consult.length > 0" class="badge badge-grey">
+                {{ t("consult") }}: {{ task.consult.map((user) => user.name).join(", ") || "Unknown" }}
               </small>
 
               <!-- المشرف -->
-              <small v-if="task.informer" class="badge badge-grey">
-                {{ t("informer") }}: {{ task.informer?.name || "Unknown" }}
+              <small v-if="task.informer.length > 0" class="badge badge-grey">
+                {{ t("informer") }}: {{ task.informer.map((user) => user.name).join(", ") || "Unknown" }}
               </small>
             </div>
 
@@ -804,12 +804,16 @@ const props = defineProps({
   oneTimeTasks: {
     type: Array,
     required: true,
+    default: () => [],
   },
   pagination: {
     type: Object,
     required: true,
+    default: () => ({}),
   },
 });
+
+
 
 const store = useStore();
 const userData = computed(() => store.getters.user);
@@ -1371,15 +1375,16 @@ const translations = {
 
 // فلترة المهام حسب التاب
 const filteredTasks = computed(() => {
+  console.log("props.oneTimeTasks:", props);
   if (!props.oneTimeTasks) return [];
   switch (activeTab.value) {
     case "Inbox":
       return props.oneTimeTasks.filter((task) => {
         return (
-          (task.assigned_user?.id === userData?.value?.user?.id ||
+          (task.assignedUser?.map((user) => user.id).includes(userData?.value?.user?.id) ||
             task.supervisor?.id === userData?.value?.user?.id ||
-            task.consult?.id === userData?.value?.user?.id ||
-            task.informer?.id === userData?.value?.user?.id) &&
+            task.consult?.map((user) => user.id).includes(userData?.value?.user?.id) ||
+            task.informer?.map((user) => user.id).includes(userData?.value?.user?.id)) &&
 
           task.is_archived == false &&
           task.status !== "done"
@@ -1408,7 +1413,7 @@ const filteredTasks = computed(() => {
     default:
       return props.oneTimeTasks.filter((task) => {
         return (
-          task.assigned_user?.id === userData.value?.user?.id ||
+          task.assignedUser?.map((user) => user.id).includes(userData.value?.user?.id) ||
           task.supervisor?.id === userData.value?.user?.id
         );
       });
@@ -1416,6 +1421,7 @@ const filteredTasks = computed(() => {
 });
 
 watch(filteredTasks, (newVal) => {
+  console.log("newVal:", newVal);
   emit("filtered-count-changed", newVal.length);
 });
 

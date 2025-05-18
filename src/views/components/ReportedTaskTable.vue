@@ -1,6 +1,7 @@
 // src/views/components/RoutineTaskTable.vue
 
 <template>
+  <span class="fa fa-bolt text-warning mb-0"></span> : random task
   <div class="card-body px-0 pt-0 pb-2" :key="componentKey">
     <!-- <div class="d-flex justify-content-end mb-3">
       <button
@@ -367,7 +368,7 @@
                       task.daily_task_id
                     ) && props.rundomTask?.data?.date == formatDateWithoutTime(task?.created_at)
                   "
-                    title="موجود في المهام العشوائية"
+                    :title="t('randomTask')"
                   ></i>
                 </td>
               </tr>
@@ -2083,6 +2084,7 @@ const translations = {
     comment: "Comment",
     elvatedAllready: "this task is evaluated already",
     priority: "Priority",
+    randomTask: "random task to evaluate",
   },
   ar: {
     tasksTable: "جدول المهام",
@@ -2173,6 +2175,7 @@ const translations = {
     comment: "التعليق",
     elvatedAllready: "هذه المهمة تم التقييم عنها بالفعل",
     priority: "الاولوية",
+    randomTask: "موجود في المهام العشوائية",
   },
 };
 

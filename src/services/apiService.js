@@ -11,6 +11,7 @@ import axios from "axios";
 
 // إنشاء apiClient باستخدام axios
 const apiClient = axios.create({
+  // baseURL: "http://127.0.0.1:8000/api",
   baseURL: "https://starfish-app-gv3mu.ondigitalocean.app/api", // قاعدة الـ URL
   headers: {
     "Content-Type": "application/json",

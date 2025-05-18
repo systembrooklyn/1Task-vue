@@ -14,6 +14,8 @@ import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
+import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
+
 // import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import OneTimeTaskTable from "@/views/components/OneTimeTaskTable.vue";
 
@@ -126,15 +128,18 @@ const showSuccess = ref(false);
 const oneTimeTaskName = ref("");
 const oneTimeTaskDescription = ref("");
 const selectedEmployee = ref("");
+const selectedAssignee = ref([]);
 const selectedSupervisor = ref("");
-const selectedConsultant = ref("");
-const selectedInformer = ref("");
+const selectedConsultant = ref([]);
+const selectedInformer = ref([]);
+
+const employeeNames = ref([]);
 
 const showPopup = ref(false);
 const oneTimeTasks = ref([]);
 const componentKey = ref(0);
 const body = document.getElementsByTagName("body")[0];
-const isLoading = ref(false);
+const isLoading = ref(true);
 
 const startDate = ref("");
 const endDate = ref("");
@@ -196,9 +201,10 @@ const closePopup = () => {
   oneTimeTaskName.value = "";
   oneTimeTaskDescription.value = "";
   selectedEmployee.value = "";
+  selectedAssignee.value = [];
   selectedSupervisor.value = "";
-  selectedConsultant.value = "";
-  selectedInformer.value = "";
+  selectedConsultant.value = [];
+  selectedInformer.value = [];
   startDate.value = "";
   endDate.value = "";
   fromDate.value = "";
@@ -377,7 +383,7 @@ function formatDate(dateString) {
 // فلترة البيانات (أماميًا)
 const filteredTasks = computed(() => {
   let tasks = [...oneTimeTasks.value];
-  console.log(tasks);
+  console.log("tasksssss:", tasks);
 
   if (selectedStatus.value) {
     if (selectedStatus.value === "inProgress") {
@@ -412,8 +418,10 @@ const filteredTasks = computed(() => {
   if (selectedEmployee.value) {
     tasks = tasks.filter(
       (t) =>
-        (t.assigned_user?.id || t.supervisor?.id) === selectedEmployee.value
+        (t.assignedUser?.map((user) => user.id) || t.supervisor?.id) ===
+        selectedEmployee.value
     );
+    console.log("tasks:", tasks);
   }
 
   const today = formatDate(new Date());
@@ -458,6 +466,8 @@ const filteredTasks = computed(() => {
   return tasks;
 });
 
+console.log("filteredTasks:", filteredTasks.value);
+
 watch(
   () => filteredTasks.value.length,
   (newLength) => {
@@ -472,6 +482,17 @@ watch(
   },
   { immediate: true }
 );
+
+// watch(
+//   () => store.getters.oneTimeTasks,
+//   (newTasks) => {
+//     oneTimeTasks.value = newTasks.map(task => ({
+//       ...task,
+//       hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id),
+//     }));
+//   },
+//   { immediate: true }
+// );
 
 // تقطيع المهام حسب الصفحة
 // const paginatedTasks = computed(() => {
@@ -490,6 +511,7 @@ const resetFilters = () => {
   selectedDeadLine.value = "";
   selectedPriority.value = "";
   selectedEmployee.value = "";
+  selectedAssignee.value = [];
   selectedDepartments.value = [];
   selectedProjects.value = [];
   pagination.value.current_page = 1;
@@ -557,7 +579,7 @@ async function createOneTimeTask() {
       project_id: projectId.value,
       // is_urgent: isUrgent.value,
       priority: priority.value,
-      assigned_user_id: selectedEmployee.value || null,
+      assigned_user_id: selectedAssignee.value || null,
       supervisor_user_id: selectedSupervisor.value || null,
       inform_user_id: selectedInformer.value || null,
       consult_user_id: selectedConsultant.value || null,
@@ -613,6 +635,10 @@ async function createOneTimeTask() {
   }
 }
 
+const selectedAssigneeNames = ref([]);
+const selectedInformerNames = ref([]);
+const selectedConsultantNames = ref([]);
+
 function openEditPopupInParent(task) {
   // نُجهّز الحقول بقيم task
   editMode.value = true;
@@ -623,10 +649,13 @@ function openEditPopupInParent(task) {
 
   oneTimeTaskName.value = task.title || "";
   oneTimeTaskDescription.value = task.description || "";
-  selectedEmployee.value = task.assigned_user?.id || null;
+  selectedAssignee.value = task.assignedUser?.map((user) => user.id) || null;
+  selectedAssigneeNames.value = task.assignedUser?.map((user) => user.name) || null;
   selectedSupervisor.value = task.supervisor?.id || null;
-  selectedInformer.value = task.inform_user?.id || null;
-  selectedConsultant.value = task.consult_user?.id || null;
+  selectedInformer.value = task.informer?.map((user) => user.id) || null;
+  selectedInformerNames.value = task.informer?.map((user) => user.name) || null;
+  selectedConsultant.value = task.consult?.map((user) => user.id) || null;
+  selectedConsultantNames.value = task.consult?.map((user) => user.name) || null;
   deptId.value = task.department?.id || "";
   projectId.value = task.project?.id;
   console.log(task.project?.id);
@@ -644,10 +673,13 @@ const closeEditPopup = () => {
   // تنظيف الحقول
   oneTimeTaskName.value = "";
   oneTimeTaskDescription.value = "";
-  selectedEmployee.value = "";
+  selectedAssignee.value = "";
+  selectedAssigneeNames.value = "";
   selectedSupervisor.value = "";
   selectedInformer.value = "";
+  selectedInformerNames.value = "";
   selectedConsultant.value = "";
+  selectedConsultantNames.value = "";
   deptId.value = "";
   projectId.value = "";
   // isUrgent.value = false;
@@ -674,7 +706,7 @@ const updateOneTimeTask = async () => {
       id: editedTaskId.value,
       title: oneTimeTaskName.value,
       description: oneTimeTaskDescription.value,
-      assigned_user_id: selectedEmployee.value,
+      assigned_user_id: selectedAssignee.value,
       supervisor_user_id: selectedSupervisor.value || null,
       inform_user_id: selectedInformer.value || null,
       consult_user_id: selectedConsultant.value || null,
@@ -821,6 +853,9 @@ const translations = {
     priority: "Priority",
     employee: "Employee",
     searchPlaceholder: "Search tasks...",
+    selectEmployee: "Select Employee",
+    selectConsultant: "Select Consultant",
+    selectInformer: "Select Informer",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -912,6 +947,9 @@ const translations = {
     employee: "الموظف",
     selectProject: "اختر المشروع",
     searchPlaceholder: "...ابحث هنا",
+    selectEmployee: "اختر الموظفين",
+    selectConsultant: "اختر الاسشاري",
+    selectInformer: "اختر المعلوم",
   },
 };
 
@@ -1231,8 +1269,8 @@ const translations = {
             </div>
 
             <one-time-task-table
-              v-else
-              :oneTimeTasks="filteredTasks"
+            v-if="!isLoading"
+            :oneTimeTasks="filteredTasks"
               :key="componentKey"
               @page-changed="handlePageChange"
               :pagination="pagination"
@@ -1282,7 +1320,7 @@ const translations = {
               </div>
 
               <!-- حقل assignTo (نصف العرض) -->
-              <div class="col-md-6 mb-3">
+              <!-- <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("assignTo") }}:</label>
                 <argon-select
                   v-model="selectedEmployee"
@@ -1293,10 +1331,21 @@ const translations = {
                   searchPlaceholder="Search employees..."
                   required
                 />
-              </div>
+              </div> -->
+
+              <div class="mb-3">
+          <label class="form-label">{{ t("assignTo") }}:</label>
+            <argon-multiple-select
+              v-model="selectedAssignee"
+              :model-names="employeeNames"
+              :options="employeeOptions"
+              :placeholder="t('selectEmployee')"
+              class="form-control mb-3"
+            />
+          </div>
 
               <!-- حقل supervisor (نصف العرض) -->
-              <div class="col-md-6 mb-3">
+              <div class="col-md-12 mb-3">
                 <label class="form-label">{{ t("supervisor") }}:</label>
                 <argon-select
                   v-model="selectedSupervisor"
@@ -1310,7 +1359,7 @@ const translations = {
               </div>
 
               <!-- informer في نصف عرض -->
-              <div class="col-md-6 mb-3">
+              <!-- <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("informer") }}:</label>
                 <argon-select
                   v-model="selectedInformer"
@@ -1321,10 +1370,21 @@ const translations = {
                   searchPlaceholder="Search employees..."
                   required
                 />
-              </div>
+              </div> -->
+
+              <div class="mb-3">
+          <label class="form-label">{{ t("informer") }}:</label>
+            <argon-multiple-select
+              v-model="selectedInformer"
+              :model-names="employeeNames"
+              :options="employeeOptions"
+              :placeholder="t('selectInformer')"
+              class="form-control mb-3"
+            />
+          </div>
 
               <!-- consultant في نصف عرض -->
-              <div class="col-md-6 mb-3">
+              <!-- <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("consultant") }}:</label>
                 <argon-select
                   v-model="selectedConsultant"
@@ -1335,7 +1395,18 @@ const translations = {
                   searchPlaceholder="Search employees..."
                   required
                 />
-              </div>
+              </div> -->
+
+              <div class="mb-3">
+          <label class="form-label">{{ t("consultant") }}:</label>
+            <argon-multiple-select
+              v-model="selectedConsultant"
+              :model-names="employeeNames"
+              :options="employeeOptions"
+              :placeholder="t('selectConsultant')"
+              class="form-control mb-3"
+            />
+          </div>
 
               <!-- مشروع (نصف العرض) -->
               <div class="col-md-6 mb-3">
@@ -1456,7 +1527,7 @@ const translations = {
               </div>
 
               <!-- assignTo في نصف عرض -->
-              <div class="col-md-6 mb-3">
+              <!-- <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("assignTo") }}:</label>
                 <argon-select
                   v-model="selectedEmployee"
@@ -1467,10 +1538,19 @@ const translations = {
                   searchPlaceholder="Search employees..."
                   required
                 />
-              </div>
+              </div> -->
+
+              <label class="form-label">{{ t("assignTo") }}:</label>
+            <argon-multiple-select
+              v-model="selectedAssignee"
+              :model-names="selectedAssigneeNames"
+              :options="employeeOptions"
+              :placeholder="t('selectEmployee')"
+              class="form-control mb-3"
+            />
 
               <!-- supervisor في نصف عرض -->
-              <div class="col-md-6 mb-3">
+              <div class=" mb-3">
                 <label class="form-label">{{ t("supervisor") }}:</label>
                 <argon-select
                   v-model="selectedSupervisor"
@@ -1484,7 +1564,7 @@ const translations = {
               </div>
 
               <!-- informer في نصف عرض -->
-              <div class="col-md-6 mb-3">
+              <!-- <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("informer") }}:</label>
                 <argon-select
                   v-model="selectedInformer"
@@ -1495,10 +1575,19 @@ const translations = {
                   searchPlaceholder="Search employees..."
                   required
                 />
-              </div>
+              </div> -->
+
+              <label class="form-label">{{ t("informer") }}:</label>
+            <argon-multiple-select
+              v-model="selectedInformer"
+              :model-names="selectedInformerNames"
+              :options="employeeOptions"
+              :placeholder="t('selectEmployee')"
+              class="form-control mb-3"
+            />
 
               <!-- consultant في نصف عرض -->
-              <div class="col-md-6 mb-3">
+              <!-- <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("consultant") }}:</label>
                 <argon-select
                   v-model="selectedConsultant"
@@ -1509,7 +1598,16 @@ const translations = {
                   searchPlaceholder="Search employees..."
                   required
                 />
-              </div>
+              </div> -->
+
+              <label class="form-label">{{ t("consultant") }}:</label>
+            <argon-multiple-select
+              v-model="selectedConsultant"
+              :model-names="selectedConsultantNames"
+              :options="employeeOptions"
+              :placeholder="t('selectEmployee')"
+              class="form-control mb-3"
+            />
 
               <!-- المشروع (project_id) في نصف عرض -->
               <!-- في القالب -->
