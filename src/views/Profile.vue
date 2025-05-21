@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, onMounted, onBeforeUnmount } from "vue";
+import { onBeforeMount, onMounted, onBeforeUnmount, ref } from "vue";
 import { useStore } from "vuex";
 
 import setNavPills from "@/assets/js/nav-pills.js";
@@ -19,10 +19,12 @@ onMounted(() => {
 });
 onBeforeMount(() => {
   store.state.imageLayout = "profile-overview";
-  store.state.showNavbar = false;
+  store.state.showNavbar = true;
   store.state.showFooter = true;
   store.state.hideConfigButton = true;
   body.classList.add("profile-overview");
+
+  fetchProfileData();
 });
 onBeforeUnmount(() => {
   store.state.isAbsolute = false;
@@ -32,10 +34,24 @@ onBeforeUnmount(() => {
   store.state.hideConfigButton = false;
   body.classList.remove("profile-overview");
 });
+
+const profileData = ref({});
+
+const fetchProfileData = async () => {
+  try {
+    const response = await store.dispatch("fetchProfileData");
+    if (response.status === 200) {
+      console.log("Profile data fetched successfully:", response.data);
+      profileData.value = response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching profile data:", error);
+  }
+};
 </script>
 <template>
   <main>
-    <div class="container-fluid">
+    <!-- <div class="container-fluid">
       <div
         class="page-header min-height-300"
         style="
@@ -231,10 +247,10 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </div>
-    </div>
-    <div class="py-1 container-fluid">
-      <div class="row">
-        <div class="col-md-8">
+    </div> -->
+    <div class="py-1 container-fluid ">
+      <div class="row profile-overview">
+        <div class="col-md-6">
           <div class="card">
             <div class="card-header pb-0">
               <div class="d-flex align-items-center">
@@ -319,10 +335,18 @@ onBeforeUnmount(() => {
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <profile-card />
+        <div class="col-md-6">
+          <profile-card :user="profileData" />
         </div>
       </div>
     </div>
   </main>
 </template>
+
+<style scoped>
+.profile-overview {
+  background-color: #f5f5f5;
+  padding-top: 7%;
+}
+</style>
+

@@ -704,6 +704,18 @@ AddAttachmentOneTimeTask(formData, taskId) {
   },
   //end one time tasks------------------------------------------------
 
+  //fetch profile data
+  getProfileData() {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get("/userProfile", config);
+  },
+  //end fetch profile data
+
   //end
 
   // PUT: تحديث بيانات موجودة

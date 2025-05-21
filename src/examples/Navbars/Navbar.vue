@@ -1,17 +1,17 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 // import Breadcrumbs from "../Breadcrumbs.vue";
 // import LanguageSwitcher from "../../views/components/LanguageSwitcher.vue";
 
-const showMenu = ref(false);
+// const showMenu = ref(false);
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
 const darkMode = computed(() => store.state.darkMode);
 
-
 const route = useRoute();
+const router = useRouter();
 
 const currentRouteName = computed(() => {
   return route.name;
@@ -21,18 +21,31 @@ const currentDirectory = computed(() => {
   return dir.charAt(0).toUpperCase() + dir.slice(1);
 });
 
+const currentCompanyName = computed(
+  () => store.getters.companyName || "DefaultCompany"
+);
+const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, "-"); // مثلاً
+
 const userName = computed(() => store.getters.userName);
-
-
-
 
 const minimizeSidebar = () => store.commit("sidebarMinimize");
 const toggleConfigurator = () => store.commit("toggleConfigurator");
 
-const closeMenu = () => {
-  setTimeout(() => {
-    showMenu.value = false;
-  }, 100);
+// const closeMenu = () => {
+//   setTimeout(() => {
+//     showMenu.value = false;
+//   }, 100);
+// };
+
+const logout = () => {
+  store
+    .dispatch("signOut")
+    .then(() => {
+      router.push({ name: "Signin" });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
 </script>
 <template>
@@ -43,7 +56,7 @@ const closeMenu = () => {
     id="navbarBlur"
     data-scroll="true"
   >
-  <!-- <language-switcher /> -->
+    <!-- <language-switcher /> -->
     <div class="px-3 py-1 container-fluid">
       <breadcrumbs
         :current-page="currentRouteName"
@@ -71,15 +84,55 @@ const closeMenu = () => {
         </div>
         <ul class="navbar-nav justify-content-end">
           <li class="nav-item d-flex align-items-center">
+            <div class="nav-item dropdown" v-if="userName">
+              <button
+                class="nav-link px-0 d-flex align-items-center"
+                id="profileDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                :class="darkMode ? 'text-white' : 'text-dark'"
+              >
+                <i class="fa fa-user me-sm-2"></i>
+                <span class="d-sm-inline d-none">Hi, {{ userName }}</span>
+              </button>
+
+              <div
+                class="dropdown-menu dropdown-menu-end mt-2 py-0"
+                aria-labelledby="profileDropdown"
+                :style="{ minWidth: '180px', borderRadius: '8px' }"
+              >
+                <router-link
+                  :to="{
+                    name: 'Profile',
+                    params: { companyName: companyNameNormalized },
+                  }"
+                  class="dropdown-item d-flex align-items-center py-2 px-3"
+                  :class="darkMode ? 'text-white bg-transparent' : 'text-dark'"
+                >
+                  <i class="fa fa-user-circle me-2"></i>Profile
+                </router-link>
+                <div class="dropdown-divider my-1"></div>
+                <router-link
+                  to="/signin"
+                  @click.prevent="logout"
+                  class="dropdown-item d-flex align-items-center py-2 px-3 text-danger"
+                >
+                  <i class="fa fa-sign-out-alt me-2"></i>Sign Out
+                </router-link>
+              </div>
+            </div>
+
+            <!-- حالة عدم وجود مستخدم مسجل -->
             <router-link
-              :to="'#'"
-              class="px-0 nav-link font-weight-bold "
+              v-else
+              :to="isRTL ? '/ar/login' : '/login'"
+              class="px-0 nav-link font-weight-bold d-flex align-items-center"
               :class="darkMode ? 'text-white' : 'text-dark'"
             >
               <i class="fa fa-user" :class="isRTL ? 'ms-sm-2' : 'me-sm-2'"></i>
-              <span v-if="userName" class="d-sm-inline d-none">Hi, {{ userName }}</span>
-              <span v-else-if="isRTL" class="d-sm-inline d-none">يسجل دخول</span>
-              <span v-else class="d-sm-inline d-none">Sign In</span>
+              <span class="d-sm-inline d-none">{{
+                isRTL ? "يسجل دخول" : "Sign In"
+              }}</span>
             </router-link>
           </li>
           <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
@@ -90,18 +143,31 @@ const closeMenu = () => {
               id="iconNavbarSidenav"
             >
               <div class="sidenav-toggler-inner">
-                <i class="sidenav-toggler-line " :class="darkMode ? 'bg-white' : 'bg-dark' "></i>
-                <i class="sidenav-toggler-line " :class="darkMode ? 'bg-white' : 'bg-dark' "></i>
-                <i class="sidenav-toggler-line " :class="darkMode ? 'bg-white' : 'bg-dark' "></i>
+                <i
+                  class="sidenav-toggler-line"
+                  :class="darkMode ? 'bg-white' : 'bg-dark'"
+                ></i>
+                <i
+                  class="sidenav-toggler-line"
+                  :class="darkMode ? 'bg-white' : 'bg-dark'"
+                ></i>
+                <i
+                  class="sidenav-toggler-line"
+                  :class="darkMode ? 'bg-white' : 'bg-dark'"
+                ></i>
               </div>
             </a>
           </li>
           <li class="px-3 nav-item d-flex align-items-center">
-            <a class="p-0 nav-link " @click="toggleConfigurator" :class="darkMode ? 'text-white' : 'text-dark'">
+            <a
+              class="p-0 nav-link"
+              @click="toggleConfigurator"
+              :class="darkMode ? 'text-white' : 'text-dark'"
+            >
               <!-- <i class="cursor-pointer fa fa-cog fixed-plugin-button-nav"></i> -->
             </a>
           </li>
-          <li
+          <!-- <li
             class="nav-item dropdown d-flex align-items-center"
             :class="isRTL ? 'ps-2' : 'pe-2'"
           >
@@ -115,7 +181,7 @@ const closeMenu = () => {
               @click="showMenu = !showMenu"
               @blur="closeMenu"
             >
-              <!-- <i class="cursor-pointer fa fa-bell"></i> -->
+              <i class="cursor-pointer fa fa-bell"></i>
             </a>
             <ul
               class="px-2 py-3 dropdown-menu dropdown-menu-end me-sm-n4"
@@ -224,11 +290,16 @@ const closeMenu = () => {
                 </a>
               </li>
             </ul>
-          </li>
+          </li> -->
         </ul>
       </div>
     </div>
   </nav>
 </template>
 
-
+<style scoped>
+button {
+  background-color: transparent;
+  border: none;
+}
+</style>

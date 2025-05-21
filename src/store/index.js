@@ -71,6 +71,7 @@ export default createStore({
     evaluatedTasks: [],
     oneTimeTasks: [],
     rundomTask: [],
+    profileData: [],
     chartDeptPerformance: null,
     pagination: {
       total: 0,
@@ -519,6 +520,11 @@ export default createStore({
       state.projects = state.projects.filter(
         (project) => project.id !== projectId
       );
+    },
+
+    //fetch profile data
+    fetchProfileData(state, profileData) {
+      state.profileData = profileData;
     },
   },
   actions: {
@@ -1712,6 +1718,19 @@ async getRundomTask({ commit }) {
   }
 },
 
+// fetch profile data
+async fetchProfileData({ commit }) {
+  try {
+    const response = await apiClient.getProfileData();
+    console.log("fetchProfileData-responseeeeeeeeee", response.data);
+    commit("fetchProfileData", response.data);
+    return response;
+  } catch (error) {
+    console.error("Error:", error);
+    return error;
+  }
+},
+
   },
 
   getters: {
@@ -1755,5 +1774,6 @@ async getRundomTask({ commit }) {
     oneTimeTaskComments: (state) => state.oneTimeTaskComments,
     oneTimeTaskAttachments: (state) => state.oneTimeTaskAttachments,
     chartDeptPerformance: (state) => state.chartDeptPerformance,
+    profileData: (state) => state.profileData,
   },
 });

@@ -416,13 +416,29 @@ const filteredTasks = computed(() => {
   }
 
   if (selectedEmployee.value) {
-    tasks = tasks.filter(
-      (t) =>
-        (t.assignedUser?.map((user) => user.id) || t.supervisor?.id) ===
-        selectedEmployee.value
-    );
-    console.log("tasks:", tasks);
-  }
+  tasks = tasks.filter((t) => {
+    // استخراج أرقام تعريف الموظفين من جميع الحقول
+    const assignedIds = t.assignedUser?.map((user) => user.id) ?? [];
+    const informerIds = t.informer?.map((user) => user.id) ?? [];
+    const consultIds = t.consult?.map((user) => user.id) ?? [];
+    const supervisorId = t.supervisor?.id ?? null;
+    const creatorId = t.creator?.id ?? null;
+
+    // تجميع كل الأرقام التعريفية في مصفوفة واحدة
+    const allUserIds = [
+      ...assignedIds,
+      ...informerIds,
+      ...consultIds,
+      supervisorId,
+      creatorId
+    ];
+
+    // التحقق مما إذا كان المُحدد موجودًا في أي من الحقول
+    return allUserIds.includes(parseInt(selectedEmployee.value));
+  });
+
+  console.log("tasks after filtering by employee:", tasks);
+}
 
   const today = formatDate(new Date());
   console.log(today);
@@ -551,7 +567,18 @@ const handlePageChange = (page) => {
 function searchMatch(task) {
   const query = searchQuery.value.toLowerCase();
   const taskName = (task.title || "").toLowerCase();
-  return taskName.includes(query);
+
+  // معالجة جميع الحقول ذات المصفوفات أو الأشياء الفردية
+  const assignedNames = (task.assignedUser?.map(user => user.name) ?? []).join(' ');
+  const informerNames = (task.informer?.map(user => user.name) ?? []).join(' ');
+  const consultNames = (task.consult?.map(user => user.name) ?? []).join(' ');
+  const supervisorName = task.supervisor?.name ?? '';
+  const creatorName = task.creator?.name ?? '';
+
+  // الجمع بين جميع الأسماء في سلسلة واحدة
+  const employee = `${assignedNames} ${informerNames} ${consultNames} ${supervisorName} ${creatorName}`.toLowerCase();
+
+  return taskName.includes(query) || employee.includes(query);
 }
 
 // عداد يأتي من الابن
@@ -852,7 +879,7 @@ const translations = {
     isUrgent: "Is Urgent",
     priority: "Priority",
     employee: "Employee",
-    searchPlaceholder: "Search tasks...",
+    searchPlaceholder: "Search tasks by Task Name, Employee ...",
     selectEmployee: "Select Employee",
     selectConsultant: "Select Consultant",
     selectInformer: "Select Informer",
@@ -946,7 +973,7 @@ const translations = {
     priority: "الاولوية",
     employee: "الموظف",
     selectProject: "اختر المشروع",
-    searchPlaceholder: "...ابحث هنا",
+    searchPlaceholder: "ابحث عن طريق اسم المهمة, الموظف ...",
     selectEmployee: "اختر الموظفين",
     selectConsultant: "اختر الاسشاري",
     selectInformer: "اختر المعلوم",
