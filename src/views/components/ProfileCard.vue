@@ -5,8 +5,9 @@
       <div class="col-auto my-3">
         <div class="position-relative">
           <a href="javascript:;">
+            <!-- src="https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png" -->
             <img
-              src="https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png"
+            :src="user?.profile?.ppUrl"
               class="rounded-circle img-fluid shadow-lg border border-2 border-white"
               style="width: 150px; height: 150px;"
               alt="User Profile"

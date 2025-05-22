@@ -1,7 +1,9 @@
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
+import ProfileCard from "../../views/components/ProfileCard.vue";
+
 // import Breadcrumbs from "../Breadcrumbs.vue";
 // import LanguageSwitcher from "../../views/components/LanguageSwitcher.vue";
 
@@ -21,15 +23,32 @@ const currentDirectory = computed(() => {
   return dir.charAt(0).toUpperCase() + dir.slice(1);
 });
 
-const currentCompanyName = computed(
-  () => store.getters.companyName || "DefaultCompany"
-);
-const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, "-"); // مثلاً
+// const currentCompanyName = computed(
+//   () => store.getters.companyName || "DefaultCompany"
+// );
+// const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, "-"); // مثلاً
 
 const userName = computed(() => store.getters.userName);
 
 const minimizeSidebar = () => store.commit("sidebarMinimize");
 const toggleConfigurator = () => store.commit("toggleConfigurator");
+
+const fetchProfileData = async () => {
+  try {
+    const response = await store.dispatch("fetchProfileData");
+    if (response.status === 200) {
+      console.log("Profile data fetched successfully:", response.data);
+      profileData.value = response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching profile data:", error);
+  }
+};
+
+const profileData = ref({});
+onMounted(async () => {
+  await fetchProfileData();
+});
 
 // const closeMenu = () => {
 //   setTimeout(() => {
@@ -101,7 +120,8 @@ const logout = () => {
                 aria-labelledby="profileDropdown"
                 :style="{ minWidth: '180px', borderRadius: '8px' }"
               >
-                <router-link
+                <profile-card :user="profileData" />
+                <!-- <router-link
                   :to="{
                     name: 'Profile',
                     params: { companyName: companyNameNormalized },
@@ -110,8 +130,8 @@ const logout = () => {
                   :class="darkMode ? 'text-white bg-transparent' : 'text-dark'"
                 >
                   <i class="fa fa-user-circle me-2"></i>Profile
-                </router-link>
-                <div class="dropdown-divider my-1"></div>
+                </router-link> -->
+                <!-- <div class="dropdown-divider"></div> -->
                 <router-link
                   to="/signin"
                   @click.prevent="logout"
