@@ -72,6 +72,7 @@ export default createStore({
     oneTimeTasks: [],
     rundomTask: [],
     profileData: [],
+    uploadProfileImage: "",
     chartDeptPerformance: null,
     pagination: {
       total: 0,
@@ -315,6 +316,10 @@ export default createStore({
 
     getRundomTask(state, data) {
       state.rundomTask = data;
+    },
+
+    uploadProfileImage(state, data) {
+      state.uploadProfileImage = data;
     },
 
     // end----------------------------------------------------
@@ -1722,11 +1727,23 @@ async getRundomTask({ commit }) {
 async fetchProfileData({ commit }) {
   try {
     const response = await apiClient.getProfileData();
-    console.log("fetchProfileData-responseeeeeeeeee", response.data);
+    // console.log("fetchProfileData-responseeeeeeeeee", response.data);
     commit("fetchProfileData", response.data);
     return response;
   } catch (error) {
     console.error("Error:", error);
+    return error;
+  }
+},
+
+async uploadProfileImage({ commit }, formData) {
+  try {
+    const response = await apiClient.uploadProfileImage(formData);
+    console.log("uploadProfileImage-response", response.data);
+    commit("uploadProfileImage", response.data);
+    return response;
+  } catch (error) {
+    console.error("Error uploading profile image:", error);
     return error;
   }
 },

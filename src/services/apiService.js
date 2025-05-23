@@ -714,6 +714,18 @@ AddAttachmentOneTimeTask(formData, taskId) {
     };
     return apiClient.get("/userProfile", config);
   },
+
+  uploadProfileImage(formData) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+        "Accept": "application/json",
+      },
+    };
+    return apiClient.put("/userProfile", formData, config);
+  },
   //end fetch profile data
 
   //end

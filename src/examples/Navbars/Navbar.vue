@@ -23,10 +23,10 @@ const currentDirectory = computed(() => {
   return dir.charAt(0).toUpperCase() + dir.slice(1);
 });
 
-// const currentCompanyName = computed(
-//   () => store.getters.companyName || "DefaultCompany"
-// );
-// const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, "-"); // مثلاً
+const currentCompanyName = computed(
+  () => store.getters.companyName || "DefaultCompany"
+);
+const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, "-"); // مثلاً
 
 const userName = computed(() => store.getters.userName);
 
@@ -65,6 +65,20 @@ const logout = () => {
     .catch((error) => {
       console.log(error);
     });
+};
+
+
+const uploadProfileImage = async (file) => {
+  // هنا تضيف كود رفع الصورة على الخادم
+  try {
+    // مثال: استخدام Axios
+    const formData = new FormData();
+    formData.append('image', file);
+    await store.dispatch("uploadProfileImage", formData);    // تحديث الرابط النهائي بعد الرفع
+    profileData.value.profile.ppUrl = 'رابط_الصورة_الجديدة';
+  } catch (error) {
+    console.error('Error uploading image:', error);
+  }
 };
 </script>
 <template>
@@ -120,17 +134,14 @@ const logout = () => {
                 aria-labelledby="profileDropdown"
                 :style="{ minWidth: '180px', borderRadius: '8px' }"
               >
-                <profile-card :user="profileData" />
-                <!-- <router-link
+                <router-link
                   :to="{
                     name: 'Profile',
                     params: { companyName: companyNameNormalized },
                   }"
-                  class="dropdown-item d-flex align-items-center py-2 px-3"
-                  :class="darkMode ? 'text-white bg-transparent' : 'text-dark'"
                 >
-                  <i class="fa fa-user-circle me-2"></i>Profile
-                </router-link> -->
+                <profile-card :user="profileData" @image-uploaded="uploadProfileImage" />
+                </router-link>
                 <!-- <div class="dropdown-divider"></div> -->
                 <router-link
                   to="/signin"

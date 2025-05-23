@@ -1,3 +1,5 @@
+// Profile.vue
+
 <script setup>
 import { onBeforeMount, onMounted, onBeforeUnmount, ref } from "vue";
 import { useStore } from "vuex";
@@ -41,13 +43,27 @@ const fetchProfileData = async () => {
   try {
     const response = await store.dispatch("fetchProfileData");
     if (response.status === 200) {
-      console.log("Profile data fetched successfully:", response.data);
+      // console.log("Profile data fetched successfully:", response.data);
       profileData.value = response.data;
     }
   } catch (error) {
     console.error("Error fetching profile data:", error);
   }
 };
+
+
+// في الدالة uploadProfileImage
+const uploadProfileImage = async (formData) => {
+  try {
+    // إرسال FormData مباشرة إلى الـ Store
+    const response = await store.dispatch("uploadProfileImage", formData);
+    console.log("Profile image uploaded successfully:", response);
+    await fetchProfileData();
+  } catch (error) {
+    console.error("Error uploading profile image:", error);
+  }
+};
+
 </script>
 <template>
   <main>
@@ -336,7 +352,7 @@ const fetchProfileData = async () => {
           </div>
         </div>
         <div class="col-md-6">
-          <profile-card :user="profileData" />
+          <profile-card :user="profileData" @image-uploaded="uploadProfileImage"/>
         </div>
       </div>
     </div>
