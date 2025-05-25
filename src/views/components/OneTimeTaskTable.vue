@@ -138,7 +138,9 @@
             <div
               v-if="
                 !['review', 'done'].includes(task.status) &&
-                userData?.user?.id !== task.creator?.id
+                (userData?.user?.id !== task.creator?.id &&
+                !task.informer?.map((user) => user.id).includes(userData?.user?.id) && 
+                !task.consult?.map((user) => user.id).includes(userData?.user?.id))
               "
               class="mb-0"
             >
@@ -154,7 +156,7 @@
             <div
               v-if="
                 task.status === 'inProgress' &&
-                (userData?.user?.id === task.assigned_user?.id ||
+                (task.assignedUser?.map((user) => user.id).includes(userData?.user?.id) ||
                   userData?.user?.id === task.supervisor?.id)
               "
               class="d-flex gap-1 review-buttons"
