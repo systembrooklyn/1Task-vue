@@ -1331,6 +1331,7 @@ const translations = {
                   v-model="oneTimeTaskName"
                   class="form-control"
                   :placeholder="t('enterTaskName')"
+                  dir="auto"
                   required
                 />
               </div>
@@ -1342,6 +1343,7 @@ const translations = {
                   v-model="oneTimeTaskDescription"
                   class="form-control"
                   :placeholder="t('enterDescription')"
+                  dir="auto"
                   required
                 ></textarea>
               </div>
