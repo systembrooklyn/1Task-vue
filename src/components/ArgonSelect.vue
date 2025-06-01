@@ -1,3 +1,5 @@
+//ArgonSelect.vue
+
 <template>
   <label v-if="$slots.label" class="form-label">
     <slot name="label" />
@@ -179,7 +181,7 @@ function selectOption(option) {
   left: 0;
   right: 0;
   z-index: 1000;
-  max-height: 200px;
+  /* max-height: 200px; */
   overflow-y: auto;
 }
 
@@ -189,7 +191,8 @@ function selectOption(option) {
 }
 
 .options-container.pt-0 {
-  max-height: 200px;
+  /* max-height: calc(200px - 38px); */
+  overflow-y: auto;
 }
 
 .custom-select-option:hover,
