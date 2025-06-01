@@ -634,6 +634,7 @@
                           @update:content="(val) => (replyContent = val)"
                           contentType="html"
                           class="mb-2"
+                          dir="auto"
                         />
                         <div class="d-flex gap-2">
                           <ArgonButton
@@ -672,6 +673,7 @@
                   @update:content="(val) => (taskComment = val)"
                   ref="editorRef"
                   contentType="html"
+                  dir="auto"
                 />
 
                 <!-- File Input with Remove Button -->
