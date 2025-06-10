@@ -60,6 +60,11 @@
               {{ t("employeeName") }}
             </th>
             <th
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+            >
+              {{ t("taskFound") }}
+            </th>
+            <th
               v-if="permissions['report-dailytask']"
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
@@ -155,6 +160,11 @@
                 }}
               </p>
             </td>
+            <td>
+              <p class="text-xs font-weight-bold mb-0">
+                {{ task.today_report_status === null ? "Not Report" : ""  ||  task.today_report?.task_found === 1 ? "yes" : "No" }}
+              </p>
+            </td>
             <td class="align-middle" v-if="permissions['report-dailytask']">
               <a
                 href="javascript:;"
@@ -167,7 +177,7 @@
                   ),
                 }"
                 :aria-disabled="
-                  ['done', 'not_done'].includes(task.today_report_status)
+                  ['done', 'not_done'].includes(task.today_report_status) 
                 "
                 :style="{
                   pointerEvents: ['done', 'not_done'].includes(
@@ -1057,7 +1067,7 @@ const translations = {
     enterNotes: "Enter notes",
     employeeName: "Employee Name",
     department: "Department",
-    taskFound: "There is task ?",
+    taskFound: "There is task",
     selectTaskFound: "Select Task Found",
     project: "Project",
     criticalRoutineTasks: "Critical Routine Tasks",
@@ -1126,7 +1136,7 @@ const translations = {
     enterNotes: "ادخل ملاحظات",
     employeeName: "اسم الموظف",
     department: "القسم",
-    taskFound: "هل يوجد مهمة؟",
+    taskFound: "هل يوجد مهمة",
     selectTaskFound: "حدد المهمة موجودة",
     project: "المشروع",
     criticalRoutineTasks: "المهام الحرجة",
