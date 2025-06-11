@@ -138,9 +138,13 @@
             <div
               v-if="
                 !['review', 'done'].includes(task.status) &&
-                (userData?.user?.id !== task.creator?.id &&
-                !task.informer?.map((user) => user.id).includes(userData?.user?.id) && 
-                !task.consult?.map((user) => user.id).includes(userData?.user?.id))
+                userData?.user?.id !== task.creator?.id &&
+                !task.informer
+                  ?.map((user) => user.id)
+                  .includes(userData?.user?.id) &&
+                !task.consult
+                  ?.map((user) => user.id)
+                  .includes(userData?.user?.id)
               "
               class="mb-0"
             >
@@ -156,7 +160,9 @@
             <div
               v-if="
                 task.status === 'inProgress' &&
-                (task.assignedUser?.map((user) => user.id).includes(userData?.user?.id) ||
+                (task.assignedUser
+                  ?.map((user) => user.id)
+                  .includes(userData?.user?.id) ||
                   userData?.user?.id === task.supervisor?.id)
               "
               class="d-flex gap-1 review-buttons"
@@ -261,53 +267,66 @@
               </p>
 
               <div class="badge-container">
-                
-              <!-- تاريخ البداية والنهاية -->
-              <small
-                v-if="task.start_date || task.deadline"
-                class="badge"
-                :class="{
-                  'badge-danger': isDeadlinePassed(task.deadline),
-                  'badge-warning': isDeadlineApproaching(task.deadline),
-                  'badge-grey':
-                    (!isDeadlinePassed(task.deadline) &&
-                      !isDeadlineApproaching(task.deadline)) ||
-                    !task.deadline,
-                }"
-              >
-                {{ t("from") }}: {{ formatDate(task.start_date) }}
-                <span v-if="task.deadline">
-                  - {{ t("to") }}: {{ formatDate(task.deadline) }}</span
+                <!-- تاريخ البداية والنهاية -->
+                <small
+                  v-if="task.start_date || task.deadline"
+                  class="badge"
+                  :class="{
+                    'badge-danger': isDeadlinePassed(task.deadline),
+                    'badge-warning': isDeadlineApproaching(task.deadline),
+                    'badge-grey':
+                      (!isDeadlinePassed(task.deadline) &&
+                        !isDeadlineApproaching(task.deadline)) ||
+                      !task.deadline,
+                  }"
                 >
-              </small>
+                  {{ t("from") }}: {{ formatDate(task.start_date) }}
+                  <span v-if="task.deadline">
+                    - {{ t("to") }}: {{ formatDate(task.deadline) }}</span
+                  >
+                </small>
 
-              <!-- من أنشأ المهمة -->
-              <small v-if="task.creator" class="badge badge-grey">
-                {{ t("createdBy") }}: {{ task.creator?.name || "Unknown" }}
-              </small>
+                <!-- من أنشأ المهمة -->
+                <small v-if="task.creator" class="badge badge-grey">
+                  {{ t("createdBy") }}: {{ task.creator?.name || "Unknown" }}
+                </small>
 
-              <!-- المشرف -->
-              <small v-if="task.supervisor" class="badge badge-grey">
-                {{ t("supervisor") }}: {{ task.supervisor?.name || "Unknown" }}
-              </small>
+                <!-- المشرف -->
+                <small v-if="task.supervisor" class="badge badge-grey">
+                  {{ t("supervisor") }}:
+                  {{ task.supervisor?.name || "Unknown" }}
+                </small>
 
-              <!-- إلى من أُسندت المهمة -->
-              <small v-if="task.assignedUser.length > 0" class="badge badge-grey">
-                {{ t("assignedTo") }}:
-                {{ task.assignedUser.map((user) => user.name).join(", ") || "Unknown" }}
-              </small>
+                <!-- إلى من أُسندت المهمة -->
+                <small
+                  v-if="task.assignedUser.length > 0"
+                  class="badge badge-grey"
+                >
+                  {{ t("assignedTo") }}:
+                  {{
+                    task.assignedUser.map((user) => user.name).join(", ") ||
+                    "Unknown"
+                  }}
+                </small>
 
-              <!-- المشرف -->
-              <small v-if="task.consult.length > 0" class="badge badge-grey">
-                {{ t("consult") }}: {{ task.consult.map((user) => user.name).join(", ") || "Unknown" }}
-              </small>
+                <!-- المشرف -->
+                <small v-if="task.consult.length > 0" class="badge badge-grey">
+                  {{ t("consult") }}:
+                  {{
+                    task.consult.map((user) => user.name).join(", ") ||
+                    "Unknown"
+                  }}
+                </small>
 
-              <!-- المشرف -->
-              <small v-if="task.informer.length > 0" class="badge badge-grey">
-                {{ t("informer") }}: {{ task.informer.map((user) => user.name).join(", ") || "Unknown" }}
-              </small>
-            </div>
-
+                <!-- المشرف -->
+                <small v-if="task.informer.length > 0" class="badge badge-grey">
+                  {{ t("informer") }}:
+                  {{
+                    task.informer.map((user) => user.name).join(", ") ||
+                    "Unknown"
+                  }}
+                </small>
+              </div>
             </div>
           </transition>
         </div>
@@ -370,7 +389,7 @@
           :title="selectedTask.task_name"
           @close="closeEditPopup"
           class="routine-task-modal"
-          style="direction: rtl;"
+          style="direction: rtl"
         >
           <template #default>
             <div class="mb-3 modal-content-scroll">
@@ -446,29 +465,41 @@
               <h5 class="mb-1" dir="auto">{{ selectedTaskName }}</h5>
 
               <!-- الوصف (بخط صغير) + toggle see more/less -->
-              <small class="text-muted d-block" style="font-size: 0.85rem">
-                <!-- إذا كان الوصف أطول من 100 حرف نعرض جزءًا مع زر المزيد/الأقل -->
+              <small
+                class="text-muted d-block modal-title-description"
+                style="font-size: 0.85rem"
+              >
                 <template
                   v-if="selectedDescription && selectedDescription.length > 100"
                 >
-                  <span v-if="showFullDescription">
-                    {{ selectedDescription }}
-                  </span>
-                  <span v-else>
-                    {{ truncatedDescription }}
-                  </span>
-                  <button
-                    @click="toggleDescription"
-                    class="btn btn-link p-0 ms-1"
-                    style="font-size: 0.85rem"
-                  >
-                    {{ showFullDescription ? "See less" : "See more" }}
-                  </button>
+                  <div>
+                    <p dir="auto" v-if="showFullDescription">
+                      {{ selectedDescription }}
+                    </p>
+                    <p dir="auto" v-else>
+                      {{ truncatedDescription }}
+                      <button
+                        @click="toggleDescription"
+                        class="btn btn-link p-0 ms-1"
+                        style="font-size: 0.85rem"
+                      >
+                        {{ showFullDescription ? "see less" : "see more" }}
+                      </button>
+                    </p>
+                    <button
+                      v-if="showFullDescription"
+                      @click="toggleDescription"
+                      class="btn btn-link p-0 mt-1"
+                      style="font-size: 0.85rem"
+                    >
+                      {{ showFullDescription ? "see less" : "see more" }}
+                    </button>
+                  </div>
                 </template>
-
-                <!-- إن كان الوصف أقصر من 100 حرف، نعرضه كله -->
                 <template v-else>
-                  {{ selectedDescription }}
+                  <p class="task-description" dir="auto">
+                    {{ selectedDescription }}
+                  </p>
                 </template>
               </small>
             </div>
@@ -678,30 +709,27 @@
 
                 <!-- File Input with Remove Button -->
                 <div class="d-flex flex-column">
-                  <div class="d-flex align-items-center ">
-                    
-                 
-                  <ArgonInput
-                    type="file"
-                    @change="handleFileUpload"
-                    accept="image/*, .pdf, .docx, .xlsx"
-                    :key="fileInputKey"
-                    class="flex-grow-1 "
-                  />
-                  <button
-                    v-if="fileToUpload"
-                    @click="removeFile"
-                    class="btn btn-sm btn-danger ms-2"
-                    title="Remove file"
-                  >
-                    &times;
-                  </button>
-                </div>
-                  <small class="text-muted mt-0 pt-0 ">
+                  <div class="d-flex align-items-center">
+                    <ArgonInput
+                      type="file"
+                      @change="handleFileUpload"
+                      accept="image/*, .pdf, .docx, .xlsx"
+                      :key="fileInputKey"
+                      class="flex-grow-1"
+                    />
+                    <button
+                      v-if="fileToUpload"
+                      @click="removeFile"
+                      class="btn btn-sm btn-danger ms-2"
+                      title="Remove file"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                  <small class="text-muted mt-0 pt-0">
                     {{ t("maxFileSize", { size: "1.99MB" }) }}
                   </small>
                 </div>
-                
 
                 <!-- Combined Action Buttons -->
                 <div class="d-flex gap-2">
@@ -816,8 +844,6 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-
 
 const store = useStore();
 const userData = computed(() => store.getters.user);
@@ -1373,7 +1399,7 @@ const translations = {
     fileSizeExceedsLimit: "حجم الملف يتجاوز الحد المسموح به وهو {size}.",
     maxFileSize: "الحجم الأقصى للملف: {size}",
     informer: "تم إخبار",
-    consult: "مُستشار",  
+    consult: "مُستشار",
   },
 };
 
@@ -1385,11 +1411,16 @@ const filteredTasks = computed(() => {
     case "Inbox":
       return props.oneTimeTasks.filter((task) => {
         return (
-          (task.assignedUser?.map((user) => user.id).includes(userData?.value?.user?.id) ||
+          (task.assignedUser
+            ?.map((user) => user.id)
+            .includes(userData?.value?.user?.id) ||
             task.supervisor?.id === userData?.value?.user?.id ||
-            task.consult?.map((user) => user.id).includes(userData?.value?.user?.id) ||
-            task.informer?.map((user) => user.id).includes(userData?.value?.user?.id)) &&
-
+            task.consult
+              ?.map((user) => user.id)
+              .includes(userData?.value?.user?.id) ||
+            task.informer
+              ?.map((user) => user.id)
+              .includes(userData?.value?.user?.id)) &&
           task.is_archived == false &&
           task.status !== "done"
         );
@@ -1417,7 +1448,9 @@ const filteredTasks = computed(() => {
     default:
       return props.oneTimeTasks.filter((task) => {
         return (
-          task.assignedUser?.map((user) => user.id).includes(userData.value?.user?.id) ||
+          task.assignedUser
+            ?.map((user) => user.id)
+            .includes(userData.value?.user?.id) ||
           task.supervisor?.id === userData.value?.user?.id
         );
       });
@@ -1920,6 +1953,12 @@ const removeFile = () => {
   overflow-y: auto;
   padding: 1rem;
 }
+
+.all-modal-scroll {
+  flex: 3;
+  overflow-y: auto;
+  padding: 1rem;
+}
 .comments-fullscreen-modal {
   max-height: 100vh;
   display: flex;
@@ -1927,6 +1966,7 @@ const removeFile = () => {
   scroll-behavior: smooth;
   scrollbar-width: none;
   scrollbar-color: transparent transparent;
+  overflow-y: auto;
 }
 .comments-scroll-container {
   max-height: 60vh; /* تقليل الارتفاع الكلي */
@@ -2030,6 +2070,11 @@ const removeFile = () => {
   border-radius: 8px;
   margin-top: 0.75rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  /* -- الإضافة الجديدة لحل المشكلة -- */
+  display: flex;
+  flex-direction: column; /* لترتيب العناصر فوق بعضها: المحرر أولاً ثم الأزرار */
+  gap: 0.75rem;          /* لإضافة مسافة رأسية بين المحرر ومجموعة الأزرار */
 }
 
 .ql-editor {
@@ -2350,5 +2395,68 @@ const removeFile = () => {
 
 .badge-container > * {
   margin-bottom: 0.5rem; /* Bottom margin for wrapped badges */
+}
+
+.comments-fullscreen-modal .modal-content {
+  /* نجعلها تأخذ ارتفاع الشاشة بالكامل تقريبًا */
+  height: 90vh;
+  max-height: 90vh;
+  /* نغير طريقة العرض لنفرض بنية جديدة */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* الخطوة 2: جعل رأس النافذة (العنوان والوصف) يأخذ مساحته الطبيعية دون تمدد لا نهائي */
+.comments-fullscreen-modal .modal-header {
+  /* هذه الخاصية تمنع هذا الجزء من التمدد وتجعله يأخذ مساحة على قدر محتواه فقط */
+  flex-shrink: 0;
+}
+
+/* نستهدف حاوية الوصف داخل الرأس ونجعلها هي التي يتم تمريرها */
+.modal-title-description {
+  display: block;
+  max-height: 25vh;
+  overflow-y: auto;
+  white-space: pre-line;
+  padding-right: 10px;
+  margin-top: 10px;
+  text-align: start; /* <--- هذا هو السطر الجديد والمهم */
+}
+
+/* الخطوة 3: جعل محتوى النافذة (التعليقات) يأخذ "باقي" المساحة المتاحة ويكون قابلاً للتمرير */
+/* تعديل الخطوة 3 من الحل السابق */
+.comments-fullscreen-modal .modal-body {
+  flex-grow: 1;
+  /* نزيل التمرير من هنا لنعطيه للأبناء */
+  overflow: hidden; /* نمنع أي تمرير غير مرغوب فيه من هذا العنصر */
+  padding: 0; /* نزيل الحشو لنتحكم به داخليًا */
+  display: flex; /* نجعل هذا العنصر flex container هو الآخر */
+  flex-direction: column;
+}
+
+/* نجعل الحاوية الداخلية مرنة لتفصل بين قائمة التعليقات ومربع الإدخال */
+.comments-scroll-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* مهم لمنع التمرير المزدوج */
+}
+
+/* نعطي قائمة التعليقات القدرة على التمدد وأخذ المساحة المتاحة */
+.comment-list {
+  flex-grow: 1; /* الأهم: اجعل هذا الجزء يملأ المساحة المتاحة */
+  overflow-y: auto; /* اجعل هذا الجزء فقط هو الذي يتم تمريره */
+  padding: 1rem; /* نضيف له حشو داخلي لراحة العين */
+  margin: 0;
+}
+
+/* نمنع مربع التعليق الجديد من التمدد أو الانكماش */
+.new-comment {
+  flex-shrink: 0; /* يمنعه من الانكماش إذا أصبحت الشاشة أصغر */
+}
+
+.cst-cmnt {
+  direction: auto;
 }
 </style>
