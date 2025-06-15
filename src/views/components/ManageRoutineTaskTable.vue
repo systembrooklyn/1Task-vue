@@ -1013,8 +1013,8 @@ const openDescriptionModal = async (task) => {
   selectedTaskRecurrentDays.value = task.recurrent_days;
   selectedTaskDayOfMonth.value = task.day_of_month;
   selectedTaskCreatedBy.value = task.created_by.name;
-  selectedTaskDepartment.value = task.department.department_name;
-  selectedTaskProject.value = task.project.name;
+  selectedTaskDepartment.value = task.department?.department_name;
+  selectedTaskProject.value = task.project?.name;
   await getTaskLogs(task.id);
   showDescriptionModal.value = true; // إظهار المودال
 };
