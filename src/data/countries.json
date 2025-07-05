@@ -1,0 +1,9 @@
+[
+  { "name": "Afghanistan", "dialCode": "93", "isoCode": "af" },
+  { "name": "Albania", "dialCode": "355", "isoCode": "al" },
+  { "name": "Algeria", "dialCode": "213", "isoCode": "dz" },
+  { "name": "Egypt", "dialCode": "20", "isoCode": "eg" },
+  { "name": "Saudi Arabia", "dialCode": "966", "isoCode": "sa" },
+  { "name": "United States", "dialCode": "1", "isoCode": "us" },
+  { "name": "United Kingdom", "dialCode": "44", "isoCode": "gb" }
+]

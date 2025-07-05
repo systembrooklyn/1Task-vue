@@ -2,15 +2,16 @@
 import { computed, ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+// import { useRouter } from "vue-router";
 // import SidenavDrop from "./SidenavDrop.vue";
 
-const router = useRouter();
+// const router = useRouter();
 
 // const route = useRoute();
 
 import SidenavItem from "./SidenavItem.vue";
 // import SidenavCard from "./SidenavCard.vue";
+// import SidenavDrop from "./SidenavDrop.vue";
 import {
   savePermissionsToLocalStorage,
   extractPermissionsFromAPI,
@@ -23,6 +24,10 @@ import {
 
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
+// const layout = computed(() => store.state.layout);
+// const sidebarType = computed(() => store.state.sidebarType);
+// const darkMode = computed(() => store.state.darkMode);
+// const planInfo = computed(() => store.getters.planInfo);
 
 // جلب بيانات المستخدم من Vuex
 const userData = computed(() => store.getters.user);
@@ -73,17 +78,17 @@ const getRoute = () => {
   return routeArr[1];
 };
 
-const handleSignOut = () => {
-  console.log("handleSignOut");
-  store
-    .dispatch("signOut")
-    .then(() => {
-      router.push({ name: "Signin" });
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-};
+// const handleSignOut = () => {
+//   console.log("handleSignOut");
+//   store
+//     .dispatch("signOut")
+//     .then(() => {
+//       router.push({ name: "Signin" });
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// };
 
 // const closeMenu = () => {
 //   setTimeout(() => {
@@ -405,45 +410,57 @@ const toggleSection = (section) => {
       </li>
 
       <!-- Account Pages Section -->
-      <!-- <li class="mt-3 nav-item">
-        <div 
-          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
-          @click="toggleSection('accountPages')"
+      <!-- <li class="nav-item">
+        <sidenav-item
+          to="/profile"
+          :class="getRoute() === 'profile' ? 'active' : ''"
+          :navText="'Profile'"
         >
-          <div class="d-flex align-items-center">
-            <i class="fas fa-user-circle text-warning me-2"></i>
-            <span>{{ isRTL ? 'صفحات المرافق' : 'Account Pages' }}</span>
-          </div>
-          <i 
-            class="fas fa-chevron-right transition-transform" 
-            :class="{ 'rotate-180': collapsibleSections.accountPages }"
-          ></i>
-        </div> -->
-
-      <!-- <transition name="dropdown">
-          <ul 
-            v-if="collapsibleSections.accountPages" 
-            class="nav nav-sm flex-column"
-          > -->
-      <!-- <li class="nav-item"> -->
-      <sidenav-item
-        to="/signin"
-        :class="getRoute() === 'signout' ? 'active' : ''"
-        :navText="isRTL ? 'تسجيل الخروج' : 'Sign Out'"
-        @click="handleSignOut"
-      >
-        <template v-slot:icon>
-          <i class="ni ni-button-power text-danger text-sm opacity-10"></i>
-        </template>
-      </sidenav-item>
-      <!-- </li> -->
-      <!-- </transition> -->
-      <!-- </li> -->
+          <template v-slot:icon>
+            <i class="ni ni-single-02 text-yellow text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li> -->
+      <!-- <li class="nav-item">
+        <sidenav-item
+          to="/signin"
+          :class="getRoute() === 'signout' ? 'active' : ''"
+          :navText="isRTL ? 'تسجيل الخروج' : 'Sign Out'"
+          @click="handleSignOut"
+        >
+          <template v-slot:icon>
+            <i class="ni ni-button-power text-danger text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li> -->
     </ul>
+    <div class="sidenav-footer mx-3 mt-auto">
+      <div v-if="planInfo" class="text-center card-plain shadow-none">
+        <hr class="horizontal dark" />
+        <h6 class="mt-3 text-sm">{{ planInfo.plan_name }}</h6>
+        <p class="text-xs text-secondary">
+          Expires on: {{ planInfo.expire_date }}
+        </p>
+      </div>
+      <div v-if="isOwner" class="sidenav-footer mx-3 mt-auto">
+        <router-link to="/subscription" class="btn bg-gradient-success mt-4 w-100">
+          <i class="fas fa-upload me-2" aria-hidden="true"></i>
+          Upgrade Your Plan
+        </router-link>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.sidenav-footer {
+  position: fixed;
+  bottom: 0;
+  background: inherit;
+  padding-bottom: 1rem;
+  margin-top: auto;
+}
+
 .nav-item .dropdown-toggle {
   display: flex;
   align-items: center;

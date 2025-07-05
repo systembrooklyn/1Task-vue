@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, watch } from "vue";
+import { computed, onBeforeMount, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import Sidenav from "./examples/Sidenav";
 import Configurator from "@/examples/Configurator.vue";
@@ -34,6 +34,21 @@ const navClasses = computed(() => {
 const currentCompanyName = computed(() => store.getters.companyName);
 
 console.log("currentCompanyName:", currentCompanyName.value);
+
+onBeforeMount(async () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    // إذا كان المستخدم مسجل دخوله، قم بطلب البيانات
+    await store.dispatch("fetchPlanInfo");
+    // await store.dispatch("fetchPermissions");
+    await store.dispatch("fetchProfileData");
+  }
+  // تحميل اللغة بغض النظر عن حالة تسجيل الدخول
+  const language = localStorage.getItem("language");
+  if (language) {
+    store.commit("setLanguage", language);
+  }
+});
 
 // دالة لتحديث العنوان عندما يتغير اسم الشركة أو حالة تسجيل الدخول
 const updateTitle = () => {
@@ -78,9 +93,7 @@ watch(
 
     <configurator :toggle="toggleConfigurator" :class="[showConfig ? 'show' : '', hideConfigButton ? 'd-none' : '']" />
   </main>
+  
 
  
 </template>
-
-
-

@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import ProfileCard from "../../views/components/ProfileCard.vue";
+import defaultImg from "@/assets/img/userProfile.png";
 
 // import Breadcrumbs from "../Breadcrumbs.vue";
 // import LanguageSwitcher from "../../views/components/LanguageSwitcher.vue";
@@ -11,9 +12,16 @@ import ProfileCard from "../../views/components/ProfileCard.vue";
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
 const darkMode = computed(() => store.state.darkMode);
+const isOwner = computed(() => store.getters.isOwner);
+// const profileData = computed(() => store.getters.profileData);
+
 
 const route = useRoute();
 const router = useRouter();
+
+const planInfo = computed(() => store.getters.planInfo);
+
+console.log("planInfo", planInfo.value);
 
 const currentRouteName = computed(() => {
   return route.name;
@@ -33,22 +41,16 @@ const userName = computed(() => store.getters.userName);
 const minimizeSidebar = () => store.commit("sidebarMinimize");
 const toggleConfigurator = () => store.commit("toggleConfigurator");
 
-const fetchProfileData = async () => {
-  try {
-    const response = await store.dispatch("fetchProfileData");
-    if (response.status === 200) {
-      console.log("Profile data fetched successfully:", response.data);
-      profileData.value = response.data;
-    }
-  } catch (error) {
-    console.error("Error fetching profile data:", error);
-  }
-};
+// Reactively get profile data from the Vuex store.
+// I'm assuming the getter is named 'profileData'. If not, we may need to adjust this.
+const profileData = computed(() => store.getters.profileData);
 
-const profileData = ref({});
-onMounted(async () => {
-  await fetchProfileData();
+onMounted(() => {
+  // Fetch initial data to populate the store when the component mounts.
+  store.dispatch("fetchProfileData");
 });
+
+console.log("profileData", profileData.value);
 
 // const closeMenu = () => {
 //   setTimeout(() => {
@@ -67,19 +69,18 @@ const logout = () => {
     });
 };
 
-
-const uploadProfileImage = async (file) => {
-  // هنا تضيف كود رفع الصورة على الخادم
-  try {
-    // مثال: استخدام Axios
-    const formData = new FormData();
-    formData.append('image', file);
-    await store.dispatch("uploadProfileImage", formData);    // تحديث الرابط النهائي بعد الرفع
-    profileData.value.profile.ppUrl = 'رابط_الصورة_الجديدة';
-  } catch (error) {
-    console.error('Error uploading image:', error);
-  }
-};
+// const uploadProfileImage = async (file) => {
+//   // هنا تضيف كود رفع الصورة على الخادم
+//   try {
+//     // مثال: استخدام Axios
+//     const formData = new FormData();
+//     formData.append('image', file);
+//     await store.dispatch("uploadProfileImage", formData);    // تحديث الرابط النهائي بعد الرفع
+//     profileData.value.profile.ppUrl = 'رابط_الصورة_الجديدة';
+//   } catch (error) {
+//     console.error('Error uploading image:', error);
+//   }
+// };
 </script>
 <template>
   <nav
@@ -119,19 +120,34 @@ const uploadProfileImage = async (file) => {
           <li class="nav-item d-flex align-items-center">
             <div class="nav-item dropdown" v-if="userName">
               <button
-                class="nav-link px-0 d-flex align-items-center"
-                id="profileDropdown"
+                class="btn btn-link nav-link text-body p-0 dropdown-toggle d-flex align-items-center"
+                type="button"
+                id="dropdownMenuButton"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
                 :class="darkMode ? 'text-white' : 'text-dark'"
               >
-                <i class="fa fa-user me-sm-2"></i>
-                <span class="d-sm-inline d-none">Hi, {{ userName }}</span>
+                <!-- <i class="fa fa-user me-sm-2"></i> -->
+                <img
+                  class="navbar-profile-image"
+                  :src="profileData?.data?.profile?.ppUrl || defaultImg"
+                  alt="Profile"
+                />
+                <div class="d-flex flex-column text-start ms-2">
+                  <h6 class="d-sm-inline mb-0 lh-1 font-weight-bold">Hi, {{ userName }}</h6>
+                  <small v-if="isOwner" class="d-sm-inline lh-1"><span class="font-weight-bold">Plan:</span> {{
+                    planInfo ? planInfo.plan_name : "Free"
+                  }}</small>
+
+                  <small class="d-sm-inline lh-1 font-weight-bold" > {{
+                    profileData ? profileData.data.profile?.position : "Free"
+                  }}</small>
+                </div>
               </button>
 
               <div
                 class="dropdown-menu dropdown-menu-end mt-2 py-0"
-                aria-labelledby="profileDropdown"
+                aria-labelledby="dropdownMenuButton"
                 :style="{ minWidth: '180px', borderRadius: '8px' }"
               >
                 <router-link
@@ -140,9 +156,9 @@ const uploadProfileImage = async (file) => {
                     params: { companyName: companyNameNormalized },
                   }"
                 >
-                <profile-card :user="profileData" @image-uploaded="uploadProfileImage" />
+                  <profile-card :user="profileData?.data" context="navbar" />
                 </router-link>
-                <!-- <div class="dropdown-divider"></div> -->
+                <div class="dropdown-divider my-0"></div>
                 <router-link
                   to="/signin"
                   @click.prevent="logout"
@@ -332,5 +348,12 @@ const uploadProfileImage = async (file) => {
 button {
   background-color: transparent;
   border: none;
+}
+
+.navbar-profile-image {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 </style>

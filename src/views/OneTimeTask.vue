@@ -416,29 +416,29 @@ const filteredTasks = computed(() => {
   }
 
   if (selectedEmployee.value) {
-  tasks = tasks.filter((t) => {
-    // استخراج أرقام تعريف الموظفين من جميع الحقول
-    const assignedIds = t.assignedUser?.map((user) => user.id) ?? [];
-    const informerIds = t.informer?.map((user) => user.id) ?? [];
-    const consultIds = t.consult?.map((user) => user.id) ?? [];
-    const supervisorId = t.supervisor?.id ?? null;
-    const creatorId = t.creator?.id ?? null;
+    tasks = tasks.filter((t) => {
+      // استخراج أرقام تعريف الموظفين من جميع الحقول
+      const assignedIds = t.assignedUser?.map((user) => user.id) ?? [];
+      const informerIds = t.informer?.map((user) => user.id) ?? [];
+      const consultIds = t.consult?.map((user) => user.id) ?? [];
+      const supervisorId = t.supervisor?.id ?? null;
+      const creatorId = t.creator?.id ?? null;
 
-    // تجميع كل الأرقام التعريفية في مصفوفة واحدة
-    const allUserIds = [
-      ...assignedIds,
-      ...informerIds,
-      ...consultIds,
-      supervisorId,
-      creatorId
-    ];
+      // تجميع كل الأرقام التعريفية في مصفوفة واحدة
+      const allUserIds = [
+        ...assignedIds,
+        ...informerIds,
+        ...consultIds,
+        supervisorId,
+        creatorId,
+      ];
 
-    // التحقق مما إذا كان المُحدد موجودًا في أي من الحقول
-    return allUserIds.includes(parseInt(selectedEmployee.value));
-  });
+      // التحقق مما إذا كان المُحدد موجودًا في أي من الحقول
+      return allUserIds.includes(parseInt(selectedEmployee.value));
+    });
 
-  console.log("tasks after filtering by employee:", tasks);
-}
+    console.log("tasks after filtering by employee:", tasks);
+  }
 
   const today = formatDate(new Date());
   console.log(today);
@@ -569,14 +569,19 @@ function searchMatch(task) {
   const taskName = (task.title || "").toLowerCase();
 
   // معالجة جميع الحقول ذات المصفوفات أو الأشياء الفردية
-  const assignedNames = (task.assignedUser?.map(user => user.name) ?? []).join(' ');
-  const informerNames = (task.informer?.map(user => user.name) ?? []).join(' ');
-  const consultNames = (task.consult?.map(user => user.name) ?? []).join(' ');
-  const supervisorName = task.supervisor?.name ?? '';
-  const creatorName = task.creator?.name ?? '';
+  const assignedNames = (
+    task.assignedUser?.map((user) => user.name) ?? []
+  ).join(" ");
+  const informerNames = (task.informer?.map((user) => user.name) ?? []).join(
+    " "
+  );
+  const consultNames = (task.consult?.map((user) => user.name) ?? []).join(" ");
+  const supervisorName = task.supervisor?.name ?? "";
+  const creatorName = task.creator?.name ?? "";
 
   // الجمع بين جميع الأسماء في سلسلة واحدة
-  const employee = `${assignedNames} ${informerNames} ${consultNames} ${supervisorName} ${creatorName}`.toLowerCase();
+  const employee =
+    `${assignedNames} ${informerNames} ${consultNames} ${supervisorName} ${creatorName}`.toLowerCase();
 
   return taskName.includes(query) || employee.includes(query);
 }
@@ -677,12 +682,14 @@ function openEditPopupInParent(task) {
   oneTimeTaskName.value = task.title || "";
   oneTimeTaskDescription.value = task.description || "";
   selectedAssignee.value = task.assignedUser?.map((user) => user.id) || null;
-  selectedAssigneeNames.value = task.assignedUser?.map((user) => user.name) || null;
+  selectedAssigneeNames.value =
+    task.assignedUser?.map((user) => user.name) || null;
   selectedSupervisor.value = task.supervisor?.id || null;
   selectedInformer.value = task.informer?.map((user) => user.id) || null;
   selectedInformerNames.value = task.informer?.map((user) => user.name) || null;
   selectedConsultant.value = task.consult?.map((user) => user.id) || null;
-  selectedConsultantNames.value = task.consult?.map((user) => user.name) || null;
+  selectedConsultantNames.value =
+    task.consult?.map((user) => user.name) || null;
   deptId.value = task.department?.id || "";
   projectId.value = task.project?.id;
   console.log(task.project?.id);
@@ -883,6 +890,11 @@ const translations = {
     selectEmployee: "Select Employee",
     selectConsultant: "Select Consultant",
     selectInformer: "Select Informer",
+    searchEmployees: "Search Employees",
+    searchInformers: "Search Informers",
+    searchConsultants: "Search Consultants",
+    searchProjects: "Search Projects",
+    searchPriorities: "Search Priorities",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -977,6 +989,9 @@ const translations = {
     selectEmployee: "اختر الموظفين",
     selectConsultant: "اختر الاسشاري",
     selectInformer: "اختر المعلوم",
+    selectDeadline: "اختر الموعد",
+    selectTask: "اختر المهمة",
+    selectPriority: "اختر الأولوية",
   },
 };
 
@@ -1229,16 +1244,14 @@ const translations = {
                   <!-- فلترة الموظف -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("employee") }}</label>
-                    <select class="form-select" v-model="selectedEmployee">
-                      <option value="">{{ t("allEmployees") }}</option>
-                      <option
-                        v-for="employeeOption in employeeOptions"
-                        :key="employeeOption.value"
-                        :value="employeeOption.value"
-                      >
-                        {{ employeeOption.label }}
-                      </option>
-                    </select>
+                    <argon-select
+                      class="form-select"
+                      v-model="selectedEmployee"
+                      :options="employeeOptions"
+                      :placeholder="t('selectEmployee')"
+                      :searchable="true"
+                      :searchPlaceholder="t('searchEmployee')"
+                    />
                   </div>
 
                   <!-- فلترة الموعد النهائي -->
@@ -1296,8 +1309,8 @@ const translations = {
             </div>
 
             <one-time-task-table
-            v-if="!isLoading"
-            :oneTimeTasks="filteredTasks"
+              v-if="!isLoading"
+              :oneTimeTasks="filteredTasks"
               :key="componentKey"
               @page-changed="handlePageChange"
               :pagination="pagination"
@@ -1363,15 +1376,17 @@ const translations = {
               </div> -->
 
               <div class="mb-3">
-          <label class="form-label">{{ t("assignTo") }}:</label>
-            <argon-multiple-select
-              v-model="selectedAssignee"
-              :model-names="employeeNames"
-              :options="employeeOptions"
-              :placeholder="t('selectEmployee')"
-              class="form-control mb-3"
-            />
-          </div>
+                <label class="form-label">{{ t("assignTo") }}:</label>
+                <argon-multiple-select
+                  v-model="selectedAssignee"
+                  :model-names="employeeNames"
+                  :options="employeeOptions"
+                  :placeholder="t('selectEmployee')"
+                  :searchable="true"
+                  :searchPlaceholder="t('searchEmployees')"
+                  class="form-control mb-3"
+                />
+              </div>
 
               <!-- حقل supervisor (نصف العرض) -->
               <div class="col-md-12 mb-3">
@@ -1402,15 +1417,17 @@ const translations = {
               </div> -->
 
               <div class="mb-3">
-          <label class="form-label">{{ t("informer") }}:</label>
-            <argon-multiple-select
-              v-model="selectedInformer"
-              :model-names="employeeNames"
-              :options="employeeOptions"
-              :placeholder="t('selectInformer')"
-              class="form-control mb-3"
-            />
-          </div>
+                <label class="form-label">{{ t("informer") }}:</label>
+                <argon-multiple-select
+                  v-model="selectedInformer"
+                  :model-names="employeeNames"
+                  :options="employeeOptions"
+                  :placeholder="t('selectInformer')"
+                  :searchable="true"
+                  :searchPlaceholder="t('searchInformers')"
+                  class="form-control mb-3"
+                />
+              </div>
 
               <!-- consultant في نصف عرض -->
               <!-- <div class="col-md-6 mb-3">
@@ -1427,15 +1444,17 @@ const translations = {
               </div> -->
 
               <div class="mb-3">
-          <label class="form-label">{{ t("consultant") }}:</label>
-            <argon-multiple-select
-              v-model="selectedConsultant"
-              :model-names="employeeNames"
-              :options="employeeOptions"
-              :placeholder="t('selectConsultant')"
-              class="form-control mb-3"
-            />
-          </div>
+                <label class="form-label">{{ t("consultant") }}:</label>
+                <argon-multiple-select
+                  v-model="selectedConsultant"
+                  :model-names="employeeNames"
+                  :options="employeeOptions"
+                  :placeholder="t('selectConsultant')"
+                  :searchable="true"
+                  :searchPlaceholder="t('searchConsultants')"
+                  class="form-control mb-3"
+                />
+              </div>
 
               <!-- مشروع (نصف العرض) -->
               <div class="col-md-6 mb-3">
@@ -1446,7 +1465,7 @@ const translations = {
                   :placeholder="t('selectProject')"
                   class="form-control"
                   searchable
-                  searchPlaceholder="Search projects..."
+                  :searchPlaceholder="t('searchProjects')"
                   required
                 />
               </div>
@@ -1460,7 +1479,7 @@ const translations = {
                   :placeholder="t('selectPriority')"
                   class="form-control"
                   searchable
-                  searchPlaceholder="Search priorities..."
+                  :searchPlaceholder="t('searchPriorities')"
                   required
                 />
               </div>
@@ -1570,16 +1589,18 @@ const translations = {
               </div> -->
 
               <label class="form-label">{{ t("assignTo") }}:</label>
-            <argon-multiple-select
-              v-model="selectedAssignee"
-              :model-names="selectedAssigneeNames"
-              :options="employeeOptions"
-              :placeholder="t('selectEmployee')"
-              class="form-control mb-3"
-            />
+              <argon-multiple-select
+                v-model="selectedAssignee"
+                :model-names="selectedAssigneeNames"
+                :options="employeeOptions"
+                :placeholder="t('selectEmployee')"
+                :searchable="true"
+                :searchPlaceholder="t('searchEmployees')"
+                class="form-control mb-3"
+              />
 
               <!-- supervisor في نصف عرض -->
-              <div class=" mb-3">
+              <div class="mb-3">
                 <label class="form-label">{{ t("supervisor") }}:</label>
                 <argon-select
                   v-model="selectedSupervisor"
@@ -1587,7 +1608,7 @@ const translations = {
                   :placeholder="t('selectSupervisor')"
                   class="form-control"
                   searchable
-                  searchPlaceholder="Search employees..."
+                  searchPlaceholder="Search supervisors..."
                   required
                 />
               </div>
@@ -1601,19 +1622,21 @@ const translations = {
                   :placeholder="t('selectInformer')"
                   class="form-control"
                   searchable
-                  searchPlaceholder="Search employees..."
+                  searchPlaceholder="Search informers..."
                   required
                 />
               </div> -->
 
               <label class="form-label">{{ t("informer") }}:</label>
-            <argon-multiple-select
-              v-model="selectedInformer"
-              :model-names="selectedInformerNames"
-              :options="employeeOptions"
-              :placeholder="t('selectEmployee')"
-              class="form-control mb-3"
-            />
+              <argon-multiple-select
+                v-model="selectedInformer"
+                :model-names="selectedInformerNames"
+                :options="employeeOptions"
+                :placeholder="t('selectEmployee')"
+                :searchable="true"
+                :searchPlaceholder="t('searchInformers')"
+                class="form-control mb-3"
+              />
 
               <!-- consultant في نصف عرض -->
               <!-- <div class="col-md-6 mb-3">
@@ -1624,19 +1647,21 @@ const translations = {
                   :placeholder="t('selectConsultant')"
                   class="form-control"
                   searchable
-                  searchPlaceholder="Search employees..."
+                  searchPlaceholder="Search consultants..."
                   required
                 />
               </div> -->
 
               <label class="form-label">{{ t("consultant") }}:</label>
-            <argon-multiple-select
-              v-model="selectedConsultant"
-              :model-names="selectedConsultantNames"
-              :options="employeeOptions"
-              :placeholder="t('selectEmployee')"
-              class="form-control mb-3"
-            />
+              <argon-multiple-select
+                v-model="selectedConsultant"
+                :model-names="selectedConsultantNames"
+                :options="employeeOptions"
+                :placeholder="t('selectEmployee')"
+                :searchable="true"
+                :searchPlaceholder="t('searchConsultants')"
+                class="form-control mb-3"
+              />
 
               <!-- المشروع (project_id) في نصف عرض -->
               <!-- في القالب -->

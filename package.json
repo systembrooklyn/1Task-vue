@@ -34,6 +34,7 @@
     "crypto-js": "^4.2.0",
     "dropzone": "6.0.0-beta.2",
     "google-drive-vue": "^0.0.2",
+    "libphonenumber-js": "^1.12.8",
     "select2": "^4.1.0-rc.0",
     "select2-bootstrap-5-theme": "^1.3.0",
     "sweetalert2": "^11.14.1",
@@ -43,6 +44,7 @@
     "vue-i18n": "^10.0.0",
     "vue-router": "4.3.0",
     "vue-select": "^3.20.3",
+    "vue-tel-input": "^9.3.0",
     "vue-tinymce-editor": "^1.6.2",
     "vuex": "4.1.0"
   },

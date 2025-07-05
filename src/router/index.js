@@ -1,5 +1,13 @@
+// router/index.js
+
 import { createRouter, createWebHistory } from "vue-router";
 import { computed } from "vue";
+import { useStore } from "vuex";
+
+// 1. استيراد دالة فك التشفير من ملف الـ store
+import { decryptData } from "@/store/index.js";
+
+// --- استيراد المكونات (Views) ---
 import Dashboard from "../views/Dashboard.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
@@ -7,38 +15,40 @@ import VirtualReality from "../views/VirtualReality.vue";
 import RTL from "../views/Rtl.vue";
 import Profile from "../views/Profile.vue";
 import Signup from "../views/Signup.vue";
+import Subscription from "../views/Subscription.vue";
 import Signin from "../views/Signin.vue";
 import ErrorPage from "@/views/ErrorPage.vue";
 
-import { useStore } from "vuex";
-
-// خارج حارس المسارات أو داخله في نفس الملف
+// 2. دالة getCompanyName المعدلة التي تقرأ وتفك تشفير البيانات من localStorage
 function getCompanyName() {
-  // لو عندك user => user.company => company.name
-  // اعمل أي Normalization للمسافات أو الرموز
-  const store = useStore();
-  const companyNameValue = computed(() => store.getters.companyName);
-  const isOwner = localStorage.getItem("isOwner");
-  const companyName = companyNameValue.value;
-  const isOwnerValue = isOwner;
+  const rawCompanyName = localStorage.getItem("companyName");
+  const rawIsOwner = localStorage.getItem("isOwner");
+
+  const companyName = decryptData(rawCompanyName);
+  const isOwner = decryptData(rawIsOwner);
+
+  const formattedCompanyName = companyName ? companyName.replace(/\s+/g, "-") : "";
 
   return {
-    companyName: companyName.replace(/\s+/g, "-"),
-    isOwner: isOwnerValue,
+    companyName: formattedCompanyName,
+    isOwner: !!isOwner, // تحويلها إلى boolean
   };
 }
 
-// في ملف router.js أو guards.js
+// 3. دالة التحقق من الصلاحيات (مع تعديل بسيط لضمان عملها عند التحديث)
 const requiredPermission = (...requiredPermissions) => {
   return async (to, from, next) => {
     const store = useStore();
-    await store.dispatch("fetchUserPermissions"); // Ensure permissions are loaded
+    
+    // تأكد من جلب الصلاحيات الحديثة دائماً
+    await store.dispatch("fetchUserPermissions");
 
-    const isOwner = localStorage.getItem("isOwner");
+    // احصل على حالة المالك بشكل موثوق
+    const { isOwner } = getCompanyName();
     const userPermissions = computed(() => store.getters.permissions);
 
-    // Check if user is owner OR has any of the required permissions
-    const hasPermission = requiredPermissions.some(permission => 
+    // التحقق إذا كان المستخدم مالكاً أو يملك أحد الصلاحيات المطلوبة
+    const hasPermission = requiredPermissions.some(permission =>
       userPermissions.value[permission]
     );
 
@@ -47,12 +57,13 @@ const requiredPermission = (...requiredPermissions) => {
     } else {
       const { companyName } = getCompanyName();
       next({
-        name: "routine task", // Redirect to a safe route
+        name: "routine task", // إعادة توجيه إلى صفحة آمنة
         params: { companyName },
       });
     }
   };
 };
+
 
 const routes = [
   {
@@ -90,13 +101,13 @@ const routes = [
     path: "/rtl-page",
     name: "RTL",
     component: RTL,
-    meta: { public: true }, // صفحة عامة
+    meta: { public: true },
   },
   {
     path: "/signup-Ar",
     name: "SignupArabic",
     component: () => import("../views/Rtlsignup.vue"),
-    meta: { public: true }, // صفحة عامة
+    meta: { public: true },
   },
   {
     path: "/:companyName/profile",
@@ -105,17 +116,29 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/subscription",
+    name: "Subscription",
+    component: Subscription,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/checkout/:planId",
+    name: "Checkout",
+    component: () => import("@/views/Checkout.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/signin",
     name: "Signin",
     component: Signin,
-    meta: { public: true }, // صفحة عامة
+    meta: { public: true },
   },
-  // {
-  //   path: "/:companyName/upload",
-  //   name: "Upload",
-  //   component: () => import("@/views/Upload.vue"),
-  //   meta: { requiresAuth: true },
-  // },
+  {
+    path: "/pricing",
+    name: "Pricing",
+    component: () => import("@/views/PricingTable.vue"),
+    meta: { public: true },
+  },
   {
     path: "/signup",
     name: "Signup",
@@ -150,7 +173,7 @@ const routes = [
     path: "/:companyName/addUser",
     name: "add user",
     component: () => import("@/views/AddUser.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true }, // يفترض أن يكون محميًا بصلاحية معينة
   },
   {
     path: "/user-information",
@@ -168,7 +191,7 @@ const routes = [
     path: "/:companyName/add-role&permissions",
     name: "roles & permissions",
     component: () => import("@/views/AddRole.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, isOwner: true }, // مثال: هذه الصفحة للمالك فقط
   },
   {
     path: "/:companyName/task-reports",
@@ -226,54 +249,51 @@ const router = createRouter({
   linkActiveClass: "active",
 });
 
-// وظيفة للتحقق من المصادقة
 function isUserAuthenticated() {
-  return !!localStorage.getItem("token"); // تحقق إذا كان `token` موجودًا
+  return !!localStorage.getItem("token");
 }
 
-// حراسة المسارات
+// 4. حارس المسارات العام (Global Navigation Guard) المحدّث والكامل
 router.beforeEach((to, from, next) => {
   const isAuthenticated = isUserAuthenticated();
+  const { companyName: userCompanyName, isOwner } = getCompanyName();
 
-  // 1) لو المسار يحتاج تسجيل دخول، والمستخدم مش مسجّل، نوديه للـ Signin
+  // الحالة الأولى: المسار يتطلب تسجيل دخول، والمستخدم غير مسجل
   if (to.meta.requiresAuth && !isAuthenticated) {
     return next({ name: "Signin" });
   }
 
-  // 2) لو المستخدم مسجّل، والصفحة عامة، واسمها Signin (مثال)، نوديه للـ Dashboard
-  if (isAuthenticated && to.meta.public && to.name === "Signin") {
-    return next({
-      name: "Dashboard",
-      params: { companyName: getCompanyName() },
-    });
-  }
-
-  // 3) التحقق من companyName (لو المسار يحتوي عليه)
-  const userCompanyName = getCompanyName().companyName; // دالة هننشئها أسفل للكشف من الـ Store
-  const isOwner = getCompanyName().isOwner;
-  if (
-    to.params.companyName &&
-    to.meta.requiresAuth &&
-    (to.meta.requiredPermission || to.meta.isOwner)
-  ) {
-    // لو الشركة غير مطابقة
-    if (to.params.companyName !== userCompanyName) {
-      // حمايتك: إما توجيهه لصفحة خطأ، أو صفحة الشركة الصحيحة
-      // return next({ name: "Error" });
-      // أو:
+  // الحالة الثانية: المستخدم مسجل بالفعل ويحاول الوصول لصفحة عامة (تسجيل دخول، بداية)
+  if (isAuthenticated && to.meta.public && (to.name === "Signin" || to.name === "start" || to.name === "/")) {
+    if (userCompanyName) { // تأكد من وجود اسم الشركة قبل التوجيه
       return next({
         name: "Dashboard",
-        params: { companyName: userCompanyName, isOwner: true },
-      });
-    } else if (to.meta.isOwner && !isOwner) {
-      return next({
-        name: "routine task",
-        params: { companyName: userCompanyName, isOwner: true },
+        params: { companyName: userCompanyName },
       });
     }
   }
 
-  return next(); // السماح بالانتقال
+  // الحالة الثالثة: التحقق من تطابق اسم الشركة في الرابط (إذا كان المسار يتطلب مصادقة)
+  if (to.params.companyName && isAuthenticated && to.params.companyName !== userCompanyName) {
+    // إذا كان اسم الشركة في الرابط خاطئًا، قم بتصحيحه وإعادة التوجيه
+    return next({
+      ...to,
+      params: { ...to.params, companyName: userCompanyName },
+    });
+  }
+
+  // الحالة الرابعة: التحقق إذا كان المسار يتطلب صلاحية المالك (`isOwner`)
+  // هذا هو المنطق الذي طلبت الحفاظ عليه
+  if (to.meta.isOwner && !isOwner) {
+    // إذا كان المسار للمالك فقط والمستخدم الحالي ليس مالكًا
+    return next({
+      name: "routine task", // أو "Dashboard" أو أي صفحة أخرى مناسبة
+      params: { companyName: userCompanyName },
+    });
+  }
+
+  // إذا مرت كل الشروط، اسمح بالانتقال
+  return next();
 });
 
 router.afterEach((to) => {

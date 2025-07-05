@@ -12,7 +12,8 @@ const encryptData = (data) => {
   return btoa(encodeURIComponent(JSON.stringify(data)));
 };
 
-const decryptData = (encryptedData) => {
+export const decryptData = (encryptedData) => {
+  if (!encryptedData) return null; // حماية إضافية
   try {
     return JSON.parse(decodeURIComponent(atob(encryptedData)));
   } catch (error) {
@@ -66,14 +67,15 @@ export default createStore({
     routineTasks: [],
     allRoutineTasks: [],
     routineTasksReports: [],
-    dashboardData: [],
+    dashboardData: null,
     evaluation: [],
     evaluatedTasks: [],
     oneTimeTasks: [],
     rundomTask: [],
-    profileData: [],
+    profileData: null, // To store detailed user profile data
     uploadProfileImage: "",
     chartDeptPerformance: null,
+    planInfo: null,
     pagination: {
       total: 0,
       current_page: 1,
@@ -82,6 +84,7 @@ export default createStore({
       next_page_url: null,
       prev_page_url: null,
     },
+    plans: [], // إضافة state للخطط
   },
   mutations: {
     //بناءا على api laravel
@@ -322,6 +325,16 @@ export default createStore({
       state.uploadProfileImage = data;
     },
 
+    SET_PLANS(state, plans) {
+      state.plans = plans;
+    },
+    getPlans(state, plans) {
+      state.plans = plans;
+    },
+    SET_PLAN_INFO(state, planInfo) {
+      state.planInfo = planInfo;
+    },
+
     // end----------------------------------------------------
     // تحميل بيانات المستخدم من `localStorage` عند بدء التشغيل
     LOAD_USER_FROM_STORAGE(state) {
@@ -354,6 +367,10 @@ export default createStore({
       const storedCompanyName = localStorage.getItem("companyName");
       if (storedCompanyName) {
         state.companyName = decryptData(storedCompanyName);
+      }
+      const storedProfileData = localStorage.getItem("profileData");
+      if (storedProfileData) {
+        state.profileData = decryptData(storedProfileData);
       }
     },
 
@@ -394,10 +411,12 @@ export default createStore({
       state.userId = null;
       state.companyId = null;
       state.permissions = [];
+      state.profileData = null;
       localStorage.removeItem("user");
       localStorage.removeItem("userId");
       localStorage.removeItem("companyId");
       localStorage.removeItem("permissions");
+      localStorage.removeItem("profileData");
     },
     toggleConfigurator(state) {
       state.showConfig = !state.showConfig;
@@ -530,6 +549,17 @@ export default createStore({
     //fetch profile data
     fetchProfileData(state, profileData) {
       state.profileData = profileData;
+      localStorage.setItem("profileData", encryptData(profileData));
+    },
+    SET_PROFILE_DATA(state, profileData) {
+      state.profileData = profileData;
+      localStorage.setItem("profileData", encryptData(profileData));
+    },
+    UPDATE_PROFILE_PICTURE(state, ppUrl) {
+      if (state.profileData) {
+        state.profileData.ppUrl = ppUrl;
+        localStorage.setItem("profileData", encryptData(state.profileData));
+      }
     },
   },
   actions: {
@@ -1450,12 +1480,11 @@ export default createStore({
     async fetchDashboardData({ commit }) {
       try {
         const response = await apiClient.getDashboardData();
-        console.log("response", response.data);
         commit("SET_DASHBOARD_DATA", response.data);
-        return response;
+        return response.data; // Return the data payload to the component
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
-        return error;
+        throw error; // Re-throw the error so the component can catch it
       }
     },
 
@@ -1607,7 +1636,7 @@ export default createStore({
         throw error;
       }
     },
-    
+
     async createOneTimeTask({ commit }, task) {
       console.log("task", task);
       try {
@@ -1652,23 +1681,22 @@ export default createStore({
         const errorDetails = error.response?.data?.errors;
 
         let errorMessage = "Error updating one time task";
- 
+
         if (errorDetails) {
-           // تحويل الأخطاء إلى قائمة نصوص
-           errorMessage = Object.entries(errorDetails)
-             .map(
-               ([field, messages]) =>
-                 `<strong>${field}</strong>: ${messages.join(", ")}`
-             )
-             .join("<br>");
-           console.log("errorMessage", errorMessage);
-         }
- 
-         console.error("Error adding routine task:::", errorMessage);
-         throw new Error(
-           errorMessage || error.message || "Unknown error occurred"
-         );
-       
+          // تحويل الأخطاء إلى قائمة نصوص
+          errorMessage = Object.entries(errorDetails)
+            .map(
+              ([field, messages]) =>
+                `<strong>${field}</strong>: ${messages.join(", ")}`
+            )
+            .join("<br>");
+          console.log("errorMessage", errorMessage);
+        }
+
+        console.error("Error adding routine task:::", errorMessage);
+        throw new Error(
+          errorMessage || error.message || "Unknown error occurred"
+        );
       }
     },
 
@@ -1699,58 +1727,124 @@ export default createStore({
 
     // ChartDeptPerformance vuex
     // In your Vuex module
-async getChartDeptPerformance({ commit }, range) {
-  try {
-    const response = await apiClient.getChartDeptPerformance(range);
-    console.log("getChartDeptPerformance-responseeeeeeeeee", response.data);
-    commit("getChartDeptPerformance", response.data);
-    return response;
-  } catch (error) {
-    console.error("Error:", error);
-    return error;
-  }
-},
+    async getChartDeptPerformance({ commit }, range) {
+      try {
+        const response = await apiClient.getChartDeptPerformance(range);
+        console.log("getChartDeptPerformance-responseeeeeeeeee", response.data);
+        commit("getChartDeptPerformance", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error:", error);
+        return error;
+      }
+    },
 
-async getRundomTask({ commit }) {
-  try {
-    const response = await apiClient.getRundomTask();
-    console.log("getRundomTask-responseeeeeeeeee", response.data);
-    commit("getRundomTask", response.data);
-    return response;
-  } catch (error) {
-    console.error("Error:", error);
-    return error;
-  }
-},
+    async getRundomTask({ commit }) {
+      try {
+        const response = await apiClient.getRundomTask();
+        console.log("getRundomTask-responseeeeeeeeee", response.data);
+        commit("getRundomTask", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error:", error);
+        return error;
+      }
+    },
 
-// fetch profile data
-async fetchProfileData({ commit }) {
-  try {
-    const response = await apiClient.getProfileData();
-    // console.log("fetchProfileData-responseeeeeeeeee", response.data);
-    commit("fetchProfileData", response.data);
-    return response;
-  } catch (error) {
-    console.error("Error:", error);
-    return error;
-  }
-},
+    // fetch profile data
+    async fetchProfileData({ commit }) {
+      try {
+        const response = await apiClient.getProfileData();
+        // console.log("fetchProfileData-responseeeeeeeeee", response.data);
+        commit("SET_PROFILE_DATA", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error:", error);
+        return error;
+      }
+    },
 
-async uploadProfileImage({ commit }, formData) {
-  try {
-    const response = await apiClient.uploadProfileImage(formData);
-    console.log("uploadProfileImage-response", response.data);
-    commit("uploadProfileImage", response.data);
-    return response;
-  } catch (error) {
-    console.error("Error uploading profile image:", error);
-    return error;
-  }
-},
+    async updateProfileData({ commit }, updatedData) {
+      try {
+        const response = await apiClient.updateProfileData(updatedData);
+        console.log("updateProfileData-response", response.data);
+        commit("SET_PROFILE_DATA", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error updating profile data:", error);
+        return error;
+      }
+    },
 
+    async uploadProfileImage({ commit }, formData) {
+      try {
+        const response = await apiClient.uploadProfileImage(formData);
+        console.log("uploadProfileImage-response", response.data);
+        commit("UPDATE_PROFILE_PICTURE", response.data.ppUrl);
+        return response;
+      } catch (error) {
+        console.error("Error uploading profile image:", error);
+        return error;
+      }
+    },
+
+    async getPlans({ commit }) {
+      try {
+        const response = await apiClient.getPlans();
+        console.log("getPlans-responseeeeeeeeee", response.data);
+        commit("getPlans", response.data);
+        return response;
+      } catch (error) {
+        console.error("Error:", error);
+        return error;
+      }
+    },
+
+    async fetchPlans({ commit }) {
+      try {
+        const response = await apiClient.fetchPlans();
+        if (response.data && response.data.data) {
+          commit("SET_PLANS", response.data.data);
+          return response.data.data;
+        }
+        return [];
+      } catch (error) {
+        console.error("Error fetching plans in store:", error);
+        throw error;
+      }
+    },
+
+    async subscribeToPlan({ dispatch }, payload) {
+   console.log("payload", payload);
+   try {
+        const response = await apiClient.subscribeToPlan(payload);
+        await dispatch("fetchProfileData"); // Refresh user data to get new plan status
+        return response.data;
+      } catch (error) {
+        console.error("Error subscribing to plan in store:", error);
+        throw error;
+      }
+    },
+    async fetchPlanInfo({ commit }) {
+      // Action لجلب بيانات الباقة من الـ API
+      try {
+        //  تحديث المسار إلى الـ endpoint الصحيح
+        const response = await apiClient.fetchPlanInfo();
+        console.log("fetchPlanInfo-responseeeeeeeeee", response.data);
+        if (response.data && response.data.data) {
+          commit('SET_PLAN_INFO', response.data.data);
+          return response.data.data;
+        }
+      } catch (error) {
+        console.error("Error fetching plan info:", error);
+        throw error;
+      }
+    },
   },
 
   getters: {
+    isSidebarFixed: (state) => state.navbarFixed,
+    plans: (state) => state.plans,
     currentLanguage: (state) => state.language,
     isRTL: (state) => state.isRTL,
     email: (state) => state.email,
@@ -1792,5 +1886,6 @@ async uploadProfileImage({ commit }, formData) {
     oneTimeTaskAttachments: (state) => state.oneTimeTaskAttachments,
     chartDeptPerformance: (state) => state.chartDeptPerformance,
     profileData: (state) => state.profileData,
+    planInfo: (state) => state.planInfo,
   },
 });

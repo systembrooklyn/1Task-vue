@@ -1,25 +1,25 @@
 <script setup>
 import { ref, computed, onBeforeMount, onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+// import { useRouter } from "vue-router";
 
 import AppFooter from "@/examples/PageLayout/Footer.vue";
-import ArgonInput from "@/components/ArgonInput.vue";
+// import ArgonInput from "@/components/ArgonInput.vue";
 // import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
-import ArgonButton from "@/components/ArgonButton.vue";
-import ArgonAlert from "@/components/ArgonAlert.vue";
-// import PricingCard from "@/examples/PricingCard.vue";
+// import ArgonButton from "@/components/ArgonButton.vue";
+// import ArgonAlert from "@/components/ArgonAlert.vue";
+import PricingCard from "@/examples/PricingCard.vue";
 // import languageSwitcher from "@/views/components/LanguageSwitcher.vue";
 
 // جلب الـ store والـ router
 const store = useStore();
-const router = useRouter();
+// const router = useRouter();
 
-// const selectedPlan = ref(null);
+const selectedPlan = ref(null);
 
-// function handleSelectPlan(plan) {
-//   selectedPlan.value = plan;
-// }
+function handleSelectPlan(plan) {
+  selectedPlan.value = plan;
+}
 
 const fetchPlans = async () => {
   try {
@@ -66,9 +66,9 @@ onBeforeMount(() => {
 // ];
 
 // متغيرات الحالة
-const email = ref("");
+// const email = ref("");
 const errorMessage = ref("");
-const showAlert = ref(false);
+// const showAlert = ref(false);
 const body = document.getElementsByTagName("body")[0];
 
 // الترجمة
@@ -116,35 +116,35 @@ const t = (key) => {
 };
 
 // دالة لإرسال البيانات
-const submitForm = async () => {
-  try {
-    const emailExists = await store.dispatch("checkEmailExists", email.value);
-    if (emailExists) {
-      if (store.getters.currentLanguage === "ar") {
-        errorMessage.value =
-          "هذا البريد الإلكتروني مسجل بالفعل. يرجى استخدام بريد آخر.";
-      } else {
-        errorMessage.value =
-          "This email is already registered. Please use another email.";
-      }
-      showAlert.value = true;
-      setTimeout(() => {
-        showAlert.value = false;
-      }, 3000);
-    } else {
-      store.commit("SET_TEMP_EMAIL", email.value);
-      router.push("/signup");
-      showAlert.value = false;
-    }
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    errorMessage.value = "حدث خطأ أثناء التسجيل. حاول مرة أخرى لاحقًا.";
-    showAlert.value = true;
-    setTimeout(() => {
-      showAlert.value = false;
-    }, 3000);
-  }
-};
+// const submitForm = async () => {
+//   try {
+//     const emailExists = await store.dispatch("checkEmailExists", email.value);
+//     if (emailExists) {
+//       if (store.getters.currentLanguage === "ar") {
+//         errorMessage.value =
+//           "هذا البريد الإلكتروني مسجل بالفعل. يرجى استخدام بريد آخر.";
+//       } else {
+//         errorMessage.value =
+//           "This email is already registered. Please use another email.";
+//       }
+//       showAlert.value = true;
+//       setTimeout(() => {
+//         showAlert.value = false;
+//       }, 3000);
+//     } else {
+//       store.commit("SET_TEMP_EMAIL", email.value);
+//       router.push("/signup");
+//       showAlert.value = false;
+//     }
+//   } catch (error) {
+//     console.error("Error submitting form:", error);
+//     errorMessage.value = "حدث خطأ أثناء التسجيل. حاول مرة أخرى لاحقًا.";
+//     showAlert.value = true;
+//     setTimeout(() => {
+//       showAlert.value = false;
+//     }, 3000);
+//   }
+// };
 
 // التحكم في نمط الصفحة عند الدخول والخروج
 onBeforeMount(() => {
@@ -203,15 +203,20 @@ onBeforeUnmount(() => {
             <a class="nav-link" href="#">Pricing</a>
           </li> -->
           <li class="nav-item ms-3">
-            <a class="nav-link" href="/pricing">
+            <a class="nav-link active" href="/pricing">
               {{ t("pricing") }}
             </a>
           </li>
           <li class="nav-item ms-3">
-            <a class="signin btn" href="/signin">
-              {{ t("signIn") }}
-            </a>
-          </li>
+              <a class="signin btn" href="/signin">
+                  {{ t("signIn") }}
+                </a>
+            </li>
+            <li class="nav-item ms-3">
+              <a class="btn" href="/start">
+                {{ t("getStarted") }}
+              </a>
+            </li>
           
         </ul>
       </div>
@@ -221,9 +226,8 @@ onBeforeUnmount(() => {
   <!-- Professional Hero Section -->
   <main class="main-content">
     <section class="hero-section">
-      <div class="container">
+      <!-- <div class="container">
         <div class="row align-items-center g-5">
-          <!-- Content Column -->
           <div class="col-lg-6 order-lg-1">
             <div class="content-card p-5">
               <h1 class="display-4 fw-bold mb-4">{{ t("manageYourTasks") }}</h1>
@@ -232,7 +236,6 @@ onBeforeUnmount(() => {
                 alt="Task Management"
                 class="brand-img mb-4"
               />
-              <!-- Enhanced Text Section -->
               <h3 class="display-4 mb-4">{{ t("fastAndEasyAndSmart") }}</h3>
 
               <form @submit.prevent="submitForm">
@@ -264,7 +267,6 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <!-- Image Column -->
           <div class="col-lg-6 order-lg-2">
             <div class="hero-image-wrapper">
               <img
@@ -276,10 +278,16 @@ onBeforeUnmount(() => {
             </div>
           </div>
         </div>
-      </div>
-      <!-- <div class="row g-4">
+      </div> -->
+      <div class="row mx-5 g-4">
         <PricingCard :plans="plans" @select="handleSelectPlan"/>
-      </div>   -->
+      </div>  
+      <a 
+              href="/start"
+              class="btn btn-outline-dark mt-4 d-block text-center w-25 mx-auto"
+            >
+              Choose Plan within registration
+            </a>
     </section>
 
   </main>
@@ -325,12 +333,6 @@ onBeforeUnmount(() => {
   height: 500px;
   object-fit: cover;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-}
-
-.btn-pricing {
-  outline: ;
-  background-color: #a7c858;
-  color: white;
 }
 
 .hero-image-wrapper {

@@ -266,6 +266,7 @@ const config = {
 
 
   updateRoles(roleData) {
+    console.log("roleDataapi", roleData);
     const token = localStorage.getItem("token");
     const config = {
       headers: {
@@ -724,9 +725,64 @@ AddAttachmentOneTimeTask(formData, taskId) {
         "Accept": "application/json",
       },
     };
-    return apiClient.put("/userProfile", formData, config);
+    return apiClient.post("user/upload-profile-picture", formData, config);
+  },
+  updateProfileData(updatedData) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.put("/userProfile", updatedData, config);
   },
   //end fetch profile data
+
+  // start plans
+
+  // get plans
+  getPlans() {
+    // const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        accept: "application/json",
+      },
+    };
+    return apiClient.get("/plans/all", config);
+  },
+  fetchPlans() {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get('/plans', config);
+  },
+  subscribeToPlan(payload) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post('/companies/subscribe', payload, config);
+  },
+  fetchCompanyData() {
+    return apiClient.get('/company-data');
+  },
+
+  fetchPlanInfo() {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.get(`/getCompanyPlanDetails`, config);
+  },
+  // end plans
+  //end plans
 
   //end
 
