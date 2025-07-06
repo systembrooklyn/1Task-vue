@@ -191,7 +191,7 @@ const routes = [
     path: "/:companyName/add-role&permissions",
     name: "roles & permissions",
     component: () => import("@/views/AddRole.vue"),
-    meta: { requiresAuth: true, isOwner: true }, // مثال: هذه الصفحة للمالك فقط
+    meta: { requiresAuth: true },
   },
   {
     path: "/:companyName/task-reports",

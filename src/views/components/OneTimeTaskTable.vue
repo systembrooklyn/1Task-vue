@@ -262,7 +262,7 @@
           <transition name="slide-fade">
             <div v-if="expandedTaskId === task.id" class="task-details">
               <!-- ملخص أو وصف المهمة -->
-              <p class="task-description">
+              <p dir="auto" class="task-description">
                 {{ task.description || "No description" }}
               </p>
 
