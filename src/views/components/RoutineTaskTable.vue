@@ -1434,12 +1434,14 @@ td:hover .hover-icon {
   font-weight: 600;
   /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  */
 
-  &:hover {
-    background-color: #a9ca5c;
-    color: white;
-    border-color: #a9ca5c;
-    font-weight: 600;
-  }
+
+}
+
+.pagination .page-item.active .page-link:hover:not(.disabled) {
+  background-color: #a9ca5c;
+  color: white;
+  border-color: #a9ca5c;
+  font-weight: 600;
 }
 
 .pagination .page-link:hover:not(.disabled):not(.active) {

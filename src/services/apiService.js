@@ -1,6 +1,7 @@
 // src/services/apiService.js
 import axios from "axios";
-// import store from "@/store"; // استيراد Vuex store للوصول إلى الـ token
+import Swal from "sweetalert2";
+import store from "@/store";
 
 // const apiClient2 = axios.create({
 //   secondaryBaseURL: "https://starfish-app-gv3mu.ondigitalocean.app/api",
@@ -31,6 +32,90 @@ const apiClient = axios.create({
 //     return Promise.reject(error);
 //   }
 // );
+
+// Interceptor عام لمعالجة انتهاء الخطة/الاشتراك
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    try {
+      const status = error?.response?.status;
+      const data = error?.response?.data || {};
+      const currentPath = window.location?.pathname || "";
+      const inSubscriptionFlow =
+        currentPath.startsWith("/subscription") ||
+        currentPath.startsWith("/checkout");
+      const isPlanExpired =
+        status === 422 &&
+        (data?.error === "Plan Expired" ||
+          (typeof data?.message === "string" &&
+            data.message.toLowerCase().includes("plan") &&
+            data.message.toLowerCase().includes("expire")) ||
+          data?.allowed === false);
+
+      if (
+        isPlanExpired &&
+        !inSubscriptionFlow &&
+        !window.__PLAN_EXPIRED_HANDLED__
+      ) {
+        window.__PLAN_EXPIRED_HANDLED__ = true;
+        const message =
+          data?.message ||
+          "انتهت باقة شركتك. لن تتمكن من استخدام النظام حتى يتم تجديد الاشتراك.";
+
+        const isOwner = !!store.getters.isOwner;
+        try {
+          store.commit("SET_PLAN_EXPIRED", true);
+        } catch (e) {
+          // ignore
+        }
+
+        if (isOwner) {
+          Swal.fire({
+            icon: "warning",
+            title: "انتهت الباقة",
+            text:
+              message +
+              "\nيمكنك الذهاب الآن لصفحة الاشتراكات لتجديد/ترقية الباقة.",
+            confirmButtonText: "الذهاب لصفحة الاشتراكات",
+            showCancelButton: true,
+            cancelButtonText: "تسجيل الخروج",
+          }).then((res) => {
+            if (res.isConfirmed) {
+              window.location.href = "/subscription";
+            } else {
+              try {
+                localStorage.clear();
+                sessionStorage.clear();
+              } catch (e) {
+                // ignore
+              }
+              window.location.href = "/signin";
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "انتهت الباقة",
+            text: message + "\nبرجاء التواصل مع صاحب الحساب لتجديد الاشتراك.",
+            confirmButtonText: "حسناً",
+          }).then(() => {
+            try {
+              localStorage.clear();
+              sessionStorage.clear();
+            } catch (e) {
+              // ignore
+            }
+            window.location.href = "/signin";
+          });
+        }
+      }
+    } catch (e) {
+      // ignore parsing/handling errors and continue rejecting
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 // تصدير الدوال المختلفة للتعامل مع API
 export default {
@@ -72,7 +157,7 @@ export default {
 
   deleteUser(data) {
     const token = localStorage.getItem("token");
-    console.log(token , data);
+    console.log(token, data);
 
     const config = {
       headers: {
@@ -150,8 +235,6 @@ export default {
     return apiClient.post("/departments", departmentData, config);
   },
 
- 
-
   deleteDepartment(departmentId) {
     const token = localStorage.getItem("token");
     const config = {
@@ -169,9 +252,12 @@ export default {
         Authorization: `Bearer ${token}`,
       },
     };
-    return apiClient.put(`/departments/${departmentData.id}`, departmentData, config);
+    return apiClient.put(
+      `/departments/${departmentData.id}`,
+      departmentData,
+      config
+    );
   },
-  
 
   updateDepartments(departmentData) {
     const token = localStorage.getItem("token");
@@ -180,7 +266,11 @@ export default {
         Authorization: `Bearer ${token}`,
       },
     };
-    return apiClient.post(`users/${departmentData.user_id}/assign-departments`, departmentData, config);
+    return apiClient.post(
+      `users/${departmentData.user_id}/assign-departments`,
+      departmentData,
+      config
+    );
   },
 
   unassignDepartment(departmentData) {
@@ -191,8 +281,12 @@ export default {
         Authorization: `Bearer ${token}`,
       },
     };
-    return apiClient.post(`/unassign-department/${departmentData.user_id}`, departmentData, config);
-  },  
+    return apiClient.post(
+      `/unassign-department/${departmentData.user_id}`,
+      departmentData,
+      config
+    );
+  },
 
   assignManager(managerData) {
     const token = localStorage.getItem("token");
@@ -241,13 +335,12 @@ export default {
 
   addRoleWithPermissions(roleData) {
     console.log("roleDataapi", roleData);
-const token = localStorage.getItem("token");
-const config = {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-};
-
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
     // إرسال البيانات إلى API
     return apiClient.post("/roles/assign-permissions", roleData, config);
@@ -263,7 +356,6 @@ const config = {
     };
     return apiClient.put(`/roles/${roleData.id}`, roleData, config);
   },
-
 
   updateRoles(roleData) {
     console.log("roleDataapi", roleData);
@@ -318,7 +410,6 @@ const config = {
     };
     return apiClient.get("/projects", config);
   },
-
 
   addProject(projectData) {
     console.log("Adding project:", projectData);
@@ -398,7 +489,7 @@ const config = {
     };
     return apiClient.post(`/activedailytask/${task.id}`, task, config);
   },
-  
+
   addRoutineTask(task) {
     const token = localStorage.getItem("token");
     const config = {
@@ -447,14 +538,12 @@ const config = {
       },
       params: {
         page,
-        ...filter,  // هنا بنمزج الفلاتر مع الـ params
+        ...filter, // هنا بنمزج الفلاتر مع الـ params
       },
     };
-  
+
     return apiClient.get("/dailytask", config);
   },
-  
-
 
   reportRoutineTasks(taskData) {
     const token = localStorage.getItem("token");
@@ -463,19 +552,23 @@ const config = {
         Authorization: `Bearer ${token}`,
       },
     };
-    return apiClient.post(`/daily-tasks/${taskData.id}/submit-report`, taskData, config);
+    return apiClient.post(
+      `/daily-tasks/${taskData.id}/submit-report`,
+      taskData,
+      config
+    );
   },
 
-  getTaskReports(date) { //uses for reports
+  getTaskReports(date) {
+    //uses for reports
     const token = localStorage.getItem("token");
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-  
+
     return apiClient.get(`/daily-tasks-reports/${date}`, config);
-    
   },
 
   getNotReportedTasks(date) {
@@ -485,34 +578,34 @@ const config = {
         Authorization: `Bearer ${token}`,
       },
     };
-  
+
     return apiClient.get(`/daily-task-reports/${date}`, config);
   },
-  
+
   // In your API service
-getChartDeptPerformance(range) {
-  const token = localStorage.getItem("token");
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
-  };
+  getChartDeptPerformance(range) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
 
-  return apiClient.post("/deptPerformance", range, config);
-},
+    return apiClient.post("/deptPerformance", range, config);
+  },
 
-getRundomTask() {
-  const token = localStorage.getItem("token");
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
-  };
+  getRundomTask() {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
 
-  return apiClient.get("/dailyTasks/yesterday", config);
-},
+    return apiClient.get("/dailyTasks/yesterday", config);
+  },
 
   // end routine tasks------------------------------------------------
 
@@ -549,7 +642,7 @@ getRundomTask() {
         Authorization: `Bearer ${token}`,
       },
     };
-  
+
     return apiClient.get(`/daily-tasks-evaluations/${date}`, config);
   },
 
@@ -564,8 +657,6 @@ getRundomTask() {
     return apiClient.post(`/evaluations/${taskData.id}`, taskData, config);
   },
 
-
-
   // end evaluation------------------------------------------------
 
   // start one time tasks------------------------------------------------
@@ -578,10 +669,10 @@ getRundomTask() {
       },
       params: {
         page,
-        ...filter,  // هنا بنمزج الفلاتر مع الـ params
+        ...filter, // هنا بنمزج الفلاتر مع الـ params
       },
     };
-  
+
     return apiClient.get("/tasks", config);
   },
 
@@ -618,17 +709,17 @@ getRundomTask() {
   },
 
   // تعديل الدالة لاستخدام FormData مع الـheaders الصحيحة
-AddAttachmentOneTimeTask(formData, taskId) {
-  const token = localStorage.getItem("token");
-  return apiClient.post(`/tasks/${taskId}/attachments`, formData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data',
-      'Accept': 'application/json',
-      // 'Accept': 'application/pdf',
-    }
-  });
-},
+  AddAttachmentOneTimeTask(formData, taskId) {
+    const token = localStorage.getItem("token");
+    return apiClient.post(`/tasks/${taskId}/attachments`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+        Accept: "application/json",
+        // 'Accept': 'application/pdf',
+      },
+    });
+  },
 
   starOneTimeTask(taskData) {
     console.log(taskData);
@@ -722,7 +813,7 @@ AddAttachmentOneTimeTask(formData, taskId) {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
-        "Accept": "application/json",
+        Accept: "application/json",
       },
     };
     return apiClient.post("user/upload-profile-picture", formData, config);
@@ -757,7 +848,7 @@ AddAttachmentOneTimeTask(formData, taskId) {
         Authorization: `Bearer ${token}`,
       },
     };
-    return apiClient.get('/plans', config);
+    return apiClient.get("/plans", config);
   },
   subscribeToPlan(payload) {
     const token = localStorage.getItem("token");
@@ -766,10 +857,10 @@ AddAttachmentOneTimeTask(formData, taskId) {
         Authorization: `Bearer ${token}`,
       },
     };
-    return apiClient.post('/companies/subscribe', payload, config);
+    return apiClient.post("/companies/subscribe", payload, config);
   },
   fetchCompanyData() {
-    return apiClient.get('/company-data');
+    return apiClient.get("/company-data");
   },
 
   fetchPlanInfo() {
@@ -796,7 +887,6 @@ AddAttachmentOneTimeTask(formData, taskId) {
   },
 
   // DELETE: حذف مستخدم
-
 
   sendResetPassword(email) {
     console.log("Email to reset password:", email);
@@ -830,6 +920,4 @@ AddAttachmentOneTimeTask(formData, taskId) {
       return response;
     });
   },
-  
-  
 };

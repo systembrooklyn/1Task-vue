@@ -3,21 +3,14 @@
   <div class="routine-task-container" :key="componentKey">
     <!-- الشريط الجانبي (الأزرار) -->
     <div class="sidebar">
-      <button
-        v-for="tab in [
-          'Inbox',
-          'Own',
-          'Archive',
-          'Started',
-          'Review',
-          'Done',
-          // 'Upcoming',
-          // 'Label',
-        ]"
-        :key="tab"
-        :class="{ active: activeTab === tab }"
-        @click="activeTab = tab"
-      >
+      <button v-for="tab in [
+        'Inbox',
+        'Own',
+        'Archive',
+        'Started',
+        'Review',
+        'Done',
+      ]" :key="tab" :class="{ active: activeTab === tab }" @click="activeTab = tab">
         {{ tab }}
       </button>
     </div>
@@ -26,11 +19,8 @@
     <div class="main-content">
       <!-- عندما لا توجد مهام مفلترة -->
       <div v-if="filteredTasks.length === 0" class="no-tasks-container">
-        <img
-          src="https://ik.imagekit.io/ts7pphpbz3/man-despair-data-leak_11197-392.jpg?updatedAt=1742827650800"
-          alt="no-tasks"
-          class="no-tasks-image"
-        />
+        <img src="https://ik.imagekit.io/ts7pphpbz3/man-despair-data-leak_11197-392.jpg?updatedAt=1742827650800"
+          alt="no-tasks" class="no-tasks-image" />
         <p class="no-tasks-text">
           {{ t("noTasksHere") }}
         </p>
@@ -40,81 +30,56 @@
       <div v-else>
         <div v-for="task in filteredTasks" :key="task.id" class="task-item">
           <!-- رأس المهمة -->
-          <div
-            class="task-header"
-            :class="[
-              { expanded: expandedTaskId === task.id },
-              { 'urgent-task': task.priority === 'urgent' },
-            ]"
-            @click="toggleTaskExpand(task)"
-          >
+          <div class="task-header" :class="[
+            { expanded: expandedTaskId === task.id },
+            { 'urgent-task': task.priority === 'urgent' },
+          ]" @click="toggleTaskExpand(task)">
             <!-- أيقونة النجمة -->
-            <i
-              class="bi"
-              :class="
-                task.loadingStar
-                  ? 'bi-arrow-repeat spinner-icon'
-                  : task.is_starred
-                    ? 'bi-star-fill star-icon'
-                    : 'bi-star star-icon'
-              "
-              @click.stop="toggleStar(task)"
-              title="Star/Unstar"
-            ></i>
+            <i class="bi" :class="task.loadingStar
+              ? 'bi-arrow-repeat spinner-icon'
+              : task.is_starred
+                ? 'bi-star-fill star-icon'
+                : 'bi-star star-icon'
+              " @click.stop="toggleStar(task)" title="Star/Unstar"></i>
 
             <!-- عنوان المهمة + تاريخ -->
             <span class="task-title" :class="{ 'text-white': task.is_urgent }">
               <span dir="rtl">{{ task.title }}</span>
-              <small
-                class="task-date"
-                :class="{ 'text-white': task.is_urgent }"
-                >{{ formatDateWithTime(task.created_at) }}</small
-              >
+              <small class="task-date" :class="{ 'text-white': task.is_urgent }">{{ formatDateWithTime(task.created_at)
+                }}</small>
 
               <!-- deadline -->
-              <small
-                v-if="
-                  task.status === 'inProgress' &&
-                  userData?.user?.id === task.creator?.id
-                "
-                class="badge badge-success"
-                >{{ task.status }}</small
-              >
+              <small v-if="
+                task.status === 'inProgress' &&
+                userData?.user?.id === task.creator?.id
+              " class="badge badge-success">{{ task.status }}</small>
 
               <!-- priority -->
               <span class="task-priority ms-2">
-                <i
-                  :class="
-                    task.priority == 'high'
-                      ? 'fa fa-angle-double-up text-danger'
-                      : task.priority == 'normal'
-                        ? 'fa fa-minus text-secondary'
-                        : task.priority == 'low'
-                          ? 'fa fa-angle-double-down text-info'
-                          : ''
-                  "
-                ></i>
+                <i :class="task.priority == 'high'
+                  ? 'fa fa-angle-double-up text-danger'
+                  : task.priority == 'normal'
+                    ? 'fa fa-minus text-secondary'
+                    : task.priority == 'low'
+                      ? 'fa fa-angle-double-down text-info'
+                      : ''
+                  "></i>
               </span>
 
               <!-- status -->
               <span class="task-status ms-2">
-                <i
-                  :class="{
-                    'bi bi-check2-circle text-success': task.status === 'done',
-                    'bi bi-alarm text-warning': task.status === 'review',
-                    '': !['done', 'review'].includes(task.status),
-                  }"
-                >
+                <i :class="{
+                  'bi bi-check2-circle text-success': task.status === 'done',
+                  'bi bi-alarm text-warning': task.status === 'review',
+                  '': !['done', 'review'].includes(task.status),
+                }">
                 </i>
               </span>
             </span>
 
             <!-- زر التعليقات -->
-            <div
-              @click.stop="openDescriptionModal(task)"
-              class="border rounded px-2 position-relative"
-              :class="{ loading: taskLoading[task.id] }"
-            >
+            <div @click.stop="openDescriptionModal(task)" class="border rounded px-2 position-relative"
+              :class="{ loading: taskLoading[task.id] }">
               <template v-if="taskLoading[task.id]">
                 <i class="fas fa-spinner fa-spin"></i>
               </template>
@@ -122,10 +87,8 @@
                 <i class="fa fa-comments"></i>
                 <span class="ms-1">{{ task.comments_count || 0 }}</span>
                 <!-- علامة التعليقات الجديدة -->
-                <span
-                  v-if="!task.read_comments"
-                  class="red-dot position-absolute top-0 start-100 translate-middle"
-                ></span>
+                <span v-if="!task.read_comments"
+                  class="red-dot position-absolute top-0 start-100 translate-middle"></span>
               </template>
             </div>
 
@@ -135,173 +98,125 @@
             </span>
 
             <!-- Switch Status -->
-            <div
-              v-if="
-                !['review', 'done'].includes(task.status) &&
-                userData?.user?.id !== task.creator?.id &&
-                !task.informer
-                  ?.map((user) => user.id)
-                  .includes(userData?.user?.id) &&
-                !task.consult
-                  ?.map((user) => user.id)
-                  .includes(userData?.user?.id)
-              "
-              class="mb-0"
-            >
+            <div v-if="
+              !['review', 'done'].includes(task.status) &&
+              userData?.user?.id !== task.creator?.id &&
+              !task.informer
+                ?.map((user) => user.id)
+                .includes(userData?.user?.id) &&
+              !task.consult
+                ?.map((user) => user.id)
+                .includes(userData?.user?.id)
+            " class="mb-0">
               <div class="d-flex justify-content-center text-sm" @click.stop>
-                <argon-switch
-                  :checked="task.status === 'inProgress'"
-                  @update:checked="(newVal) => toggleSwitchStatus(task, newVal)"
-                ></argon-switch>
+                <argon-switch :checked="task.status === 'inProgress'"
+                  @update:checked="(newVal) => toggleSwitchStatus(task, newVal)"></argon-switch>
               </div>
             </div>
 
             <!-- زر Review (للمسؤول أو المشرف) -->
-            <div
-              v-if="
-                task.status === 'inProgress' &&
-                (task.assignedUser
-                  ?.map((user) => user.id)
-                  .includes(userData?.user?.id) ||
-                  userData?.user?.id === task.supervisor?.id)
-              "
-              class="d-flex gap-1 review-buttons"
-              :class="{ loading: taskLoadingAction[task.id] }"
-            >
+            <div v-if="
+              task.status === 'inProgress' &&
+              (task.assignedUser
+                ?.map((user) => user.id)
+                .includes(userData?.user?.id) ||
+                userData?.user?.id === task.supervisor?.id)
+            " class="d-flex gap-1 review-buttons" :class="{ loading: taskLoadingAction[task.id] }">
               <template v-if="taskLoadingAction[task.id]">
                 <i class="fas fa-spinner fa-spin"></i>
               </template>
               <template v-else>
-                <button
-                  class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
-                  @click.stop="updateTaskStatus(task, 'review')"
-                  data-bs-toggle="tooltip"
-                  :title="t('review')"
-                >
+                <button class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
+                  @click.stop="updateTaskStatus(task, 'review')" data-bs-toggle="tooltip" :title="t('review')">
                   <i class="fa fa-eye"></i>
                 </button>
               </template>
             </div>
 
-            <!-- زر Done/Rework (للمنشئ) -->
-            <div
-              v-if="
-                task.status === 'review' &&
-                userData?.user?.id === task.creator?.id
-              "
-              class="d-flex gap-1 review-buttons"
-              :class="{ loading: taskLoadingAction[task.id] }"
-            >
+            <!-- زر Done مباشر (للمنشئ إذا لم يكن هناك موظف معين أو مراجعة) -->
+            <div v-if="
+              userData?.user?.id === task.creator?.id && task.status !== 'review' && task.status !== 'done'
+            " class="d-flex gap-1 review-buttons" :class="{ loading: taskLoadingAction[task.id] }">
               <template v-if="taskLoadingAction[task.id]">
                 <i class="fas fa-spinner fa-spin"></i>
               </template>
               <template v-else>
-                <button
-                  class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
-                  @click.stop="updateTaskStatus(task, 'done')"
-                  data-bs-toggle="tooltip"
-                  :title="t('done')"
-                >
+                <button class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
+                  @click.stop="updateTaskStatus(task, 'done')" data-bs-toggle="tooltip" :title="t('done')">
                   <i class="fa fa-check"></i>
                 </button>
-                <button
-                  class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
-                  @click.stop="updateTaskStatus(task, 'inProgress')"
-                  data-bs-toggle="tooltip"
-                  :title="t('rework')"
-                >
+              </template>
+            </div>
+
+            <!-- زر Done/Rework (للمنشئ) -->
+            <div v-if="
+              task.status === 'review' &&
+              userData?.user?.id === task.creator?.id
+            " class="d-flex gap-1 review-buttons" :class="{ loading: taskLoadingAction[task.id] }">
+              <template v-if="taskLoadingAction[task.id]">
+                <i class="fas fa-spinner fa-spin"></i>
+              </template>
+              <template v-else>
+                <button class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
+                  @click.stop="updateTaskStatus(task, 'done')" data-bs-toggle="tooltip" :title="t('done')">
+                  <i class="fa fa-check"></i>
+                </button>
+                <button class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
+                  @click.stop="updateTaskStatus(task, 'inProgress')" data-bs-toggle="tooltip" :title="t('rework')">
                   <i class="fa fa-redo"></i>
                 </button>
               </template>
             </div>
 
             <!-- زر توسيع/طي -->
-            <i
-              :class="
-                expandedTaskId === task.id ? 'fa-chevron-up' : 'fa-chevron-down'
-              "
-              class="fa expand-arrow"
-            ></i>
-
-            <!-- زر الحذف -->
-            <!-- <i
-              class="fa fa-trash delete-icon"
-              @click.stop="confirmDelete(task)"
-              v-tooltip="t('delete')"
-            ></i> -->
+            <i :class="expandedTaskId === task.id ? 'fa-chevron-up' : 'fa-chevron-down'
+              " class="fa expand-arrow"></i>
 
             <!-- أيقونة التعديل -->
-            <i
-              v-if="task.creator.id === userData?.user?.id"
-              class="fa fa-edit edit-icon ms-1 text-success"
-              @click.stop="openEditPopup(task)"
-              data-bs-toggle="tooltip"
-              :title="t('edit')"
-            ></i>
-
-            <!-- نقطة حمراء لو عندك إشعار جديد -->
-            <!-- <span v-if="task.hasNewUpdate" class="red-dot"></span> -->
+            <i v-if="task.creator.id === userData?.user?.id" class="fa fa-edit edit-icon ms-1 text-success"
+              @click.stop="openEditPopup(task)" data-bs-toggle="tooltip" :title="t('edit')"></i>
 
             <!-- زر الأرشفة -->
-            <i
-              class="fa"
-              :class="
-                task.loadingArchive
-                  ? 'fa-spinner spinner-icon'
-                  : task.is_archived
-                    ? 'fa-undo restore-icon'
-                    : 'fa-archive archive-icon'
-              "
-              @click.stop="archiveTask(task)"
-              data-bs-toggle="tooltip"
-              :title="task.is_archived ? t('restore') : t('archive')"
-            ></i>
+            <i class="fa" :class="task.loadingArchive
+              ? 'fa-spinner spinner-icon'
+              : task.is_archived
+                ? 'fa-undo restore-icon'
+                : 'fa-archive archive-icon'
+              " @click.stop="archiveTask(task)" data-bs-toggle="tooltip"
+              :title="task.is_archived ? t('restore') : t('archive')"></i>
           </div>
 
           <!-- التفاصيل (عند التوسيع) -->
           <transition name="slide-fade">
             <div v-if="expandedTaskId === task.id" class="task-details">
-              <!-- ملخص أو وصف المهمة -->
               <p dir="auto" class="task-description">
                 {{ task.description || "No description" }}
               </p>
 
               <div class="badge-container">
-                <!-- تاريخ البداية والنهاية -->
-                <small
-                  v-if="task.start_date || task.deadline"
-                  class="badge"
-                  :class="{
-                    'badge-danger': isDeadlinePassed(task.deadline),
-                    'badge-warning': isDeadlineApproaching(task.deadline),
-                    'badge-grey':
-                      (!isDeadlinePassed(task.deadline) &&
-                        !isDeadlineApproaching(task.deadline)) ||
-                      !task.deadline,
-                  }"
-                >
+                <small v-if="task.start_date || task.deadline" class="badge" :class="{
+                  'badge-danger': isDeadlinePassed(task.deadline),
+                  'badge-warning': isDeadlineApproaching(task.deadline),
+                  'badge-grey':
+                    (!isDeadlinePassed(task.deadline) &&
+                      !isDeadlineApproaching(task.deadline)) ||
+                    !task.deadline,
+                }">
                   {{ t("from") }}: {{ formatDate(task.start_date) }}
                   <span v-if="task.deadline">
-                    - {{ t("to") }}: {{ formatDate(task.deadline) }}</span
-                  >
+                    - {{ t("to") }}: {{ formatDate(task.deadline) }}</span>
                 </small>
 
-                <!-- من أنشأ المهمة -->
                 <small v-if="task.creator" class="badge badge-grey">
                   {{ t("createdBy") }}: {{ task.creator?.name || "Unknown" }}
                 </small>
 
-                <!-- المشرف -->
                 <small v-if="task.supervisor" class="badge badge-grey">
                   {{ t("supervisor") }}:
                   {{ task.supervisor?.name || "Unknown" }}
                 </small>
 
-                <!-- إلى من أُسندت المهمة -->
-                <small
-                  v-if="task.assignedUser.length > 0"
-                  class="badge badge-grey"
-                >
+                <small v-if="task.assignedUser.length > 0" class="badge badge-grey">
                   {{ t("assignedTo") }}:
                   {{
                     task.assignedUser.map((user) => user.name).join(", ") ||
@@ -309,7 +224,6 @@
                   }}
                 </small>
 
-                <!-- المشرف -->
                 <small v-if="task.consult.length > 0" class="badge badge-grey">
                   {{ t("consult") }}:
                   {{
@@ -318,7 +232,6 @@
                   }}
                 </small>
 
-                <!-- المشرف -->
                 <small v-if="task.informer.length > 0" class="badge badge-grey">
                   {{ t("informer") }}:
                   {{
@@ -330,168 +243,30 @@
             </div>
           </transition>
         </div>
-
-        <!-- الـPagination -->
-        <!-- <nav
-          v-if="pagination.total > pagination.per_page"
-          aria-label="Page navigation"
-          class="pagination-container"
-        >
-          <ul class="pagination">
-            <li
-              class="page-item"
-              :class="{ disabled: pagination.current_page === 1 }"
-            >
-              <a
-                class="page-link"
-                href="#"
-                @click.prevent="changePage(pagination.current_page - 1)"
-              >
-                <i class="fas fa-angle-left"></i>
-              </a>
-            </li>
-
-            <li
-              v-for="page in lastPage"
-              :key="page"
-              :class="[
-                'page-item',
-                { active: pagination.current_page === page },
-              ]"
-            >
-              <a class="page-link" href="#" @click.prevent="changePage(page)">
-                {{ page }}
-              </a>
-            </li>
-
-            <li
-              class="page-item"
-              :class="{ disabled: pagination.current_page === lastPage }"
-            >
-              <a
-                class="page-link"
-                href="#"
-                @click.prevent="changePage(pagination.current_page + 1)"
-              >
-                <i class="fas fa-angle-right"></i>
-              </a>
-            </li>
-          </ul>
-        </nav> -->
       </div>
     </div>
 
-    <!-- مودال التقرير (Report) -->
-    <transition name="fade">
-      <div v-if="showEditPopup" class="popup-overlay">
-        <ArgonModal
-          v-if="showEditPopup"
-          :title="selectedTask.task_name"
-          @close="closeEditPopup"
-          class="routine-task-modal"
-          style="direction: rtl"
-        >
-          <template #default>
-            <div class="mb-3 modal-content-scroll">
-              <label class="form-label">{{ t("reportTaskType") }}:</label>
-              <argon-select
-                required
-                v-model="taskStatus"
-                :options="reportTypeOptions"
-                class="form-control mb-3"
-                :placeholder="t('selectReportTaskType')"
-              />
-
-              <label class="form-label">{{ t("taskFound") }}</label>
-              <argon-select
-                v-model="taskFound"
-                :options="taskFoundOptions"
-                class="form-control mb-3"
-                :placeholder="t('selectTaskFound')"
-              />
-
-              <label class="form-label">{{ t("comment") }}:</label>
-              <quill-editor
-                v-model="taskComment"
-                :options="editorOptions"
-                @update:content="(val) => (taskComment = val)"
-                ref="editorRef"
-                contentType="html"
-                class="mb-3"
-              />
-            </div>
-          </template>
-
-          <template #footer>
-            <ArgonButton
-              variant="success"
-              @click="reportTask"
-              :disabled="isLoading"
-            >
-              <span
-                v-if="isLoading"
-                class="spinner-border spinner-border-sm me-2"
-                role="status"
-                aria-hidden="true"
-              ></span>
-              {{ isLoading ? t("saving") : t("report") }}
-            </ArgonButton>
-            <ArgonButton variant="secondary" @click="closeEditPopup">
-              {{ t("close") }}
-            </ArgonButton>
-          </template>
-
-          <template #title>
-            <i class="fas fa-user-edit me-2"></i>
-            {{ t("editTask") }}
-          </template>
-        </ArgonModal>
-      </div>
-    </transition>
-
-    <!-- مودال التعليقات فقط (بدون تبويبات Info/Log) -->
-    <!-- مودال التعليقات بكامل الشاشة مع Scroll -->
+    <!-- مودال التعليقات -->
     <transition name="fade">
       <div v-if="showDescriptionModal" class="popup-overlay">
-        <ArgonModal
-          :title="''"
-          @close="closeDescriptionModal"
-          class="comments-fullscreen-modal"
-        >
-          <!-- عنوان مخصص نضع فيه اسم المهمة والوصف المختصر مع زر see more/less -->
+        <ArgonModal :title="''" @close="closeDescriptionModal" class="comments-fullscreen-modal">
           <template #title>
             <div>
-              <!-- اسم المهمة -->
               <h5 class="mb-1" dir="auto">{{ selectedTaskName }}</h5>
-
-              <!-- الوصف (بخط صغير) + toggle see more/less -->
-              <small
-                class="text-muted d-block modal-title-description"
-                style="font-size: 0.85rem"
-              >
-                <template
-                  v-if="selectedDescription && selectedDescription.length > 100"
-                >
+              <small class="text-muted d-block modal-title-description" style="font-size: 0.85rem">
+                <template v-if="selectedDescription && selectedDescription.length > 100">
                   <div>
                     <p dir="auto" v-if="showFullDescription">
                       {{ selectedDescription }}
                     </p>
                     <p dir="auto" v-else>
                       {{ truncatedDescription }}
-                      <button
-                        @click="toggleDescription"
-                        class="btn btn-link p-0 ms-1"
-                        style="font-size: 0.85rem"
-                      >
+                      <button @click="toggleDescription" class="btn btn-link p-0 ms-1" style="font-size: 0.85rem">
                         {{ showFullDescription ? "see less" : "see more" }}
                       </button>
                     </p>
-                    <button
-                      v-if="showFullDescription"
-                      @click="toggleDescription"
-                      class="btn btn-link p-0 mt-1"
-                      style="font-size: 0.85rem"
-                    >
+                    <button v-if="showFullDescription" @click="toggleDescription" class="btn btn-link p-0 mt-1"
+                      style="font-size: 0.85rem">
                       {{ showFullDescription ? "see less" : "see more" }}
                     </button>
                   </div>
@@ -506,9 +281,7 @@
           </template>
 
           <template #default>
-            <!-- نجعل حاوية التعليقات قابلة للتمرير -->
-            <div class="comments-scroll-container modal-content-scroll">
-              <!-- الهيكل أثناء التحميل -->
+            <div class="comments-scroll-container">
               <transition name="fade" mode="out-in">
                 <div v-if="isLoadingComments" class="skeleton-loading">
                   <div v-for="i in 3" :key="i" class="skeleton-comment">
@@ -521,164 +294,81 @@
                 </div>
 
                 <ul v-else class="comment-list">
-                  <li
-                    v-for="comment in taskComments"
-                    :key="comment.id"
-                    class="comment-item"
-                  >
-                    <!-- هيكل الردود أثناء التحميل -->
-                    <div v-if="isLoadingReplies" class="skeleton-replies">
-                      <div v-for="i in 2" :key="i" class="skeleton-comment">
-                        <div class="skeleton-content">
-                          <div class="skeleton-line short"></div>
-                          <div class="skeleton-line medium"></div>
-                        </div>
-                      </div>
-                    </div>
-
+                  <li v-for="comment in taskComments" :key="comment.id" class="comment-item">
                     <div v-if="comment.comment_text" class="comment-header">
                       <div class="user-info">
                         <div>
                           <span class="user-name">{{ comment.user.name }}</span>
-                          <span class="comment-time">
-                            {{ formatDateWithTime(comment.created_at) }}
-                          </span>
+                          <span class="comment-time">{{ formatDateWithTime(comment.created_at) }}</span>
                         </div>
                       </div>
                       <div class="comment-actions">
-                        <button
-                          class="btn btn-reply"
-                          @click="toggleReply(comment.id)"
-                        >
+                        <button class="btn btn-reply" @click="toggleReply(comment.id)">
                           {{ t("reply") }}
                         </button>
                       </div>
                     </div>
-                    <div
-                      class="comment-body"
-                      v-html="comment.comment_text"
-                    ></div>
+                    <div class="comment-body" v-html="comment.comment_text"></div>
 
-                    <small v-if="comment.seen_by?.length">
+                    <small v-if="comment.seen_by?.length" class="seen-by">
                       <i class="fa fa-check text-success me-1"></i>
-                      <span
-                        v-for="(user, index) in comment.seen_by"
-                        :key="user.id"
-                      >
-                        {{ user.name }}
-                        <span v-if="index !== comment.seen_by.length - 1"
-                          >,
-                        </span>
+                      <span v-for="(user, index) in comment.seen_by" :key="user.id">
+                        {{ user.name }}<span v-if="index !== comment.seen_by.length - 1">, </span>
                       </span>
                     </small>
 
-                    <!-- الردود -->
                     <div v-if="comment.replies?.length" class="replies">
-                      <!-- زر التوسيع/الطي -->
-                      <button
-                        @click="toggleReplies(comment.id)"
-                        class="btn btn-link p-0 mb-2"
-                        :class="{ 'new-reply': hasUnseenReplies(comment) }"
-                      >
+                      <button @click="toggleReplies(comment.id)" class="btn btn-link p-0 mb-2"
+                        :class="{ 'new-reply': hasUnseenReplies(comment) }">
                         {{ showReplies[comment.id] ? "Hide" : "View" }}
                         {{ comment.replies.length }} replies
-                        <!-- علامة جديدة إذا كان هناك ردود غير مقروءة -->
-                        <span
-                          v-if="hasUnseenReplies(comment)"
-                          class="new-reply-dot"
-                        ></span>
+                        <span v-if="hasUnseenReplies(comment)" class="new-reply-dot"></span>
                       </button>
 
-                      <!-- الردود -->
                       <transition name="fade">
-                        <div
-                          v-if="showReplies[comment.id]"
-                          class="replies-container"
-                        >
-                          <div
-                            v-for="reply in comment.replies"
-                            :key="reply.id"
-                            class="reply-item"
-                            @click="markReplyAsSeen(reply.id)"
-                          >
+                        <div v-if="showReplies[comment.id]" class="replies-container">
+                          <div v-for="reply in comment.replies" :key="reply.id" class="reply-item"
+                            @click="markReplyAsSeen(reply.id)">
                             <div class="comment-header">
                               <div class="user-info">
                                 <div>
-                                  <span class="user-name">{{
-                                    reply.user?.name
-                                  }}</span>
-                                  <span class="comment-time">{{
-                                    formatDateWithTime(reply.created_at)
-                                  }}</span>
+                                  <span class="user-name">{{ reply.user?.name }}</span>
+                                  <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
                                 </div>
                               </div>
                             </div>
-                            <div
-                              class="comment-body"
-                              v-html="reply.reply_text"
-                            ></div>
-                            <small v-if="reply.seen_by?.length">
+                            <div class="comment-body" v-html="reply.reply_text"></div>
+                            <small v-if="reply.seen_by?.length" class="seen-by">
                               <i class="fa fa-check text-success me-1"></i>
-                              <span
-                                v-for="(user, index) in reply.seen_by"
-                                :key="user.id"
-                              >
-                                {{ user.name }}
-                                <span v-if="index !== reply.seen_by?.length - 1"
-                                  >,
-                                </span>
+                              <span v-for="(user, index) in reply.seen_by" :key="user.id">
+                                {{ user.name }}<span v-if="index !== reply.seen_by.length - 1">, </span>
                               </span>
                             </small>
 
-                            <!-- علامة جديدة إذا كان الرد غير مقروء -->
-                            <span
-                              v-if="!reply.is_seen"
-                              class="new-reply-dot position-absolute top-0 start-100 translate-middle"
-                            ></span>
+                            <span v-if="!reply.is_seen"
+                              class="new-reply-dot position-absolute top-0 start-100 translate-middle"></span>
                           </div>
                         </div>
                       </transition>
                     </div>
 
-                    <!-- لودينج عند إرسال الرد -->
-                    <div
-                      v-if="isSubmittingReplyForComment[comment.id]"
-                      class="skeleton-comment"
-                    >
+                    <div v-if="isSubmittingReplyForComment[comment.id]" class="skeleton-comment">
                       <div class="skeleton-line short"></div>
                       <div class="skeleton-content">
                         <div class="skeleton-line long"></div>
                       </div>
                     </div>
 
-                    <!-- مربع الرد -->
                     <transition name="fade">
-                      <div
-                        v-if="activeReplyId === comment.id"
-                        class="reply-editor"
-                      >
-                        <quill-editor
-                          v-if="activeReplyId === comment.id"
-                          :ref="(el) => setReplyRef(el, comment.id)"
-                          v-model:content="replyContent"
-                          :options="editorOptions"
-                          @update:content="(val) => (replyContent = val)"
-                          contentType="html"
-                          class="mb-2"
-                          dir="auto"
-                        />
+                      <div v-if="activeReplyId === comment.id" class="reply-editor">
+                        <quill-editor v-if="activeReplyId === comment.id" :ref="(el) => setReplyRef(el, comment.id)"
+                          v-model:content="replyContent" :options="editorOptions"
+                          @update:content="(val) => (replyContent = val)" contentType="html" class="mb-2" dir="auto" />
                         <div class="d-flex gap-2">
-                          <ArgonButton
-                            @click="submitReply(comment.id)"
-                            size="sm"
-                          >
+                          <ArgonButton @click="submitReply(comment.id)" size="sm">
                             {{ t("submit") }}
                           </ArgonButton>
-                          <ArgonButton
-                            variant="outline"
-                            @click="cancelReply"
-                            size="sm"
-                          >
+                          <ArgonButton variant="outline" @click="cancelReply" size="sm">
                             {{ t("cancel") }}
                           </ArgonButton>
                         </div>
@@ -688,7 +378,6 @@
                 </ul>
               </transition>
 
-              <!-- هيكل التعليق الجديد أثناء الإرسال -->
               <div v-if="isSubmitting" class="skeleton-comment">
                 <div class="skeleton-avatar"></div>
                 <div class="skeleton-content">
@@ -696,72 +385,50 @@
                 </div>
               </div>
 
-              <!-- إضافة تعليق جديد -->
-              <div class="new-comment">
-                <quill-editor
-                  v-model:content="taskComment"
-                  :options="editorOptions"
-                  @update:content="(val) => (taskComment = val)"
-                  ref="editorRef"
-                  contentType="html"
-                  dir="auto"
-                />
-
-                <!-- File Input with Remove Button -->
-                <div class="d-flex flex-column">
-                  <div class="d-flex align-items-center">
-                    <ArgonInput
-                      type="file"
-                      @change="handleFileUpload"
-                      accept="image/*, .pdf, .docx, .xlsx"
-                      :key="fileInputKey"
-                      class="flex-grow-1"
-                    />
-                    <button
-                      v-if="fileToUpload"
-                      @click="removeFile"
-                      class="btn btn-sm btn-danger ms-2"
-                      title="Remove file"
-                    >
-                      &times;
-                    </button>
-                  </div>
-                  <small class="text-muted mt-0 pt-0">
-                    {{ t("maxFileSize", { size: "1.99MB" }) }}
-                  </small>
+              <div class="new-comment-compact">
+                <div class="editor-wrapper">
+                  <quill-editor v-model:content="taskComment" :options="compactEditorOptions"
+                    @update:content="(val) => (taskComment = val)" ref="editorRef" contentType="html" dir="auto" />
                 </div>
 
-                <!-- Combined Action Buttons -->
-                <div class="d-flex gap-2">
-                  <ArgonButton
-                    v-if="fileToUpload"
-                    @click="submitFile"
-                    :disabled="isUploading"
-                    class="w-25"
-                  >
-                    <i class="fas fa-paper-plane me-2"></i>
+                <div class="comment-controls">
+                  <div class="file-upload-compact">
+                    <ArgonInput type="file" @change="handleFileUpload" accept="image/*, .pdf, .docx, .xlsx"
+                      :key="fileInputKey" size="sm" />
+                    <button v-if="fileToUpload" @click="removeFile" class="btn btn-sm btn-outline-danger"
+                      title="Remove file">
+                      ×
+                    </button>
+                  </div>
+
+                  <ArgonButton v-if="fileToUpload" @click="submitFile" :disabled="isUploading" size="sm">
+                    <i class="fas fa-paper-plane"></i>
                     {{ isUploading ? t("submitting") : t("submit") }}
                   </ArgonButton>
 
-                  <ArgonButton
-                    v-else
-                    @click="submitComment"
-                    :disabled="isCommentEmpty || isSubmitting"
-                    class="w-25"
-                  >
+                  <ArgonButton v-else @click="submitComment" :disabled="isCommentEmpty || isSubmitting" size="sm">
                     <i class="fas fa-paper-plane"></i>
                     {{ isSubmitting ? t("submitting") : t("submit") }}
                   </ArgonButton>
                 </div>
+
+                <small v-if="fileToUpload" class="file-info">
+                  {{ t("maxFileSize", { size: "1.99MB" }) }}
+                </small>
               </div>
             </div>
           </template>
 
+
+
           <template #footer>
-            <ArgonButton variant="secondary" @click="closeDescriptionModal">
-              {{ t("close") }}
-            </ArgonButton>
+            <div class="modal-footer-compact">
+              <ArgonButton variant="secondary" @click="closeDescriptionModal" size="sm">
+                {{ t("close") }}
+              </ArgonButton>
+            </div>
           </template>
+
         </ArgonModal>
       </div>
     </transition>
@@ -769,12 +436,10 @@
 </template>
 
 <script setup>
-/* نفس السكربت الأصلي تمامًا دون تغيير أسماء الدوال أو المنطق الأساسي */
+/* eslint-disable no-unused-vars */
 import { computed, ref, reactive, onBeforeMount, watch, nextTick } from "vue";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
-// import { Tooltip } from 'bootstrap'
-// import * as bootstrap from 'bootstrap' // 👈 لازم تضيف ده
 
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
@@ -782,7 +447,7 @@ import ArgonSelect from "@/components/ArgonSelect.vue";
 import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 
-import { markTaskCommentsAsSeen } from "@/utils/commentCache"; // فوق السكربت
+import { markTaskCommentsAsSeen } from "@/utils/commentCache";
 
 import {
   savePermissionsToLocalStorage,
@@ -790,38 +455,16 @@ import {
   loadPermissionsFromLocalStorage,
 } from "@/utils/permissions.js";
 
-// const vTooltip = {
-//   mounted(el, binding) {
-//     el._tooltip = new Tooltip(el, {
-//       title: binding.value,
-//       placement: binding.arg || 'top',
-//     });
-//   },
-//   updated(el, binding) {
-//     if (el._tooltip) {
-//       el._tooltip.setContent({ '.tooltip-inner': binding.value });
-//     }
-//   },
-//   unmounted(el) {
-//     if (el._tooltip) {
-//       el._tooltip.dispose();
-//       el._tooltip = null;
-//     }
-//   },
-// };
-
-// const directives = { tooltip: vTooltip }
-// defineExpose({ directives })
-
 const emit = defineEmits([
   "page-changed",
   "reload-tasks",
   "filtered-count-changed",
   "open-edit-popup",
+  "update:activeTab",
 ]);
 
-const taskLoading = ref({}); // { [taskId]: boolean }
-const taskLoadingAction = ref({}); // { [taskId]: boolean }
+const taskLoading = ref({});
+const taskLoadingAction = ref({});
 
 const isLoadingComments = ref(false);
 const isLoadingReplies = ref(false);
@@ -829,8 +472,6 @@ const isSubmitting = ref(false);
 const isUploading = ref(false);
 const isSubmittingReplyForComment = ref({});
 const showReplies = reactive({});
-
-// const isOwner = computed(() => store.getters.isOwner);
 
 const props = defineProps({
   oneTimeTasks: {
@@ -842,6 +483,10 @@ const props = defineProps({
     type: Object,
     required: true,
     default: () => ({}),
+  },
+  activeTab: {
+    type: String,
+    required: true,
   },
 });
 
@@ -864,8 +509,10 @@ onBeforeMount(() => {
   store.dispatch("getCompanyUsers");
 });
 
-// المتغيرات العامة
-const activeTab = ref("Inbox");
+const activeTab = computed({
+  get: () => props.activeTab,
+  set: (value) => emit("update:activeTab", value),
+});
 const componentKey = ref(0);
 
 const showEditPopup = ref(false);
@@ -896,32 +543,26 @@ const taskFound = ref(null);
 const taskNotes = ref("");
 const isLoading = ref(false);
 
-// Example implementation of t()
 const t = (key, params = {}) => {
-  const lang = store.getters.currentLanguage; // Get current language from Vuex
-  let translation = translations[lang][key] || key; // Fallback to key if not found
+  const lang = store.getters.currentLanguage;
+  let translation = translations[lang][key] || key;
 
-  // Replace placeholders like {size}
   Object.entries(params).forEach(([placeholder, value]) => {
     translation = translation.replace(`{${placeholder}}`, value);
   });
 
   return translation;
 };
-// في قسم <script setup>
 const isCommentEmpty = computed(() => {
-  // استخراج النص الصافي من المحتوى HTML
   const plainText = taskComment.value.replace(/<[^>]+>/g, "").trim();
   return plainText === "";
 });
 
-// خيارات التقرير
 const reportTypeOptions = [
   { value: "done", label: "Done" },
   { value: "not_done", label: "Not Done" },
 ];
 
-// خيارات هل المهمة موجودة
 const taskFoundOptions = [
   { value: 1, label: "Yes" },
   { value: 0, label: "No" },
@@ -937,7 +578,6 @@ function cancelReply() {
   replyContent.value = "";
 }
 
-// إعدادات محرر Quill
 const editorRef = ref(null);
 const replyRefs = ref({});
 const setReplyRef = (el, commentId) => {
@@ -957,6 +597,19 @@ const editorOptions = ref({
   },
   theme: "snow",
 });
+
+// إعدادات المحرر المضغوطة
+const compactEditorOptions = computed(() => ({
+  modules: {
+    toolbar: [
+      ["bold", "italic"],
+      [{ list: "bullet" }],
+      ["link"],
+    ],
+  },
+  theme: "snow",
+  placeholder: translations[currentLanguage.value]?.writeComment || "Write your comment here...",
+}));
 
 const expandedTaskId = ref(null);
 async function toggleTaskExpand(task) {
@@ -998,13 +651,11 @@ async function archiveTask(task) {
   }
 }
 
-// إغلاق popup
 function closeEditPopup() {
   showEditPopup.value = false;
   selectedTask.value = null;
 }
 
-// تقرير
 async function reportTask() {
   isLoading.value = true;
   const taskData = {
@@ -1040,7 +691,6 @@ async function reportTask() {
   }
 }
 
-// فتح مودال التعليقات
 async function openDescriptionModal(task) {
   isLoadingComments.value = true;
   try {
@@ -1058,18 +708,15 @@ async function openDescriptionModal(task) {
     selectedTaskDayOfMonth.value = task.day_of_month;
     selectedTaskDepartment.value = task.department;
 
-    // ❶ حدد هذا التاسك كـ تمّت رؤية تعليقاته
     markTaskCommentsAsSeen(task.id);
-    // ❷ أطفئ النقطة الحمراء مباشرة
     task.hasNewUpdate = false;
 
     await getOneTimeTaskComments(task.id);
-    task.read_comments = true; // تحديث الحالة إلى مقروء
+    task.read_comments = true;
 
     showDescriptionModal.value = true;
 
-    // التمرير التلقائي إلى التعليق الذي يحتوي على رد جديد
-    await nextTick(); // انتظر حتى يتم تحميل التعليقات
+    await nextTick();
     scrollToFirstUnseenReply();
   } catch (error) {
     console.error("Error fetching comments:", error);
@@ -1098,7 +745,6 @@ async function getOneTimeTaskLogs(taskId) {
   try {
     loadingTaskId.value = taskId;
     const response = await store.dispatch("getOneTimeTaskLogs", taskId);
-    console.log("response logsssssssssss" + response);
     if (response.status === 200) {
       taskLogs.value = response.data;
     }
@@ -1113,7 +759,6 @@ async function getOneTimeTaskComments(taskId) {
   try {
     taskLoading.value[taskId] = true;
     const response = await store.dispatch("getOneTimeTaskComments", taskId);
-    console.log("response commentsssssssssss", response);
     if (response.status === 200) {
       taskComments.value = response.data.comments;
     }
@@ -1123,40 +768,6 @@ async function getOneTimeTaskComments(taskId) {
     taskLoading.value[taskId] = false;
   }
 }
-
-// function confirmDelete(task) {
-//   Swal.fire({
-//     title: t("deleteConfirmationTitle"),
-//     text: t("deleteConfirmationText"),
-//     icon: "warning",
-//     showCancelButton: true,
-//     confirmButtonText: t("delete"),
-//     cancelButtonText: t("close"),
-//   }).then(async (result) => {
-//     if (result.isConfirmed) {
-//       await deleteTask(task.id);
-//     }
-//   });
-// }
-// async function deleteTask(taskId) {
-//   try {
-//     await store.dispatch("deleteRoutineTask", taskId);
-//     emit("reload-tasks");
-//     Swal.fire({
-//       icon: "success",
-//       title: t("deleteConfirmationSuccess"),
-//       showConfirmButton: false,
-//       timer: 1500,
-//       timerProgressBar: true,
-//     });
-//   } catch (error) {
-//     Swal.fire({
-//       icon: "error",
-//       title: t("errorDeletingTask"),
-//       text: error.message,
-//     });
-//   }
-// }
 
 function formatDate(dateString) {
   if (!dateString) return "N/A";
@@ -1213,7 +824,6 @@ async function submitComment() {
 }
 
 async function submitReply(commentId) {
-  console.log(commentId);
   isSubmittingReplyForComment.value[commentId] = true;
   const editorInstance = replyRefs.value[commentId];
 
@@ -1247,14 +857,6 @@ async function submitReply(commentId) {
     isSubmittingReplyForComment.value[commentId] = false;
   }
 }
-
-// function changePage(page) {
-//   if (page < 1 || page > lastPage.value) return;
-//   emit("page-changed", page);
-// }
-// const lastPage = computed(() =>
-//   Math.ceil(props.pagination.total / props.pagination.per_page)
-// );
 
 function openEditPopup(task) {
   emit("open-edit-popup", task);
@@ -1291,6 +893,7 @@ const translations = {
     editTask: "Edit Task",
     comment_text: "Comment",
     write_comment: "Write a comment",
+    writeComment: "Write your comment here...",
     upload: "Upload",
     submitting: "Submitting...",
     uploading: "Uploading...",
@@ -1361,6 +964,7 @@ const translations = {
     editTask: "تعديل مهمة",
     comment_text: "التعليق",
     write_comment: "اكتب تعليقًا",
+    writeComment: "اكتب تعليقك هنا...",
     submitting: "جاري الإرسال...",
     upload: "رفع الملف",
     uploading: "جاري رفع الملف...",
@@ -1403,9 +1007,7 @@ const translations = {
   },
 };
 
-// فلترة المهام حسب التاب
 const filteredTasks = computed(() => {
-  console.log("props.oneTimeTasks:", props);
   if (!props.oneTimeTasks) return [];
   switch (activeTab.value) {
     case "Inbox":
@@ -1443,7 +1045,7 @@ const filteredTasks = computed(() => {
       return props.oneTimeTasks.filter((task) => task.status === "done");
     case "Label":
       return props.oneTimeTasks.filter(() => {
-        // منطق خاص بالـLabel لو أردت
+        // Label-specific logic if needed
       });
     default:
       return props.oneTimeTasks.filter((task) => {
@@ -1458,23 +1060,9 @@ const filteredTasks = computed(() => {
 });
 
 watch(filteredTasks, (newVal) => {
-  console.log("newVal:", newVal);
   emit("filtered-count-changed", newVal.length);
 });
 
-// watch(filteredTasks, async () => {
-//   await nextTick();
-//   const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-//   tooltips.forEach((el) => {
-//     const instance = bootstrap.Tooltip.getInstance(el);
-//     if (instance) {
-//       instance.dispose();
-//     }
-//     new bootstrap.Tooltip(el);
-//   });
-// });
-
-// toggleSwitchStatus
 async function toggleSwitchStatus(task, isChecked) {
   const newStatus = isChecked ? "inProgress" : "pending";
   const taskData = { id: task.id, status: newStatus };
@@ -1505,7 +1093,6 @@ function isDeadlineApproaching(deadline) {
   return daysDiff <= 2 && daysDiff >= 0;
 }
 
-// لإظهار/إخفاء الوصف الطويل
 const showFullDescription = ref(false);
 const truncatedDescription = computed(() => {
   if (!selectedDescription.value) return "";
@@ -1519,16 +1106,14 @@ function toggleDescription() {
   showFullDescription.value = !showFullDescription.value;
 }
 
-// زر المراجعة
 const updateTaskStatus = async (task, status) => {
-  taskLoadingAction.value[task.id] = true; // تفعيل الـ loading
+  taskLoadingAction.value[task.id] = true;
   const taskData = { id: task.id, status };
 
   try {
     const response = await store.dispatch("updateoneTimeTaskStatus", taskData);
 
     if (response.status === 200) {
-      // عرض رسالة نجاح مع الانتظار حتى انتهاء الـswal
       await Swal.fire({
         icon: "success",
         title: t("success"),
@@ -1536,41 +1121,32 @@ const updateTaskStatus = async (task, status) => {
         timer: 1500,
         showConfirmButton: false,
       });
-
-      // الآن بعد انتهاء الرسالة، نعمل reload
-      // await store.dispatch("fetchOneTimeTasks");
       emit("reload-tasks");
-      // componentKey.value += 1;
     } else {
-      // إذا كانت هناك مشكلة في الاستجابة (ليست 200)
       throw new Error(`Unexpected response: ${response.status}`);
     }
   } catch (error) {
     console.error("Error updating task status:", error);
-
     await Swal.fire({
       icon: "error",
       title: t("error"),
       text: t("taskUpdateFailed"),
     });
   } finally {
-    taskLoadingAction.value[task.id] = false; // إيقاف الـ loading
+    taskLoadingAction.value[task.id] = false;
   }
 };
 
-// دالة للتحقق من وجود ردود غير مقروءة
 function hasUnseenReplies(comment) {
   return comment.replies.find((r) => !r.is_seen);
 }
 
-// دالة للتمرير التلقائي إلى التعليق الذي يحتوي على رد جديد
 function scrollToFirstUnseenReply() {
   const firstUnseenComment = taskComments.value.find((comment) =>
     comment.replies.some((reply) => !reply.is_seen)
   );
 
   if (firstUnseenComment) {
-    // ابحث عن العنصر باستخدام ID أو فئة معينة
     const commentElement = document.querySelector(
       `#comment-${firstUnseenComment.id}`
     );
@@ -1582,9 +1158,8 @@ function scrollToFirstUnseenReply() {
 
 async function markReplyAsSeen(replyId) {
   try {
-    // البحث عن الرد المحدد في قائمة الردود
     const replyToUpdate = taskComments.value
-      .flatMap((comment) => comment.replies) // جلب جميع الردود من جميع التعليقات
+      .flatMap((comment) => comment.replies)
       .find((reply) => reply.id === replyId);
 
     const replyIds = {
@@ -1592,10 +1167,7 @@ async function markReplyAsSeen(replyId) {
     };
 
     if (replyToUpdate) {
-      // تحديث الحالة محليًا
       replyToUpdate.is_seen = true;
-
-      // تحديث الحالة عبر API
       await store.dispatch("markReplyAsSeen", replyIds);
     }
   } catch (error) {
@@ -1607,30 +1179,27 @@ function toggleReplies(commentId) {
   const id = String(commentId);
   showReplies[id] = !showReplies[id];
 
-  // إذا تم فتح الردود، نقوم بتحديث حالة الردود إلى مقروءة
   if (showReplies[id]) {
     const comment = taskComments.value.find((c) => c.id === commentId);
     if (comment) {
       comment.replies.forEach((reply) => {
         if (!reply.is_seen) {
-          markReplyAsSeen(reply.id); // تحديث كل رد غير مقروء
+          markReplyAsSeen(reply.id);
         }
       });
     }
   }
 }
 
-//upload file
 const fileToUpload = ref(null);
-const fileInputKey = ref(0); // أضف هذا السطر في قسم التعريفات
+const fileInputKey = ref(0);
 
-// في دالة submitFile بعد رفع الملف بنجاح:
 fileToUpload.value = null;
-fileInputKey.value++; // تحديث الـ key لإعادة تهيئة الحقل
+fileInputKey.value++;
 
 function handleFileUpload(event) {
   const file = event.target.files[0];
-  const maxSizeInBytes = 1.99 * 1024 * 1024; // 1.99 MB
+  const maxSizeInBytes = 1.99 * 1024 * 1024;
 
   if (!file) return;
 
@@ -1641,7 +1210,6 @@ function handleFileUpload(event) {
       text: t("fileSizeExceedsLimit", { size: "1.99MB" }),
     });
 
-    // Reset file input
     fileToUpload.value = null;
     fileInputKey.value++;
     return;
@@ -1650,7 +1218,6 @@ function handleFileUpload(event) {
   fileToUpload.value = file;
 }
 
-// استبدال الدالة submitFile بـ:
 const submitFile = async () => {
   if (!fileToUpload.value) return;
 
@@ -1667,7 +1234,6 @@ const submitFile = async () => {
     });
     fileToUpload.value = null;
 
-    // تحديث حالة التعليق
     await getOneTimeTaskComments(selectedTaskId.value);
 
     taskComment.value = "";
@@ -1677,25 +1243,13 @@ const submitFile = async () => {
   } finally {
     isUploading.value = false;
     fileToUpload.value = null;
-    fileInputKey.value++; // Clear the file input
+    fileInputKey.value++;
   }
 };
 
-// const submitCommentWithFile = async () => {
-//   try {
-//     isSubmitting.value = true;
-//     await submitFile();
-//     await submitComment();
-//   } catch (error) {
-//     console.error("Error submitting comment with file:", error);
-//   } finally {
-//     isSubmitting.value = false;
-//   }
-// };
-
 const removeFile = () => {
   fileToUpload.value = null;
-  fileInputKey.value++; // This will reset the file input
+  fileInputKey.value++;
 };
 </script>
 
@@ -1717,6 +1271,7 @@ const removeFile = () => {
   flex-direction: column;
   gap: 0.5rem;
 }
+
 .sidebar button {
   background: #fff;
   border: none;
@@ -1727,6 +1282,7 @@ const removeFile = () => {
   color: #333;
   font-weight: 500;
 }
+
 .sidebar button.active {
   background-color: #a6c956;
   color: #fff;
@@ -1735,6 +1291,7 @@ const removeFile = () => {
 .main-content {
   flex: 1;
 }
+
 .task-item {
   background-color: #fff;
   border: 1px solid #ddd;
@@ -1742,6 +1299,7 @@ const removeFile = () => {
   margin-bottom: 0.2rem;
   overflow: hidden;
 }
+
 .task-header {
   display: flex;
   align-items: center;
@@ -1752,9 +1310,11 @@ const removeFile = () => {
   position: relative;
   transition: background-color 0.2s ease;
 }
+
 .task-header:hover {
   background-color: #eef5ff;
 }
+
 .task-header.expanded {
   background-color: #dae9ff;
 }
@@ -1765,17 +1325,20 @@ const removeFile = () => {
   cursor: pointer;
   font-size: 1.1rem;
 }
+
 .task-title {
   flex: 1;
   font-weight: 500;
   font-size: 1rem;
   color: #2d3436;
 }
+
 .task-date {
   color: #666;
   margin-left: 0.5rem;
   font-size: 0.85rem;
 }
+
 .task-label {
   background-color: #f1f3f4;
   padding: 2px 8px;
@@ -1818,12 +1381,16 @@ const removeFile = () => {
     max-height 0.5s ease-in-out,
     opacity 0.5s ease-in-out;
 }
+
 .task-details p {
   margin-bottom: 0.5rem;
   line-height: 1.4;
-  white-space: pre-wrap; /* عرض الأسطر كما هي */
-  word-wrap: break-word; /* لتفكيك الكلمات الطويلة */
-  overflow-wrap: break-word; /* المتصفحات الحديثة */
+  white-space: pre-wrap;
+  /* عرض الأسطر كما هي */
+  word-wrap: break-word;
+  /* لتفكيك الكلمات الطويلة */
+  overflow-wrap: break-word;
+  /* المتصفحات الحديثة */
 }
 
 /* الأوسمة (badge) */
@@ -1834,6 +1401,7 @@ const removeFile = () => {
   /* padding: 8px; */
   margin-right: 0.5rem;
 }
+
 .badge-warning {
   background-color: #ffc107;
   color: #fff;
@@ -1841,6 +1409,7 @@ const removeFile = () => {
   /* padding: 8px; */
   margin-right: 0.5rem;
 }
+
 .badge-grey {
   background-color: #676767;
   color: #fff;
@@ -1861,15 +1430,18 @@ const removeFile = () => {
   display: flex;
   justify-content: center;
 }
+
 .pagination {
   list-style: none;
   display: flex;
   gap: 0.25rem;
   padding-left: 0;
 }
+
 .page-item {
   margin: 0;
 }
+
 .page-link {
   display: inline-flex;
   align-items: center;
@@ -1880,10 +1452,12 @@ const removeFile = () => {
   padding: 0.4rem 0.6rem;
   cursor: pointer;
 }
+
 .page-item.active .page-link {
   background: #3498db;
   color: #fff;
 }
+
 .page-item.disabled .page-link {
   pointer-events: none;
   opacity: 0.6;
@@ -1893,10 +1467,12 @@ const removeFile = () => {
 .spinner-icon {
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -1912,6 +1488,7 @@ const removeFile = () => {
   margin-top: 2rem;
   text-align: center;
 }
+
 .no-tasks-image {
   max-width: 300px;
   width: 100%;
@@ -1919,6 +1496,7 @@ const removeFile = () => {
   object-fit: cover;
   border-radius: 8px;
 }
+
 .no-tasks-text {
   font-size: 1.1rem;
   font-weight: 600;
@@ -1938,16 +1516,19 @@ const removeFile = () => {
   z-index: 9999;
   display: block;
 }
+
 .popup-fullscreen {
   justify-content: flex-start !important;
   align-items: flex-start !important;
 }
+
 .routine-task-modal {
   display: flex;
   flex-direction: column;
   border-radius: 6px;
   overflow: hidden;
 }
+
 .modal-content-scroll {
   flex: 1;
   overflow-y: auto;
@@ -1959,6 +1540,7 @@ const removeFile = () => {
   overflow-y: auto;
   padding: 1rem;
 }
+
 .comments-fullscreen-modal {
   max-height: 100vh;
   display: flex;
@@ -1968,10 +1550,15 @@ const removeFile = () => {
   scrollbar-color: transparent transparent;
   overflow-y: auto;
 }
+
 .comments-scroll-container {
-  max-height: 60vh; /* تقليل الارتفاع الكلي */
+  max-height: 70vh;
+  /* زيادة المساحة المخصصة للكومنتات */
   overflow-y: auto;
-  padding: 0 1rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 /* تعليقات */
@@ -1980,12 +1567,51 @@ const removeFile = () => {
   margin: 0;
   padding: 0;
 }
+
 .comment-item {
   background: #f8f9fa;
   border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
+  padding: 0 0.75rem;
+  margin-bottom: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-left: 3px solid #a6c956;
+}
+
+/* تحسينات للشاشات الصغيرة */
+@media (max-width: 768px) {
+  .comments-scroll-container {
+    max-height: 60vh;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .comment-item {
+    padding: 0 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .comment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .comment-actions {
+    align-self: flex-end;
+    margin-top: 0.25rem;
+  }
+
+  .new-comment-compact {
+    padding: 0.5rem;
+  }
+
+  .comment-controls {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .file-upload-compact {
+    min-width: 100%;
+  }
 }
 
 /* تأثير عند المرور على التعليق */
@@ -2014,49 +1640,59 @@ const removeFile = () => {
   align-items: center;
   margin-bottom: 0.5rem;
 }
+
 .user-info {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
+
 .user-name {
   font-weight: 600;
   color: #333;
   font-size: 0.9rem;
 }
+
 .comment-time {
   color: #6c757d;
   font-size: 0.8rem;
   margin-left: 0.5rem;
 }
+
 .comment-body {
   font-size: 0.9rem;
   line-height: 1.5;
   margin-bottom: 0.5rem;
 }
+
 .comment-actions {
   display: flex;
   gap: 0.5rem;
 }
+
 /* زر الرد */
 .btn-reply {
   color: #a6c956;
   font-size: 0.8rem;
-  padding: 0.2rem 0.5rem;
+  padding: 0rem 0.5rem;
   transition: color 0.2s;
   border: 1px solid #a6c956;
+  margin-bottom: 0;
 }
+
 .btn-reply:hover {
   color: #fff;
   background-color: #a6c956;
   /* border-radius: 4px; */
   /* text-decoration: underline; */
 }
+
 .replies {
   margin-top: 1rem;
   border-left: 3px solid #ddd;
   padding-left: 1rem;
 }
+
 .reply-item {
   background: #ffffff;
   border-left: 2px solid #e9ecef;
@@ -2064,6 +1700,7 @@ const removeFile = () => {
   padding-left: 0.75rem;
   margin-top: 0.5rem;
 }
+
 .reply-editor {
   background: #ffffff;
   padding: 1rem;
@@ -2073,8 +1710,10 @@ const removeFile = () => {
 
   /* -- الإضافة الجديدة لحل المشكلة -- */
   display: flex;
-  flex-direction: column; /* لترتيب العناصر فوق بعضها: المحرر أولاً ثم الأزرار */
-  gap: 0.75rem;          /* لإضافة مسافة رأسية بين المحرر ومجموعة الأزرار */
+  flex-direction: column;
+  /* لترتيب العناصر فوق بعضها: المحرر أولاً ثم الأزرار */
+  gap: 0.75rem;
+  /* لإضافة مسافة رأسية بين المحرر ومجموعة الأزرار */
 }
 
 .ql-editor {
@@ -2088,6 +1727,55 @@ const removeFile = () => {
 } */
 
 /* مربع إضافة التعليق */
+/* منطقة كتابة التعليق المضغوطة */
+.new-comment-compact {
+  flex-shrink: 0;
+  padding: 0 0.75rem;
+  /* background: #f8f9fa; */
+  /* border-top: 1px solid #e9ecef; */
+  border-radius: 0 0 8px 8px;
+}
+
+.editor-wrapper {
+  margin-bottom: 0.5rem;
+}
+
+.editor-wrapper .ql-editor {
+  min-height: 60px !important;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.comment-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.file-upload-compact {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.file-upload-compact input[type="file"] {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.file-info {
+  display: block;
+  color: #6c757d;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+/* الستايل القديم للنسخ الاحتياطية */
 .new-comment {
   display: flex;
   flex-direction: column;
@@ -2137,6 +1825,7 @@ const removeFile = () => {
   /* border: 2px solid #ff4444 !important; */
   background: #fff5f5 !important;
 }
+
 .urgent-task::before {
   content: "⚠️";
   position: absolute;
@@ -2145,6 +1834,7 @@ const removeFile = () => {
   transform: translateY(-50%);
   font-size: 1.2rem;
 }
+
 .urgent-task .task-title {
   color: #ff4444 !important;
 }
@@ -2154,6 +1844,7 @@ const removeFile = () => {
   opacity: 0.7;
   pointer-events: none;
 }
+
 .fa-spinner {
   color: #3498db;
   font-size: 0.9rem;
@@ -2165,6 +1856,7 @@ const removeFile = () => {
   margin: 0 auto;
   justify-content: center;
 }
+
 .review-buttons .btn {
   margin: 0 auto;
   /* نفس تنسيق زر التعليقات مثلاً */
@@ -2172,14 +1864,17 @@ const removeFile = () => {
   font-size: 0.85rem;
   padding: 0.3rem 0.5rem;
 }
+
 .review-buttons .btn-outline-success:hover {
   background-color: #28a745;
   color: #fff;
 }
+
 .review-buttons .btn-outline-danger:hover {
   background-color: #dc3545;
   color: #fff;
 }
+
 .review-buttons .btn-outline-warning:hover {
   background-color: #ffc107;
   color: #fff;
@@ -2201,6 +1896,7 @@ const removeFile = () => {
 .slide-fade-enter-active {
   transition: all 0.3s ease-out;
 }
+
 .slide-fade-leave-active {
   transition: all 0.2s ease-in;
 }
@@ -2215,6 +1911,7 @@ const removeFile = () => {
 .fade-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -2226,6 +1923,7 @@ const removeFile = () => {
     transform 0.2s,
     box-shadow 0.2s;
 }
+
 .review-buttons button:hover {
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -2236,6 +1934,7 @@ const removeFile = () => {
     background-color 0.2s,
     transform 0.2s;
 }
+
 /* .task-header:hover {
   transform: translateX(5px);
 } */
@@ -2245,6 +1944,7 @@ const removeFile = () => {
     opacity 0.3s,
     transform 0.3s;
 }
+
 .argon-switch:hover {
   transform: scale(1.1);
 }
@@ -2323,21 +2023,28 @@ const removeFile = () => {
 
 /* إضافة هذه الأنماط لشريط التمرير */
 .modal-content-scroll {
-  overflow-y: auto; /* تفعيل التمرير الرأسي */
-  overflow-x: hidden; /* إخفاء التمرير الأفقي */
-  max-height: 65vh; /* الحد الأقصى لارتفاع المحتوى */
-  scrollbar-width: thin; /* لـ Firefox */
-  scrollbar-color: #888 #f1f1f1; /* لـ Firefox */
+  overflow-y: auto;
+  /* تفعيل التمرير الرأسي */
+  overflow-x: hidden;
+  /* إخفاء التمرير الأفقي */
+  max-height: 65vh;
+  /* الحد الأقصى لارتفاع المحتوى */
+  scrollbar-width: thin;
+  /* لـ Firefox */
+  scrollbar-color: #888 #f1f1f1;
+  /* لـ Firefox */
 }
 
 /* إخفاء التمرير الأفقي في المحتوى الداخلي */
 .modal-content-scroll::-webkit-scrollbar {
-  width: 8px; /* عرض شريط التمرير الرأسي */
-  height: 0px; /* تعطيل شريط التمرير الأفقي */
+  width: 8px;
+  /* عرض شريط التمرير الرأسي */
+  height: 0px;
+  /* تعطيل شريط التمرير الأفقي */
 }
 
 /* حل مشكلة العرض الزائد */
-.modal-content-scroll > .row {
+.modal-content-scroll>.row {
   max-width: 100%;
   margin: 0 auto;
 }
@@ -2353,10 +2060,10 @@ const removeFile = () => {
 /* تعديلات على الزر والملف */
 .upload-btn {
   /* توحيد الارتفاع مع حقل الملف */
-  height: calc(
-    1.5em + 0.75rem + 2px
-  ); /* نفس ارتفاع .form-control من Bootstrap */
-  padding: 0.375rem 0.75rem; /* تنسيق التباعد الداخلي */
+  height: calc(1.5em + 0.75rem + 2px);
+  /* نفس ارتفاع .form-control من Bootstrap */
+  padding: 0.375rem 0.75rem;
+  /* تنسيق التباعد الداخلي */
   font-size: 1rem;
   line-height: 1.5;
   border-radius: 0.25rem;
@@ -2373,28 +2080,33 @@ const removeFile = () => {
   padding: 0.25rem 0.5rem;
   font-size: 0.8rem;
   line-height: 1;
-  margin-left: -2.5rem; /* Adjust based on your layout */
+  margin-left: -2.5rem;
+  /* Adjust based on your layout */
 }
 
 .text-muted {
-  color: #666 !important; /* Darker gray */
+  color: #666 !important;
+  /* Darker gray */
   font-size: 0.85rem;
 }
 
 .badge-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.2rem; /* Vertical and horizontal spacing */
+  gap: 0.2rem;
+  /* Vertical and horizontal spacing */
 }
 
 /* Reduce badge padding for smaller size */
 .badge-danger,
 .badge-grey {
-  padding: 0.3rem 0.8rem !important; /* Adjust as needed */
+  padding: 0.3rem 0.8rem !important;
+  /* Adjust as needed */
 }
 
-.badge-container > * {
-  margin-bottom: 0.5rem; /* Bottom margin for wrapped badges */
+.badge-container>* {
+  margin-bottom: 0.5rem;
+  /* Bottom margin for wrapped badges */
 }
 
 .comments-fullscreen-modal .modal-content {
@@ -2421,7 +2133,19 @@ const removeFile = () => {
   white-space: pre-line;
   padding-right: 10px;
   margin-top: 10px;
-  text-align: start; /* <--- هذا هو السطر الجديد والمهم */
+  text-align: start;
+  /* <--- هذا هو السطر الجديد والمهم */
+}
+
+.modal-title-description p {
+  white-space: pre-wrap;
+  /* يسمح للنص بالالتفاف مع الحفاظ على الأسطر الجديدة */
+  overflow-wrap: break-word;
+  /* يكسر الكلمات الطويلة جدًا ويُنزلها للسطر التالي */
+  word-wrap: break-word;
+  /* نفس الخاصية اللي فوق لدعم المتصفحات القديمة */
+  word-break: break-word;
+  /* إجراء إضافي لضمان كسر الكلمة عند الحاجة */
 }
 
 /* الخطوة 3: جعل محتوى النافذة (التعليقات) يأخذ "باقي" المساحة المتاحة ويكون قابلاً للتمرير */
@@ -2429,9 +2153,12 @@ const removeFile = () => {
 .comments-fullscreen-modal .modal-body {
   flex-grow: 1;
   /* نزيل التمرير من هنا لنعطيه للأبناء */
-  overflow: hidden; /* نمنع أي تمرير غير مرغوب فيه من هذا العنصر */
-  padding: 0; /* نزيل الحشو لنتحكم به داخليًا */
-  display: flex; /* نجعل هذا العنصر flex container هو الآخر */
+  overflow: hidden;
+  /* نمنع أي تمرير غير مرغوب فيه من هذا العنصر */
+  padding: 0;
+  /* نزيل الحشو لنتحكم به داخليًا */
+  display: flex;
+  /* نجعل هذا العنصر flex container هو الآخر */
   flex-direction: column;
 }
 
@@ -2440,23 +2167,110 @@ const removeFile = () => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* مهم لمنع التمرير المزدوج */
+  overflow: hidden;
+  /* مهم لمنع التمرير المزدوج */
 }
 
 /* نعطي قائمة التعليقات القدرة على التمدد وأخذ المساحة المتاحة */
 .comment-list {
-  flex-grow: 1; /* الأهم: اجعل هذا الجزء يملأ المساحة المتاحة */
-  overflow-y: auto; /* اجعل هذا الجزء فقط هو الذي يتم تمريره */
-  padding: 1rem; /* نضيف له حشو داخلي لراحة العين */
+  flex-grow: 1;
+  /* الأهم: اجعل هذا الجزء يملأ المساحة المتاحة */
+  overflow-y: auto;
+  /* اجعل هذا الجزء فقط هو الذي يتم تمريره */
+  padding: 0 1rem;
+  /* نضيف له حشو داخلي لراحة العين */
   margin: 0;
 }
 
 /* نمنع مربع التعليق الجديد من التمدد أو الانكماش */
 .new-comment {
-  flex-shrink: 0; /* يمنعه من الانكماش إذا أصبحت الشاشة أصغر */
+  flex-shrink: 0;
+  /* يمنعه من الانكماش إذا أصبحت الشاشة أصغر */
 }
 
 .cst-cmnt {
   direction: auto;
+}
+
+
+
+.seen-by {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.replies-container {
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 2px solid #e9ecef;
+}
+
+.new-reply-dot {
+  width: 8px;
+  height: 8px;
+  background: #dc3545;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.btn-link {
+  color: #a9ca5c;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.btn-link:hover {
+  color: #8fb94a;
+  text-decoration: underline;
+}
+
+.new-reply {
+  color: #dc3545 !important;
+  font-weight: 600;
+}
+
+.skeleton-content {
+  flex: 1;
+}
+
+/* Improve file upload section spacing */
+.d-flex.flex-column {
+  gap: 0.5rem;
+}
+
+/* Better button spacing */
+.d-flex.gap-2 {
+  margin-top: 0.75rem;
+}
+
+/* Improve modal footer */
+.modal-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
+/* Better comment spacing */
+.comment-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Improve reply editor spacing */
+.reply-editor .d-flex.gap-2 {
+  margin-top: 0.5rem;
+}
+
+/* Better file input spacing */
+.d-flex.align-items-center {
+  gap: 0.5rem;
+}
+
+/* Improve text muted spacing */
+.text-muted.mt-0.pt-0 {
+  margin-top: 0.25rem !important;
+  padding-top: 0 !important;
 }
 </style>

@@ -1,8 +1,7 @@
 // router/index.js
 
 import { createRouter, createWebHistory } from "vue-router";
-import { computed } from "vue";
-import { useStore } from "vuex";
+import store from "@/store";
 
 // 1. استيراد دالة فك التشفير من ملف الـ store
 import { decryptData } from "@/store/index.js";
@@ -27,7 +26,9 @@ function getCompanyName() {
   const companyName = decryptData(rawCompanyName);
   const isOwner = decryptData(rawIsOwner);
 
-  const formattedCompanyName = companyName ? companyName.replace(/\s+/g, "-") : "";
+  const formattedCompanyName = companyName
+    ? companyName.replace(/\s+/g, "-")
+    : "";
 
   return {
     companyName: formattedCompanyName,
@@ -35,21 +36,30 @@ function getCompanyName() {
   };
 }
 
-// 3. دالة التحقق من الصلاحيات (مع تعديل بسيط لضمان عملها عند التحديث)
+// 3. دالة التحقق من الصلاحيات (تعتمد على localStorage/store بدون استدعاءات غير موجودة)
 const requiredPermission = (...requiredPermissions) => {
   return async (to, from, next) => {
-    const store = useStore();
-    
-    // تأكد من جلب الصلاحيات الحديثة دائماً
-    await store.dispatch("fetchUserPermissions");
-
-    // احصل على حالة المالك بشكل موثوق
     const { isOwner } = getCompanyName();
-    const userPermissions = computed(() => store.getters.permissions);
 
-    // التحقق إذا كان المستخدم مالكاً أو يملك أحد الصلاحيات المطلوبة
-    const hasPermission = requiredPermissions.some(permission =>
-      userPermissions.value[permission]
+    // جلب الصلاحيات من الـ store أو من localStorage عند الحاجة
+    const storePermissions = store.getters.permissions;
+    let permissionsFromStorage = {};
+    try {
+      const encrypted = localStorage.getItem("permissions");
+      if (encrypted) {
+        permissionsFromStorage = decryptData(encrypted) || {};
+      }
+    } catch (e) {
+      permissionsFromStorage = {};
+    }
+
+    const effectivePermissions = {
+      ...(permissionsFromStorage || {}),
+      ...(storePermissions || {}),
+    };
+
+    const hasPermission = requiredPermissions.some(
+      (permission) => effectivePermissions[permission]
     );
 
     if (isOwner || hasPermission) {
@@ -57,13 +67,12 @@ const requiredPermission = (...requiredPermissions) => {
     } else {
       const { companyName } = getCompanyName();
       next({
-        name: "routine task", // إعادة توجيه إلى صفحة آمنة
+        name: "routine task",
         params: { companyName },
       });
     }
   };
 };
-
 
 const routes = [
   {
@@ -244,7 +253,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.VUE_APP_BASE_URL),
+  history: createWebHistory(process.env.BASE_URL),
   routes,
   linkActiveClass: "active",
 });
@@ -258,14 +267,27 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = isUserAuthenticated();
   const { companyName: userCompanyName, isOwner } = getCompanyName();
 
+  // قراءة حالة انتهاء الباقة من التخزين
+  let planExpired = false;
+  try {
+    planExpired = localStorage.getItem("planExpired") === "true";
+  } catch (e) {
+    // ignore
+  }
+
   // الحالة الأولى: المسار يتطلب تسجيل دخول، والمستخدم غير مسجل
   if (to.meta.requiresAuth && !isAuthenticated) {
     return next({ name: "Signin" });
   }
 
   // الحالة الثانية: المستخدم مسجل بالفعل ويحاول الوصول لصفحة عامة (تسجيل دخول، بداية)
-  if (isAuthenticated && to.meta.public && (to.name === "Signin" || to.name === "start" || to.name === "/")) {
-    if (userCompanyName) { // تأكد من وجود اسم الشركة قبل التوجيه
+  if (
+    isAuthenticated &&
+    to.meta.public &&
+    (to.name === "Signin" || to.name === "start" || to.name === "/")
+  ) {
+    if (userCompanyName) {
+      // تأكد من وجود اسم الشركة قبل التوجيه
       return next({
         name: "Dashboard",
         params: { companyName: userCompanyName },
@@ -273,8 +295,19 @@ router.beforeEach((to, from, next) => {
     }
   }
 
+  // المنع العام عند انتهاء الباقة: اسمح فقط بتدفق الاشتراك/الدفع
+  const inSubscriptionFlow =
+    to.path.startsWith("/subscription") || to.path.startsWith("/checkout");
+  if (planExpired && !inSubscriptionFlow) {
+    return next({ name: "Subscription" });
+  }
+
   // الحالة الثالثة: التحقق من تطابق اسم الشركة في الرابط (إذا كان المسار يتطلب مصادقة)
-  if (to.params.companyName && isAuthenticated && to.params.companyName !== userCompanyName) {
+  if (
+    to.params.companyName &&
+    isAuthenticated &&
+    to.params.companyName !== userCompanyName
+  ) {
     // إذا كان اسم الشركة في الرابط خاطئًا، قم بتصحيحه وإعادة التوجيه
     return next({
       ...to,
@@ -300,6 +333,17 @@ router.afterEach((to) => {
   window.gtag("config", "G-VGLP578ZCJ", {
     page_path: to.fullPath,
   });
+
+  // إعادة تفعيل رسالة انتهاء الباقة عند الخروج من صفحات الاشتراك
+  try {
+    const inSubscriptionFlow =
+      to.path.startsWith("/subscription") || to.path.startsWith("/checkout");
+    if (!inSubscriptionFlow) {
+      window.__PLAN_EXPIRED_HANDLED__ = false;
+    }
+  } catch (e) {
+    console.error(e);
+  }
 });
 
 export default router;

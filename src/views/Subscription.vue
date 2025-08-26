@@ -8,7 +8,7 @@
             <p class="mb-0">You have Free Unlimited Updates and Premium Support on each package.</p>
           </div>
           <div class="card-body">
-            
+
             <!-- <div class="row justify-content-center">
               <div class="col-lg-5 col-md-7 mb-4">
                 <div class="input-group">
@@ -25,21 +25,17 @@
               </div>
             </div> -->
             <div v-if="isLoading" class="text-center py-5">
-              </div>
+            </div>
 
             <div v-else-if="error" class="text-center py-5 alert alert-danger">
-              </div>
+            </div>
 
             <div v-else>
               <div v-if="plansForCard && plansForCard.data && plansForCard.data.length">
-                <PricingCard
-                  :plans="plansForCard"
-                  :is-subscribing="isSubscribing" 
-                  :current-plan-id="currentPlanId"
-                  @select="selectPlanAndGoToCheckout"
-                />
+                <PricingCard :plans="plansForCard" :is-subscribing="isSubscribing" :current-plan-id="currentPlanId"
+                  @select="selectPlanAndGoToCheckout" />
               </div>
-              </div>
+            </div>
 
           </div>
         </div>

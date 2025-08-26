@@ -16,7 +16,6 @@ const encryptData = (data) => {
   }
 };
 
-
 // فك تشفير البيانات باستخدام atob// فك تشفير البيانات باستخدام atob
 const decryptData = (encryptedData) => {
   try {
@@ -59,11 +58,12 @@ export const savePermissionsToLocalStorage = (permissions, userId) => {
 };
 
 // استرجاع الصلاحيات من localStorage بعد فك التشفير بناءً على المستخدم الحالي
-export const loadPermissionsFromLocalStorage = () => {
+export const loadPermissionsFromLocalStorage = (userId) => {
   try {
-
-
-    const storedPermissions = localStorage.getItem(`permissions`);
+    // دعم مفتاح مخصص للمستخدم الحالي إن وجد وإلا نستخدم المفتاح العام
+    const storedPermissions =
+      (userId && localStorage.getItem(`permissions_${userId}`)) ||
+      localStorage.getItem(`permissions`);
     console.log("Stored permissions (encrypted):", storedPermissions);
 
     if (storedPermissions) {
@@ -71,7 +71,7 @@ export const loadPermissionsFromLocalStorage = () => {
       console.log("Decrypted permissions:", decryptedPermissions);
       return decryptedPermissions;
     } else {
-      console.warn("No permissions found in localStorage for user:", );
+      console.warn("No permissions found in localStorage for user:", userId);
       return null;
     }
   } catch (error) {
@@ -79,7 +79,6 @@ export const loadPermissionsFromLocalStorage = () => {
     return null;
   }
 };
-
 
 // تنظيف الصلاحيات القديمة من localStorage
 export const clearUserPermissions = (userId) => {
@@ -105,14 +104,9 @@ export const extractPermissionsFromAPI = (roles) => {
   return permissions;
 };
 
-
 import { computed } from "vue";
-
-
 
 // الوظيفة الديناميكية لاستخدام الصلاحيات
 export function usePermission(permissions, permissionName) {
   return computed(() => hasPermission(permissions, permissionName));
 }
-
-

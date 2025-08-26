@@ -1,4 +1,4 @@
-<!-- src/views/RoutineTask.vue -->
+<!-- src/views/OneTimeTask.vue -->
 
 <script setup>
 import {
@@ -136,10 +136,14 @@ const selectedInformer = ref([]);
 const employeeNames = ref([]);
 
 const showPopup = ref(false);
+const isMaximized = ref(false);
+const isMinimized = ref(false);
 const oneTimeTasks = ref([]);
+const activeTab = ref("Inbox");
 const componentKey = ref(0);
 const body = document.getElementsByTagName("body")[0];
-const isLoading = ref(true);
+const isPageLoading = ref(true);
+const isSubmitting = ref(false);
 
 const startDate = ref("");
 const endDate = ref("");
@@ -197,6 +201,8 @@ watch(
 // إغلاق النافذة المنبثقة
 const closePopup = () => {
   showPopup.value = false;
+  isMaximized.value = false;
+  isMinimized.value = false;
   /* ==== إعادة القيم الفارغة للمتغيرات التي تم تغيير اسمها ==== */
   oneTimeTaskName.value = "";
   oneTimeTaskDescription.value = "";
@@ -217,6 +223,21 @@ const closePopup = () => {
   priority.value = "";
   // isUrgent.value = false;
   recurrentDays.value = [];
+};
+
+// وظائف إدارة المودال على طريقة Gmail
+const toggleMinimize = () => {
+  isMinimized.value = !isMinimized.value;
+  if (isMinimized.value) {
+    isMaximized.value = false;
+  }
+};
+
+const toggleMaximize = () => {
+  isMaximized.value = !isMaximized.value;
+  if (isMaximized.value) {
+    isMinimized.value = false;
+  }
 };
 
 // عند تركيب المكوّن
@@ -242,7 +263,7 @@ onBeforeMount(async () => {
   body.classList.add("bg-gray-100");
 
   try {
-    isLoading.value = true;
+    isPageLoading.value = true;
     // Example of calling your Vuex action:
     const response = await store.dispatch("fetchOneTimeTasks");
     console.log("response:", response);
@@ -275,7 +296,7 @@ onBeforeMount(async () => {
   } catch (error) {
     console.error("Error fetching tasks:", error);
   } finally {
-    isLoading.value = false;
+    isPageLoading.value = false;
   }
 
   if (refreshInterval.value) {
@@ -340,7 +361,7 @@ const currentLanguage = computed(() => store.getters.currentLanguage);
 
 watch(
   () => store.getters.currentLanguage,
-  () => {}
+  () => { }
 );
 
 const t = (key) => {
@@ -601,7 +622,7 @@ function openPopup() {
 async function createOneTimeTask() {
   // نفس المنطق السابق لتجميع البيانات
   if (oneTimeTaskName.value) {
-    isLoading.value = true;
+    isSubmitting.value = true;
     const oneTimeTask = {
       title: oneTimeTaskName.value,
       description: oneTimeTaskDescription.value,
@@ -658,12 +679,11 @@ async function createOneTimeTask() {
         },
       });
     } finally {
-      isLoading.value = false;
+      isSubmitting.value = false;
     }
   } else {
     // إن لم يُدخل الاسم
     // console.log("Please enter the name.");
-    isLoading.value = false;
   }
 }
 
@@ -734,7 +754,7 @@ const updateOneTimeTask = async () => {
   }
 
   try {
-    isLoading.value = true;
+    isSubmitting.value = true;
 
     const updatedTask = {
       id: editedTaskId.value,
@@ -791,7 +811,7 @@ const updateOneTimeTask = async () => {
       },
     });
   } finally {
-    isLoading.value = false;
+    isSubmitting.value = false;
   }
 };
 
@@ -1025,10 +1045,7 @@ const translations = {
                   </small>
 
                   <!-- إذا لديك صلاحية لإنشاء المهمة -->
-                  <argon-button
-                    v-if="isOwner || permissions['create-task']"
-                    @click="openPopup"
-                  >
+                  <argon-button v-if="isOwner || permissions['create-task']" @click="openPopup">
                     <i class="fas fa-plus"></i>
                   </argon-button>
                 </div>
@@ -1036,30 +1053,16 @@ const translations = {
                 <!-- شريط البحث -->
                 <div class="col-12 col-md-4 my-2 my-md-0">
                   <div class="input-group">
-                    <input
-                      type="text"
-                      class="form-control"
-                      :placeholder="t('searchPlaceholder')"
-                      v-model="searchQuery"
-                    />
+                    <input type="text" class="form-control" :placeholder="t('searchPlaceholder')"
+                      v-model="searchQuery" />
                   </div>
                 </div>
 
                 <!-- زر الفلتر -->
-                <div
-                  class="col-12 col-md-4"
-                  :class="
-                    currentLanguage === 'ar' ? 'text-md-start' : 'text-md-end'
-                  "
-                >
-                  <button
-                    class="btn btn-link"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#filterCollapse"
-                    aria-expanded="false"
-                    aria-controls="filterCollapse"
-                  >
+                <div class="col-12 col-md-4" :class="currentLanguage === 'ar' ? 'text-md-start' : 'text-md-end'
+                  ">
+                  <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse"
+                    aria-expanded="false" aria-controls="filterCollapse">
                     <i class="fas fa-filter"></i>
                   </button>
                 </div>
@@ -1140,19 +1143,11 @@ const translations = {
                   </div> -->
 
                   <!-- فلتر المشروع -->
-                  <div
-                    v-if="formattedProjects.length !== 0"
-                    class="col-md-4 mb-3"
-                  >
+                  <div v-if="formattedProjects.length !== 0" class="col-md-4 mb-3">
                     <label class="form-label">{{ t("project") }}</label>
                     <div class="dropdown">
-                      <button
-                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
-                        type="button"
-                        id="projectDropdown"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
+                      <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
+                        id="projectDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         {{
                           selectedProjects.length === 0
                             ? t("allProjects")
@@ -1161,51 +1156,27 @@ const translations = {
                               : `${selectedProjects.length} ${t("projectsSelected")}`
                         }}
                       </button>
-                      <ul
-                        class="dropdown-menu w-100"
-                        aria-labelledby="projectDropdown"
-                      >
+                      <ul class="dropdown-menu w-100" aria-labelledby="projectDropdown">
                         <li class="px-2">
                           <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="selectAllProjects"
-                              :checked="
-                                selectedProjects.length ===
-                                formattedProjects.length
-                              "
-                              @change="toggleAllProjects"
-                            />
-                            <label
-                              class="form-check-label"
-                              for="selectAllProjects"
-                            >
+                            <input class="form-check-input" type="checkbox" id="selectAllProjects" :checked="selectedProjects.length ===
+                              formattedProjects.length
+                              " @change="toggleAllProjects" />
+                            <label class="form-check-label" for="selectAllProjects">
                               {{ t("selectAll") }}
                             </label>
                           </div>
                         </li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li
-                          v-for="project in formattedProjects"
-                          :key="project.value"
-                          class="px-2"
-                        >
+                        <li>
+                          <hr class="dropdown-divider" />
+                        </li>
+                        <li v-for="project in formattedProjects" :key="project.value" class="px-2">
                           <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              :id="'project-' + project.value"
-                              :value="{
-                                id: project.value,
-                                name: project.label,
-                              }"
-                              v-model="selectedProjects"
-                            />
-                            <label
-                              class="form-check-label"
-                              :for="'project-' + project.value"
-                            >
+                            <input class="form-check-input" type="checkbox" :id="'project-' + project.value" :value="{
+                              id: project.value,
+                              name: project.label,
+                            }" v-model="selectedProjects" />
+                            <label class="form-check-label" :for="'project-' + project.value">
                               {{ project.label }}
                             </label>
                           </div>
@@ -1244,14 +1215,8 @@ const translations = {
                   <!-- فلترة الموظف -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("employee") }}</label>
-                    <argon-select
-                      class="form-select"
-                      v-model="selectedEmployee"
-                      :options="employeeOptions"
-                      :placeholder="t('selectEmployee')"
-                      :searchable="true"
-                      :searchPlaceholder="t('searchEmployee')"
-                    />
+                    <argon-select class="form-select" v-model="selectedEmployee" :options="employeeOptions"
+                      :placeholder="t('selectEmployee')" :searchable="true" :searchPlaceholder="t('searchEmployee')" />
                   </div>
 
                   <!-- فلترة الموعد النهائي -->
@@ -1276,48 +1241,30 @@ const translations = {
 
           <div class="card-body">
             <form @submit.prevent>
-              <argon-alert
-                v-if="showAlert"
-                color="danger"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showAlert" color="danger" dismissible class="mt-3">
                 {{ errorMessage }}
               </argon-alert>
-              <argon-alert
-                v-if="showSuccess"
-                color="success"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showSuccess" color="success" dismissible class="mt-3">
                 {{ successMessage }}
               </argon-alert>
             </form>
 
-            <div v-if="isLoading" class="d-flex justify-content-center py-5">
+            <div v-if="isPageLoading" class="d-flex justify-content-center py-5">
               <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
             </div>
 
-            <div
-              v-else-if="oneTimeTasks.length === 0"
-              class="d-flex justify-content-center py-5 flex-column align-items-center"
-            >
+            <div v-else-if="oneTimeTasks.length === 0"
+              class="d-flex justify-content-center py-5 flex-column align-items-center">
               <h5>{{ t("noRoutineTasks") }}</h5>
               <p>{{ t("createee") }}</p>
             </div>
 
-            <one-time-task-table
-              v-if="!isLoading"
-              :oneTimeTasks="filteredTasks"
-              :key="componentKey"
-              @page-changed="handlePageChange"
-              :pagination="pagination"
-              @reload-tasks="refreshTasks"
-              @filtered-count-changed="handleFilteredCount"
-              @open-edit-popup="openEditPopupInParent"
-            />
+            <one-time-task-table v-if="!isPageLoading" :oneTimeTasks="filteredTasks" :key="componentKey"
+              :active-tab="activeTab" @update:active-tab="activeTab = $event" @page-changed="handlePageChange"
+              :pagination="pagination" @reload-tasks="refreshTasks" @filtered-count-changed="handleFilteredCount"
+              @open-edit-popup="openEditPopupInParent" />
           </div>
         </div>
       </div>
@@ -1325,40 +1272,44 @@ const translations = {
   </div>
 
   <!-- المودال لإنشاء مهمة واحدة -->
-  <transition name="modal-fade">
-    <div v-if="showPopup" class="popup-overlay">
-      <ArgonModal
-        v-if="showPopup"
-        :title="t('createOneTimeTask')"
-        @close="closePopup"
-        class="one-time-task-modal"
-      >
-        <template #default>
+  <transition name="gmail-compose" appear>
+    <div v-if="showPopup" class="gmail-compose-overlay">
+      <div class="gmail-compose-container" :class="{ 'maximized': isMaximized, 'minimized': isMinimized }">
+        <div class="gmail-header">
+          <div class="gmail-header-left">
+            <span class="gmail-title">{{ t('createOneTimeTask') }}</span>
+          </div>
+          <div class="gmail-header-right">
+            <button @click="toggleMinimize" class="gmail-btn gmail-minimize"
+              :title="isMinimized ? 'Restore' : 'Minimize'">
+              <i :class="isMinimized ? 'fas fa-window-restore' : 'fas fa-window-minimize'"></i>
+            </button>
+            <button @click="toggleMaximize" class="gmail-btn gmail-maximize"
+              :title="isMaximized ? 'Restore' : 'Maximize'">
+              <i :class="isMaximized ? 'fas fa-compress' : 'fas fa-expand'"></i>
+            </button>
+            <button @click="closePopup" class="gmail-btn gmail-close" title="Close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="gmail-content" v-show="!isMinimized">
           <div class="modal-content-scroll">
             <!-- بداية الـrow الشامل -->
             <div class="row">
               <!-- اسم المهمة (سطر كامل) -->
               <div class="col-12 mb-3">
                 <label class="form-label">{{ t("taskName") }}:</label>
-                <input
-                  v-model="oneTimeTaskName"
-                  class="form-control"
-                  :placeholder="t('enterTaskName')"
-                  dir="auto"
-                  required
-                />
+                <input v-model="oneTimeTaskName" class="form-control" :placeholder="t('enterTaskName')" dir="auto"
+                  required />
               </div>
 
               <!-- الوصف (سطر كامل) -->
               <div class="col-12 mb-3">
                 <label class="form-label">{{ t("description") }}:</label>
-                <textarea
-                  v-model="oneTimeTaskDescription"
-                  class="form-control"
-                  :placeholder="t('enterDescription')"
-                  dir="auto"
-                  required
-                ></textarea>
+                <textarea v-model="oneTimeTaskDescription" class="form-control" :placeholder="t('enterDescription')"
+                  dir="auto" required></textarea>
               </div>
 
               <!-- حقل assignTo (نصف العرض) -->
@@ -1377,29 +1328,17 @@ const translations = {
 
               <div class="mb-3">
                 <label class="form-label">{{ t("assignTo") }}:</label>
-                <argon-multiple-select
-                  v-model="selectedAssignee"
-                  :model-names="employeeNames"
-                  :options="employeeOptions"
-                  :placeholder="t('selectEmployee')"
-                  :searchable="true"
-                  :searchPlaceholder="t('searchEmployees')"
-                  class="form-control mb-3"
-                />
+                <argon-multiple-select v-model="selectedAssignee" :model-names="employeeNames"
+                  :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
+                  :searchPlaceholder="t('searchEmployees')" class="form-control mb-3" />
               </div>
 
               <!-- حقل supervisor (نصف العرض) -->
               <div class="col-md-12 mb-3">
                 <label class="form-label">{{ t("supervisor") }}:</label>
-                <argon-select
-                  v-model="selectedSupervisor"
-                  :options="employeeOptions"
-                  :placeholder="t('selectSupervisor')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search employees..."
-                  required
-                />
+                <argon-select v-model="selectedSupervisor" :options="employeeOptions"
+                  :placeholder="t('selectSupervisor')" class="form-control" searchable
+                  searchPlaceholder="Search employees..." required />
               </div>
 
               <!-- informer في نصف عرض -->
@@ -1418,15 +1357,9 @@ const translations = {
 
               <div class="mb-3">
                 <label class="form-label">{{ t("informer") }}:</label>
-                <argon-multiple-select
-                  v-model="selectedInformer"
-                  :model-names="employeeNames"
-                  :options="employeeOptions"
-                  :placeholder="t('selectInformer')"
-                  :searchable="true"
-                  :searchPlaceholder="t('searchInformers')"
-                  class="form-control mb-3"
-                />
+                <argon-multiple-select v-model="selectedInformer" :model-names="employeeNames"
+                  :options="employeeOptions" :placeholder="t('selectInformer')" :searchable="true"
+                  :searchPlaceholder="t('searchInformers')" class="form-control mb-3" />
               </div>
 
               <!-- consultant في نصف عرض -->
@@ -1445,95 +1378,56 @@ const translations = {
 
               <div class="mb-3">
                 <label class="form-label">{{ t("consultant") }}:</label>
-                <argon-multiple-select
-                  v-model="selectedConsultant"
-                  :model-names="employeeNames"
-                  :options="employeeOptions"
-                  :placeholder="t('selectConsultant')"
-                  :searchable="true"
-                  :searchPlaceholder="t('searchConsultants')"
-                  class="form-control mb-3"
-                />
+                <argon-multiple-select v-model="selectedConsultant" :model-names="employeeNames"
+                  :options="employeeOptions" :placeholder="t('selectConsultant')" :searchable="true"
+                  :searchPlaceholder="t('searchConsultants')" class="form-control mb-3" />
               </div>
 
               <!-- مشروع (نصف العرض) -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("project") }}:</label>
-                <argon-select
-                  v-model="projectId"
-                  :options="formattedProjects"
-                  :placeholder="t('selectProject')"
-                  class="form-control"
-                  searchable
-                  :searchPlaceholder="t('searchProjects')"
-                  required
-                />
+                <argon-select v-model="projectId" :options="formattedProjects" :placeholder="t('selectProject')"
+                  class="form-control" searchable :searchPlaceholder="t('searchProjects')" required />
               </div>
 
               <!-- أولوية (نصف العرض) -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("priority") }}:</label>
-                <argon-select
-                  v-model="priority"
-                  :options="prioritiesOptions"
-                  :placeholder="t('selectPriority')"
-                  class="form-control"
-                  searchable
-                  :searchPlaceholder="t('searchPriorities')"
-                  required
-                />
+                <argon-select v-model="priority" :options="prioritiesOptions" :placeholder="t('selectPriority')"
+                  class="form-control" searchable :searchPlaceholder="t('searchPriorities')" required />
               </div>
 
               <!-- تاريخ البداية (نصف العرض) -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("startDate") }}:</label>
-                <input
-                  type="date"
-                  v-model="startDate"
-                  class="form-control"
-                  :placeholder="t('enterStartDate')"
-                  required
-                />
+                <input type="date" v-model="startDate" class="form-control" :placeholder="t('enterStartDate')"
+                  required />
               </div>
 
               <!-- تاريخ النهاية (نصف العرض) -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("endDate") }}:</label>
-                <input
-                  type="date"
-                  v-model="endDate"
-                  class="form-control"
-                  :placeholder="t('enterEndDate')"
-                />
+                <input type="date" v-model="endDate" class="form-control" :placeholder="t('enterEndDate')" />
               </div>
             </div>
             <!-- نهاية الـrow -->
 
             <!-- أي حقول إضافية أو أقسام أخرى تضعها هنا -->
           </div>
-        </template>
+        </div>
 
-        <template #footer>
+        <div class="gmail-footer" v-show="!isMinimized">
           <!-- زر الإغلاق -->
-          <argon-button variant="secondary" @click="closePopup">
+          <argon-button variant="secondary" @click="closePopup" class="me-2">
             {{ t("close") }}
           </argon-button>
           <!-- زر الحفظ -->
-          <argon-button
-            variant="success"
-            @click="createOneTimeTask"
-            :disabled="isLoading"
-          >
-            <span
-              v-if="isLoading"
-              class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            {{ isLoading ? t("saving") : t("create") }}
+          <argon-button variant="success" @click="createOneTimeTask" :disabled="isSubmitting">
+            <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            {{ isSubmitting ? t("saving") : t("create") }}
           </argon-button>
-        </template>
-      </ArgonModal>
+        </div>
+      </div>
     </div>
   </transition>
 
@@ -1542,12 +1436,8 @@ const translations = {
   <!-- مودال تعديل OneTimeTask -->
   <transition name="modal-fade">
     <div v-if="showEditPopup" class="popup-overlay">
-      <ArgonModal
-        v-if="showEditPopup"
-        :title="t('editOneTimeTask')"
-        @close="closeEditPopup"
-        class="one-time-task-modal"
-      >
+      <ArgonModal v-if="showEditPopup" :title="t('editOneTimeTask')" @close="closeEditPopup"
+        class="one-time-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <!-- نستخدم row + col لتوزيع الحقول -->
@@ -1555,23 +1445,14 @@ const translations = {
               <!-- اسم المهمة بعرض كامل -->
               <div class="col-12 mb-3">
                 <label class="form-label">{{ t("taskName") }}:</label>
-                <input
-                  v-model="oneTimeTaskName"
-                  class="form-control"
-                  :placeholder="t('enterTaskName')"
-                  required
-                />
+                <input v-model="oneTimeTaskName" class="form-control" :placeholder="t('enterTaskName')" required />
               </div>
 
               <!-- الوصف بعرض كامل -->
               <div class="col-12 mb-3">
                 <label class="form-label">{{ t("description") }}:</label>
-                <textarea
-                  v-model="oneTimeTaskDescription"
-                  class="form-control"
-                  :placeholder="t('enterDescription')"
-                  required
-                ></textarea>
+                <textarea v-model="oneTimeTaskDescription" class="form-control" :placeholder="t('enterDescription')"
+                  required></textarea>
               </div>
 
               <!-- assignTo في نصف عرض -->
@@ -1589,28 +1470,16 @@ const translations = {
               </div> -->
 
               <label class="form-label">{{ t("assignTo") }}:</label>
-              <argon-multiple-select
-                v-model="selectedAssignee"
-                :model-names="selectedAssigneeNames"
-                :options="employeeOptions"
-                :placeholder="t('selectEmployee')"
-                :searchable="true"
-                :searchPlaceholder="t('searchEmployees')"
-                class="form-control mb-3"
-              />
+              <argon-multiple-select v-model="selectedAssignee" :model-names="selectedAssigneeNames"
+                :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
+                :searchPlaceholder="t('searchEmployees')" class="form-control mb-3" />
 
               <!-- supervisor في نصف عرض -->
               <div class="mb-3">
                 <label class="form-label">{{ t("supervisor") }}:</label>
-                <argon-select
-                  v-model="selectedSupervisor"
-                  :options="employeeOptions"
-                  :placeholder="t('selectSupervisor')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search supervisors..."
-                  required
-                />
+                <argon-select v-model="selectedSupervisor" :options="employeeOptions"
+                  :placeholder="t('selectSupervisor')" class="form-control" searchable
+                  searchPlaceholder="Search supervisors..." required />
               </div>
 
               <!-- informer في نصف عرض -->
@@ -1628,15 +1497,9 @@ const translations = {
               </div> -->
 
               <label class="form-label">{{ t("informer") }}:</label>
-              <argon-multiple-select
-                v-model="selectedInformer"
-                :model-names="selectedInformerNames"
-                :options="employeeOptions"
-                :placeholder="t('selectEmployee')"
-                :searchable="true"
-                :searchPlaceholder="t('searchInformers')"
-                class="form-control mb-3"
-              />
+              <argon-multiple-select v-model="selectedInformer" :model-names="selectedInformerNames"
+                :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
+                :searchPlaceholder="t('searchInformers')" class="form-control mb-3" />
 
               <!-- consultant في نصف عرض -->
               <!-- <div class="col-md-6 mb-3">
@@ -1653,67 +1516,36 @@ const translations = {
               </div> -->
 
               <label class="form-label">{{ t("consultant") }}:</label>
-              <argon-multiple-select
-                v-model="selectedConsultant"
-                :model-names="selectedConsultantNames"
-                :options="employeeOptions"
-                :placeholder="t('selectEmployee')"
-                :searchable="true"
-                :searchPlaceholder="t('searchConsultants')"
-                class="form-control mb-3"
-              />
+              <argon-multiple-select v-model="selectedConsultant" :model-names="selectedConsultantNames"
+                :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
+                :searchPlaceholder="t('searchConsultants')" class="form-control mb-3" />
 
               <!-- المشروع (project_id) في نصف عرض -->
               <!-- في القالب -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("project") }}:</label>
-                <argon-select
-                  v-model="projectId"
-                  :options="formattedProjects"
-                  :placeholder="t('selectProject')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search projects..."
-                  required
-                />
+                <argon-select v-model="projectId" :options="formattedProjects" :placeholder="t('selectProject')"
+                  class="form-control" searchable searchPlaceholder="Search projects..." required />
               </div>
 
               <!-- الأولوية (priority) في نصف عرض -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("priority") }}:</label>
-                <argon-select
-                  v-model="priority"
-                  :options="prioritiesOptions"
-                  :placeholder="t('selectPriority')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search priorities..."
-                  required
-                />
+                <argon-select v-model="priority" :options="prioritiesOptions" :placeholder="t('selectPriority')"
+                  class="form-control" searchable searchPlaceholder="Search priorities..." required />
               </div>
 
               <!-- تاريخ البداية في نصف عرض -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("startDate") }}:</label>
-                <input
-                  type="date"
-                  v-model="startDate"
-                  class="form-control"
-                  :placeholder="t('enterStartDate')"
-                  required
-                />
+                <input type="date" v-model="startDate" class="form-control" :placeholder="t('enterStartDate')"
+                  required />
               </div>
 
               <!-- تاريخ النهاية في نصف عرض -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("endDate") }}:</label>
-                <input
-                  type="date"
-                  v-model="endDate"
-                  class="form-control"
-                  :placeholder="t('enterEndDate')"
-                  required
-                />
+                <input type="date" v-model="endDate" class="form-control" :placeholder="t('enterEndDate')" required />
               </div>
             </div>
           </div>
@@ -1723,18 +1555,9 @@ const translations = {
           <ArgonButton variant="secondary" @click="closeEditPopup">
             {{ t("close") }}
           </ArgonButton>
-          <ArgonButton
-            variant="success"
-            @click="updateOneTimeTask"
-            :disabled="isLoading"
-          >
-            <span
-              v-if="isLoading"
-              class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            {{ isLoading ? t("saving") : t("update") }}
+          <ArgonButton variant="success" @click="updateOneTimeTask" :disabled="isSubmitting">
+            <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            {{ isSubmitting ? t("saving") : t("update") }}
           </ArgonButton>
         </template>
       </ArgonModal>
@@ -1748,6 +1571,7 @@ const translations = {
 .fade-leave-active {
   transition: opacity 0.5s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -1774,23 +1598,30 @@ const translations = {
 
 /* إضافة هذه الأنماط لشريط التمرير */
 .modal-content-scroll {
-  overflow-y: auto; /* تفعيل التمرير الرأسي */
-  overflow-x: hidden; /* إخفاء التمرير الأفقي */
-  max-height: 65vh; /* الحد الأقصى لارتفاع المحتوى */
-  scrollbar-width: thin; /* لـ Firefox */
-  scrollbar-color: #888 #f1f1f1; /* لـ Firefox */
+  overflow-y: auto;
+  /* تفعيل التمرير الرأسي */
+  overflow-x: hidden;
+  /* إخفاء التمرير الأفقي */
+  max-height: 65vh;
+  /* الحد الأقصى لارتفاع المحتوى */
+  scrollbar-width: thin;
+  /* لـ Firefox */
+  scrollbar-color: #888 #f1f1f1;
+  /* لـ Firefox */
 }
 
 /* إصلاح عرض المودال لتجنب التمرير الأفقي\ */
 
 /* إخفاء التمرير الأفقي في المحتوى الداخلي */
 .modal-content-scroll::-webkit-scrollbar {
-  width: 8px; /* عرض شريط التمرير الرأسي */
-  height: 0px; /* تعطيل شريط التمرير الأفقي */
+  width: 8px;
+  /* عرض شريط التمرير الرأسي */
+  height: 0px;
+  /* تعطيل شريط التمرير الأفقي */
 }
 
 /* حل مشكلة العرض الزائد */
-.modal-content-scroll > .row {
+.modal-content-scroll>.row {
   max-width: 100%;
   margin: 0 auto;
 }
@@ -1843,6 +1674,7 @@ const translations = {
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
@@ -1851,7 +1683,185 @@ const translations = {
 .btn-link {
   transition: transform 0.2s;
 }
+
 .btn-link:hover {
   transform: rotate(90deg);
+}
+
+/* ====== Gmail Compose Style ====== */
+.gmail-compose-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.gmail-compose-container {
+  position: fixed;
+  bottom: 0;
+  right: 20px;
+  width: 500px;
+  background: white;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  pointer-events: all;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid #dadce0;
+  overflow: hidden;
+}
+
+.gmail-compose-container.maximized {
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  width: auto;
+  border-radius: 8px;
+}
+
+.gmail-compose-container.minimized {
+  height: 40px;
+  width: 300px;
+}
+
+.gmail-header {
+  background: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+  user-select: none;
+}
+
+.gmail-header-left {
+  flex: 1;
+}
+
+.gmail-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #202124;
+}
+
+.gmail-header-right {
+  display: flex;
+  gap: 4px;
+}
+
+.gmail-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5f6368;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.gmail-btn:hover {
+  background-color: #f1f3f4;
+}
+
+.gmail-btn.gmail-close:hover {
+  background-color: #ea4335;
+  color: white;
+}
+
+.gmail-content {
+  /* max-height: 500px; */
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.gmail-compose-container.maximized .gmail-content {
+  max-height: calc(100vh - 140px);
+}
+
+.gmail-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #e0e0e0;
+  background: #f9f9f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ====== Gmail Compose Animations ====== */
+.gmail-compose-enter-active,
+.gmail-compose-leave-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.gmail-compose-enter-from {
+  opacity: 0;
+  transform: translateY(100%) scale(0.8);
+}
+
+.gmail-compose-leave-to {
+  opacity: 0;
+  transform: translateY(100%) scale(0.8);
+}
+
+/* ====== Responsive Gmail Modal ====== */
+@media (max-width: 768px) {
+  .gmail-compose-container {
+    right: 10px;
+    left: 10px;
+    width: auto;
+    bottom: 0;
+  }
+
+  .gmail-compose-container.maximized {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .gmail-compose-container.minimized {
+    width: calc(100vw - 20px);
+    right: 10px;
+  }
+
+  .gmail-content {
+    padding: 12px;
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gmail-compose-container {
+    right: 5px;
+    left: 5px;
+  }
+
+  .gmail-compose-container.maximized {
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+  }
+
+  .gmail-content {
+    padding: 8px;
+    max-height: 350px;
+  }
+
+  .gmail-header {
+    padding: 6px 12px;
+  }
+
+  .gmail-footer {
+    padding: 8px 12px;
+  }
 }
 </style>

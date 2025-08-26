@@ -264,26 +264,22 @@ onBeforeUnmount(() => {
             <div class="card-header pb-0">
               <div class="d-flex align-items-center">
                 <h5 class="mb-0">Edit Profile</h5>
-                <argon-button
-                  color="success"
-                  size="sm"
-                  class="ms-auto d-flex align-items-center"
-                  @click="saveChanges"
-                  :disabled="!allPhonesValid || isSaving"
-                >
+                <argon-button color="success" size="sm" class="ms-auto d-flex align-items-center" @click="saveChanges"
+                  :disabled="!allPhonesValid || isSaving">
                   Save Changes
 
-                  <span
-                    v-if="isSaving"
-                    class="spinner-border spinner-border-sm ms-2"
-                  ></span>
+                  <span v-if="isSaving" class="spinner-border spinner-border-sm ms-2"></span>
                 </argon-button>
               </div>
             </div>
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <label for="username" class="form-label">Username</label>
+                  <label for="username" class="form-label">First Name</label>
+                  <argon-input id="username" type="text" v-model="userName" />
+                </div>
+                <div class="col-md-6">
+                  <label for="username" class="form-label">Last Name</label>
                   <argon-input id="username" type="text" v-model="userName" />
                 </div>
                 <div class="col-md-6">
@@ -292,11 +288,7 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="col-md-6">
                   <label for="position" class="form-label">Position</label>
-                  <argon-input
-                    id="position"
-                    type="text"
-                    v-model="userPosition"
-                  />
+                  <argon-input id="position" type="text" v-model="userPosition" />
                 </div>
               </div>
 
@@ -318,16 +310,9 @@ onBeforeUnmount(() => {
               </div>
 
               <hr />
-              <div
-                class="d-flex justify-content-between align-items-center mb-3"
-              >
+              <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="text-uppercase text-sm">Phone Numbers</h6>
-                <argon-button
-                  color="primary"
-                  size="sm"
-                  @click="addPhoneNumber"
-                  title="Add another phone number"
-                >
+                <argon-button color="primary" size="sm" @click="addPhoneNumber" title="Add another phone number">
                   <i class="fas fa-plus me-1"></i> Add Phone
                 </argon-button>
               </div>
@@ -336,98 +321,53 @@ onBeforeUnmount(() => {
                 No phone numbers added. Click 'Add Phone' to add one.
               </div>
 
-              <div
-                v-for="(phoneEntry, index) in userPhones"
-                :key="phoneEntry.tempId || index"
-                class="phone-entry-row align-items-start border-bottommb-3"
-              >
+              <div v-for="(phoneEntry, index) in userPhones" :key="phoneEntry.tempId || index"
+                class="phone-entry-row align-items-start border-bottommb-3">
                 <div class="flex-grow-1">
-                  <argon-input-phone
-                    :id="'profile-phone-' + index"
-                    :label="
+                  <argon-input-phone :id="'profile-phone-' + index" :label="
                       userPhones.length > 1 ? 'Phone ' + (index + 1) : 'Phone'
-                    "
-                    v-model="userPhones[index]"
-                    :countries="allCountriesForPhoneInput"
-                    :default-country-iso-code="
+                    " v-model="userPhones[index]" :countries="allCountriesForPhoneInput" :default-country-iso-code="
                       phoneEntry.CC
                         ? countriesList.find(
                             (c) => c.dialCode === phoneEntry.CC
                           )?.isoCode || defaultPhoneCountryIso
                         : defaultPhoneCountryIso
-                    "
-                    placeholder="Enter phone number"
-                    @validity-change="
+                    " placeholder="Enter phone number" @validity-change="
                       (isValid) => handlePhoneValidity(index, isValid)
-                    "
-                  />
+                    " />
                 </div>
                 <div class="ms-2 pt-4">
-                  <argon-button
-                    v-if="userPhones.length > 0"
-                    color="danger"
-                    size="sm"
-                    class="btn-icon-only"
-                    title="Remove this phone number"
-                    @click="removePhoneNumber(index)"
-                    aria-label="Remove phone number"
-                  >
+                  <argon-button v-if="userPhones.length > 0" color="danger" size="sm" class="btn-icon-only"
+                    title="Remove this phone number" @click="removePhoneNumber(index)" aria-label="Remove phone number">
                     <i class="fas fa-trash"></i>
                   </argon-button>
                 </div>
               </div>
               <hr />
-              <div
-                class="d-flex justify-content-between align-items-center mb-3"
-              >
+              <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="text-uppercase text-sm">Links</h6>
-                <argon-button
-                  color="primary"
-                  size="sm"
-                  @click="addLink"
-                  title="Add another link"
-                >
+                <argon-button color="primary" size="sm" @click="addLink" title="Add another link">
                   <i class="fas fa-plus me-1"></i> Add Link
                 </argon-button>
               </div>
-              <div
-                v-for="(linkEntry, index) in userLinks"
-                :key="linkEntry.tempId || index"
-                class="link-entry-row align-items-start border-bottom mb-3"
-              >
+              <div v-for="(linkEntry, index) in userLinks" :key="linkEntry.tempId || index"
+                class="link-entry-row align-items-start border-bottom mb-3">
                 <div class="icon-entry">
-                  <argon-select
-                    :id="'profile-link-type-' + index"
-                    :label="
+                  <argon-select :id="'profile-link-type-' + index" :label="
                       userLinks.length > 1
                         ? 'Link Type ' + (index + 1)
                         : 'Link Type'
-                    "
-                    v-model="userLinks[index].icon"
-                    :options="linkIcons"
-                  />
+                    " v-model="userLinks[index].icon" :options="linkIcons" />
                 </div>
                 <div class="url-input">
-                  <argon-input
-                    :id="'profile-link-' + index"
-                    :label="
+                  <argon-input :id="'profile-link-' + index" :label="
                       userLinks.length > 1 ? 'Link ' + (index + 1) : 'Link'
-                    "
-                    v-model="userLinks[index].link"
-                    :placeholder="
+                    " v-model="userLinks[index].link" :placeholder="
                       userLinks.length > 1 ? 'Link ' + (index + 1) : 'Link'
-                    "
-                  />
+                    " />
                 </div>
-                <argon-button
-                  v-if="userLinks.length > 0"
-                  color="danger"
-                  size="sm"
-                  class="btn-icon-only"
-                  title="Remove this link"
-                  @click="removeLink(index)"
-                  aria-label="Remove link"
-                >
+                <argon-button v-if="userLinks.length > 0" color="danger" size="sm" class="btn-icon-only"
+                  title="Remove this link" @click="removeLink(index)" aria-label="Remove link">
                   <i class="fas fa-trash"></i>
                 </argon-button>
               </div>
@@ -436,10 +376,7 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="col-lg-4 col-md-5">
-          <profile-card
-            :user="profileData?.data"
-            @image-uploaded="uploadProfileImage"
-          />
+          <profile-card :user="profileData?.data" @image-uploaded="uploadProfileImage" />
         </div>
       </div>
     </div>

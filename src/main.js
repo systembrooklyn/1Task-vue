@@ -19,7 +19,6 @@
 //   }
 // }
 
-
 import { createApp, nextTick } from "vue";
 import App from "./App.vue";
 import router from "./router";
@@ -27,34 +26,30 @@ import store from "./store";
 import "./assets/css/nucleo-icons.css";
 import "./assets/css/nucleo-svg.css";
 // main.js
-import 'bootstrap-icons/font/bootstrap-icons.css';
+import "bootstrap-icons/font/bootstrap-icons.css";
 import ArgonDashboard from "./argon-dashboard";
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
-import setTooltip from "../src/assets/js/tooltip"; // عدّل المسار حسب مشروعك
-
-
+import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import setTooltip from "@/assets/js/tooltip";
 
 const appInstance = createApp(App);
 
 // appInstance.directive('tooltip', tooltipDirective);
 
-
 const globalOptions = {
-    height: 200,
-    debug: 'info',
-    modules: {
-      toolbar: ['bold', 'italic', 'underline']
-    },
-    placeholder: 'write your comment here...',
-    readOnly: false,
-    theme: 'snow'
-  }
-  QuillEditor.props.globalOptions.default = () => globalOptions
-
+  height: 200,
+  debug: "info",
+  modules: {
+    toolbar: ["bold", "italic", "underline"],
+  },
+  placeholder: "write your comment here...",
+  readOnly: false,
+  theme: "snow",
+};
+QuillEditor.props.globalOptions.default = () => globalOptions;
 
 // Register the TinyMCE editor globally as 'vue-tinymce'
-appInstance.component('QuillEditor', QuillEditor);
+appInstance.component("QuillEditor", QuillEditor);
 appInstance.use(store);
 appInstance.use(router);
 appInstance.use(ArgonDashboard);
@@ -66,5 +61,5 @@ appInstance.mount("#app");
 
 // بعد أن يتم التركيب
 nextTick(() => {
-  setTooltip(); 
+  setTooltip();
 });

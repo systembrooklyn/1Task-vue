@@ -9,49 +9,25 @@
   <div :class="inputGroupClasses">
     <!-- Custom Dropdown Trigger -->
     <div class="custom-select-container position-relative">
-      <div
-        class="form-control"
-        :class="controlClasses"
-        @click="toggleDropdown"
-        role="combobox"
-        aria-haspopup="listbox"
-        :aria-expanded="isDropdownOpen"
-        :aria-controls="dropdownId"
-      >
+      <div class="form-control" :class="controlClasses" @click="toggleDropdown" role="combobox" aria-haspopup="listbox"
+        :aria-expanded="isDropdownOpen" :aria-controls="dropdownId">
         {{ selectedLabel || placeholder }}
       </div>
 
       <!-- Dropdown Menu -->
-      <div
-        v-if="isDropdownOpen"
-        class="custom-select-dropdown border rounded shadow-sm bg-white"
-        :id="dropdownId"
-        role="listbox"
-      >
+      <div v-if="isDropdownOpen" class="custom-select-dropdown border rounded shadow-sm bg-white" :id="dropdownId"
+        role="listbox">
         <!-- Search Input Inside Dropdown -->
         <div class="px-2 pt-2 pb-1" v-if="searchable">
-          <input
-            v-model="searchQuery"
-            type="text"
-            class="form-control form-control-sm"
-            :placeholder="searchPlaceholder"
-            @click.stop
-            autofocus
-          />
+          <input v-model="searchQuery" type="text" class="form-control form-control-sm" :placeholder="searchPlaceholder"
+            @click.stop autofocus />
         </div>
 
         <!-- Options List -->
         <div class="options-container py-1" :class="{ 'pt-0': !searchable }">
-          <div
-            v-for="(option, index) in filteredOptions"
-            :key="index"
-            class="custom-select-option px-3 py-2"
-            role="option"
-            :aria-selected="option.value === modelValue"
-            @click="selectOption(option)"
-            @keydown.enter="selectOption(option)"
-            tabindex="0"
-          >
+          <div v-for="(option, index) in filteredOptions" :key="index" class="custom-select-option px-3 py-2"
+            role="option" :aria-selected="option.value === modelValue" @click="selectOption(option)"
+            @keydown.enter="selectOption(option)" tabindex="0">
             {{ option.label }}
           </div>
         </div>
@@ -59,36 +35,24 @@
     </div>
 
     <!-- Clear Button -->
-    <span
-      v-if="modelValue"
-      class="input-group-text clear-btn"
-      @click="emit('update:modelValue', '')"
-    >
+    <span v-if="modelValue" class="input-group-text clear-btn" @click="emit('update:modelValue', '')">
       <i class="fas fa-times"></i>
     </span>
 
     <!-- Icon -->
-    <span
-      v-if="icon && iconDir === 'right'"
-      class="input-group-text"
-      :class="{ 'ps-0': iconDir === 'right' }"
-    >
+    <span v-if="icon && iconDir === 'right'" class="input-group-text" :class="{ 'ps-0': iconDir === 'right' }">
       <i :class="icon" class="fas" aria-hidden="true"></i>
     </span>
 
     <!-- Error Message -->
-    <div
-      v-if="error && errorMessage"
-      :id="`${id}-feedback`"
-      class="invalid-feedback"
-    >
+    <div v-if="error && errorMessage" :id="`${id}-feedback`" class="invalid-feedback">
       {{ errorMessage }}
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 
 // =========== PROPS ===========
 const props = defineProps({
@@ -111,11 +75,18 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
+// =========== GLOBAL DROPDOWN MANAGEMENT ===========
+// Global state to track which dropdown is currently open
+if (!window.__argonSelectOpenDropdown) {
+  window.__argonSelectOpenDropdown = null;
+}
+
 // =========== INTERNAL STATE ===========
 const isDropdownOpen = ref(false);
 const searchQuery = ref('');
 const selectedLabel = ref('');
 const dropdownId = ref(`select-dropdown-${Math.random().toString(36).substr(2, 9)}`);
+const componentId = ref(`argon-select-${Math.random().toString(36).substr(2, 9)}`);
 // =========== END INTERNAL STATE ===========
 
 // =========== FILTERED OPTIONS ===========
@@ -156,18 +127,103 @@ watch(
 // =========== END WATCHERS ===========
 
 // =========== METHODS ===========
+function closeDropdown() {
+  isDropdownOpen.value = false;
+  searchQuery.value = '';
+  if (window.__argonSelectOpenDropdown === componentId.value) {
+    window.__argonSelectOpenDropdown = null;
+  }
+}
+
+function openDropdown() {
+  // Close any other open dropdown first
+  if (window.__argonSelectOpenDropdown && window.__argonSelectOpenDropdown !== componentId.value) {
+    // Trigger close event for other ArgonSelect dropdowns
+    window.dispatchEvent(new CustomEvent('argon-select-close-others', {
+      detail: { excludeId: componentId.value }
+    }));
+  }
+
+  // Also close any open ArgonMultipleSelect dropdowns
+  if (window.__argonMultiSelectOpenDropdown) {
+    window.dispatchEvent(new CustomEvent('argon-multi-select-close-others', {
+      detail: { excludeId: componentId.value }
+    }));
+  }
+
+  isDropdownOpen.value = true;
+  window.__argonSelectOpenDropdown = componentId.value;
+}
+
 function toggleDropdown() {
-  isDropdownOpen.value = !isDropdownOpen.value;
-  if (!isDropdownOpen.value) {
-    searchQuery.value = '';
+  if (isDropdownOpen.value) {
+    closeDropdown();
+  } else {
+    openDropdown();
   }
 }
 
 function selectOption(option) {
   emit('update:modelValue', option.value);
-  isDropdownOpen.value = false;
+  closeDropdown();
 }
-// =========== END METHODS ===========
+
+// Handle click outside to close dropdown
+function handleClickOutside(event) {
+  const dropdown = document.getElementById(dropdownId.value);
+  const container = dropdown?.parentElement;
+
+  if (container && !container.contains(event.target) && isDropdownOpen.value) {
+    closeDropdown();
+  }
+}
+
+// Handle global close events from other dropdowns
+function handleGlobalClose(event) {
+  if (event.detail?.excludeId !== componentId.value && isDropdownOpen.value) {
+    closeDropdown();
+  }
+}
+
+// Handle close events from ArgonMultipleSelect dropdowns
+function handleMultiSelectClose() {
+  if (isDropdownOpen.value) {
+    closeDropdown();
+  }
+}
+
+// Handle escape key to close dropdown
+function handleEscapeKey(event) {
+  if (event.key === 'Escape' && isDropdownOpen.value) {
+    closeDropdown();
+  }
+}
+
+// =========== LIFECYCLE ===========
+onMounted(() => {
+  // Add click outside listener
+  document.addEventListener('click', handleClickOutside);
+  // Add global close listener for ArgonSelect
+  window.addEventListener('argon-select-close-others', handleGlobalClose);
+  // Add close listener for ArgonMultipleSelect dropdowns
+  window.addEventListener('argon-multi-select-close-others', handleMultiSelectClose);
+  // Add escape key listener
+  document.addEventListener('keydown', handleEscapeKey);
+});
+
+onUnmounted(() => {
+  // Clean up event listeners
+  document.removeEventListener('click', handleClickOutside);
+  window.removeEventListener('argon-select-close-others', handleGlobalClose);
+  window.removeEventListener('argon-multi-select-close-others', handleMultiSelectClose);
+  document.removeEventListener('keydown', handleEscapeKey);
+
+  // Clean up global state if this was the open dropdown
+  if (window.__argonSelectOpenDropdown === componentId.value) {
+    window.__argonSelectOpenDropdown = null;
+  }
+});
+// =========== END LIFECYCLE ===========
 </script>
 
 <style scoped>

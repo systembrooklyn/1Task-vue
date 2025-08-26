@@ -1,17 +1,12 @@
 <template>
   <div class="card">
-    <div
-      class="card-header pb-0 d-flex justify-content-between align-items-center"
-    >
+    <div class="card-header pb-0 d-flex justify-content-between align-items-center">
       <h6 class="mb-0 font-weight-bold">{{ t("employeesTable") }}</h6>
     </div>
     <div class="card-body px-0 pt-0 pb-2">
       <div class="table-responsive p-3" :key="componentKey">
         <!-- Spinner عند عدم وجود بيانات -->
-        <div
-          v-if="!dataFromApi || dataFromApi.length === 0"
-          class="d-flex justify-content-center py-5"
-        >
+        <div v-if="!dataFromApi || dataFromApi.length === 0" class="d-flex justify-content-center py-5">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
@@ -21,24 +16,16 @@
         <table v-else class="table align-items-center table-hover mb-0">
           <thead class="thead-light">
             <tr>
-              <th
-                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-              >
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                 {{ t("name") }}
               </th>
-              <th
-                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
-              >
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                 {{ t("email") }}
               </th>
-              <th
-                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
-              >
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                 {{ t("roles") }}
               </th>
-              <th
-                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
-              >
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                 {{ t("department") }}
               </th>
               <th class="text-secondary opacity-7"></th>
@@ -58,18 +45,10 @@
               </td>
               <td>
                 <div v-if="employee.roles.length" class="selected-options">
-                  <span
-                    v-for="roleName in employee.roles"
-                    :key="roleName"
-                    class="selected-option"
-                  >
+                  <span v-for="roleName in employee.roles" :key="roleName" class="selected-option">
                     {{ roleName }}
-                    <button
-                      v-show="canEditUser || isOwner"
-                      type="button"
-                      class="btn-remove"
-                      @click="confirmRemoveRole(employee, roleName)"
-                    >
+                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove"
+                      @click="confirmRemoveRole(employee, roleName)">
                       ×
                     </button>
                   </span>
@@ -77,22 +56,11 @@
                 <p v-else class="text-xs font-weight-bold mb-0">No Role</p>
               </td>
               <td>
-                <div
-                  v-if="employee.departments.length"
-                  class="selected-options"
-                >
-                  <span
-                    v-for="departmentName in employee.departments"
-                    :key="departmentName"
-                    class="selected-option"
-                  >
+                <div v-if="employee.departments.length" class="selected-options">
+                  <span v-for="departmentName in employee.departments" :key="departmentName" class="selected-option">
                     {{ departmentName }}
-                    <button
-                      v-show="canEditUser || isOwner"
-                      type="button"
-                      class="btn-remove"
-                      @click="confirmRemoveDepartment(employee, departmentName)"
-                    >
+                    <button v-show="canEditUser || isOwner" type="button" class="btn-remove"
+                      @click="confirmRemoveDepartment(employee, departmentName)">
                       ×
                     </button>
                   </span>
@@ -102,20 +70,12 @@
                 </p>
               </td>
               <td class="align-middle">
-                <a
-                  v-show="canEditUser || isOwner"
-                  href="javascript:;"
-                  class="text-secondary font-weight-bold text-xs me-2"
-                  @click="openEditModal(employee)"
-                >
+                <a v-show="canEditUser || isOwner" href="javascript:;"
+                  class="text-secondary font-weight-bold text-xs me-2" @click="openEditModal(employee)">
                   {{ t("edit") }}
                 </a>
-                <a
-                  v-show="canDeleteUser || isOwner"
-                  href="javascript:;"
-                  class="text-danger font-weight-bold text-xs"
-                  @click="confirmDelete(employee)"
-                >
+                <a v-show="canDeleteUser || isOwner" href="javascript:;" class="text-danger font-weight-bold text-xs"
+                  @click="confirmDelete(employee)">
                   {{ t("delete") }}
                 </a>
               </td>
@@ -131,46 +91,42 @@
     <!-- الـ Modal -->
     <div v-if="isModalOpen" class="popup-overlay">
       <transition name="modal-fade">
-        <ArgonModal
-          v-if="isModalOpen"
-          :title="t('editEmployee')"
-          @close="closeModal"
-        >
+        <ArgonModal v-if="isModalOpen" :title="t('editEmployee')" @close="closeModal">
           <template #default>
-            <label class="form-label">{{ t("name") }}:</label>
-            <input v-model="selectedEmployee.name" class="form-control mb-3" />
+
+            <div class="d-flex gap-3 mb-3">
+              <div class="w-50">
+                <label class="form-label">{{ t("firstName") }} <span class="text-danger">*</span>:</label>
+                <argon-input v-model="selectedEmployee.firstName" :placeholder="t('firstName')"
+                  :class="{ 'is-invalid': !selectedEmployee.firstName || !selectedEmployee.firstName.trim() }"
+                  required />
+                <div v-if="!selectedEmployee.firstName || !selectedEmployee.firstName.trim()" class="invalid-feedback">
+                  {{ t("firstNameRequired") }}
+                </div>
+              </div>
+              <div class="w-50">
+                <label class="form-label">{{ t("lastName") }} <span class="text-danger">*</span>:</label>
+                <argon-input v-model="selectedEmployee.lastName" :placeholder="t('lastName')"
+                  :class="{ 'is-invalid': !selectedEmployee.lastName || !selectedEmployee.lastName.trim() }" required />
+                <div v-if="!selectedEmployee.lastName || !selectedEmployee.lastName.trim()" class="invalid-feedback">
+                  {{ t("lastNameRequired") }}
+                </div>
+              </div>
+            </div>
 
             <label class="form-label">{{ t("roles") }}:</label>
-            <argon-multiple-select
-              v-model="selectedEmployee.rolesIds"
-              :model-names="selectedEmployee.rolesNames"
-              :options="formattedRoles"
-              :placeholder="t('roles')"
-              class="form-control mb-3"
-            />
+            <argon-multiple-select v-model="selectedEmployee.rolesIds" :model-names="selectedEmployee.rolesNames"
+              :options="formattedRoles" :placeholder="t('roles')" class="form-control mb-3" />
 
             <label class="form-label">{{ t("department") }}:</label>
-            <argon-multiple-select
-              v-model="selectedEmployee.departmentId"
-              :model-names="selectedEmployee.departmentNames"
-              :options="formattedDepartments"
-              :placeholder="t('department')"
-              class="form-control"
-            />
+            <argon-multiple-select v-model="selectedEmployee.departmentId"
+              :model-names="selectedEmployee.departmentNames" :options="formattedDepartments"
+              :placeholder="t('department')" class="form-control" />
           </template>
 
           <template #footer>
-            <argon-button
-              variant="success"
-              @click="saveChanges"
-              :disabled="isLoading"
-            >
-              <span
-                v-if="isLoading"
-                class="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              ></span>
+            <argon-button variant="success" @click="saveChanges" :disabled="isLoading || !isFormValid">
+              <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               {{ isLoading ? t("saving") : t("saveChanges") }}
             </argon-button>
             <argon-button variant="secondary" @click="closeModal">{{
@@ -199,6 +155,7 @@ import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
+import ArgonInput from "@/components/ArgonInput.vue";
 import Swal from "sweetalert2";
 import {
   savePermissionsToLocalStorage,
@@ -269,6 +226,10 @@ const translations = {
     delete: "Delete",
     close: "Close",
     saveChanges: "Save Changes",
+    firstName: "First Name",
+    lastName: "Last Name",
+    firstNameRequired: "First Name is required",
+    lastNameRequired: "Last Name is required",
     saving: "Saving...",
     updateSuccess: "Data updated successfully!",
     deleteConfirmationText: "Are you sure you want to delete this user?",
@@ -298,6 +259,10 @@ const translations = {
     delete: "حذف",
     close: "إغلاق",
     saveChanges: "حفظ التغييرات",
+    firstName: "الاسم الأول",
+    lastName: "الاسم الأخير",
+    firstNameRequired: "الاسم الأول مطلوب",
+    lastNameRequired: "الاسم الأخير مطلوب",
     saving: "جارٍ الحفظ...",
     updateSuccess: "تم تحديث البيانات بنجاح!",
     deleteConfirmationText: "هل تريد حذف هذا المستخدم؟",
@@ -323,11 +288,22 @@ const t = (key) => translations[currentLanguage.value][key];
 const isModalOpen = ref(false);
 const selectedEmployee = ref({
   name: "",
+  firstName: "",
+  lastName: "",
   departmentId: [],
   departmentNames: [],
   rolesIds: [],
   rolesNames: [],
 });
+
+// Computed property for form validation
+const isFormValid = computed(() => {
+  return selectedEmployee.value.firstName &&
+    selectedEmployee.value.firstName.trim() &&
+    selectedEmployee.value.lastName &&
+    selectedEmployee.value.lastName.trim();
+});
+
 const isLoading = ref(false);
 const successMessage = ref("");
 
@@ -374,8 +350,15 @@ const openEditModal = async (employee) => {
   console.log("Roles from store:", store.getters.roles);
   console.log("Mapped roleIds:", roleIds);
 
+  // Split the name into firstName and lastName
+  const nameParts = (employee.name || '').split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
   selectedEmployee.value = {
     ...employee,
+    firstName: firstName,
+    lastName: lastName,
     rolesIds: roleIds,
     rolesNames: roleNames,
     departmentId: departmentIds,
@@ -390,6 +373,8 @@ const closeModal = () => {
   isModalOpen.value = false;
   selectedEmployee.value = {
     name: "",
+    firstName: "",
+    lastName: "",
     departmentId: [],
     rolesIds: [],
     departmentNames: [],
@@ -402,10 +387,24 @@ const saveChanges = async () => {
   console.log("saveChanges called");
   isLoading.value = true;
   try {
-    if (!selectedEmployee.value.name) {
+    // Validate required fields
+    if (!selectedEmployee.value.firstName || !selectedEmployee.value.firstName.trim()) {
       Swal.fire({
         icon: "error",
-        title: t("nameRequired"),
+        title: t("firstNameRequired"),
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+          popup: "swal-above-modal",
+        },
+      });
+      return;
+    }
+
+    if (!selectedEmployee.value.lastName || !selectedEmployee.value.lastName.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: t("lastNameRequired"),
         showConfirmButton: false,
         timer: 1500,
         customClass: {
@@ -417,7 +416,7 @@ const saveChanges = async () => {
     // إعداد البيانات للإرسال
     const payloadforName = {
       user_id: selectedEmployee.value.id,
-      name: selectedEmployee.value.name,
+      name: `${selectedEmployee.value.firstName || ''} ${selectedEmployee.value.lastName || ''}`.trim(),
     };
 
     await store.dispatch("updateUserName", payloadforName);
@@ -700,9 +699,11 @@ onMounted(async () => {
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
 }
+
 .table tbody tr:hover {
   background: #f1f1f1;
 }
+
 .table td,
 .table th {
   vertical-align: middle;
@@ -715,6 +716,7 @@ onMounted(async () => {
   gap: 5px;
   margin-top: 5px;
 }
+
 .selected-option {
   display: inline-flex;
   align-items: center;
@@ -725,9 +727,11 @@ onMounted(async () => {
   font-size: 11px;
   color: #333;
 }
+
 .selected-option:hover {
   background-color: #dee2e6;
 }
+
 .btn-remove {
   margin-left: 5px;
   background: transparent;
@@ -737,6 +741,7 @@ onMounted(async () => {
   color: #dc3545;
   padding: 0;
 }
+
 .btn-remove:hover {
   color: #a71d2a;
 }
@@ -746,6 +751,7 @@ onMounted(async () => {
 .modal-fade-leave-active {
   transition: ease-in-out opacity 0.5s;
 }
+
 .modal-fade-enter,
 .modal-fade-leave-to {
   opacity: 0;
@@ -765,18 +771,25 @@ onMounted(async () => {
 
 /* كلاس مخصص للمودال لجعله قابلًا للتمرير */
 .routine-task-modal {
-  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  max-height: 100vh;
+  /* تحديد الحد الأقصى للارتفاع */
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth; /* تمكين التمرير العمودي */
-  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
-  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+  scroll-behavior: smooth;
+  /* تمكين التمرير العمودي */
+  scrollbar-width: none;
+  /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent;
+  /* تحديد لون الشريط الخلفي والخلفية */
 }
 
 .routine-task-modal .modal-content-scroll {
-  overflow-y: auto; /* تمكين التمرير العمودي */
-  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
+  overflow-y: auto;
+  /* تمكين التمرير العمودي */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  max-height: 80vh;
+  /* تحديد الحد الأقصى للارتفاع */
   /* scroll-behavior: smooth;  */
   max-height: 65vh;
 }
@@ -797,11 +810,13 @@ onMounted(async () => {
 /* تحسين تصميم المودال الداخلي */
 .routine-task-modal .modal-header,
 .routine-task-modal .modal-footer {
-  flex-shrink: 0; /* منع الانكماش */
+  flex-shrink: 0;
+  /* منع الانكماش */
 }
 
 .routine-task-modal .modal-body {
-  flex: 1; /* السماح للمحتوى بالتمدد */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد */
 }
 
 /* swal */

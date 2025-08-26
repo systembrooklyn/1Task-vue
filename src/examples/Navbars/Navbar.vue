@@ -21,7 +21,20 @@ const router = useRouter();
 
 const planInfo = computed(() => store.getters.planInfo);
 
-console.log("planInfo", planInfo.value);
+// اسم الباقة المشتقة لدعم أكثر من شكل للبيانات القادمة من الـ API
+const planName = computed(() => {
+  const p = planInfo.value;
+  if (!p) return null;
+  return (
+    p.plan_name ||
+    p.name ||
+    p?.plan?.name ||
+    p?.data?.plan_name ||
+    p?.data?.name ||
+    p?.data?.plan?.name ||
+    null
+  );
+});
 
 const currentRouteName = computed(() => {
   return route.name;
@@ -45,9 +58,12 @@ const toggleConfigurator = () => store.commit("toggleConfigurator");
 // I'm assuming the getter is named 'profileData'. If not, we may need to adjust this.
 const profileData = computed(() => store.getters.profileData);
 
-onMounted(() => {
+onMounted(async () => {
   // Fetch initial data to populate the store when the component mounts.
-  store.dispatch("fetchProfileData");
+  await Promise.all([
+    store.dispatch("fetchProfileData"),
+    store.dispatch("fetchPlanInfo"),
+  ]);
 });
 
 console.log("profileData", profileData.value);
@@ -83,28 +99,14 @@ const logout = () => {
 // };
 </script>
 <template>
-  <nav
-    class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl"
-    :class="isRTL ? 'top-0 position-sticky z-index-sticky' : ''"
-    v-bind="$attrs"
-    id="navbarBlur"
-    data-scroll="true"
-  >
+  <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl"
+    :class="isRTL ? 'top-0 position-sticky z-index-sticky' : ''" v-bind="$attrs" id="navbarBlur" data-scroll="true">
     <!-- <language-switcher /> -->
     <div class="px-3 py-1 container-fluid">
-      <breadcrumbs
-        :current-page="currentRouteName"
-        :current-directory="currentDirectory"
-      />
-      <div
-        class="mt-2 collapse navbar-collapse mt-sm-0 me-md-0 me-sm-4"
-        :class="isRTL ? 'px-0' : 'me-sm-4'"
-        id="navbar"
-      >
-        <div
-          class="pe-md-3 d-flex align-items-center"
-          :class="isRTL ? 'me-md-auto' : 'ms-md-auto'"
-        >
+      <breadcrumbs :current-page="currentRouteName" :current-directory="currentDirectory" />
+      <div class="mt-2 collapse navbar-collapse mt-sm-0 me-md-0 me-sm-4" :class="isRTL ? 'px-0' : 'me-sm-4'"
+        id="navbar">
+        <div class="pe-md-3 d-flex align-items-center" :class="isRTL ? 'me-md-auto' : 'ms-md-auto'">
           <!-- <div class="input-group">
             <span class="input-group-text text-body">
               <i class="fas fa-search" aria-hidden="true"></i>
@@ -119,63 +121,44 @@ const logout = () => {
         <ul class="navbar-nav justify-content-end">
           <li class="nav-item d-flex align-items-center">
             <div class="nav-item dropdown" v-if="userName">
-              <button
-                class="btn btn-link nav-link text-body p-0 dropdown-toggle d-flex align-items-center"
-                type="button"
-                id="dropdownMenuButton"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                :class="darkMode ? 'text-white' : 'text-dark'"
-              >
+              <button class="btn btn-link nav-link text-body p-0 dropdown-toggle d-flex align-items-center"
+                type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
+                :class="darkMode ? 'text-white' : 'text-dark'">
                 <!-- <i class="fa fa-user me-sm-2"></i> -->
-                <img
-                  class="navbar-profile-image"
-                  :src="profileData?.data?.profile?.ppUrl || defaultImg"
-                  alt="Profile"
-                />
+                <img class="navbar-profile-image" :src="profileData?.data?.profile?.ppUrl || defaultImg"
+                  alt="Profile" />
                 <div class="d-flex flex-column text-start ms-2">
                   <h6 class="d-sm-inline mb-0 lh-1 font-weight-bold">Hi, {{ userName }}</h6>
                   <small v-if="isOwner" class="d-sm-inline lh-1"><span class="font-weight-bold">Plan:</span> {{
-                    planInfo ? planInfo.plan_name : "Free"
+                    planName || "Free"
                   }}</small>
 
-                  <small class="d-sm-inline lh-1 font-weight-bold" > {{
+                  <small class="d-sm-inline lh-1 font-weight-bold"> {{
                     profileData ? profileData.data.profile?.position : "Free"
                   }}</small>
                 </div>
               </button>
 
-              <div
-                class="dropdown-menu dropdown-menu-end mt-2 py-0"
-                aria-labelledby="dropdownMenuButton"
-                :style="{ minWidth: '180px', borderRadius: '8px' }"
-              >
-                <router-link
-                  :to="{
-                    name: 'Profile',
-                    params: { companyName: companyNameNormalized },
-                  }"
-                >
+              <div class="dropdown-menu dropdown-menu-end mt-2 py-0" aria-labelledby="dropdownMenuButton"
+                :style="{ minWidth: '180px', borderRadius: '8px' }">
+                <router-link :to="{
+                  name: 'Profile',
+                  params: { companyName: companyNameNormalized },
+                }">
                   <profile-card :user="profileData?.data" context="navbar" />
                 </router-link>
                 <div class="dropdown-divider my-0"></div>
-                <router-link
-                  to="/signin"
-                  @click.prevent="logout"
-                  class="dropdown-item d-flex align-items-center py-2 px-3 text-danger"
-                >
+                <router-link to="/signin" @click.prevent="logout"
+                  class="dropdown-item d-flex align-items-center py-2 px-3 text-danger">
                   <i class="fa fa-sign-out-alt me-2"></i>Sign Out
                 </router-link>
               </div>
             </div>
 
             <!-- حالة عدم وجود مستخدم مسجل -->
-            <router-link
-              v-else
-              :to="isRTL ? '/ar/login' : '/login'"
+            <router-link v-else :to="isRTL ? '/ar/login' : '/login'"
               class="px-0 nav-link font-weight-bold d-flex align-items-center"
-              :class="darkMode ? 'text-white' : 'text-dark'"
-            >
+              :class="darkMode ? 'text-white' : 'text-dark'">
               <i class="fa fa-user" :class="isRTL ? 'ms-sm-2' : 'me-sm-2'"></i>
               <span class="d-sm-inline d-none">{{
                 isRTL ? "يسجل دخول" : "Sign In"
@@ -183,34 +166,16 @@ const logout = () => {
             </router-link>
           </li>
           <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
-            <a
-              href="#"
-              @click="minimizeSidebar"
-              class="p-0 nav-link text-white"
-              id="iconNavbarSidenav"
-            >
+            <a href="#" @click="minimizeSidebar" class="p-0 nav-link text-white" id="iconNavbarSidenav">
               <div class="sidenav-toggler-inner">
-                <i
-                  class="sidenav-toggler-line"
-                  :class="darkMode ? 'bg-white' : 'bg-dark'"
-                ></i>
-                <i
-                  class="sidenav-toggler-line"
-                  :class="darkMode ? 'bg-white' : 'bg-dark'"
-                ></i>
-                <i
-                  class="sidenav-toggler-line"
-                  :class="darkMode ? 'bg-white' : 'bg-dark'"
-                ></i>
+                <i class="sidenav-toggler-line" :class="darkMode ? 'bg-white' : 'bg-dark'"></i>
+                <i class="sidenav-toggler-line" :class="darkMode ? 'bg-white' : 'bg-dark'"></i>
+                <i class="sidenav-toggler-line" :class="darkMode ? 'bg-white' : 'bg-dark'"></i>
               </div>
             </a>
           </li>
           <li class="px-3 nav-item d-flex align-items-center">
-            <a
-              class="p-0 nav-link"
-              @click="toggleConfigurator"
-              :class="darkMode ? 'text-white' : 'text-dark'"
-            >
+            <a class="p-0 nav-link" @click="toggleConfigurator" :class="darkMode ? 'text-white' : 'text-dark'">
               <!-- <i class="cursor-pointer fa fa-cog fixed-plugin-button-nav"></i> -->
             </a>
           </li>

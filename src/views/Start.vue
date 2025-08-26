@@ -328,7 +328,7 @@ onBeforeUnmount(() => {
 }
 
 .btn-pricing {
-  outline: ;
+  outline: none;
   background-color: #a7c858;
   color: white;
 }

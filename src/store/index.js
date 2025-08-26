@@ -76,6 +76,7 @@ export default createStore({
     uploadProfileImage: "",
     chartDeptPerformance: null,
     planInfo: null,
+    planExpired: false,
     pagination: {
       total: 0,
       current_page: 1,
@@ -328,11 +329,15 @@ export default createStore({
     SET_PLANS(state, plans) {
       state.plans = plans;
     },
-    getPlans(state, plans) {
-      state.plans = plans;
-    },
     SET_PLAN_INFO(state, planInfo) {
       state.planInfo = planInfo;
+    },
+    SET_PLAN_EXPIRED(state, expired) {
+      state.planExpired = !!expired;
+      localStorage.setItem("planExpired", String(!!expired));
+    },
+    getPlans(state, plans) {
+      state.plans = plans;
     },
 
     // end----------------------------------------------------
@@ -371,6 +376,10 @@ export default createStore({
       const storedProfileData = localStorage.getItem("profileData");
       if (storedProfileData) {
         state.profileData = decryptData(storedProfileData);
+      }
+      const storedPlanExpired = localStorage.getItem("planExpired");
+      if (storedPlanExpired) {
+        state.planExpired = storedPlanExpired === "true";
       }
     },
 
@@ -850,8 +859,14 @@ export default createStore({
           // commit("SET_EMAIL", response.data.user.email);
           commit("SET_USER_Name", response.data.user.name);
 
-          //   return { success: true };
-          // } else {
+          // بعد تسجيل الدخول بنجاح، جلب بيانات الباقة والملف الشخصي
+          try {
+            await this.dispatch("fetchPlanInfo");
+            await this.dispatch("fetchProfileData");
+          } catch (e) {
+            // تجاهل الخطأ هنا، سيتم إظهاره في الواجهة إذا لزم
+          }
+
           return response;
         } else {
           return response;
@@ -1815,8 +1830,8 @@ export default createStore({
     },
 
     async subscribeToPlan({ dispatch }, payload) {
-   console.log("payload", payload);
-   try {
+      console.log("payload", payload);
+      try {
         const response = await apiClient.subscribeToPlan(payload);
         await dispatch("fetchProfileData"); // Refresh user data to get new plan status
         return response.data;
@@ -1828,16 +1843,27 @@ export default createStore({
     async fetchPlanInfo({ commit }) {
       // Action لجلب بيانات الباقة من الـ API
       try {
-        //  تحديث المسار إلى الـ endpoint الصحيح
         const response = await apiClient.fetchPlanInfo();
-        console.log("fetchPlanInfo-responseeeeeeeeee", response.data);
-        if (response.data && response.data.data) {
-          commit('SET_PLAN_INFO', response.data.data);
-          return response.data.data;
+        const payload = response?.data;
+        console.log("fetchPlanInfo payload", payload);
+
+        // دعم أكثر من شكل محتمل للبيانات القادمة من السيرفر
+        const candidate =
+          payload?.data ?? // { data: {...} }
+          payload?.plan ?? // { plan: {...} }
+          payload?.planInfo ?? // { planInfo: {...} }
+          (typeof payload === "object" ? payload : null); // {...}
+
+        if (candidate) {
+          commit("SET_PLAN_INFO", candidate);
+          return candidate;
         }
+
+        return null;
       } catch (error) {
         console.error("Error fetching plan info:", error);
-        throw error;
+        // لا نرمي الخطأ لأن الـ interceptor قد يكون قد تعامل مع انتهاء الخطة بالفعل
+        return null;
       }
     },
   },
