@@ -15,6 +15,8 @@ import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
 import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
+import ArgonInput from "@/components/ArgonInput.vue";
+import ArgonTextarea from "@/components/ArgonTextarea.vue";
 
 // import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import OneTimeTaskTable from "@/views/components/OneTimeTaskTable.vue";
@@ -155,6 +157,24 @@ const showEditPopup = ref(false);
 const editMode = ref(false);
 const editedTaskId = ref(null);
 
+// متغيرات لحقول Cc و Bcc
+const showCcFields = ref(false);
+const showBccFields = ref(false);
+
+// متغيرات للقوائم المنسدلة
+const showProjectDropdown = ref(false);
+const showPriorityDropdown = ref(false);
+const showStartDatePicker = ref(false);
+const showEndDatePicker = ref(false);
+
+// متغيرات البحث والفلترة
+const projectSearchQuery = ref("");
+const prioritySearchQuery = ref("");
+const filteredProjects = ref([]);
+const filteredPriorities = ref([]);
+
+
+
 const selectedManager = ref("");
 // const taskType = ref("");
 const dayOfMonth = ref("");
@@ -168,6 +188,12 @@ const prioritiesOptions = [
   { value: "high", label: "High" },
   { value: "urgent", label: "Urgent" },
 ];
+
+// تهيئة أولية للبيانات المفلترة
+onBeforeMount(() => {
+  filteredProjects.value = [];
+  filteredPriorities.value = prioritiesOptions;
+});
 // const taskTypeOptions = [
 //   { value: "daily", label: "Daily" },
 //   { value: "weekly", label: "Weekly" },
@@ -223,6 +249,136 @@ const closePopup = () => {
   priority.value = "";
   // isUrgent.value = false;
   recurrentDays.value = [];
+
+  // إعادة تعيين حقول Cc و Bcc
+  showCcFields.value = false;
+  showBccFields.value = false;
+};
+
+// دوال تبديل حقول Cc و Bcc
+const toggleCcFields = () => {
+  showCcFields.value = !showCcFields.value;
+};
+
+const toggleBccFields = () => {
+  showBccFields.value = !showBccFields.value;
+};
+
+// دوال تبديل القوائم المنسدلة
+const toggleProjectDropdown = () => {
+  showProjectDropdown.value = !showProjectDropdown.value;
+  // إغلاق القوائم الأخرى
+  showPriorityDropdown.value = false;
+  showStartDatePicker.value = false;
+  showEndDatePicker.value = false;
+};
+
+const togglePriorityDropdown = () => {
+  showPriorityDropdown.value = !showPriorityDropdown.value;
+  // إغلاق القوائم الأخرى
+  showProjectDropdown.value = false;
+  showStartDatePicker.value = false;
+  showEndDatePicker.value = false;
+};
+
+const toggleStartDatePicker = () => {
+  showStartDatePicker.value = !showStartDatePicker.value;
+  // إغلاق القوائم الأخرى
+  showProjectDropdown.value = false;
+  showPriorityDropdown.value = false;
+  showEndDatePicker.value = false;
+};
+
+const toggleEndDatePicker = () => {
+  showEndDatePicker.value = !showEndDatePicker.value;
+  // إغلاق القوائم الأخرى
+  showProjectDropdown.value = false;
+  showPriorityDropdown.value = false;
+  showStartDatePicker.value = false;
+};
+
+// دوال إغلاق القوائم
+const closeProjectDropdown = () => {
+  showProjectDropdown.value = false;
+};
+
+const closePriorityDropdown = () => {
+  showPriorityDropdown.value = false;
+};
+
+const closeStartDatePicker = () => {
+  showStartDatePicker.value = false;
+};
+
+const closeEndDatePicker = () => {
+  showEndDatePicker.value = false;
+};
+
+// دوال Tooltip
+const getProjectTooltip = () => {
+  if (projectId.value) {
+    const project = formattedProjects.value.find(p => p.value === projectId.value);
+    return project ? `${t('project')}: ${project.label}` : t('project');
+  }
+  return t('selectProject');
+};
+
+const getPriorityTooltip = () => {
+  if (priority.value) {
+    const priorityOption = prioritiesOptions.find(p => p.value === priority.value);
+    return priorityOption ? `${t('priority')}: ${priorityOption.label}` : t('priority');
+  }
+  return t('selectPriority');
+};
+
+const getStartDateTooltip = () => {
+  if (startDate.value) {
+    return `${t('startDate')}: ${startDate.value}`;
+  }
+  return t('enterStartDate');
+};
+
+const getEndDateTooltip = () => {
+  if (endDate.value) {
+    return `${t('endDate')}: ${endDate.value}`;
+  }
+  return t('enterEndDate');
+};
+
+// دوال البحث والفلترة
+const filterProjects = () => {
+  if (!projectSearchQuery.value.trim()) {
+    filteredProjects.value = formattedProjects.value;
+  } else {
+    const query = projectSearchQuery.value.toLowerCase();
+    filteredProjects.value = formattedProjects.value.filter(project =>
+      project.label.toLowerCase().includes(query)
+    );
+  }
+};
+
+const filterPriorities = () => {
+  if (!prioritySearchQuery.value.trim()) {
+    filteredPriorities.value = prioritiesOptions;
+  } else {
+    const query = prioritySearchQuery.value.toLowerCase();
+    filteredPriorities.value = prioritiesOptions.filter(priority =>
+      priority.label.toLowerCase().includes(query)
+    );
+  }
+};
+
+// دوال اختيار القيم
+const selectProject = (project) => {
+  projectId.value = project.value;
+  projectSearchQuery.value = "";
+  closeProjectDropdown();
+};
+
+const selectPriority = (priorityOption) => {
+  priority.value = priorityOption.value;
+  prioritySearchQuery.value = "";
+  closePriorityDropdown();
 };
 
 // وظائف إدارة المودال على طريقة Gmail
@@ -274,22 +430,36 @@ onBeforeMount(async () => {
         hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id),
       }));
       oneTimeTasks.value.sort((taskA, taskB) => {
-        // 1) مقارنة is_urgent
-        // if (taskA.is_urgent && !taskB.is_urgent) {
-        //   return -1; // taskA قبل taskB
-        // } else if (!taskA.is_urgent && taskB.is_urgent) {
-        //   return 1; // taskB قبل taskA
-        // }
+        // 1) أولاً: التاسكات ذات الأولوية urgent
+        const aIsUrgent = taskA.priority === 'urgent';
+        const bIsUrgent = taskB.priority === 'urgent';
 
-        // 2) إذا تشابهت is_urgent في المهمتين، قارن الأولوية (priority)
-        // لنعرّف ترتيبًا خاصًا للأولويات:
-        const priorityOrder = { urgent: 1, high: 2, normal: 3, low: 4 };
-        // في حال لم توجد أولوية، يمكن افتراض أنها normal أو قيمة بعيدة
-        const aPriority = priorityOrder[taskA.priority] || 99;
-        const bPriority = priorityOrder[taskB.priority] || 99;
+        if (aIsUrgent && !bIsUrgent) return -1; // taskA قبل taskB
+        if (!aIsUrgent && bIsUrgent) return 1;  // taskB قبل taskA
 
-        return aPriority - bPriority;
+        // 2) ثانياً: التاسكات التي حدث فيها تحديث (أي تحديث) - بغض النظر عن الأولوية
+        const aHasUpdate = taskA.hasNewUpdate || taskA.comments_count > 0;
+        const bHasUpdate = taskB.hasNewUpdate || taskB.comments_count > 0;
+
+        if (aHasUpdate && !bHasUpdate) return -1; // taskA قبل taskB
+        if (!aHasUpdate && bHasUpdate) return 1;  // taskB قبل taskA
+
+        // 3) ثالثاً: ترتيب باقي التاسكات حسب آخر تحديث (أحدث تحديث أولاً)
+        // استخدام updated_at أو created_at للترتيب
+        const aDate = new Date(taskA.updated_at || taskA.created_at || 0);
+        const bDate = new Date(taskB.updated_at || taskB.created_at || 0);
+
+        return bDate - aDate; // ترتيب تنازلي (الأحدث أولاً)
       });
+
+      // طباعة التاسكات مرتبة للتحقق من الترتيب
+      console.log("التاسكات بعد الترتيب:", oneTimeTasks.value.map(task => ({
+        name: task.oneTimeTaskName,
+        priority: task.priority,
+        hasUpdate: task.hasNewUpdate || task.comments_count > 0,
+        commentsCount: task.comments_count,
+        lastUpdate: task.updated_at || task.created_at
+      })));
     }
 
     console.log("oneTimeTasks:", oneTimeTasks.value);
@@ -319,21 +489,26 @@ const refreshTasks = async () => {
         hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id),
       }));
       oneTimeTasks.value.sort((taskA, taskB) => {
-        // 1) مقارنة is_urgent
-        // if (taskA.is_urgent && !taskB.is_urgent) {
-        //   return -1; // taskA قبل taskB
-        // } else if (!taskA.is_urgent && taskB.is_urgent) {
-        //   return 1; // taskB قبل taskA
-        // }
+        // 1) أولاً: التاسكات ذات الأولوية urgent
+        const aIsUrgent = taskA.priority === 'urgent';
+        const bIsUrgent = taskB.priority === 'urgent';
 
-        // 2) إذا تشابهت is_urgent في المهمتين، قارن الأولوية (priority)
-        // لنعرّف ترتيبًا خاصًا للأولويات:
-        const priorityOrder = { urgent: 1, high: 2, normal: 3, low: 4 };
-        // في حال لم توجد أولوية، يمكن افتراض أنها normal أو قيمة بعيدة
-        const aPriority = priorityOrder[taskA.priority] || 99;
-        const bPriority = priorityOrder[taskB.priority] || 99;
+        if (aIsUrgent && !bIsUrgent) return -1; // taskA قبل taskB
+        if (!aIsUrgent && bIsUrgent) return 1;  // taskB قبل taskA
 
-        return aPriority - bPriority;
+        // 2) ثانياً: التاسكات التي حدث فيها تحديث (أي تحديث) - بغض النظر عن الأولوية
+        const aHasUpdate = taskA.hasNewUpdate || taskA.comments_count > 0;
+        const bHasUpdate = taskB.hasNewUpdate || taskB.comments_count > 0;
+
+        if (aHasUpdate && !bHasUpdate) return -1; // taskA قبل taskB
+        if (!aHasUpdate && bHasUpdate) return 1;  // taskB قبل taskA
+
+        // 3) ثالثاً: ترتيب باقي التاسكات حسب آخر تحديث (أحدث تحديث أولاً)
+        // استخدام updated_at أو created_at للترتيب
+        const aDate = new Date(taskA.updated_at || taskA.created_at || 0);
+        const bDate = new Date(taskB.updated_at || taskB.created_at || 0);
+
+        return bDate - aDate; // ترتيب تنازلي (الأحدث أولاً)
       });
     }
   } catch (error) {
@@ -379,6 +554,25 @@ const formattedProjects = computed(() => {
       })),
   ];
 });
+
+// تهيئة البيانات المفلترة
+watch(
+  () => formattedProjects.value,
+  (newProjects) => {
+    console.log("formattedProjects changed:", newProjects);
+    filteredProjects.value = newProjects;
+  },
+  { immediate: true }
+);
+
+watch(
+  () => prioritiesOptions,
+  (newPriorities) => {
+    console.log("prioritiesOptions changed:", newPriorities);
+    filteredPriorities.value = newPriorities;
+  },
+  { immediate: true }
+);
 
 // متغيرات الفلترة
 const selectedTaskType = ref("");
@@ -908,6 +1102,8 @@ const translations = {
     employee: "Employee",
     searchPlaceholder: "Search tasks by Task Name, Employee ...",
     selectEmployee: "Select Employee",
+    selectSupervisor: "Select Supervisor",
+    selectAssignee: "Select Assignee",
     selectConsultant: "Select Consultant",
     selectInformer: "Select Informer",
     searchEmployees: "Search Employees",
@@ -915,6 +1111,23 @@ const translations = {
     searchConsultants: "Search Consultants",
     searchProjects: "Search Projects",
     searchPriorities: "Search Priorities",
+    selectStartDate: "Select Start Date",
+    selectEndDate: "Select End Date",
+    selectPriority: "Select Priority",
+    noResultsFound: "No results found",
+    undo: "Undo",
+    redo: "Redo",
+    bold: "Bold",
+    italic: "Italic",
+    underline: "Underline",
+    alignLeft: "Align Left",
+    alignCenter: "Align Center",
+    alignRight: "Align Right",
+    bulletList: "Bullet List",
+    numberedList: "Numbered List",
+    link: "Insert Link",
+    image: "Insert Image",
+    moreOptions: "More Options",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -932,6 +1145,7 @@ const translations = {
     taskName: "*اسم المهمة",
     description: "وصف المهمة",
     assignTo: "*تعيين",
+    selectSupervisor: "اختر المشرف",
     supervisor: "المشرف",
     informer: "المعلوم",
     consultant: "الاستشارات",
@@ -1012,6 +1226,22 @@ const translations = {
     selectDeadline: "اختر الموعد",
     selectTask: "اختر المهمة",
     selectPriority: "اختر الأولوية",
+    undo: "تراجع",
+    redo: "إعادة",
+    bold: "عريض",
+    italic: "مائل",
+    underline: "تسطير",
+    alignLeft: "محاذاة لليسار",
+    alignCenter: "محاذاة للمنتصف",
+    alignRight: "محاذاة لليمين",
+    bulletList: "قائمة نقطية",
+    numberedList: "قائمة مرقمة",
+    link: "إدراج رابط",
+    image: "إدراج صورة",
+    moreOptions: "خيارات إضافية",
+    selectStartDate: "اختر تاريخ البدء",
+    selectEndDate: "اختر تاريخ الانتهاء",
+    noResultsFound: "لا توجد نتائج",
   },
 };
 
@@ -1296,123 +1526,188 @@ const translations = {
 
         <div class="gmail-content" v-show="!isMinimized">
           <div class="modal-content-scroll">
-            <!-- بداية الـrow الشامل -->
-            <div class="row">
-              <!-- اسم المهمة (سطر كامل) -->
-              <div class="col-12 mb-3">
-                <label class="form-label">{{ t("taskName") }}:</label>
-                <input v-model="oneTimeTaskName" class="form-control" :placeholder="t('enterTaskName')" dir="auto"
-                  required />
+
+
+            <!-- حقول إضافة الأشخاص (Gmail Style) -->
+            <div class="gmail-people-section mb-3">
+              <!-- Assign To (To) - الحقل الأساسي -->
+              <div class="gmail-people-field">
+                <!-- <span class="gmail-field-label">{{ t('assignTo') }}</span> -->
+                <div class="gmail-people-input-container">
+                  <ArgonMultipleSelect v-model="selectedAssignee" :model-names="employeeNames"
+                    :options="employeeOptions" :placeholder="t('selectAssignee')" :searchable="true"
+                    :search-placeholder="t('searchEmployees')" class="gmail-people-input" />
+                </div>
               </div>
 
-              <!-- الوصف (سطر كامل) -->
-              <div class="col-12 mb-3">
-                <label class="form-label">{{ t("description") }}:</label>
-                <textarea v-model="oneTimeTaskDescription" class="form-control" :placeholder="t('enterDescription')"
-                  dir="auto" required></textarea>
-              </div>
-
-              <!-- حقل assignTo (نصف العرض) -->
-              <!-- <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("assignTo") }}:</label>
-                <argon-select
-                  v-model="selectedEmployee"
-                  :options="employeeOptions"
-                  :placeholder="t('selectEmployee')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search employees..."
-                  required
-                />
-              </div> -->
-
-              <div class="mb-3">
-                <label class="form-label">{{ t("assignTo") }}:</label>
-                <argon-multiple-select v-model="selectedAssignee" :model-names="employeeNames"
-                  :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
-                  :searchPlaceholder="t('searchEmployees')" class="form-control mb-3" />
-              </div>
-
-              <!-- حقل supervisor (نصف العرض) -->
-              <div class="col-md-12 mb-3">
-                <label class="form-label">{{ t("supervisor") }}:</label>
-                <argon-select v-model="selectedSupervisor" :options="employeeOptions"
-                  :placeholder="t('selectSupervisor')" class="form-control" searchable
-                  searchPlaceholder="Search employees..." required />
-              </div>
-
-              <!-- informer في نصف عرض -->
-              <!-- <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("informer") }}:</label>
-                <argon-select
-                  v-model="selectedInformer"
-                  :options="employeeOptions"
-                  :placeholder="t('selectInformer')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search employees..."
-                  required
-                />
-              </div> -->
-
-              <div class="mb-3">
-                <label class="form-label">{{ t("informer") }}:</label>
-                <argon-multiple-select v-model="selectedInformer" :model-names="employeeNames"
-                  :options="employeeOptions" :placeholder="t('selectInformer')" :searchable="true"
-                  :searchPlaceholder="t('searchInformers')" class="form-control mb-3" />
-              </div>
-
-              <!-- consultant في نصف عرض -->
-              <!-- <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("consultant") }}:</label>
-                <argon-select
-                  v-model="selectedConsultant"
-                  :options="employeeOptions"
-                  :placeholder="t('selectConsultant')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search employees..."
-                  required
-                />
-              </div> -->
-
-              <div class="mb-3">
-                <label class="form-label">{{ t("consultant") }}:</label>
-                <argon-multiple-select v-model="selectedConsultant" :model-names="employeeNames"
-                  :options="employeeOptions" :placeholder="t('selectConsultant')" :searchable="true"
-                  :searchPlaceholder="t('searchConsultants')" class="form-control mb-3" />
-              </div>
-
-              <!-- مشروع (نصف العرض) -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("project") }}:</label>
-                <argon-select v-model="projectId" :options="formattedProjects" :placeholder="t('selectProject')"
-                  class="form-control" searchable :searchPlaceholder="t('searchProjects')" required />
-              </div>
-
-              <!-- أولوية (نصف العرض) -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("priority") }}:</label>
-                <argon-select v-model="priority" :options="prioritiesOptions" :placeholder="t('selectPriority')"
-                  class="form-control" searchable :searchPlaceholder="t('searchPriorities')" required />
-              </div>
-
-              <!-- تاريخ البداية (نصف العرض) -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("startDate") }}:</label>
-                <input type="date" v-model="startDate" class="form-control" :placeholder="t('enterStartDate')"
-                  required />
-              </div>
-
-              <!-- تاريخ النهاية (نصف العرض) -->
-              <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("endDate") }}:</label>
-                <input type="date" v-model="endDate" class="form-control" :placeholder="t('enterEndDate')" />
+              <!-- Cc و Bcc على الجانب -->
+              <div class="gmail-people-side-options">
+                <button @click="toggleCcFields" class="gmail-cc-toggle" :class="{ active: showCcFields }">
+                  {{ t('supervisor') }}
+                </button>
+                <button @click="toggleBccFields" class="gmail-bcc-toggle" :class="{ active: showBccFields }">
+                  {{ t('informer') }} , {{ t('consultant') }}
+                </button>
               </div>
             </div>
-            <!-- نهاية الـrow -->
 
-            <!-- أي حقول إضافية أو أقسام أخرى تضعها هنا -->
+            <!-- حقول Cc (Supervisor) - مخفية افتراضياً -->
+            <div v-show="showCcFields" class="gmail-people-field gmail-cc-field">
+              <!-- <span class="gmail-field-label">{{ t('supervisor') }}</span> -->
+              <div class="gmail-people-input-container">
+                <ArgonSelect v-model="selectedSupervisor" :options="employeeOptions"
+                  :placeholder="t('selectSupervisor')" class="gmail-people-input" :searchable="true"
+                  :search-placeholder="t('searchSupervisors')" />
+              </div>
+            </div>
+
+            <!-- حقول Bcc (Informer + Consultant) - مخفية افتراضياً -->
+            <div v-show="showBccFields" class="gmail-people-field gmail-bcc-field">
+              <!-- <span class="gmail-field-label">{{ t('informer') }} , {{ t('consultant') }}</span> -->
+              <div class="gmail-people-input-container">
+                <ArgonMultipleSelect v-model="selectedInformer" :model-names="employeeNames" :options="employeeOptions"
+                  :placeholder="t('selectInformer')" :searchable="true" :search-placeholder="t('searchInformers')"
+                  class="gmail-people-input" />
+              </div>
+              <div class="gmail-people-input-container mt-2">
+                <ArgonMultipleSelect v-model="selectedConsultant" :model-names="employeeNames"
+                  :options="employeeOptions" :placeholder="t('selectConsultant')" :searchable="true"
+                  :search-placeholder="t('searchConsultants')" class="gmail-people-input" />
+              </div>
+            </div>
+
+            <!-- حقل اسم المهمة -->
+            <div class="gmail-field mb-3">
+              <ArgonInput v-model="oneTimeTaskName" class="gmail-input gmail-title-input"
+                :placeholder="t('enterTaskName')" dir="auto" required />
+            </div>
+
+            <!-- حقل الوصف -->
+            <div class="gmail-field mb-3">
+              <ArgonTextarea v-model="oneTimeTaskDescription" class="" :placeholder="t('enterDescription')" dir="auto"
+                required />
+            </div>
+
+            <!-- شريط الأدوات مع الأيقونات -->
+            <div class="gmail-toolbar mb-3">
+              <!-- Project Icon -->
+              <div class="gmail-toolbar-icon-group" @click="toggleProjectDropdown">
+                <div class="gmail-toolbar-icon" :class="{ 'has-value': projectId }" :title="getProjectTooltip()">
+                  <i class="fas fa-project-diagram"></i>
+                  <span v-if="projectId" class="gmail-icon-indicator">✓</span>
+                </div>
+                <span class="gmail-icon-label">{{ t("project") }}</span>
+              </div>
+
+              <!-- Priority Icon -->
+              <div class="gmail-toolbar-icon-group" @click="togglePriorityDropdown">
+                <div class="gmail-toolbar-icon" :class="{ 'has-value': priority }" :title="getPriorityTooltip()">
+                  <i class="fas fa-flag"></i>
+                  <span v-if="priority" class="gmail-icon-indicator">✓</span>
+                </div>
+                <span class="gmail-icon-label">{{ t("priority") }}</span>
+              </div>
+
+              <!-- Start Date Icon -->
+              <div class="gmail-toolbar-icon-group" @click="toggleStartDatePicker">
+                <div class="gmail-toolbar-icon" :class="{ 'has-value': startDate }" :title="getStartDateTooltip()">
+                  <i class="fas fa-calendar-plus"></i>
+                  <span v-if="startDate" class="gmail-icon-indicator">✓</span>
+                </div>
+                <span class="gmail-icon-label">{{ t("startDate") }}*</span>
+              </div>
+
+              <!-- End Date Icon -->
+              <div class="gmail-toolbar-icon-group" @click="toggleEndDatePicker">
+                <div class="gmail-toolbar-icon" :class="{ 'has-value': endDate }" :title="getEndDateTooltip()">
+                  <i class="fas fa-calendar-check"></i>
+                  <span v-if="endDate" class="gmail-icon-indicator">✓</span>
+                </div>
+                <span class="gmail-icon-label">{{ t("endDate") }}</span>
+              </div>
+            </div>
+
+            <!-- Inline Dropdowns and Pickers -->
+            <!-- Project Dropdown -->
+            <div v-show="showProjectDropdown" class="gmail-inline-dropdown">
+              <div class="gmail-inline-header">
+                <span class="gmail-inline-title">{{ t("selectProject") }}</span>
+                <button @click="closeProjectDropdown" class="gmail-inline-close">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="gmail-inline-content">
+                <div class="gmail-search-container mb-3">
+                  <input v-model="projectSearchQuery" type="text" class="gmail-search-input"
+                    :placeholder="t('searchProjects')" @input="filterProjects" />
+                </div>
+                <div class="gmail-options-container">
+                  <div v-for="project in filteredProjects" :key="project.value" class="gmail-option-item"
+                    :class="{ 'selected': projectId === project.value }" @click="selectProject(project)">
+                    <span class="gmail-option-text">{{ project.label }}</span>
+                    <i v-if="projectId === project.value" class="fas fa-check gmail-option-check"></i>
+                  </div>
+                  <div v-if="filteredProjects.length === 0" class="gmail-no-results">
+                    {{ t('noResultsFound') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Priority Dropdown -->
+            <div v-show="showPriorityDropdown" class="gmail-inline-dropdown">
+              <div class="gmail-inline-header">
+                <span class="gmail-inline-title">{{ t("selectPriority") }}</span>
+                <button @click="closePriorityDropdown" class="gmail-inline-close">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="gmail-inline-content">
+                <div class="gmail-search-container mb-3">
+                  <input v-model="prioritySearchQuery" type="text" class="gmail-search-input"
+                    :placeholder="t('searchPriorities')" @input="filterPriorities" />
+                </div>
+                <div class="gmail-options-container">
+                  <div v-for="priorityOption in filteredPriorities" :key="priorityOption.value"
+                    class="gmail-option-item" :class="{ 'selected': priority === priorityOption.value }"
+                    @click="selectPriority(priorityOption)">
+                    <span class="gmail-option-text">{{ priorityOption.label }}</span>
+                    <i v-if="priority === priorityOption.value" class="fas fa-check gmail-option-check"></i>
+                  </div>
+                  <div v-if="filteredPriorities.length === 0" class="gmail-no-results">
+                    {{ t('noResultsFound') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Start Date Picker -->
+            <div v-show="showStartDatePicker" class="gmail-inline-dropdown">
+              <div class="gmail-inline-header">
+                <span class="gmail-inline-title">{{ t("selectStartDate") }}</span>
+                <button @click="closeStartDatePicker" class="gmail-inline-close">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="gmail-inline-content">
+                <ArgonInput type="date" v-model="startDate" :placeholder="t('enterStartDate')" required />
+              </div>
+            </div>
+
+            <!-- End Date Picker -->
+            <div v-show="showEndDatePicker" class="gmail-inline-dropdown">
+              <div class="gmail-inline-header">
+                <span class="gmail-inline-title">{{ t("selectEndDate") }}</span>
+                <button @click="closeEndDatePicker" class="gmail-inline-close">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="gmail-inline-content">
+                <ArgonInput type="date" v-model="endDate" :placeholder="t('enterEndDate')" />
+              </div>
+            </div>
+
+
           </div>
         </div>
 
@@ -1811,8 +2106,471 @@ const translations = {
   transform: translateY(100%) scale(0.8);
 }
 
+/* ====== Gmail Toolbar Styles ====== */
+.gmail-toolbar {
+  /* background: #f8f9fa; */
+  /* border: 1px solid #e9ecef; */
+  border-radius: 6px;
+  /* padding: 12px 16px; */
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.gmail-toolbar-icon-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.gmail-toolbar-icon-group:hover {
+  transform: translateY(-2px);
+}
+
+.gmail-toolbar-icon {
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 2px solid #ced4da;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.gmail-toolbar-icon:hover {
+  border-color: #a6c956;
+  box-shadow: 0 4px 12px rgba(166, 201, 86, 0.3);
+}
+
+.gmail-toolbar-icon.has-value {
+  border-color: #a6c956;
+  background: #f0f8e8;
+}
+
+.gmail-toolbar-icon i {
+  font-size: 16px;
+  color: #495057;
+}
+
+.gmail-toolbar-icon.has-value i {
+  color: #a6c956;
+}
+
+.gmail-icon-indicator {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #a6c956;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.gmail-icon-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Inline Dropdown Styles */
+.gmail-inline-dropdown {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-top: 12px;
+  overflow: hidden;
+  animation: inlineDropdownSlideIn 0.2s ease;
+  /* padding-bottom: 104px; */
+}
+
+@keyframes inlineDropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+}
+
+.gmail-inline-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gmail-inline-title {
+  color: #495057;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.gmail-inline-close {
+  background: transparent;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gmail-inline-close:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.gmail-inline-content {
+  padding: 16px;
+}
+
+/* Search and Options Styles */
+.gmail-search-container {
+  position: relative;
+}
+
+.gmail-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.gmail-search-input:focus {
+  outline: none;
+  border-color: #a6c956;
+  box-shadow: 0 0 0 0.2rem rgba(166, 201, 86, 0.25);
+}
+
+.gmail-options-container {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  background: white;
+}
+
+.gmail-option-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.gmail-option-item:last-child {
+  border-bottom: none;
+}
+
+.gmail-option-item:hover {
+  background-color: #f8f9fa;
+}
+
+.gmail-option-item.selected {
+  background-color: #e8f5e8;
+  border-left: 3px solid #a6c956;
+}
+
+.gmail-option-text {
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.gmail-option-check {
+  color: #a6c956;
+  font-size: 0.8rem;
+}
+
+.gmail-no-results {
+  padding: 20px;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Custom Scrollbar */
+.gmail-options-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gmail-options-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.gmail-options-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.gmail-options-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.gmail-toolbar-label {
+  font-weight: 500;
+  color: #495057;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  display: block;
+  white-space: nowrap;
+}
+
+.gmail-toolbar-select,
+.gmail-toolbar-input {
+  min-width: 140px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.gmail-toolbar-select:focus,
+.gmail-toolbar-input:focus {
+  border-color: #a6c956;
+  box-shadow: 0 0 0 0.2rem rgba(166, 201, 86, 0.25);
+}
+
+.gmail-field-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.gmail-input,
+.gmail-textarea,
+.gmail-select {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.gmail-input:focus,
+.gmail-textarea:focus,
+.gmail-select:focus {
+  border-color: #a6c956;
+  box-shadow: 0 0 0 0.2rem rgba(166, 201, 86, 0.25);
+}
+
+.gmail-title-input {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.gmail-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.gmail-people-section {
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 10px;
+  background: #f8f9fa;
+}
+
+.gmail-people-field {
+  /* display: flex; */
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.gmail-people-field:last-child {
+  margin-bottom: 0;
+}
+
+.gmail-people-field .gmail-field-label {
+  min-width: 60px;
+  margin-bottom: 0;
+  margin-right: 8px;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.gmail-people-input-container {
+  flex: 1;
+}
+
+.gmail-people-input {
+  width: 100%;
+}
+
+.gmail-people-side-options {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.gmail-cc-toggle,
+.gmail-bcc-toggle {
+  background: transparent;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.gmail-cc-toggle:hover,
+.gmail-bcc-toggle:hover {
+  background: #f8f9fa;
+  border-color: #a6c956;
+  color: #495057;
+}
+
+.gmail-cc-toggle.active,
+.gmail-bcc-toggle.active {
+  background: #a6c956;
+  border-color: #a6c956;
+  color: white;
+}
+
+.gmail-cc-field,
+.gmail-bcc-field {
+  margin-top: 8px;
+  padding: 10px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  border-left: 3px solid #a6c956;
+}
+
+.gmail-people-field {
+  position: relative;
+}
+
+.gmail-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gmail-toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: #dee2e6;
+  margin: 0 4px;
+}
+
+.gmail-toolbar-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.gmail-toolbar-btn:hover {
+  background-color: #e9ecef !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gmail-toolbar-btn i {
+  font-size: 14px;
+  color: #495057;
+}
+
+.gmail-toolbar-btn:hover i {
+  color: #212529;
+}
+
 /* ====== Responsive Gmail Modal ====== */
 @media (max-width: 768px) {
+  .gmail-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .gmail-toolbar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gmail-toolbar-divider {
+    display: none;
+  }
+
+  .gmail-toolbar-select,
+  .gmail-toolbar-input {
+    min-width: 100%;
+  }
+
+  .gmail-people-side-options {
+    margin-left: 0;
+    margin-top: 8px;
+    justify-content: flex-start;
+  }
+
+  .gmail-people-field {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gmail-toolbar {
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .gmail-toolbar-icon-group {
+    min-width: 60px;
+  }
+
+  .gmail-dropdown {
+    min-width: 280px;
+    margin: 20px;
+  }
+
+  .gmail-inline-dropdown {
+    margin: 8px 0;
+  }
+
+  .gmail-inline-header {
+    padding: 10px 12px;
+  }
+
+  .gmail-inline-content {
+    padding: 12px;
+  }
+
   .gmail-compose-container {
     right: 10px;
     left: 10px;

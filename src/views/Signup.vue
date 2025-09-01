@@ -26,6 +26,7 @@ const email = computed(() => store.getters.tempEmail);
 
 // تعريف المتغيرات لتخزين القيم المدخلة
 const name = ref("");
+const lastName = ref("");
 const companyName = ref("");
 const password = ref("");
 const passwordValid = ref(false); // للتحقق من صحة كلمة المرور
@@ -59,6 +60,7 @@ const submitForm = async () => {
   try {
     const formData = {
       name: name.value,
+      last_name: lastName.value,
       company_name: companyName.value,
       password: password.value,
       email: email.value,
@@ -112,6 +114,8 @@ onBeforeUnmount(() => {
 const translations = {
   en: {
     name: "User Name *",
+    firstName: "First Name *",
+    lastName: "Last Name *",
     myTask: "My Task",
     newOrganization: "New Organization",
     enterDetails: "Enter your new company workspace details",
@@ -142,6 +146,8 @@ const translations = {
   },
   ar: {
     name: "*أسم المستخدم",
+    firstName: "*الاسم الأول",
+    lastName: "*الاسم الأخير",
     myTask: "مهمتي",
     newOrganization: "منظمة جديدة",
     enterDetails: "أدخل تفاصيل مساحة عمل شركتك الجديدة",
@@ -217,19 +223,47 @@ const industryOptions = computed(() => [
                 </div>
                 <div class="card-body">
                   <form role="form" @submit.prevent="submitForm">
-                    <argon-input
+                    <!-- <argon-input
                       id="name"
                       type="text"
                       :placeholder="t('name')"
                       :aria-label="t('name')"
                       v-model="name"
-                    />
+                    /> -->
+                    <div class="row">
+                      <div class="col-6">
+                        <argon-input
+                          id="firstName"
+                          type="text"
+                          :placeholder="t('firstName')"
+                          :aria-label="t('firstName')"
+                          v-model="name"
+                        />
+                      </div>
+                      <div class="col-6">
+                        <argon-input
+                      id="lastName"
+                      type="text"
+                      :placeholder="t('lastName')"
+                      :aria-label="t('lastName')"
+                      v-model="lastName"
+                      />
+                    </div>
+                    </div>
                     <argon-input
                       id="companyName"
                       type="text"
                       :placeholder="t('companyName')"
                       :aria-label="t('companyName')"
                       v-model="companyName"
+                    />
+                    <argon-input
+                      id="email"
+                      class="email"
+                      type="email"
+                      :placeholder="t('email')"
+                      :aria-label="t('email')"
+                      v-model="email"
                     />
                     <argon-input
                       id="email"

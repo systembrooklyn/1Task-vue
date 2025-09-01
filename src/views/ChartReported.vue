@@ -3,6 +3,23 @@ import { ref, computed, onBeforeMount, watch } from "vue";
 import DoughnutChart from "@/examples/Charts/DoughnutChart.vue";
 import { useStore } from "vuex";
 
+const t = (key) => {
+  return translations[currentLanguage.value][key];
+};
+console.log("t", t);
+
+const translations = {
+  en: {
+    noDataHere: "No Data Here in this range",
+  },
+  ar: {
+    noDataHere: "لا يوجد بيانات هنا في هذه الفترة",
+  },
+};
+const currentLanguage = computed(() => store.getters.currentLanguage);
+
+
+
 const store = useStore();
 
 const fromDate = ref("");
@@ -64,25 +81,13 @@ onBeforeMount(async () => {
     <!-- From Date -->
     <div class="input-group mb-3 w-25">
       <span class="input-group-text">From :</span>
-      <input
-        type="date"
-        v-model="fromDate"
-        class="form-control"
-        placeholder="From Date"
-        :max="toDate || undefined"
-      />
+      <input type="date" v-model="fromDate" class="form-control" placeholder="From Date" :max="toDate || undefined" />
     </div>
 
     <!-- To Date -->
     <div class="input-group mb-3 w-25">
       <span class="input-group-text">To :</span>
-      <input
-        type="date"
-        v-model="toDate"
-        class="form-control"
-        placeholder="To Date"
-        :min="fromDate || undefined"
-      />
+      <input type="date" v-model="toDate" class="form-control" placeholder="To Date" :min="fromDate || undefined" />
     </div>
 
     <button class="btn btn-primary" @click="getChartData">Get Data</button>
@@ -96,27 +101,22 @@ onBeforeMount(async () => {
   </div>
 
   <!-- حالة عدم وجود بيانات -->
-  <div v-else-if="chartData?.data?.length === 0">
+  <div v-else-if="!chartData?.data?.dept_performance || chartData.data.dept_performance.length === 0">
     <div class="no-tasks-container">
-      <img
-        src="https://ik.imagekit.io/ts7pphpbz3/9318688.jpg"
-        alt="no-tasks"
-        class="no-tasks-image"
-      />
-      <p class="no-tasks-text">No Data Here in this range {{ chartData.range?.from }} to {{ chartData.range?.to }}</p>
+      <img src="https://ik.imagekit.io/ts7pphpbz3/9318688.jpg" alt="no-tasks" class="no-tasks-image" />
+      <p class="no-tasks-text">{{ t("noDataHere") }} {{ chartData.range?.from }} <span v-if="chartData.range?.to">to</span> {{
+        chartData.range?.to }}</p>
     </div>
   </div>
 
   <!-- حالة وجود بيانات -->
   <div v-else class="mx-auto" style="width: 95%">
-    <DoughnutChart
-      :id="'deptPerformanceChart'"
-      :title="`Department Performance (${chartData.data.range?.from} to ${chartData.data.range?.to})`"
-      :chart="{
-        labels: chartData.data.dept_performance?.map((d) => d.department_name) ?? [],
+    <DoughnutChart :id="'deptPerformanceChart'"
+      :title="`Department Performance (${chartData.data?.range?.from} to ${chartData.data?.range?.to})`" :chart="{
+        labels: chartData.data?.dept_performance?.map((d) => d.department_name) ?? [],
         datasets: [
           {
-            data: chartData.data.dept_performance?.map((d) => d.total_rate) ?? [],
+            data: chartData.data?.dept_performance?.map((d) => d.total_rate) ?? [],
             backgroundColor: [
               '#9A59E2',
               '#B6B6B6',
@@ -131,9 +131,8 @@ onBeforeMount(async () => {
             ],
           },
         ],
-        compPerformance: chartData.data.company_performance ?? 0,
-      }"
-    />
+        compPerformance: chartData.data?.company_performance ?? 0,
+      }" />
   </div>
 </template>
 
@@ -153,6 +152,7 @@ input:invalid {
   text-align: center;
   width: 100%;
 }
+
 .no-tasks-image {
   max-width: 300px;
   width: 100%;
@@ -160,6 +160,7 @@ input:invalid {
   object-fit: cover;
   border-radius: 8px;
 }
+
 .no-tasks-text {
   font-size: 1.1rem;
   font-weight: 600;

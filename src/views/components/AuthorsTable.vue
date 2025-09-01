@@ -36,7 +36,7 @@
               <td>
                 <div class="d-flex px-2 py-1">
                   <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">{{ employee.name }}</h6>
+                    <h6 class="mb-0 text-sm">{{ employee.name }} {{ employee.last_name }}</h6>
                   </div>
                 </div>
               </td>
@@ -97,18 +97,18 @@
             <div class="d-flex gap-3 mb-3">
               <div class="w-50">
                 <label class="form-label">{{ t("firstName") }} <span class="text-danger">*</span>:</label>
-                <argon-input v-model="selectedEmployee.firstName" :placeholder="t('firstName')"
-                  :class="{ 'is-invalid': !selectedEmployee.firstName || !selectedEmployee.firstName.trim() }"
+                <argon-input v-model="selectedEmployee.name" :placeholder="t('firstName')"
+                  :class="{ 'is-invalid': !selectedEmployee.name || !selectedEmployee.name.trim() }"
                   required />
-                <div v-if="!selectedEmployee.firstName || !selectedEmployee.firstName.trim()" class="invalid-feedback">
+                <div v-if="!selectedEmployee.name || !selectedEmployee.name.trim()" class="invalid-feedback">
                   {{ t("firstNameRequired") }}
                 </div>
               </div>
               <div class="w-50">
                 <label class="form-label">{{ t("lastName") }} <span class="text-danger">*</span>:</label>
-                <argon-input v-model="selectedEmployee.lastName" :placeholder="t('lastName')"
-                  :class="{ 'is-invalid': !selectedEmployee.lastName || !selectedEmployee.lastName.trim() }" required />
-                <div v-if="!selectedEmployee.lastName || !selectedEmployee.lastName.trim()" class="invalid-feedback">
+                <argon-input v-model="selectedEmployee.last_name" :placeholder="t('lastName')"
+                  :class="{ 'is-invalid': !selectedEmployee.last_name || !selectedEmployee.last_name.trim() }" required />
+                <div v-if="!selectedEmployee.last_name || !selectedEmployee.last_name.trim()" class="invalid-feedback">
                   {{ t("lastNameRequired") }}
                 </div>
               </div>
@@ -288,8 +288,7 @@ const t = (key) => translations[currentLanguage.value][key];
 const isModalOpen = ref(false);
 const selectedEmployee = ref({
   name: "",
-  firstName: "",
-  lastName: "",
+  last_name: "",
   departmentId: [],
   departmentNames: [],
   rolesIds: [],
@@ -298,10 +297,10 @@ const selectedEmployee = ref({
 
 // Computed property for form validation
 const isFormValid = computed(() => {
-  return selectedEmployee.value.firstName &&
-    selectedEmployee.value.firstName.trim() &&
-    selectedEmployee.value.lastName &&
-    selectedEmployee.value.lastName.trim();
+  return selectedEmployee.value.name &&
+    selectedEmployee.value.name.trim() &&
+    selectedEmployee.value.last_name &&
+    selectedEmployee.value.last_name.trim();
 });
 
 const isLoading = ref(false);
@@ -351,14 +350,14 @@ const openEditModal = async (employee) => {
   console.log("Mapped roleIds:", roleIds);
 
   // Split the name into firstName and lastName
-  const nameParts = (employee.name || '').split(' ');
-  const firstName = nameParts[0] || '';
-  const lastName = nameParts.slice(1).join(' ') || '';
+  const name = (employee.name || '')
+  const last_name = (employee.last_name || '')
+
 
   selectedEmployee.value = {
     ...employee,
-    firstName: firstName,
-    lastName: lastName,
+    name: name,
+    last_name: last_name,
     rolesIds: roleIds,
     rolesNames: roleNames,
     departmentId: departmentIds,
@@ -373,8 +372,7 @@ const closeModal = () => {
   isModalOpen.value = false;
   selectedEmployee.value = {
     name: "",
-    firstName: "",
-    lastName: "",
+    last_name: "",
     departmentId: [],
     rolesIds: [],
     departmentNames: [],
@@ -388,7 +386,7 @@ const saveChanges = async () => {
   isLoading.value = true;
   try {
     // Validate required fields
-    if (!selectedEmployee.value.firstName || !selectedEmployee.value.firstName.trim()) {
+    if (!selectedEmployee.value.name || !selectedEmployee.value.name.trim()) {
       Swal.fire({
         icon: "error",
         title: t("firstNameRequired"),
@@ -401,7 +399,7 @@ const saveChanges = async () => {
       return;
     }
 
-    if (!selectedEmployee.value.lastName || !selectedEmployee.value.lastName.trim()) {
+    if (!selectedEmployee.value.last_name || !selectedEmployee.value.last_name.trim()) {
       Swal.fire({
         icon: "error",
         title: t("lastNameRequired"),
@@ -416,7 +414,8 @@ const saveChanges = async () => {
     // إعداد البيانات للإرسال
     const payloadforName = {
       user_id: selectedEmployee.value.id,
-      name: `${selectedEmployee.value.firstName || ''} ${selectedEmployee.value.lastName || ''}`.trim(),
+      name: selectedEmployee.value.name,
+      last_name: selectedEmployee.value.last_name,
     };
 
     await store.dispatch("updateUserName", payloadforName);

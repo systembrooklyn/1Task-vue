@@ -11,7 +11,8 @@
         'Review',
         'Done',
       ]" :key="tab" :class="{ active: activeTab === tab }" @click="activeTab = tab">
-        {{ tab }}
+        <span class="tab-name">{{ tab }}</span>
+        <span class="tab-count">{{ getTabCount(tab) }}</span>
       </button>
     </div>
 
@@ -42,11 +43,14 @@
                 : 'bi-star star-icon'
               " @click.stop="toggleStar(task)" title="Star/Unstar"></i>
 
+            <!-- اسم المنشئ (Gmail Style) -->
+            <span class="creator-name-simple">{{ task.creator?.name || 'Unknown' }}</span>
+
             <!-- عنوان المهمة + تاريخ -->
             <span class="task-title" :class="{ 'text-white': task.is_urgent }">
               <span dir="rtl">{{ task.title }}</span>
               <small class="task-date" :class="{ 'text-white': task.is_urgent }">{{ formatDateWithTime(task.created_at)
-                }}</small>
+              }}</small>
 
               <!-- deadline -->
               <small v-if="
@@ -308,7 +312,7 @@
                         </button>
                       </div>
                     </div>
-                    <div class="comment-body" v-html="comment.comment_text"></div>
+                    <div dir="auto" class="comment-body" v-html="comment.comment_text"></div>
 
                     <small v-if="comment.seen_by?.length" class="seen-by">
                       <i class="fa fa-check text-success me-1"></i>
@@ -337,7 +341,7 @@
                                 </div>
                               </div>
                             </div>
-                            <div class="comment-body" v-html="reply.reply_text"></div>
+                            <div dir="auto" class="comment-body" v-html="reply.reply_text"></div>
                             <small v-if="reply.seen_by?.length" class="seen-by">
                               <i class="fa fa-check text-success me-1"></i>
                               <span v-for="(user, index) in reply.seen_by" :key="user.id">
@@ -1251,6 +1255,57 @@ const removeFile = () => {
   fileToUpload.value = null;
   fileInputKey.value++;
 };
+
+// دالة لحساب عدد المهام في كل filter
+function getTabCount(tabName) {
+  if (!props.oneTimeTasks) return 0;
+
+  switch (tabName) {
+    case "Inbox":
+      return props.oneTimeTasks.filter((task) => {
+        return (
+          (task.assignedUser
+            ?.map((user) => user.id)
+            .includes(userData?.value?.user?.id) ||
+            task.supervisor?.id === userData?.value?.user?.id ||
+            task.consult
+              ?.map((user) => user.id)
+              .includes(userData?.value?.user?.id) ||
+            task.informer
+              ?.map((user) => user.id)
+              .includes(userData?.value?.user?.id)) &&
+          task.is_archived == false &&
+          task.status !== "done"
+        );
+      }).length;
+
+    case "Own":
+      return props.oneTimeTasks.filter((task) => {
+        return (
+          task.creator?.id === userData?.value?.user?.id &&
+          task.is_archived == false &&
+          task.status !== "done"
+        );
+      }).length;
+
+    case "Archive":
+      return props.oneTimeTasks.filter((task) => task.is_archived == true).length;
+
+    case "Started":
+      return props.oneTimeTasks.filter((task) => task.is_starred == true).length;
+
+    case "Review":
+      return props.oneTimeTasks.filter((task) => task.status === "review").length;
+
+    case "Done":
+      return props.oneTimeTasks.filter((task) => task.status === "done").length;
+
+    default:
+      return 0;
+  }
+}
+
+
 </script>
 
 <style scoped>
@@ -1266,10 +1321,23 @@ const removeFile = () => {
 .sidebar {
   width: 125px;
   border-radius: 8px;
-  padding: 1rem;
+  /* padding: 1rem; */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+/* اسم المنشئ البسيط (Gmail Style) */
+.creator-name-simple {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-right: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  cursor: default;
 }
 
 .sidebar button {
@@ -1281,6 +1349,32 @@ const removeFile = () => {
   cursor: pointer;
   color: #333;
   font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tab-name {
+  flex: 1;
+  text-align: left;
+}
+
+.tab-count {
+  background: #e9ecef;
+  color: #6c757d;
+  border-radius: 12px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+  line-height: 1;
+}
+
+.sidebar button.active .tab-count {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
 }
 
 .sidebar button.active {

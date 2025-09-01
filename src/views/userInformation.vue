@@ -38,6 +38,7 @@ console.log("timestamp:", timestamp);
 
 
 const name = ref("");
+const lastName = ref("");
 const password = ref("");
 const confirmPassword = ref("");
 // const role = ref(1);
@@ -77,6 +78,8 @@ const translations = {
   en: {
     updateMember: "Add Your Information",
     name: "Name *",
+    firstName: "First Name *",
+    lastName: "Last Name *",
     email: "Email",
     password: "Password *",
     generalError: "An error occurred while submitting. Please try again later.",
@@ -94,6 +97,8 @@ const translations = {
   ar: {
     updateMember: "أضف بياناتك",
     name: "الاسم",
+    firstName: "الاسم الأول",
+    lastName: "الاسم الأخير",
     email: "البريد الإلكتروني",
     password: "كلمة المرور",
     generalError: "حدث خطأ أثناء التحديث. حاول مرة أخرى لاحقًا.",
@@ -169,6 +174,7 @@ const submitForm = async () => {
     const formData = {
       token: token,
       name: name.value,
+      last_name: lastName.value,
       password: password.value,
       password_confirmation: confirmPassword.value,
     };
@@ -215,10 +221,12 @@ const submitForm = async () => {
           <div class="card-body">
             <form @submit.prevent="submitForm">
               <div class="row">
-                <div class="col-md-12">
-                  <argon-input id="name-input" type="text" v-model="name" :placeholder="t('name')" required />
+                <div class="col-md-6">
+                  <argon-input id="firstName-input" type="text" v-model="name" :placeholder="t('firstName')" required />
                 </div>
-
+                <div class="col-md-6">
+                  <argon-input id="lastName-input" type="text" v-model="lastName" :placeholder="t('lastName')" required />
+                </div>
                 <div class="mb-3 position-relative">
                   <div class="position-relative">
                     <argon-input v-model="password" id="password" :type="showPassword ? 'text' : 'password'"

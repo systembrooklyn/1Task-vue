@@ -39,6 +39,7 @@ const linkIcons = ref([
 
 // Profile data refs
 const userName = ref("");
+const userLastName = ref("");
 const userEmail = ref("");
 const userCity = ref("");
 const userCountry = ref(""); // User's country of residence
@@ -76,7 +77,8 @@ const fetchProfileData = async () => {
 
     profileData.value = data;
     userName.value = data.data?.name || "";
-    userEmail.value = data.data?.email || "";
+    userLastName.value = data.data?.last_name || "";
+      userEmail.value = data.data?.email || "";
     userCity.value = data.data?.profile?.city || "";
     userCountry.value = data.data?.profile?.country || "";
     userState.value = data.data?.profile?.state || "";
@@ -183,6 +185,7 @@ const saveChanges = async () => {
 
   const profileUpdateData = {
     name: userName.value,
+    last_name: userLastName.value,
     email: userEmail.value,
     profile: {
       city: userCity.value,
@@ -280,7 +283,7 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="col-md-6">
                   <label for="username" class="form-label">Last Name</label>
-                  <argon-input id="username" type="text" v-model="userName" />
+                  <argon-input id="username" type="text" v-model="userLastName" />
                 </div>
                 <div class="col-md-6">
                   <label for="email" class="form-label">Email address</label>

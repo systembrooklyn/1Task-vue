@@ -36,7 +36,7 @@
     <!-- User Details -->
     <div class="card-body pt-0">
       <div class="text-center mt-4">
-        <h5>{{ user?.name }}</h5>
+        <h5>{{ user?.name }} {{ user?.last_name }}</h5>
         <div v-if="user?.profile?.position" class="h6 font-weight-300">
           <i class="ni business_briefcase-24 mr-2"></i>{{ user.profile.position }}
         </div>

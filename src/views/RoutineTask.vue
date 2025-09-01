@@ -89,7 +89,7 @@ const formattedDepartments = computed(() => {
 const userDepartment = computed(() => {
   const user = userData.value;
   console.log("user.departments:", user);
-  return user.user.departments.map((department) => ({
+  return user.user?.departments?.map((department) => ({
     value: department.id,
     label: department.name,
   }));
@@ -897,8 +897,8 @@ const searchMatch = (task) => {
                               type="checkbox"
                               id="selectAllDepartments"
                               :checked="
-                                selectedDepartments.length ===
-                                userDepartment.length
+                                selectedDepartments?.length ===
+                                userDepartment?.length
                               "
                               @change="toggleAllDepartments"
                             />
