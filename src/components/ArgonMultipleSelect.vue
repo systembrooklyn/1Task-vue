@@ -5,7 +5,7 @@
     <!-- Display selected values -->
     <div v-if="internalModelValue.length" class="selected-options">
       <span v-for="(selected, index) in internalModelValue" :key="selected" class="selected-option">
-        {{ internalModelNames[index] ? `${internalModelNames[index]} ` : selected }}
+        {{ getDisplayName(selected, index) }}
         <button type="button" class="btn-remove" @click="removeOption(selected)">
           ×
         </button>
@@ -135,6 +135,23 @@ const filteredOptions = computed(() => {
     option.label?.toLowerCase().includes(query)
   );
 });
+
+// دالة للحصول على الاسم المناسب للعرض
+const getDisplayName = (selectedValue, index) => {
+  // إذا كان الاسم موجود في modelNames، استخدمه
+  if (internalModelNames.value[index]) {
+    return internalModelNames.value[index];
+  }
+
+  // إذا لم يكن موجود، ابحث عنه في options
+  const option = props.options.find(opt =>
+    opt.value == selectedValue ||
+    opt.value === parseInt(selectedValue) ||
+    opt.value === String(selectedValue)
+  );
+
+  return option ? option.label : selectedValue;
+};
 
 // =========== DROPDOWN MANAGEMENT METHODS ===========
 function closeDropdown() {
