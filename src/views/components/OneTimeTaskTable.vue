@@ -44,7 +44,7 @@
               " @click.stop="toggleStar(task)" title="Star/Unstar"></i>
 
             <!-- اسم المنشئ (Gmail Style) -->
-            <span class="creator-name-simple">{{ task.creator?.name || 'Unknown' }}</span>
+            <span class="creator-name-simple">{{ getDisplayName(task) }}</span>
 
             <!-- عنوان المهمة + تاريخ -->
             <span class="task-title" :class="{ 'text-white': task.is_urgent }">
@@ -556,6 +556,44 @@ const t = (key, params = {}) => {
   });
 
   return translation;
+};
+
+// دالة لحساب الاسم المطلوب بناءً على التبويب النشط
+const getDisplayName = (task) => {
+  // إذا كنا في تبويب "Own"، نعرض اسم assignedTo
+  if (activeTab.value === 'Own') {
+    if (task.assignedUser && task.assignedUser.length > 0) {
+      // نأخذ أول موظفين كحد أقصى
+      const maxUsers = Math.min(task.assignedUser.length, 2);
+      const displayNames = [];
+
+      for (let i = 0; i < maxUsers; i++) {
+        const user = task.assignedUser[i];
+        if (user && user.name) {
+          const nameParts = user.name.split(' ');
+          // نأخذ الاسم الأول فقط (أول كلمة)
+          const firstName = nameParts[0];
+          displayNames.push(firstName);
+        }
+      }
+
+      // إذا كان هناك أسماء للعرض
+      if (displayNames.length > 0) {
+        let result = displayNames.join(', ');
+
+        // إذا كان هناك أكثر من موظفين، نضيف ...
+        if (task.assignedUser.length > 2) {
+          result += '...';
+        }
+
+        return result;
+      }
+    }
+    return 'Unknown';
+  }
+
+  // في باقي التبويبات، نعرض اسم الـ creator
+  return task.creator?.name || 'Unknown';
 };
 const isCommentEmpty = computed(() => {
   const plainText = taskComment.value.replace(/<[^>]+>/g, "").trim();
