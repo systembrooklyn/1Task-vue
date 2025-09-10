@@ -44,13 +44,17 @@
               " @click.stop="toggleStar(task)" title="Star/Unstar"></i>
 
             <!-- اسم المنشئ (Gmail Style) -->
-            <span class="creator-name-simple">{{ getDisplayName(task) }}</span>
+            <span v-if="(activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id"
+              class="creator-name-simple"> {{ t('to') }}: {{ getDisplayName(task) }}</span>
+            <span v-else-if="(activeTab === 'Done' || activeTab === 'Review')" class="creator-name-simple"> {{ t('from')
+            }}: {{ getDisplayName(task) }}</span>
+            <span v-else class="creator-name-simple"> {{ getDisplayName(task) }}</span>
 
             <!-- عنوان المهمة + تاريخ -->
             <span class="task-title" :class="{ 'text-white': task.is_urgent }">
               <span dir="rtl">{{ task.title }}</span>
               <small class="task-date" :class="{ 'text-white': task.is_urgent }">{{ formatDateWithTime(task.created_at)
-              }}</small>
+                }}</small>
 
               <!-- deadline -->
               <small v-if="
@@ -558,42 +562,46 @@ const t = (key, params = {}) => {
   return translation;
 };
 
+// هيلبر لاستخراج الأسماء الأولى لعدد محدود
+const firstNames = (users, limit = 2) => {
+  if (!users || users.length === 0) return null;
+  const names = users
+    .slice(0, limit)
+    .map((u) => (u?.name || '').split(' ')[0])
+    .filter(Boolean);
+  let out = names.join(', ');
+  if (users.length > limit) out += '...';
+  return out || null;
+};
+
 // دالة لحساب الاسم المطلوب بناءً على التبويب النشط
 const getDisplayName = (task) => {
-  // إذا كنا في تبويب "Own"، نعرض اسم assignedTo
-  if (activeTab.value === 'Own') {
-    if (task.assignedUser && task.assignedUser.length > 0) {
-      // نأخذ أول موظفين كحد أقصى
-      const maxUsers = Math.min(task.assignedUser.length, 2);
-      const displayNames = [];
+  const currentId = userData.value?.user?.id;
 
-      for (let i = 0; i < maxUsers; i++) {
-        const user = task.assignedUser[i];
-        if (user && user.name) {
-          const nameParts = user.name.split(' ');
-          // نأخذ الاسم الأول فقط (أول كلمة)
-          const firstName = nameParts[0];
-          displayNames.push(firstName);
-        }
-      }
-
-      // إذا كان هناك أسماء للعرض
-      if (displayNames.length > 0) {
-        let result = displayNames.join(', ');
-
-        // إذا كان هناك أكثر من موظفين، نضيف ...
-        if (task.assignedUser.length > 2) {
-          result += '...';
-        }
-
-        return result;
-      }
+  switch (activeTab.value) {
+    case 'Own': {
+      return firstNames(task.assignedUser) || 'Unknown';
     }
-    return 'Unknown';
+    case 'Review': {
+      // إذا أنا الـ creator → أعرض لمن (المكلفين)
+      if (currentId === task.creator?.id) {
+        return firstNames(task.assignedUser) || (task.creator?.name?.split(' ')[0] ?? 'Unknown');
+      }
+      // في باقي الحالات (سواء supervisor/assigned/consult/informer/أي مستخدم آخر) → أعرض من (المنشئ)
+      return task.creator?.name ? task.creator.name.split(' ')[0] : 'Unknown';
+    }
+    case 'Done': {
+      // إذا أنا الـ creator → أعرض لمن (المكلفين)
+      if (currentId === task.creator?.id) {
+        return firstNames(task.assignedUser) || (task.creator?.name?.split(' ')[0] ?? 'Unknown');
+      }
+      // في باقي الحالات (سواء supervisor/assigned/consult/informer/أي مستخدم آخر) → أعرض من (المنشئ)
+      return task.creator?.name ? task.creator.name.split(' ')[0] : 'Unknown';
+    }
+    default: {
+      return task.creator?.name || 'Unknown';
+    }
   }
-
-  // في باقي التبويبات، نعرض اسم الـ creator
-  return task.creator?.name || 'Unknown';
 };
 const isCommentEmpty = computed(() => {
   const plainText = taskComment.value.replace(/<[^>]+>/g, "").trim();
