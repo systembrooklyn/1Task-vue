@@ -12,7 +12,17 @@ defineProps({
     type: Number,
     default: 5,
   },
+  modelValue: {
+    type: String,
+    default: "",
+  },
+  name: {
+    type: String,
+    default: "",
+  },
 });
+
+const emit = defineEmits(['update:modelValue']);
 </script>
 <template>
   <div class="form-group">
@@ -24,6 +34,9 @@ defineProps({
       class="form-control"
       :rows="rows"
       :placeholder="placeholder"
+      :value="modelValue"
+      :name="name"
+      @input="emit('update:modelValue', $event.target.value)"
     ></textarea>
   </div>
 </template>
