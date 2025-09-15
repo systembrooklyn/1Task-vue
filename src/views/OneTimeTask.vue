@@ -485,10 +485,32 @@ onBeforeMount(async () => {
     console.log("response:", response);
     if (response.status === 200) {
       oneTimeTasks.value = store.getters.oneTimeTasks;
-      oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => ({
-        ...task,
-        hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id),
-      }));
+      const nowTsInit = Date.now();
+      const freshMsInit = 2 * 60 * 1000; // اعتبرها جديدة خلال دقيقتين بعد الإنشاء
+      oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => {
+        const createdTs = task.created_at ? new Date(task.created_at).getTime() : 0;
+        const isFreshlyCreated = nowTsInit - createdTs <= freshMsInit;
+        return {
+          ...task,
+          hasNewUpdate:
+            task.read_comments !== true ||
+            isFreshlyCreated ||
+            (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
+        };
+      });
+      const nowTsRefresh = Date.now();
+      const freshMsRefresh = 2 * 60 * 1000; // اعتبرها جديدة خلال دقيقتين بعد الإنشاء
+      oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => {
+        const createdTs = task.created_at ? new Date(task.created_at).getTime() : 0;
+        const isFreshlyCreated = nowTsRefresh - createdTs <= freshMsRefresh;
+        return {
+          ...task,
+          hasNewUpdate:
+            task.read_comments !== true ||
+            isFreshlyCreated ||
+            (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
+        };
+      });
       oneTimeTasks.value.sort((taskA, taskB) => {
         // 1) أولاً: التاسكات ذات الأولوية urgent
         const aIsUrgent = taskA.priority === 'urgent';
@@ -498,8 +520,14 @@ onBeforeMount(async () => {
         if (!aIsUrgent && bIsUrgent) return 1;  // taskB قبل taskA
 
         // 2) ثانياً: التاسكات التي حدث فيها تحديث (أي تحديث) - بغض النظر عن الأولوية
-        const aHasUpdate = taskA.hasNewUpdate || taskA.comments_count > 0;
-        const bHasUpdate = taskB.hasNewUpdate || taskB.comments_count > 0;
+        const aHasUpdate =
+          taskA.hasNewUpdate ||
+          taskA.comments_count > 0 ||
+          taskA.read_comments !== true;
+        const bHasUpdate =
+          taskB.hasNewUpdate ||
+          taskB.comments_count > 0 ||
+          taskB.read_comments !== true;
 
         if (aHasUpdate && !bHasUpdate) return -1; // taskA قبل taskB
         if (!aHasUpdate && bHasUpdate) return 1;  // taskB قبل taskA
@@ -544,10 +572,19 @@ const refreshTasks = async () => {
     const response = await store.dispatch("fetchOneTimeTasks");
     if (response.status === 200) {
       oneTimeTasks.value = store.getters.oneTimeTasks;
-      oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => ({
-        ...task,
-        hasNewUpdate: task.comments_count > 0 && !isTaskCommentSeen(task.id),
-      }));
+      const nowTsRefresh = Date.now();
+      const freshMsRefresh = 2 * 60 * 1000; // اعتبرها جديدة خلال دقيقتين بعد الإنشاء
+      oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => {
+        const createdTs = task.created_at ? new Date(task.created_at).getTime() : 0;
+        const isFreshlyCreated = nowTsRefresh - createdTs <= freshMsRefresh;
+        return {
+          ...task,
+          hasNewUpdate:
+            task.read_comments !== true ||
+            isFreshlyCreated ||
+            (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
+        };
+      });
       oneTimeTasks.value.sort((taskA, taskB) => {
         // 1) أولاً: التاسكات ذات الأولوية urgent
         const aIsUrgent = taskA.priority === 'urgent';
@@ -557,8 +594,14 @@ const refreshTasks = async () => {
         if (!aIsUrgent && bIsUrgent) return 1;  // taskB قبل taskA
 
         // 2) ثانياً: التاسكات التي حدث فيها تحديث (أي تحديث) - بغض النظر عن الأولوية
-        const aHasUpdate = taskA.hasNewUpdate || taskA.comments_count > 0;
-        const bHasUpdate = taskB.hasNewUpdate || taskB.comments_count > 0;
+        const aHasUpdate =
+          taskA.hasNewUpdate ||
+          taskA.comments_count > 0 ||
+          taskA.read_comments !== true;
+        const bHasUpdate =
+          taskB.hasNewUpdate ||
+          taskB.comments_count > 0 ||
+          taskB.read_comments !== true;
 
         if (aHasUpdate && !bHasUpdate) return -1; // taskA قبل taskB
         if (!aHasUpdate && bHasUpdate) return 1;  // taskB قبل taskA
@@ -1773,16 +1816,18 @@ const translations = {
                       :
                     </span>
                     <span v-for="assigneeId in selectedAssignee" :key="assigneeId" class="gmail-compact-person-name">
-                      {{ getEmployeeName(assigneeId) }}
-                    </span>
+                      {{ getEmployeeName(assigneeId) }}<i class="fas fa-times mx-1"
+                        @click.stop="removeAssignee(assigneeId)"></i>
 
+                    </span>
                     <!-- Supervisor -->
                     <span v-if="selectedSupervisor" class="gmail-compact-tag supervisor">
                       <i class="fas fa-user-tie"></i>
                       :
                     </span>
                     <span v-if="selectedSupervisor" class="gmail-compact-person-name">
-                      {{ getEmployeeName(selectedSupervisor) }}
+                      {{ getEmployeeName(selectedSupervisor) }}<i class="fas fa-times mx-1"
+                        @click.stop="removeSupervisor()"></i>
                     </span>
 
                     <!-- Informer -->
@@ -1791,7 +1836,8 @@ const translations = {
                       :
                     </span>
                     <span v-for="informerId in selectedInformer" :key="informerId" class="gmail-compact-person-name">
-                      {{ getEmployeeName(informerId) }}
+                      {{ getEmployeeName(informerId) }}<i class="fas fa-times mx-1"
+                        @click.stop="removeInformer(informerId)"></i>
                     </span>
 
                     <!-- Consultant -->
@@ -1801,7 +1847,8 @@ const translations = {
                     </span>
                     <span v-for="consultantId in selectedConsultant" :key="consultantId"
                       class="gmail-compact-person-name">
-                      {{ getEmployeeName(consultantId) }}
+                      {{ getEmployeeName(consultantId) }}<i class="fas fa-times mx-1"
+                        @click.stop="removeConsultant(consultantId)"></i>
                     </span>
                   </template>
 
@@ -1827,8 +1874,8 @@ const translations = {
                   <span class="gmail-field-label">{{ t('assignTo') }}:</span>
                   <div class="gmail-people-tags">
                     <span v-for="assigneeId in selectedAssignee" :key="assigneeId" class="gmail-person-tag">
-                      {{ getEmployeeName(assigneeId) }}
-                      <i class="fas fa-times" @click.stop="removeAssignee(assigneeId)"></i>
+                      {{ getEmployeeName(assigneeId) }}<i class="fas fa-times mx-1"
+                        @click.stop="removeAssignee(assigneeId)"></i>
                     </span>
                   </div>
                 </div>
