@@ -1,6 +1,7 @@
 .DS_Store
 node_modules
 /dist
+scripts/test_onetimetask_sort.js
 
 
 # local env files
