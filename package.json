@@ -64,6 +64,6 @@
     "sass-loader": "13.3.2"
   },
   "engines": {
-  "node": "20.x"
-}
+    "node": ">=8 <=21"
+  }
 }
