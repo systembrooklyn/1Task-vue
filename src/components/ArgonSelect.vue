@@ -15,8 +15,8 @@
       </div>
 
       <!-- Dropdown Menu -->
-      <div v-if="isDropdownOpen" class="custom-select-dropdown border rounded shadow-sm bg-white" :id="dropdownId"
-        role="listbox">
+      <div v-if="isDropdownOpen" class="custom-select-dropdown border rounded shadow-sm bg-white"
+        :class="{ 'dropdown-up': shouldOpenUp }" :id="dropdownId" role="listbox">
         <!-- Search Input Inside Dropdown -->
         <div class="px-2 pt-2 pb-1" v-if="searchable">
           <input v-model="searchQuery" type="text" class="form-control form-control-sm" :placeholder="searchPlaceholder"
@@ -87,6 +87,7 @@ const searchQuery = ref('');
 const selectedLabel = ref('');
 const dropdownId = ref(`select-dropdown-${Math.random().toString(36).substr(2, 9)}`);
 const componentId = ref(`argon-select-${Math.random().toString(36).substr(2, 9)}`);
+const shouldOpenUp = ref(false);
 // =========== END INTERNAL STATE ===========
 
 // =========== FILTERED OPTIONS ===========
@@ -151,6 +152,9 @@ function openDropdown() {
     }));
   }
 
+  // Calculate dropdown direction
+  calculateDropdownDirection();
+
   isDropdownOpen.value = true;
   window.__argonSelectOpenDropdown = componentId.value;
 }
@@ -161,6 +165,24 @@ function toggleDropdown() {
   } else {
     openDropdown();
   }
+}
+
+function calculateDropdownDirection() {
+  setTimeout(() => {
+    const trigger = document.querySelector(`[aria-controls="${dropdownId.value}"]`);
+    if (!trigger) return;
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const dropdownHeight = 300; // Max height of dropdown
+
+    // Calculate space below and above
+    const spaceBelow = viewportHeight - triggerRect.bottom;
+    const spaceAbove = triggerRect.top;
+
+    // Open upward if there's more space above or not enough space below
+    shouldOpenUp.value = spaceAbove > spaceBelow && spaceBelow < dropdownHeight;
+  }, 10);
 }
 
 function selectOption(option) {
@@ -239,6 +261,11 @@ onUnmounted(() => {
   z-index: 1000;
   /* max-height: 200px; */
   overflow-y: auto;
+}
+
+.custom-select-dropdown.dropdown-up {
+  top: auto;
+  bottom: 100%;
 }
 
 .options-container {

@@ -17,24 +17,25 @@ import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonInputPhone from "@/components/ArgonInputPhone.vue"; // Ensure correct path
 import countriesList from "@/data/countries.json"; // Your full list of countries
-import ArgonSelect from "@/components/ArgonSelect.vue";
+import ArgonIconPicker from "@/components/ArgonIconPicker.vue";
+import Swal from "sweetalert2";
 // REMOVED: import { parsePhoneNumberFromString } from 'libphonenumber-js'; // This was unused here
 
 const store = useStore();
 const body = document.getElementsByTagName("body")[0];
 
 const linkIcons = ref([
-  { value: "github", label: "Github" },
-  { value: "linkedin", label: "Linkedin" },
-  { value: "twitter", label: "Twitter" },
-  { value: "facebook", label: "Facebook" },
-  { value: "instagram", label: "Instagram" },
-  { value: "youtube", label: "YouTube" },
-  { value: "tiktok", label: "TikTok" },
-  { value: "whatsapp", label: "WhatsApp" },
-  { value: "telegram", label: "Telegram" },
-  { value: "skype", label: "Skype" },
-  { value: "snapchat", label: "Snapchat" },
+  { value: "github", label: "Github", icon: "github" },
+  { value: "linkedin", label: "Linkedin", icon: "linkedin" },
+  { value: "twitter", label: "Twitter", icon: "twitter" },
+  { value: "facebook", label: "Facebook", icon: "facebook" },
+  { value: "instagram", label: "Instagram", icon: "instagram" },
+  { value: "youtube", label: "YouTube", icon: "youtube" },
+  { value: "tiktok", label: "TikTok", icon: "tiktok" },
+  { value: "whatsapp", label: "WhatsApp", icon: "whatsapp" },
+  { value: "telegram", label: "Telegram", icon: "telegram" },
+  { value: "skype", label: "Skype", icon: "skype" },
+  { value: "snapchat", label: "Snapchat", icon: "snapchat" },
 ]);
 
 // Profile data refs
@@ -51,6 +52,68 @@ const userPhones = ref([]); // Will hold an array of { CC: string, phone: string
 const userLinks = ref([]);
 
 const profileData = ref({}); // For ProfileCard (user object for the card)
+
+// Error handling with SweetAlert
+const showErrorAlert = (error, context = '') => {
+  console.error(`Error in ${context}:`, error);
+
+  let message = 'An unexpected error occurred';
+  let title = 'Error';
+
+  // Handle 422 validation errors first
+  if (error?.response?.status === 422) {
+    title = 'Validation Error';
+
+    // Check if there's a main message
+    if (error.response.data?.message) {
+      message = error.response.data.message;
+    }
+
+    // Check for detailed errors
+    if (error.response.data?.errors) {
+      const errors = error.response.data.errors;
+      const errorList = [];
+
+      Object.keys(errors).forEach(field => {
+        if (Array.isArray(errors[field])) {
+          errors[field].forEach(err => errorList.push(`• ${err}`));
+        }
+      });
+
+      if (errorList.length > 0) {
+        message = errorList.join('<br>');
+      }
+    }
+  }
+  // Handle other error types
+  else if (error?.response?.data?.message) {
+    message = error.response.data.message;
+  } else if (error?.response?.data?.error) {
+    message = error.response.data.error;
+  } else if (error?.message) {
+    message = error.message;
+  } else if (typeof error === 'string') {
+    message = error;
+  }
+
+  Swal.fire({
+    icon: 'error',
+    title: context || title,
+    html: message,
+    confirmButtonText: 'OK',
+    confirmButtonColor: '#dc3545'
+  });
+};
+
+const showSuccessAlert = (message, title = 'Success') => {
+  Swal.fire({
+    icon: 'success',
+    title: title,
+    text: message,
+    confirmButtonText: 'OK',
+    confirmButtonColor: '#A5C958'
+  });
+};
 
 const allCountriesForPhoneInput = ref(countriesList);
 const defaultPhoneCountryIso = ref("eg"); // Example default, e.g., Egypt. Update as needed.
@@ -78,7 +141,7 @@ const fetchProfileData = async () => {
     profileData.value = data;
     userName.value = data.data?.name || "";
     userLastName.value = data.data?.last_name || "";
-      userEmail.value = data.data?.email || "";
+    userEmail.value = data.data?.email || "";
     userCity.value = data.data?.profile?.city || "";
     userCountry.value = data.data?.profile?.country || "";
     userState.value = data.data?.profile?.state || "";
@@ -113,7 +176,7 @@ const fetchProfileData = async () => {
       );
     }
   } catch (error) {
-    console.error("Error fetching profile data:", error);
+    showErrorAlert(error, 'Failed to load profile data');
     const defaultCountry = getDefaultCountryForPhone();
     userPhones.value = [{ CC: defaultCountry.dialCode, phone: "" }];
   }
@@ -178,7 +241,7 @@ const allPhonesValid = computed(() => {
 const saveChanges = async () => {
   isSaving.value = true;
   if (!allPhonesValid.value) {
-    alert("Please correct the invalid phone numbers.");
+    showErrorAlert("Please correct the invalid phone numbers before saving.", "Validation Error");
     isSaving.value = false; // Stop saving
     return;
   }
@@ -216,8 +279,10 @@ const saveChanges = async () => {
     await store.dispatch("updateProfileData", profileUpdateData);
     isSaving.value = false;
     await fetchProfileData();
+    // Show success message
+    showSuccessAlert("Profile updated successfully!");
   } catch (error) {
-    console.error("Error saving profile data:", error);
+    showErrorAlert(error, 'Failed to save profile data');
     isSaving.value = false;
   }
 };
@@ -227,8 +292,9 @@ const uploadProfileImage = async (formData) => {
   try {
     await store.dispatch("uploadProfileImage", formData);
     await fetchProfileData();
+    showSuccessAlert("Profile image updated successfully!");
   } catch (error) {
-    console.error("Error uploading profile image:", error);
+    showErrorAlert(error, 'Failed to upload profile image');
   }
 };
 
@@ -327,17 +393,15 @@ onBeforeUnmount(() => {
               <div v-for="(phoneEntry, index) in userPhones" :key="phoneEntry.tempId || index"
                 class="phone-entry-row align-items-start border-bottommb-3">
                 <div class="flex-grow-1">
-                  <argon-input-phone :id="'profile-phone-' + index" :label="
-                      userPhones.length > 1 ? 'Phone ' + (index + 1) : 'Phone'
-                    " v-model="userPhones[index]" :countries="allCountriesForPhoneInput" :default-country-iso-code="
-                      phoneEntry.CC
-                        ? countriesList.find(
-                            (c) => c.dialCode === phoneEntry.CC
-                          )?.isoCode || defaultPhoneCountryIso
-                        : defaultPhoneCountryIso
-                    " placeholder="Enter phone number" @validity-change="
-                      (isValid) => handlePhoneValidity(index, isValid)
-                    " />
+                  <argon-input-phone :id="'profile-phone-' + index" :label="userPhones.length > 1 ? 'Phone ' + (index + 1) : 'Phone'
+                    " v-model="userPhones[index]" :countries="allCountriesForPhoneInput" :default-country-iso-code="phoneEntry.CC
+                      ? countriesList.find(
+                        (c) => c.dialCode === phoneEntry.CC
+                      )?.isoCode || defaultPhoneCountryIso
+                      : defaultPhoneCountryIso
+                      " placeholder="Enter phone number" @validity-change="
+                        (isValid) => handlePhoneValidity(index, isValid)
+                      " />
                 </div>
                 <div class="ms-2 pt-4">
                   <argon-button v-if="userPhones.length > 0" color="danger" size="sm" class="btn-icon-only"
@@ -356,18 +420,12 @@ onBeforeUnmount(() => {
               <div v-for="(linkEntry, index) in userLinks" :key="linkEntry.tempId || index"
                 class="link-entry-row align-items-start border-bottom mb-3">
                 <div class="icon-entry">
-                  <argon-select :id="'profile-link-type-' + index" :label="
-                      userLinks.length > 1
-                        ? 'Link Type ' + (index + 1)
-                        : 'Link Type'
-                    " v-model="userLinks[index].icon" :options="linkIcons" />
+                  <argon-icon-picker :id="'profile-link-type-' + index" v-model="userLinks[index].icon"
+                    :options="linkIcons" placeholder="Select social platform" />
                 </div>
                 <div class="url-input">
-                  <argon-input :id="'profile-link-' + index" :label="
-                      userLinks.length > 1 ? 'Link ' + (index + 1) : 'Link'
-                    " v-model="userLinks[index].link" :placeholder="
-                      userLinks.length > 1 ? 'Link ' + (index + 1) : 'Link'
-                    " />
+                  <argon-input :id="'profile-link-' + index" v-model="userLinks[index].link"
+                    :placeholder="'Enter your profile URL'" />
                 </div>
                 <argon-button v-if="userLinks.length > 0" color="danger" size="sm" class="btn-icon-only"
                   title="Remove this link" @click="removeLink(index)" aria-label="Remove link">
@@ -391,35 +449,44 @@ onBeforeUnmount(() => {
   background-color: #f5f5f5;
   padding-top: 7%;
 }
+
 .profile-page {
   background-color: #f8f9fa;
 }
+
 .card {
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
+
 .form-label {
   font-weight: 500;
   color: #6e707c;
 }
+
 .argon-button {
   border-radius: 12px;
-  padding: 8px 24px; /* Default padding, adjust as needed for icon buttons */
+  padding: 8px 24px;
+  /* Default padding, adjust as needed for icon buttons */
 }
+
 .argon-button.btn-sm i {
   /* Style for icons in small buttons */
-  font-size: 0.875rem; /* Adjust icon size if needed */
+  font-size: 0.875rem;
+  /* Adjust icon size if needed */
 }
 
 /* Ensure ArgonButton with only icon can be sized appropriately */
 .col-md-1 .argon-button {
-  padding: 0.5rem 0.75rem; /* Adjust for smaller button with just icon */
+  padding: 0.5rem 0.75rem;
+  /* Adjust for smaller button with just icon */
 }
 
 @media (max-width: 768px) {
   .profile-overview {
     flex-direction: column-reverse;
   }
+
   .col-md-1 .argon-button {
     /* Stack remove button nicely on mobile */
     margin-top: 0.5rem;
@@ -436,76 +503,111 @@ onBeforeUnmount(() => {
 /* If ArgonInputPhone's label is consistently above the input part: */
 .phone-entry-row .pt-4 {
   /* Heuristic for remove button alignment */
-  padding-top: 2.1rem !important; /* Adjust this value to visually align button with input field */
+  padding-top: 2.1rem !important;
+  /* Adjust this value to visually align button with input field */
   /* This depends on the height of ArgonInputPhone's label + its margin */
 }
 
 .btn-icon-only {
-  width: 2.375rem; /* Approx 38px, common for icon buttons */
+  width: 2.375rem;
+  /* Approx 38px, common for icon buttons */
   height: 2.375rem;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 1; /* Ensures icon is centered if text-based */
+  line-height: 1;
+  /* Ensures icon is centered if text-based */
 }
 
 .btn-icon-only i.fas {
   /* If you use Font Awesome */
-  margin-right: 0 !important; /* Override Bootstrap's .me-1 if present on icon */
-  font-size: 0.9rem; /* Adjust icon size within button */
+  margin-right: 0 !important;
+  /* Override Bootstrap's .me-1 if present on icon */
+  font-size: 0.9rem;
+  /* Adjust icon size within button */
 }
 
 /* Optional: Add a light border to visually separate entries if many */
 .phone-entry-row.border-bottom {
-  border-bottom: 1px solid #e9ecef; /* Light border */
+  border-bottom: 1px solid #e9ecef;
+  /* Light border */
 }
+
 .phone-entry-row:last-child.border-bottom {
-  border-bottom: none; /* No border for the last item */
+  border-bottom: none;
+  /* No border for the last item */
 }
 
 /* Styling for the main "Phone Numbers" heading and "Add Phone" button */
 .d-flex.justify-content-between.align-items-center.mb-3 h6 {
-  color: #8898aa; /* Argon subtle text color for headings */
+  color: #8898aa;
+  /* Argon subtle text color for headings */
   font-weight: 600;
 }
 
 /* Social Link Entry Styling */
 .link-entry-row {
   display: flex;
-  align-items: center; /* Vertically center elements */
-  gap: 0.75rem; /* Space between icon selector and input */
+  align-items: center;
+  /* Center align all elements vertically */
+  gap: 0.75rem;
+  /* Space between icon selector and input */
+  padding: 0.5rem 0;
+  /* Add some vertical padding */
 }
 
 .argon-select {
-  flex-shrink: 0; /* Prevent resizing */
-  min-width: 120px; /* Ensure enough width for icons */
+  flex-shrink: 0;
+  /* Prevent resizing */
+  min-width: 120px;
+  /* Ensure enough width for icons */
 }
 
 .argon-input {
-  flex-grow: 1; /* Take remaining space */
+  flex-grow: 1;
+  /* Take remaining space */
 }
 
 /* Optional: Fine-tune icon selector height */
 .argon-select .form-control {
-  padding-top: 0.6rem !important; /* Match input field height */
+  padding-top: 0.6rem !important;
+  /* Match input field height */
   padding-bottom: 0.6rem !important;
 }
 
 /* Remove button styling */
 .btn-icon-only {
-  margin-left: auto; /* Align to the right */
-  width: 2rem;
-  height: 2rem;
+  flex-shrink: 0;
+  /* Don't shrink */
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-icon-only:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.25rem 0.5rem rgba(220, 53, 69, 0.3);
+}
+
+.btn-icon-only i {
+  font-size: 0.875rem;
 }
 
 .url-input {
-  flex-grow: 1; /* Take remaining space */
+  flex-grow: 1;
+  /* Take remaining space */
 }
 
 .icon-entry {
-  flex-shrink: 0; /* Prevent resizing */
-  min-width: 120px; /* Ensure enough width for icons */
+  flex-shrink: 0;
+  /* Prevent resizing */
+  min-width: 180px;
+  /* Ensure enough width for icons and labels */
 }
 
 /* .remove-button {
@@ -513,4 +615,6 @@ onBeforeUnmount(() => {
   width: 2rem;
   height: 2rem;
 } */
+
+/* SweetAlert is used for error handling */
 </style>
