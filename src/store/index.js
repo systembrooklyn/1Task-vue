@@ -1775,7 +1775,7 @@ export default createStore({
         return response;
       } catch (error) {
         console.error("Error:", error);
-        return error;
+        throw error;
       }
     },
 
@@ -1787,7 +1787,7 @@ export default createStore({
         return response;
       } catch (error) {
         console.error("Error updating profile data:", error);
-        return error;
+        throw error; // Throw the error instead of returning it
       }
     },
 
@@ -1799,7 +1799,7 @@ export default createStore({
         return response;
       } catch (error) {
         console.error("Error uploading profile image:", error);
-        return error;
+        throw error;
       }
     },
 
