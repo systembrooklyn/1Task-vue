@@ -32,7 +32,7 @@ import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import setTooltip from "@/assets/js/tooltip";
 import VueTelInput from "vue-tel-input";
-import "vue-tel-input/style.css";
+// import "vue-tel-input/vue-tel-input.css";
 
 const appInstance = createApp(App);
 
