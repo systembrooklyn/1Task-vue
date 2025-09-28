@@ -250,6 +250,34 @@ const routes = [
     component: () => import("@/views/ChartReported.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/:companyName/goals",
+    name: "goals",
+    component: () => import("@/views/ComingSoon.vue"),
+    meta: { requiresAuth: true },
+    props: { title: "Goals - Coming Soon", description: "" },
+  },
+  {
+    path: "/:companyName/meetings",
+    name: "meetings",
+    component: () => import("@/views/ComingSoon.vue"),
+    meta: { requiresAuth: true },
+    props: { title: "Meetings - Coming Soon", description: "" },
+  },
+  {
+    path: "/:companyName/automation",
+    name: "automation",
+    component: () => import("@/views/ComingSoon.vue"),
+    meta: { requiresAuth: true },
+    props: { title: "Automation - Coming Soon", description: "" },
+  },
+  {
+    path: "/:companyName/apps",
+    name: "apps",
+    component: () => import("@/views/ComingSoon.vue"),
+    meta: { requiresAuth: true },
+    props: { title: "Apps - Coming Soon", description: "" },
+  },
 ];
 
 const router = createRouter({
