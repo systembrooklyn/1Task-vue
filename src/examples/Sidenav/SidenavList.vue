@@ -2,6 +2,14 @@
 import { computed, ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
+
+// Props
+const props = defineProps({
+  collapsed: {
+    type: Boolean,
+    default: false
+  }
+});
 // import { useRouter } from "vue-router";
 // import SidenavDrop from "./SidenavDrop.vue";
 
@@ -108,27 +116,20 @@ const toggleSection = (section) => {
 </script>
 
 <template>
-  <div
-    class="collapse navbar-collapse w-auto h-auto h-100 max-height-vh-100"
-    id="sidenav-collapse-main"
-  >
+  <div class="collapse navbar-collapse w-auto h-auto h-100 max-height-vh-100" id="sidenav-collapse-main">
     <ul class="navbar-nav">
       <!-- Tasks Section -->
 
       <li class="nav-item">
-        <sidenav-item
-          :to="{
-            name: 'Dashboard',
-            params: { companyName: companyNameNormalized },
-          }"
-          v-if="
-            permissions['view-dashboard'] ||
-            permissions['view-dashboard-owner'] ||
-            isOwner
-          "
-          :class="getRoute() === 'dashboard-default' ? 'active' : ''"
-          :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
-        >
+        <sidenav-item :to="{
+          name: 'Dashboard',
+          params: { companyName: companyNameNormalized },
+        }" v-if="
+          permissions['view-dashboard'] ||
+          permissions['view-dashboard-owner'] ||
+          isOwner
+        " :class="getRoute() === 'dashboard-default' ? 'active' : ''" :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
+          :collapsed="props.collapsed">
           <template v-slot:icon>
             <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
           </template>
@@ -136,14 +137,11 @@ const toggleSection = (section) => {
       </li>
 
       <li class="nav-item" v-if="permissions['view-dailytask'] || isOwner">
-        <sidenav-item
-          :to="{
-            name: 'routine task',
-            params: { companyName: companyNameNormalized },
-          }"
-          :class="getRoute() === 'routine-task' ? 'active' : ''"
-          :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'"
-        >
+        <sidenav-item :to="{
+          name: 'routine task',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'routine-task' ? 'active' : ''"
+          :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'" :collapsed="props.collapsed">
           <template v-slot:icon>
             <i class="fa fa-tasks text-success text-sm opacity-10"></i>
           </template>
@@ -152,55 +150,45 @@ const toggleSection = (section) => {
       <!-- v-if="isOwner || permissions['view-task']" -->
 
       <li class="nav-item">
-        <sidenav-item
-          :to="{
-            name: 'one time task',
-            params: { companyName: companyNameNormalized },
-          }"
-          :class="getRoute() === 'one-time-task' ? 'active' : ''"
-          :navText="isRTL ? 'المهام الاحتياطية' : 'One Time Tasks'"
-        >
+        <sidenav-item :to="{
+          name: 'one time task',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'one-time-task' ? 'active' : ''"
+          :navText="isRTL ? 'المهام الاحتياطية' : 'One Time Tasks'" :collapsed="props.collapsed">
           <template v-slot:icon>
             <i class="fa fa-clock text-warning text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
 
-      <li class="nav-item">
-        <div
-          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
-          v-if="permissions['view-alldailytask'] || isOwner"
-          @click="toggleSection('tasks')"
-        >
+      <li class="nav-item" v-if="permissions['view-alldailytask'] || isOwner">
+        <!-- Collapsed state: show as single icon -->
+        <div v-if="props.collapsed" class="nav-link d-flex align-items-center cursor-pointer"
+          :title="isRTL ? 'إعدادات المهام' : 'Tasks Settings'">
+          <div
+            class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
+            <i class="fas fa-tasks text-success"></i>
+          </div>
+        </div>
+
+        <!-- Expanded state: show collapsible section -->
+        <div v-else class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
+          @click="toggleSection('tasks')">
           <div class="d-flex align-items-center">
             <i class="fas fa-tasks text-success me-2"></i>
             <span>{{ isRTL ? "إعدادات المهام" : "Tasks Settings" }}</span>
           </div>
-          <i
-            class="fas fa-chevron-right transition-transform"
-            :class="{ 'rotate-180': collapsibleSections.tasks }"
-          ></i>
+          <i class="fas fa-chevron-right transition-transform" :class="{ 'rotate-180': collapsibleSections.tasks }"></i>
         </div>
 
         <transition name="dropdown">
-          <ul
-            v-if="collapsibleSections.tasks"
-            class="nav nav-sm flex-column"
-          >
-            <li
-              class="nav-item"
-              v-if="permissions['view-alldailytask'] || isOwner"
-            >
-              <sidenav-item
-                :to="{
-                  name: 'manage routine task',
-                  params: { companyName: companyNameNormalized },
-                }"
-                :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
-                :navText="
-                  isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Tasks'
-                "
-              >
+          <ul v-if="collapsibleSections.tasks && !props.collapsed" class="nav nav-sm flex-column">
+            <li class="nav-item" v-if="permissions['view-alldailytask'] || isOwner">
+              <sidenav-item :to="{
+                name: 'manage routine task',
+                params: { companyName: companyNameNormalized },
+              }" :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
+                :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Tasks'" :collapsed="props.collapsed">
                 <template v-slot:icon>
                   <i class="fa fa-cogs text-info text-sm opacity-10"></i>
                 </template>
@@ -223,64 +211,48 @@ const toggleSection = (section) => {
 
       <!-- rport Section -->
 
-      <li
-        class="nav-item"
-        v-if="isOwner || permissions['view-dailyTaskReports']"
-      >
-        <div
-          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
-          @click="toggleSection('reports')"
-        >
+      <li class="nav-item" v-if="isOwner || permissions['view-dailyTaskReports']">
+        <!-- Collapsed state: show as single icon -->
+        <div v-if="props.collapsed" class="nav-link d-flex align-items-center cursor-pointer"
+          :title="isRTL ? 'تقارير' : 'Reports'">
+          <div
+            class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
+            <i class="fas fa-chart-line text-success"></i>
+          </div>
+        </div>
+
+        <!-- Expanded state: show collapsible section -->
+        <div v-else class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
+          @click="toggleSection('reports')">
           <div class="d-flex align-items-center">
             <i class="fas fa-chart-line text-success me-2"></i>
             <span>{{ isRTL ? "تقارير" : "Reports" }}</span>
           </div>
-          <i
-            class="fas fa-chevron-right transition-transform"
-            :class="{ 'rotate-180': collapsibleSections.reports }"
-          ></i>
+          <i class="fas fa-chevron-right transition-transform"
+            :class="{ 'rotate-180': collapsibleSections.reports }"></i>
         </div>
 
         <transition name="dropdown">
-          <ul
-            v-if="collapsibleSections.reports"
-            class="nav nav-sm flex-column"
-          >
-            <li
-              class="nav-item"
-              v-if="isOwner || permissions['view-dailyTaskReports']"
-            >
-              <sidenav-item
-                :to="{
-                  name: 'reported tasks',
-                  params: { companyName: companyNameNormalized },
-                }"
-                :class="getRoute() === 'reported-tasks' ? 'active' : ''"
-                :navText="isRTL ? ' تقرير المهام' : ' Task Reports'"
-              >
+          <ul v-if="collapsibleSections.reports && !props.collapsed" class="nav nav-sm flex-column">
+            <li class="nav-item" v-if="isOwner || permissions['view-dailyTaskReports']">
+              <sidenav-item :to="{
+                name: 'reported tasks',
+                params: { companyName: companyNameNormalized },
+              }" :class="getRoute() === 'reported-tasks' ? 'active' : ''"
+                :navText="isRTL ? ' تقرير المهام' : ' Task Reports'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i
-                    class="fas fa-clipboard-check text-primary text-sm opacity-10"
-                  ></i>
+                  <i class="fas fa-clipboard-check text-primary text-sm opacity-10"></i>
                 </template>
               </sidenav-item>
             </li>
-            <li
-              class="nav-item"
-              v-if="isOwner || permissions['view-chartReports']"
-            >
-              <sidenav-item
-                :to="{
-                  name: 'chart reported',
-                  params: { companyName: companyNameNormalized },
-                }"
-                :class="getRoute() === 'chart reported' ? 'active' : ''"
-                :navText="isRTL ? ' تقرير المهام' : ' Chart Reports'"
-              >
+            <li class="nav-item" v-if="isOwner || permissions['view-chartReports']">
+              <sidenav-item :to="{
+                name: 'chart reported',
+                params: { companyName: companyNameNormalized },
+              }" :class="getRoute() === 'chart reported' ? 'active' : ''"
+                :navText="isRTL ? ' تقرير المهام' : ' Chart Reports'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i
-                    class="fas fa-chart-pie text-warning text-sm opacity-10"
-                  ></i>
+                  <i class="fas fa-chart-pie text-warning text-sm opacity-10"></i>
                 </template>
               </sidenav-item>
             </li>
@@ -289,78 +261,62 @@ const toggleSection = (section) => {
       </li>
 
       <!-- Work Force Section -->
-      <li
-        class="nav-item"
-        v-if="
-          permissions['view-user'] ||
-          permissions['invite-user'] ||
-          permissions['view-role'] ||
-          isOwner
-        "
-      >
-        <div
-          class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
-          @click="toggleSection('workForce')"
-        >
+      <li class="nav-item" v-if="
+        permissions['view-user'] ||
+        permissions['invite-user'] ||
+        permissions['view-role'] ||
+        isOwner
+      ">
+        <!-- Collapsed state: show as single icon -->
+        <div v-if="props.collapsed" class="nav-link d-flex align-items-center cursor-pointer"
+          :title="isRTL ? 'فريق العمل' : 'Work Force'">
+          <div
+            class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
+            <i class="fas fa-users text-primary"></i>
+          </div>
+        </div>
+
+        <!-- Expanded state: show collapsible section -->
+        <div v-else class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
+          @click="toggleSection('workForce')">
           <div class="d-flex align-items-center">
             <i class="fas fa-users text-primary me-2"></i>
             <span>{{ isRTL ? "فريق العمل" : "Work Force" }}</span>
           </div>
-          <i
-            class="fas fa-chevron-right transition-transform"
-            :class="{ 'rotate-180': collapsibleSections.workForce }"
-          ></i>
+          <i class="fas fa-chevron-right transition-transform"
+            :class="{ 'rotate-180': collapsibleSections.workForce }"></i>
         </div>
 
         <transition name="dropdown">
-          <ul
-            v-if="collapsibleSections.workForce"
-            class="nav nav-sm flex-column"
-          >
+          <ul v-if="collapsibleSections.workForce && !props.collapsed" class="nav nav-sm flex-column">
             <li class="nav-item">
-              <sidenav-item
-                :to="{
-                  name: 'add user',
-                  params: { companyName: companyNameNormalized },
-                }"
-                v-if="permissions['invite-user'] || isOwner"
-                :class="getRoute() === 'addUser' ? 'active' : ''"
-                :navText="isRTL ? 'اضافة موظفين' : 'Add Employees'"
-              >
+              <sidenav-item :to="{
+                name: 'add user',
+                params: { companyName: companyNameNormalized },
+              }" v-if="permissions['invite-user'] || isOwner" :class="getRoute() === 'addUser' ? 'active' : ''"
+                :navText="isRTL ? 'اضافة موظفين' : 'Add Employees'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i
-                    class="ni ni-single-02 text-primary text-sm opacity-10"
-                  ></i>
+                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
                 </template>
               </sidenav-item>
             </li>
             <li class="nav-item">
-              <sidenav-item
-                :to="{
-                  name: 'team',
-                  params: { companyName: companyNameNormalized },
-                }"
-                v-if="permissions['view-user'] || isOwner"
-                :class="getRoute() === 'team' ? 'active' : ''"
-                :navText="isRTL ? 'فريق' : 'Team'"
-              >
+              <sidenav-item :to="{
+                name: 'team',
+                params: { companyName: companyNameNormalized },
+              }" v-if="permissions['view-user'] || isOwner" :class="getRoute() === 'team' ? 'active' : ''"
+                :navText="isRTL ? 'فريق' : 'Team'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i
-                    class="ni ni-single-02 text-primary text-sm opacity-10"
-                  ></i>
+                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
                 </template>
               </sidenav-item>
             </li>
             <li class="nav-item">
-              <sidenav-item
-                :to="{
-                  name: 'roles & permissions',
-                  params: { companyName: companyNameNormalized },
-                }"
-                v-if="permissions['view-role'] || isOwner"
-                :class="getRoute() === 'addRole' ? 'active' : ''"
-                :navText="isRTL ? 'أدوار وصلاحيات' : 'Roles & Permissions'"
-              >
+              <sidenav-item :to="{
+                name: 'roles & permissions',
+                params: { companyName: companyNameNormalized },
+              }" v-if="permissions['view-role'] || isOwner" :class="getRoute() === 'addRole' ? 'active' : ''"
+                :navText="isRTL ? 'أدوار وصلاحيات' : 'Roles & Permissions'" :collapsed="props.collapsed">
                 <template v-slot:icon>
                   <i class="fas fa-user-lock text-info text-sm opacity-10"></i>
                 </template>
@@ -372,39 +328,81 @@ const toggleSection = (section) => {
 
       <!-- Departments Section -->
       <li class="nav-item">
-        <sidenav-item
-          :to="{
-            name: 'department',
-            params: { companyName: companyNameNormalized },
-          }"
-          v-if="permissions['view-department'] || isOwner"
-          :class="getRoute() === 'department' ? 'active' : ''"
-          :navText="isRTL ? 'الاقسام' : 'Departments'"
-        >
+        <sidenav-item :to="{
+          name: 'department',
+          params: { companyName: companyNameNormalized },
+        }" v-if="permissions['view-department'] || isOwner" :class="getRoute() === 'department' ? 'active' : ''"
+          :navText="isRTL ? 'الاقسام' : 'Departments'" :collapsed="props.collapsed">
           <template v-slot:icon>
             <i class="ni ni-building text-primary text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
 
-      <li
-        class="nav-item"
-        v-if="
-          permissions['view-project'] ||
-          permissions['view-Allproject'] ||
-          isOwner
-        "
-      >
-        <sidenav-item
-          :to="{
-            name: 'project',
-            params: { companyName: companyNameNormalized },
-          }"
-          :class="getRoute() === 'project' ? 'active' : ''"
-          :navText="isRTL ? 'المشاريع' : 'Projects'"
-        >
+      <li class="nav-item" v-if="
+        permissions['view-project'] ||
+        permissions['view-Allproject'] ||
+        isOwner
+      ">
+        <sidenav-item :to="{
+          name: 'project',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'project' ? 'active' : ''" :navText="isRTL ? 'المشاريع' : 'Projects'"
+          :collapsed="props.collapsed">
           <template v-slot:icon>
             <i class="ni ni-app text-success text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <!-- Goals Section -->
+      <li class="nav-item" v-if="isOwner || permissions['view-goals']">
+        <sidenav-item :to="{
+          name: 'goals',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'goals' ? 'active' : ''" :navText="isRTL ? 'الأهداف' : 'Goals'"
+          :collapsed="props.collapsed">
+          <template v-slot:icon>
+            <i class="fas fa-bullseye text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <!-- Meetings Section -->
+      <li class="nav-item" v-if="isOwner || permissions['view-meetings']">
+        <sidenav-item :to="{
+          name: 'meetings',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'meetings' ? 'active' : ''" :navText="isRTL ? 'الاجتماعات' : 'Meetings'"
+          :collapsed="props.collapsed">
+          <template v-slot:icon>
+            <i class="fas fa-handshake text-info text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <!-- Automation Section -->
+      <li class="nav-item" v-if="isOwner || permissions['view-automation']">
+        <sidenav-item :to="{
+          name: 'automation',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'automation' ? 'active' : ''" :navText="isRTL ? 'الأتمتة' : 'Automation'"
+          :collapsed="props.collapsed">
+          <template v-slot:icon>
+            <i class="fas fa-robot text-primary text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <!-- Apps Section -->
+      <li class="nav-item" v-if="isOwner || permissions['view-apps']">
+        <sidenav-item :to="{
+          name: 'apps',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'apps' ? 'active' : ''" :navText="isRTL ? 'التطبيقات' : 'Apps'"
+          :collapsed="props.collapsed">
+          <template v-slot:icon>
+            <i class="fas fa-plug text-success text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
@@ -442,7 +440,7 @@ const toggleSection = (section) => {
           Expires on: {{ planInfo.expire_date }}
         </p>
       </div>
-      <div v-if="isOwner" class="sidenav-footer mx-3 mt-auto">
+      <div v-if="isOwner && !props.collapsed" class="sidenav-footer mx-3 mt-auto">
         <router-link to="/subscription" class="btn bg-gradient-success mt-4 w-100">
           <i class="fas fa-upload me-2" aria-hidden="true"></i>
           Upgrade Your Plan
@@ -481,7 +479,8 @@ const toggleSection = (section) => {
 } */
 
 .dropdown-menu {
-  z-index: 1050; /* لجعل القائمة تظهر فوق العناصر الأخرى */
+  z-index: 1050;
+  /* لجعل القائمة تظهر فوق العناصر الأخرى */
   position: absolute;
   background-color: #ffffff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -555,5 +554,25 @@ const toggleSection = (section) => {
 
 .nav-sm .nav-item {
   margin: 0.25rem 0;
+}
+
+/* Sidebar icon styling for collapsed sections */
+.sidebar-icon {
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* Collapsed section styling */
+.nav-link {
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+  border-radius: 0.375rem;
+  margin: 0.125rem 0.5rem;
+}
+
+.nav-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 </style>
