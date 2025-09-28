@@ -41,15 +41,15 @@ onMounted(() => {
   const updateSidebarState = () => {
     sidebarCollapsed.value = localStorage.getItem('sidebarCollapsed') === 'true';
   };
-  
+
   updateSidebarState();
-  
+
   // Listen for storage changes
   window.addEventListener('storage', updateSidebarState);
-  
+
   // Listen for custom sidebar toggle events
   window.addEventListener('sidebarToggle', updateSidebarState);
-  
+
   return () => {
     window.removeEventListener('storage', updateSidebarState);
     window.removeEventListener('sidebarToggle', updateSidebarState);
@@ -122,9 +122,9 @@ watch(
 
     <configurator :toggle="toggleConfigurator" :class="[showConfig ? 'show' : '', hideConfigButton ? 'd-none' : '']" />
   </main>
-  
 
-  
+
+
 </template>
 
 <style>
@@ -145,6 +145,7 @@ watch(
 }
 
 @media (max-width: 1199px) {
+
   .main-content-expanded,
   .main-content-collapsed {
     margin-left: 0 !important;
