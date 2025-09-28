@@ -131,7 +131,7 @@ const toggleSection = (section) => {
         " :class="getRoute() === 'dashboard-default' ? 'active' : ''" :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
+            <span class="material-symbols-rounded text-primary">dashboard</span>
           </template>
         </sidenav-item>
       </li>
@@ -143,7 +143,7 @@ const toggleSection = (section) => {
         }" :class="getRoute() === 'routine-task' ? 'active' : ''"
           :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'" :collapsed="props.collapsed">
           <template v-slot:icon>
-            <i class="fa fa-tasks text-success text-sm opacity-10"></i>
+            <span class="material-symbols-rounded text-success">checklist</span>
           </template>
         </sidenav-item>
       </li>
@@ -156,7 +156,7 @@ const toggleSection = (section) => {
         }" :class="getRoute() === 'one-time-task' ? 'active' : ''"
           :navText="isRTL ? 'المهام الاحتياطية' : 'One Time Tasks'" :collapsed="props.collapsed">
           <template v-slot:icon>
-            <i class="fa fa-clock text-warning text-sm opacity-10"></i>
+            <span class="material-symbols-rounded text-warning">schedule</span>
           </template>
         </sidenav-item>
       </li>
@@ -167,7 +167,7 @@ const toggleSection = (section) => {
           :title="isRTL ? 'إعدادات المهام' : 'Tasks Settings'">
           <div
             class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
-            <i class="fas fa-tasks text-success"></i>
+            <span class="material-symbols-rounded text-success">tune</span>
           </div>
         </div>
 
@@ -175,7 +175,7 @@ const toggleSection = (section) => {
         <div v-else class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('tasks')">
           <div class="d-flex align-items-center">
-            <i class="fas fa-tasks text-success me-2"></i>
+            <span class="material-symbols-rounded text-success me-2">tune</span>
             <span>{{ isRTL ? "إعدادات المهام" : "Tasks Settings" }}</span>
           </div>
           <i class="fas fa-chevron-right transition-transform" :class="{ 'rotate-180': collapsibleSections.tasks }"></i>
@@ -190,7 +190,7 @@ const toggleSection = (section) => {
               }" :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
                 :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Tasks'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i class="fa fa-cogs text-info text-sm opacity-10"></i>
+                  <span class="material-symbols-rounded text-info">settings</span>
                 </template>
               </sidenav-item>
             </li>
@@ -217,7 +217,7 @@ const toggleSection = (section) => {
           :title="isRTL ? 'تقارير' : 'Reports'">
           <div
             class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
-            <i class="fas fa-chart-line text-success"></i>
+            <span class="material-symbols-rounded text-success">insights</span>
           </div>
         </div>
 
@@ -225,7 +225,7 @@ const toggleSection = (section) => {
         <div v-else class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('reports')">
           <div class="d-flex align-items-center">
-            <i class="fas fa-chart-line text-success me-2"></i>
+            <span class="material-symbols-rounded text-success me-2">insights</span>
             <span>{{ isRTL ? "تقارير" : "Reports" }}</span>
           </div>
           <i class="fas fa-chevron-right transition-transform"
@@ -241,7 +241,7 @@ const toggleSection = (section) => {
               }" :class="getRoute() === 'reported-tasks' ? 'active' : ''"
                 :navText="isRTL ? ' تقرير المهام' : ' Task Reports'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i class="fas fa-clipboard-check text-primary text-sm opacity-10"></i>
+                  <span class="material-symbols-rounded text-primary">assignment_turned_in</span>
                 </template>
               </sidenav-item>
             </li>
@@ -252,7 +252,7 @@ const toggleSection = (section) => {
               }" :class="getRoute() === 'chart reported' ? 'active' : ''"
                 :navText="isRTL ? ' تقرير المهام' : ' Chart Reports'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i class="fas fa-chart-pie text-warning text-sm opacity-10"></i>
+                  <span class="material-symbols-rounded text-warning">pie_chart</span>
                 </template>
               </sidenav-item>
             </li>
@@ -272,7 +272,7 @@ const toggleSection = (section) => {
           :title="isRTL ? 'فريق العمل' : 'Work Force'">
           <div
             class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
-            <i class="fas fa-users text-primary"></i>
+            <span class="material-symbols-rounded text-primary">group</span>
           </div>
         </div>
 
@@ -280,7 +280,7 @@ const toggleSection = (section) => {
         <div v-else class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('workForce')">
           <div class="d-flex align-items-center">
-            <i class="fas fa-users text-primary me-2"></i>
+            <span class="material-symbols-rounded text-primary me-2">group</span>
             <span>{{ isRTL ? "فريق العمل" : "Work Force" }}</span>
           </div>
           <i class="fas fa-chevron-right transition-transform"
@@ -296,7 +296,7 @@ const toggleSection = (section) => {
               }" v-if="permissions['invite-user'] || isOwner" :class="getRoute() === 'addUser' ? 'active' : ''"
                 :navText="isRTL ? 'اضافة موظفين' : 'Add Employees'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
+                  <span class="material-symbols-rounded text-primary">person_add</span>
                 </template>
               </sidenav-item>
             </li>
@@ -307,7 +307,7 @@ const toggleSection = (section) => {
               }" v-if="permissions['view-user'] || isOwner" :class="getRoute() === 'team' ? 'active' : ''"
                 :navText="isRTL ? 'فريق' : 'Team'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i class="ni ni-single-02 text-primary text-sm opacity-10"></i>
+                  <span class="material-symbols-rounded text-primary">groups</span>
                 </template>
               </sidenav-item>
             </li>
@@ -318,7 +318,7 @@ const toggleSection = (section) => {
               }" v-if="permissions['view-role'] || isOwner" :class="getRoute() === 'addRole' ? 'active' : ''"
                 :navText="isRTL ? 'أدوار وصلاحيات' : 'Roles & Permissions'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <i class="fas fa-user-lock text-info text-sm opacity-10"></i>
+                  <span class="material-symbols-rounded text-info">admin_panel_settings</span>
                 </template>
               </sidenav-item>
             </li>
@@ -334,7 +334,7 @@ const toggleSection = (section) => {
         }" v-if="permissions['view-department'] || isOwner" :class="getRoute() === 'department' ? 'active' : ''"
           :navText="isRTL ? 'الاقسام' : 'Departments'" :collapsed="props.collapsed">
           <template v-slot:icon>
-            <i class="ni ni-building text-primary text-sm opacity-10"></i>
+            <span class="material-symbols-rounded text-primary">apartment</span>
           </template>
         </sidenav-item>
       </li>
@@ -350,7 +350,7 @@ const toggleSection = (section) => {
         }" :class="getRoute() === 'project' ? 'active' : ''" :navText="isRTL ? 'المشاريع' : 'Projects'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <i class="ni ni-app text-success text-sm opacity-10"></i>
+            <span class="material-symbols-rounded text-success">folder_open</span>
           </template>
         </sidenav-item>
       </li>
@@ -363,7 +363,7 @@ const toggleSection = (section) => {
         }" :class="getRoute() === 'goals' ? 'active' : ''" :navText="isRTL ? 'الأهداف' : 'Goals'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <i class="fas fa-bullseye text-warning text-sm opacity-10"></i>
+            <span class="material-symbols-rounded text-warning">flag_circle</span>
           </template>
         </sidenav-item>
       </li>
@@ -376,7 +376,7 @@ const toggleSection = (section) => {
         }" :class="getRoute() === 'meetings' ? 'active' : ''" :navText="isRTL ? 'الاجتماعات' : 'Meetings'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <i class="fas fa-handshake text-info text-sm opacity-10"></i>
+            <span class="material-symbols-rounded text-info">handshake</span>
           </template>
         </sidenav-item>
       </li>
@@ -389,7 +389,7 @@ const toggleSection = (section) => {
         }" :class="getRoute() === 'automation' ? 'active' : ''" :navText="isRTL ? 'الأتمتة' : 'Automation'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <i class="fas fa-robot text-primary text-sm opacity-10"></i>
+            <span class="material-symbols-rounded text-primary">smart_toy</span>
           </template>
         </sidenav-item>
       </li>
@@ -402,7 +402,7 @@ const toggleSection = (section) => {
         }" :class="getRoute() === 'apps' ? 'active' : ''" :navText="isRTL ? 'التطبيقات' : 'Apps'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <i class="fas fa-plug text-success text-sm opacity-10"></i>
+            <span class="material-symbols-rounded text-success">extension</span>
           </template>
         </sidenav-item>
       </li>

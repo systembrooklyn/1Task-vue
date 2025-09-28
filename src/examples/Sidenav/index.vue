@@ -184,4 +184,17 @@ const toggleSidebar = () => {
 .sidebar-collapsed .navbar-brand-img {
   display: none;
 }
+
+/* Material Symbols Rounded utility classes */
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-block;
+}
+
+.sidebar-icon .material-symbols-rounded {
+  font-size: 1.125rem;
+}
 </style>
