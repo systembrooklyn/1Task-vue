@@ -352,13 +352,13 @@ const refreshAIAnalysis = async () => {
 
       <!-- Statistics Section -->
       <div class="container-fluid mb-5">
-        <div class="section-header mb-4">
+        <!-- <div class="section-header mb-4">
           <h3 class="section-title">
             <i class="fas fa-chart-bar me-2"></i>
             {{ t('statisticsTitle') }}
           </h3>
           <p class="section-subtitle">{{ t('statisticsSubtitle') }}</p>
-        </div>
+        </div> -->
 
         <div class="row g-4">
           <!-- Total Daily Tasks -->
