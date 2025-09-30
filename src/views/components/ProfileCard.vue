@@ -190,7 +190,7 @@ const handleFileUpload = async (event) => {
   justify-content: center;
   padding-top: 2rem;
   position: relative;
-  z-index: 10;
+  /* z-index: 10; */
 }
 
 .profile-image-container {
