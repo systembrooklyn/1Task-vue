@@ -511,7 +511,7 @@ onBeforeMount(async () => {
             (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
         };
       });
-      
+
       // استخدام دالة الترتيب الموحدة
       oneTimeTasks.value = sortTasksForTab(
         oneTimeTasks.value,
@@ -564,7 +564,7 @@ const refreshTasks = async () => {
             (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
         };
       });
-      
+
       // استخدام دالة الترتيب الموحدة
       oneTimeTasks.value = sortTasksForTab(
         oneTimeTasks.value,
@@ -604,10 +604,12 @@ const hasUpdateForUser = (t, userId) => {
 // sorter حسب التبويب
 const sortTasksForTab = (tasks, tab, userId) => {
   return [...tasks].sort((a, b) => {
-    // 1) العاجل أولاً
-    const aUrg = a.priority === 'urgent' ? 1 : 0;
-    const bUrg = b.priority === 'urgent' ? 1 : 0;
-    if (aUrg !== bUrg) return bUrg - aUrg;
+    // 1) العاجل أولاً (إلا في Done)
+    if (tab !== 'Done') {
+      const aUrg = a.priority === 'urgent' ? 1 : 0;
+      const bUrg = b.priority === 'urgent' ? 1 : 0;
+      if (aUrg !== bUrg) return bUrg - aUrg;
+    }
 
     // 2) في غير Own: اللي عليه تحديث يخص المستخدم يطلع فوق
     if (tab !== 'Own') {
