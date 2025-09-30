@@ -128,7 +128,7 @@ const logout = () => {
                 <img class="navbar-profile-image" :src="profileData?.data?.profile?.ppUrl || defaultImg"
                   alt="Profile" />
                 <div class="d-flex flex-column text-start ms-2">
-                  <h6 class="d-sm-inline mb-0 lh-1 font-weight-bold">Hi, {{ userName }}</h6>
+                  <h6 class="d-sm-inline mb-0 lh-1 font-weight-bold">Hi, {{ userName }} </h6>
                   <small v-if="isOwner" class="d-sm-inline lh-1"><span class="font-weight-bold">Plan:</span> {{
                     planName || "Free"
                   }}</small>
@@ -139,7 +139,7 @@ const logout = () => {
                 </div>
               </button>
 
-              <div class="dropdown-menu dropdown-menu-end mt-2 py-0" aria-labelledby="dropdownMenuButton"
+              <div class="dropdown-menu dropdown-menu-end mt-2 py-0 z-index-1000" aria-labelledby="dropdownMenuButton"
                 :style="{ minWidth: '180px', borderRadius: '8px' }">
                 <router-link :to="{
                   name: 'Profile',
@@ -148,6 +148,13 @@ const logout = () => {
                   <profile-card :user="profileData?.data" context="navbar" />
                 </router-link>
                 <div class="dropdown-divider my-0"></div>
+                <div v-if="isOwner" class="px-2">
+                  <router-link to="/subscription" class="btn bg-gradient-success w-100 py-2">
+                    <i class="fas fa-crown me-2" aria-hidden="true"></i>
+                    Upgrade Plan
+                  </router-link>
+                </div>
+                <div v-if="isOwner" class="dropdown-divider my-0"></div>
                 <router-link to="/signin" @click.prevent="logout"
                   class="dropdown-item d-flex align-items-center py-2 px-3 text-danger">
                   <i class="fa fa-sign-out-alt me-2"></i>Sign Out

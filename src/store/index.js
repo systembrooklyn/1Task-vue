@@ -1844,8 +1844,8 @@ export default createStore({
       // Action لجلب بيانات الباقة من الـ API
       try {
         const response = await apiClient.fetchPlanInfo();
-        const payload = response?.data;
-        console.log("fetchPlanInfo payload", payload);
+        const payload = response?.data?.data;
+        console.log("fetchPlanInfoooooo payload", payload);
 
         // دعم أكثر من شكل محتمل للبيانات القادمة من السيرفر
         const candidate =
@@ -1856,6 +1856,33 @@ export default createStore({
 
         if (candidate) {
           commit("SET_PLAN_INFO", candidate);
+
+          // احسب انتهاء الخطة من التاريخ
+          const serverExpired = candidate?.expired;
+          let finalExpired = false;
+
+          if (candidate?.expire_date) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const expDate = new Date(candidate.expire_date);
+            expDate.setHours(23, 59, 59, 999);
+
+            const isExpiredByDate = today > expDate;
+
+            if (serverExpired !== undefined && serverExpired !== null) {
+              // احترم قيمة السيرفر إن وجدت، لكن لو التاريخ منتهي خلّيها منتهية
+              finalExpired = Boolean(Number(serverExpired)) || isExpiredByDate;
+            } else {
+              finalExpired = isExpiredByDate;
+            }
+          } else if (serverExpired !== undefined && serverExpired !== null) {
+            finalExpired = Boolean(Number(serverExpired));
+          }
+
+          commit("SET_PLAN_EXPIRED", finalExpired);
+          console.log("fetchPlanInfoooooo candidate", candidate);
+          console.log("Plan expired status:", finalExpired);
           return candidate;
         }
 

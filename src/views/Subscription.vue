@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid py-4">
     <div class="row justify-content-center">
-      <div class="col-lg-10">
+      <div class="col-lg-10 w-100">
         <div class="card">
           <div class="card-header text-center">
             <h2 class="text-gradient text-primary">Choose the best plan for your business</h2>
@@ -57,7 +57,7 @@ const router = useRouter();
 const isLoading = ref(true); // نبدأ بحالة التحميل افتراضياً
 const error = ref(null); // لا يوجد خطأ في البداية
 const isSubscribing = ref(false); // حالة جديدة لتتبع عملية الاشتراك نفسها
-const currentPlanId = computed(() => store.state.planInfo?.id);
+const currentPlanId = computed(() => store.state.planInfo?.plan_id);
 
 console.log("currentPlanId", currentPlanId.value);
 // const promoCode = ref("");
@@ -75,7 +75,10 @@ onMounted(async () => {
 
     // جلب البيانات
     await store.dispatch("fetchPlans");
+    await store.dispatch("fetchPlanInfo"); // مهم: يحدد currentPlanId و planExpired
     console.log("plans", store.state.plans);
+    console.log("planInfo", store.state.planInfo);
+    console.log("planExpired", store.state.planExpired);
   } catch (e) {
     // في حالة حدوث خطأ، قم بتخزين رسالة الخطأ
     console.error("Error fetching plans:", e);
@@ -94,3 +97,42 @@ const selectPlanAndGoToCheckout = (plan) => {
   router.push({ name: 'Checkout', params: { planId: plan.id } });
 };
 </script>
+
+<style scoped>
+/* Brand gradient for the page title and subtle header shapes */
+.text-gradient.text-primary {
+  background: linear-gradient(45deg, #90B140, #7a9a33);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header::before,
+.card-header::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.card-header::before {
+  width: 180px;
+  height: 180px;
+  top: -90px;
+  right: -90px;
+  background: rgba(144, 177, 64, 0.12);
+}
+
+.card-header::after {
+  width: 120px;
+  height: 120px;
+  bottom: -60px;
+  left: -60px;
+  background: rgba(144, 177, 64, 0.08);
+}
+</style>

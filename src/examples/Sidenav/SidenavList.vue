@@ -440,12 +440,7 @@ const toggleSection = (section) => {
           Expires on: {{ planInfo.expire_date }}
         </p>
       </div>
-      <div v-if="isOwner && !props.collapsed" class="sidenav-footer mx-3 mt-auto">
-        <router-link to="/subscription" class="btn bg-gradient-success mt-4 w-100">
-          <i class="fas fa-upload me-2" aria-hidden="true"></i>
-          Upgrade Your Plan
-        </router-link>
-      </div>
+      
     </div>
   </div>
 </template>
