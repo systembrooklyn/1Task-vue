@@ -511,34 +511,13 @@ onBeforeMount(async () => {
             (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
         };
       });
-      oneTimeTasks.value.sort((taskA, taskB) => {
-        // 1) أولاً: التاسكات ذات الأولوية urgent
-        const aIsUrgent = taskA.priority === 'urgent';
-        const bIsUrgent = taskB.priority === 'urgent';
-
-        if (aIsUrgent && !bIsUrgent) return -1; // taskA قبل taskB
-        if (!aIsUrgent && bIsUrgent) return 1;  // taskB قبل taskA
-
-        // 2) ثانياً: التاسكات التي حدث فيها تحديث (أي تحديث) - بغض النظر عن الأولوية
-        const aHasUpdate =
-          taskA.hasNewUpdate ||
-          taskA.comments_count > 0 ||
-          taskA.read_comments !== true;
-        const bHasUpdate =
-          taskB.hasNewUpdate ||
-          taskB.comments_count > 0 ||
-          taskB.read_comments !== true;
-
-        if (aHasUpdate && !bHasUpdate) return -1; // taskA قبل taskB
-        if (!aHasUpdate && bHasUpdate) return 1;  // taskB قبل taskA
-
-        // 3) ثالثاً: ترتيب باقي التاسكات حسب آخر تحديث (أحدث تحديث أولاً)
-        // استخدام updated_at أو created_at للترتيب
-        const aDate = new Date(taskA.updated_at || taskA.created_at || 0);
-        const bDate = new Date(taskB.updated_at || taskB.created_at || 0);
-
-        return bDate - aDate; // ترتيب تنازلي (الأحدث أولاً)
-      });
+      
+      // استخدام دالة الترتيب الموحدة
+      oneTimeTasks.value = sortTasksForTab(
+        oneTimeTasks.value,
+        activeTab.value,
+        currentUserId.value
+      );
 
       // طباعة التاسكات مرتبة للتحقق من الترتيب
       console.log("التاسكات بعد الترتيب:", oneTimeTasks.value.map(task => ({
@@ -585,34 +564,13 @@ const refreshTasks = async () => {
             (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
         };
       });
-      oneTimeTasks.value.sort((taskA, taskB) => {
-        // 1) أولاً: التاسكات ذات الأولوية urgent
-        const aIsUrgent = taskA.priority === 'urgent';
-        const bIsUrgent = taskB.priority === 'urgent';
-
-        if (aIsUrgent && !bIsUrgent) return -1; // taskA قبل taskB
-        if (!aIsUrgent && bIsUrgent) return 1;  // taskB قبل taskA
-
-        // 2) ثانياً: التاسكات التي حدث فيها تحديث (أي تحديث) - بغض النظر عن الأولوية
-        const aHasUpdate =
-          taskA.hasNewUpdate ||
-          taskA.comments_count > 0 ||
-          taskA.read_comments !== true;
-        const bHasUpdate =
-          taskB.hasNewUpdate ||
-          taskB.comments_count > 0 ||
-          taskB.read_comments !== true;
-
-        if (aHasUpdate && !bHasUpdate) return -1; // taskA قبل taskB
-        if (!aHasUpdate && bHasUpdate) return 1;  // taskB قبل taskA
-
-        // 3) ثالثاً: ترتيب باقي التاسكات حسب آخر تحديث (أحدث تحديث أولاً)
-        // استخدام updated_at أو created_at للترتيب
-        const aDate = new Date(taskA.updated_at || taskA.created_at || 0);
-        const bDate = new Date(taskB.updated_at || taskB.created_at || 0);
-
-        return bDate - aDate; // ترتيب تنازلي (الأحدث أولاً)
-      });
+      
+      // استخدام دالة الترتيب الموحدة
+      oneTimeTasks.value = sortTasksForTab(
+        oneTimeTasks.value,
+        activeTab.value,
+        currentUserId.value
+      );
     }
   } catch (error) {
     console.error("Error fetching tasks:", error);
@@ -626,6 +584,43 @@ console.log("projectsssssssssssss:", projects.value);
 
 const currentUserId = computed(() => store.getters.userId);
 console.log("currentUserId:", currentUserId.value);
+
+// ==================== دوال مساعدة للترتيب ====================
+// helper: آخر نشاط (تحديث/إنشاء)
+const activityTs = (t) => new Date(t.updated_at || t.created_at || 0).getTime();
+
+// helper: هل فيه تحديث يخص المستخدم الحالي؟
+const hasUpdateForUser = (t, userId) => {
+  const involved =
+    (t.assignedUser?.some(u => u.id === userId)) ||
+    (t.informer?.some(u => u.id === userId)) ||
+    (t.consult?.some(u => u.id === userId)) ||
+    (t.supervisor?.id === userId);
+  const updated =
+    t.hasNewUpdate || (t.comments_count > 0 && t.read_comments !== true);
+  return involved && updated;
+};
+
+// sorter حسب التبويب
+const sortTasksForTab = (tasks, tab, userId) => {
+  return [...tasks].sort((a, b) => {
+    // 1) العاجل أولاً
+    const aUrg = a.priority === 'urgent' ? 1 : 0;
+    const bUrg = b.priority === 'urgent' ? 1 : 0;
+    if (aUrg !== bUrg) return bUrg - aUrg;
+
+    // 2) في غير Own: اللي عليه تحديث يخص المستخدم يطلع فوق
+    if (tab !== 'Own') {
+      const aUpd = hasUpdateForUser(a, userId) ? 1 : 0;
+      const bUpd = hasUpdateForUser(b, userId) ? 1 : 0;
+      if (aUpd !== bUpd) return bUpd - aUpd;
+    }
+
+    // 3) الأحدث زمنيًا
+    return activityTs(b) - activityTs(a);
+  });
+};
+// ==================== نهاية دوال مساعدة للترتيب ====================
 
 // تحكم في الصفحات
 const pagination = ref({
