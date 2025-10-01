@@ -82,7 +82,7 @@
   <div v-else-if="context === 'navbar'" class="navbar-profile-item">
     <img :src="user?.profile?.ppUrl || defaultImg" class="navbar-profile-image" alt="Profile" />
     <div class="navbar-profile-details">
-      <h6 class="mb-0 font-weight-bold">{{ user?.name }}</h6>
+      <h6 class="mb-0 font-weight-bold">{{ user?.name }} {{ user?.last_name }}</h6>
       <p v-if="user?.profile?.position" class="mb-0 text-sm text-muted">{{ user.profile.position }}</p>
     </div>
   </div>

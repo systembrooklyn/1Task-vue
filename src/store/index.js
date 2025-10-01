@@ -364,6 +364,10 @@ export default createStore({
       if (storedName) {
         state.name = decryptData(storedName);
       }
+      const storedLastName = localStorage.getItem("lastName");
+      if (storedLastName) {
+        state.lastName = decryptData(storedLastName);
+      }
       const storedisOwner = localStorage.getItem("isOwner");
       if (storedisOwner) {
         state.isOwner = decryptData(storedisOwner);
@@ -407,6 +411,10 @@ export default createStore({
     SET_USER_Name(state, name) {
       state.name = name;
       localStorage.setItem("userName", encryptData(name));
+    },
+    SET_USER_LastName(state, lastName) {
+      state.lastName = lastName;
+      localStorage.setItem("lastName", encryptData(lastName));
     },
 
     SET_IS_OWNER(state, isOwner) {
@@ -853,11 +861,14 @@ export default createStore({
 
           commit("SET_USER", response.data);
           console.log("response.data.token", response.data.token);
+          console.log("responseeeeeee.data", response.data);
+
           // commit("SET_USER_ID", response.data.user.id);
           commit("SET_COMPANY_ID", response.data.user.company.id);
           commit("SET_COMPANY_NAME", response.data.user.company.name);
           // commit("SET_EMAIL", response.data.user.email);
           commit("SET_USER_Name", response.data.user.name);
+          commit("SET_USER_LastName", response.data.user.last_name);
 
           // بعد تسجيل الدخول بنجاح، جلب بيانات الباقة والملف الشخصي
           try {
@@ -1940,5 +1951,6 @@ export default createStore({
     chartDeptPerformance: (state) => state.chartDeptPerformance,
     profileData: (state) => state.profileData,
     planInfo: (state) => state.planInfo,
+    lastName: (state) => state.lastName,
   },
 });
