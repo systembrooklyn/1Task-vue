@@ -457,7 +457,6 @@ import ArgonInput from "@/components/ArgonInput.vue";
 
 import { markTaskCommentsAsSeen } from "@/utils/commentCache";
 
-
 import {
   savePermissionsToLocalStorage,
   extractPermissionsFromAPI,
