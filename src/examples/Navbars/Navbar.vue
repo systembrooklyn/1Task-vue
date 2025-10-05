@@ -68,10 +68,14 @@ const profileData = computed(() => store.getters.profileData);
 
 onMounted(async () => {
   // Fetch initial data to populate the store when the component mounts.
-  await Promise.all([
-    store.dispatch("fetchProfileData"),
-    store.dispatch("fetchPlanInfo"),
-  ]);
+  try {
+    await Promise.all([
+      store.dispatch("fetchProfileData"),
+      store.dispatch("fetchPlanInfo"),
+    ]);
+  } catch (err) {
+    console.warn("Navbar init data failed:", err);
+  }
 });
 
 console.log("profileData", profileData.value);

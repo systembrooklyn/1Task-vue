@@ -20,18 +20,19 @@ const apiClient = axios.create({
 });
 
 // Interceptor لإضافة الـ token لكل طلب
-// apiClient.interceptors.request.use(
-//   (config) => {
-//     const token = store.getters.token; // جلب الـ token من Vuex
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`; // إضافة الـ token إلى الـ headers
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// );
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token") || store.getters.token;
+    if (token && !config.headers?.Authorization) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Interceptor عام لمعالجة انتهاء الخطة/الاشتراك
 apiClient.interceptors.response.use(
@@ -107,6 +108,36 @@ apiClient.interceptors.response.use(
             }
             window.location.href = "/signin";
           });
+        }
+      }
+
+      // Handle unauthenticated errors globally (401/419)
+      const isAuthError = status === 401 || status === 419;
+      if (isAuthError) {
+        const url = String(error?.config?.url || "");
+        const isLoginRequest = url.includes("/login");
+
+        if (!isLoginRequest && !window.__AUTH_ERROR_HANDLED__) {
+          window.__AUTH_ERROR_HANDLED__ = true;
+
+          try {
+            localStorage.clear();
+            sessionStorage.clear();
+          } catch (_) {
+            // ignore
+          }
+
+          if (window.location?.pathname !== "/signin") {
+            Swal.fire({
+              icon: "error",
+              title: "Session Expired",
+              text: "Your session has expired. Please sign in again.",
+              confirmButtonText: "OK",
+            }).then(() => {
+              window.__AUTH_ERROR_HANDLED__ = false;
+              window.location.href = "/signin";
+            });
+          }
         }
       }
     } catch (e) {
