@@ -1,7 +1,7 @@
 // Dashboard.vue
 <script setup>
 import { ref, watch, onMounted, onUnmounted, computed } from "vue";
-import ShBar from "@/components/charts/ShBar.vue";
+import ShBar from "../components/charts/ShBar.vue";
 import AIAnalysisCard from "@/components/AIAnalysisCard.vue";
 import { useStore } from "vuex";
 
@@ -397,7 +397,7 @@ const refreshAIAnalysis = async () => {
             </div>
 
             <div class="card-metric-section">
-              <div class="metric-header" >
+              <div class="metric-header">
                 <div class="metric-split">
                   <div class="metric-col">
                     <div class="main-metric">{{ dashboardData?.AllDailyTasks?.total || 0 }}</div>
@@ -409,7 +409,7 @@ const refreshAIAnalysis = async () => {
                     <div class="metric-subtitle">{{ t('todayTasks') }}</div>
                   </div>
                 </div>
-                
+
                 <span class="trend-badge"
                   :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'trend-up' : 'trend-neutral'">
                   <i
@@ -435,7 +435,7 @@ const refreshAIAnalysis = async () => {
               <span class="status-pill pill-warning">
                 <span class="pill-dot"></span>
                 {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
-                || 0) }} {{ t('notReported') }}
+                  || 0) }} {{ t('notReported') }}
               </span>
             </div>
 
@@ -754,7 +754,7 @@ const refreshAIAnalysis = async () => {
                             <div class="mt-1">
                               <span class="mini-badge bg-success">{{ dept.done_reports || 0 }} {{ t('done') }}</span>
                               <span class="mini-badge bg-danger">{{ dept.not_done_reports || 0 }} {{ t('notDone')
-                                }}</span>
+                              }}</span>
                             </div>
                           </div>
                         </td>

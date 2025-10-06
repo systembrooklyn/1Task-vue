@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onBeforeMount, watch } from "vue";
-import ShBar from "@/components/charts/ShBar.vue";
+import ShBar from "../components/charts/ShBar.vue";
 import { useStore } from "vuex";
 
 const store = useStore();
