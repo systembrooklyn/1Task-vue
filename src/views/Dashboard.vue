@@ -1,7 +1,7 @@
 // Dashboard.vue
 <script setup>
 import { ref, watch, onMounted, onUnmounted, computed } from "vue";
-import GradientLineChart from "@/examples/Charts/GradientLineChart.vue";
+import ShBar from "@/components/charts/ShBar.vue";
 import AIAnalysisCard from "@/components/AIAnalysisCard.vue";
 import { useStore } from "vuex";
 
@@ -39,7 +39,7 @@ const refreshInterval = ref(null);
 const isLoadingAI = ref(false);
 const currentAIData = ref(null);
 const aiLastUpdated = ref(null);
-const hasOpenedAI = ref(localStorage.getItem('hasOpenedAI') === 'true');
+// const hasOpenedAI = ref(localStorage.getItem('hasOpenedAI') === 'true');
 const showAIModal = ref(false);
 
 // Fetch and save dashboard data
@@ -137,8 +137,8 @@ const translations = {
     statisticsSubtitle: "Quick overview of important indicators",
 
     // Stats cards
-    totalDailyTasks: "Total Daily Tasks",
-    todayTasks: "Today's Tasks",
+    totalDailyTasks: "Total Routine Tasks",
+    todayTasks: "Today's Routine Tasks",
     employees: "Employees",
     projects: "Projects",
     active: "Active",
@@ -176,7 +176,9 @@ const translations = {
     done: "Done",
     notDone: "Not Done",
     stopped: "Stopped",
-    undefined: "Undefined"
+    undefined: "Undefined",
+    stable: "Stable",
+    viewDetails: "View details"
   },
   ar: {
     // Header
@@ -207,8 +209,8 @@ const translations = {
     statisticsSubtitle: "نظرة سريعة على أهم المؤشرات",
 
     // Stats cards
-    totalDailyTasks: "إجمالي المهام اليومية",
-    todayTasks: "مهام اليوم",
+    totalDailyTasks: "إجمالي المهام الروتينية",
+    todayTasks: "مهام اليوم الروتينية",
     employees: "الموظفين",
     projects: "المشاريع",
     active: "نشط",
@@ -246,7 +248,9 @@ const translations = {
     done: "منجز",
     notDone: "غير منجز",
     stopped: "متوقف",
-    undefined: "غير محدد"
+    undefined: "غير محدد",
+    stable: "مستقر",
+    viewDetails: "عرض التفاصيل"
   }
 };
 
@@ -256,18 +260,38 @@ const t = (key) => {
   return translations[currentLanguage.value][key] || key;
 };
 
+// Bar Chart Data - Task Progress
+const taskProgressChartData = computed(() => {
+  const depts = dashboardData.value?.DailyTasks?.DailyTaskDepts || [];
+  return depts.map(dept => ({
+    dept: dept.department_name || t('undefined'),
+    [t('done')]: dept.done_reports || 0,
+    [t('notDone')]: dept.not_done_reports || 0
+  }));
+});
+
+// Bar Chart Data - Reports Status
+const reportsStatusChartData = computed(() => {
+  const depts = dashboardData.value?.DailyTasks?.DailyTaskDepts || [];
+  return depts.map(dept => ({
+    dept: dept.department_name || t('undefined'),
+    [t('reported')]: dept.total_reports || 0,
+    [t('notReported')]: (dept.total_tasks || 0) - (dept.total_reports || 0)
+  }));
+});
+
 // AI Modal Functions
-const openAIModal = async () => {
-  // Mark as opened
-  hasOpenedAI.value = true;
-  localStorage.setItem('hasOpenedAI', 'true');
+// const openAIModal = async () => {
+//   // Mark as opened
+//   hasOpenedAI.value = true;
+//   localStorage.setItem('hasOpenedAI', 'true');
 
-  // Show modal
-  showAIModal.value = true;
+//   // Show modal
+//   showAIModal.value = true;
 
-  // Load fresh data for AI analysis
-  await refreshAIAnalysis();
-};
+//   // Load fresh data for AI analysis
+//   await refreshAIAnalysis();
+// };
 
 const closeAIModal = () => {
   showAIModal.value = false;
@@ -352,118 +376,147 @@ const refreshAIAnalysis = async () => {
 
       <!-- Statistics Section -->
       <div class="container-fluid mb-5">
-        <div class="section-header mb-4">
+        <!-- <div class="section-header mb-4">
           <h3 class="section-title">
             <i class="fas fa-chart-bar me-2"></i>
             {{ t('statisticsTitle') }}
           </h3>
           <p class="section-subtitle">{{ t('statisticsSubtitle') }}</p>
-        </div>
+        </div> -->
 
-        <div class="row g-4">
-          <!-- Total Daily Tasks -->
-          <div class="col-xl-3 col-lg-6 col-md-6 col-12">
-            <div class="stats-card">
-              <div class="stats-card-header bg-gradient-primary">
-                <div class="stats-icon">
-                  <i class="fas fa-tasks"></i>
+        <div class="stats-row-container">
+          <!-- Merged: Total Daily Tasks + Today's Tasks -->
+          <div class="stats-card-v2">
+            <div class="card-header-v2">
+              <div class="card-icon-title">
+                <div class="card-icon icon-primary">
+                  <i class="fas fa-clipboard-list"></i>
                 </div>
-              </div>
-              <div class="stats-card-body">
-                <div class="stats-number">{{ dashboardData?.AllDailyTasks?.total || 0 }}</div>
-                <div class="stats-title">{{ t('totalDailyTasks') }}</div>
-                <div class="stats-details">
-                  <span class="badge bg-success me-2">
-                    <i class="fas fa-check-circle me-1"></i>
-                    {{ dashboardData?.AllDailyTasks?.active || 0 }} {{ t('active') }}
-                  </span>
-                  <span class="badge bg-danger">
-                    <i class="fas fa-times-circle me-1"></i>
-                    {{ dashboardData?.AllDailyTasks?.inActive || 0 }} {{ t('inactive') }}
-                  </span>
-                </div>
+                <div class="card-title-text">{{ t('totalDailyTasks') }}</div>
               </div>
             </div>
-          </div>
 
-          <!-- Today's Tasks -->
-          <div class="col-xl-3 col-lg-6 col-md-6 col-12">
-            <div class="stats-card">
-              <div class="stats-card-header bg-gradient-info">
-                <div class="stats-icon">
-                  <i class="fas fa-calendar-day"></i>
-                </div>
-              </div>
-              <div class="stats-card-body">
-                <div class="stats-number">{{ dashboardData?.DailyTasks?.today_total_daily_tasks || 0 }}</div>
-                <div class="stats-title">{{ t('todayTasks') }}</div>
-                <div class="stats-details">
-                  <div class="mb-1">
-                    <span class="badge bg-primary me-2">
-                      <i class="fas fa-file-alt me-1"></i>
-                      {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
-                    </span>
+            <div class="card-metric-section">
+              <div class="metric-header" >
+                <div class="metric-split">
+                  <div class="metric-col">
+                    <div class="main-metric">{{ dashboardData?.AllDailyTasks?.total || 0 }}</div>
+                    <div class="metric-subtitle">{{ t('totalTasks') }}</div>
                   </div>
-                  <div>
-                    <span class="badge bg-success me-1">{{ dashboardData?.DailyTasks?.done_reports || 0 }} {{ t('done')
-                    }}</span>
-                    <span class="badge bg-danger me-1">{{ dashboardData?.DailyTasks?.not_done_reports || 0 }} {{
-                      t('notDone') }}</span>
-                    <span class="badge bg-warning">{{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) -
-                      (dashboardData?.DailyTasks?.total_reports || 0) }} {{ t('notReported') }}</span>
+                  <div class="metric-divider"></div>
+                  <div class="metric-col">
+                    <div class="main-metric">{{ dashboardData?.DailyTasks?.today_total_daily_tasks || 0 }}</div>
+                    <div class="metric-subtitle">{{ t('todayTasks') }}</div>
                   </div>
                 </div>
+                
+                <span class="trend-badge"
+                  :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'trend-up' : 'trend-neutral'">
+                  <i
+                    :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
+                  {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
+                </span>
               </div>
+            </div>
+
+            <div class="card-badges-section">
+              <span class="status-pill pill-success">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.DailyTasks?.done_reports || 0 }} {{ t('done') }}
+              </span>
+              <span class="status-pill pill-danger">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.DailyTasks?.not_done_reports || 0 }} {{ t('notDone') }}
+              </span>
+              <!-- <span class="status-pill pill-primary">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
+              </span> -->
+              <span class="status-pill pill-warning">
+                <span class="pill-dot"></span>
+                {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
+                || 0) }} {{ t('notReported') }}
+              </span>
+            </div>
+
+            <div class="card-footer-v2">
+              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
             </div>
           </div>
 
           <!-- Employees -->
-          <div class="col-xl-3 col-lg-6 col-md-6 col-12">
-            <div class="stats-card">
-              <div class="stats-card-header bg-gradient-success">
-                <div class="stats-icon">
+          <div class="stats-card-v2">
+            <div class="card-header-v2">
+              <div class="card-icon-title">
+                <div class="card-icon icon-success">
                   <i class="fas fa-users"></i>
                 </div>
+                <div class="card-title-text">{{ t('employees') }}</div>
               </div>
-              <div class="stats-card-body">
-                <div class="stats-number">{{ dashboardData?.Emps?.total || 0 }}</div>
-                <div class="stats-title">{{ t('employees') }}</div>
-                <div class="stats-details">
-                  <span class="badge bg-success me-2">
-                    <i class="fas fa-user-check me-1"></i>
-                    {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
-                  </span>
-                  <span class="badge bg-warning">
-                    <i class="fas fa-user-clock me-1"></i>
-                    {{ dashboardData?.Emps?.pending || 0 }} {{ t('pending') }}
-                  </span>
-                </div>
+            </div>
+
+            <div class="card-metric-section">
+              <div class="metric-header">
+                <div class="main-metric">{{ dashboardData?.Emps?.total || 0 }}</div>
+                <span class="trend-badge" :class="dashboardData?.Emps?.invited > 0 ? 'trend-up' : 'trend-neutral'">
+                  <i :class="dashboardData?.Emps?.invited > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
+                  {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
+                </span>
               </div>
+              <div class="metric-subtitle">{{ t('active') }} / {{ t('pending') }}</div>
+            </div>
+
+            <div class="card-badges-section">
+              <span class="status-pill pill-success">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
+              </span>
+              <span class="status-pill pill-warning">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Emps?.pending || 0 }} {{ t('pending') }}
+              </span>
+            </div>
+
+            <div class="card-footer-v2">
+              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
             </div>
           </div>
 
           <!-- Projects -->
-          <div class="col-xl-3 col-lg-6 col-md-6 col-12">
-            <div class="stats-card">
-              <div class="stats-card-header bg-gradient-warning">
-                <div class="stats-icon">
-                  <i class="fas fa-project-diagram"></i>
+          <div class="stats-card-v2">
+            <div class="card-header-v2">
+              <div class="card-icon-title">
+                <div class="card-icon icon-warning">
+                  <i class="fas fa-folder-open"></i>
                 </div>
+                <div class="card-title-text">{{ t('projects') }}</div>
               </div>
-              <div class="stats-card-body">
-                <div class="stats-number">{{ dashboardData?.Projects?.total || 0 }}</div>
-                <div class="stats-title">{{ t('projects') }}</div>
-                <div class="stats-details">
-                  <span class="badge bg-success me-2">
-                    <i class="fas fa-play-circle me-1"></i>
-                    {{ dashboardData?.Projects?.active || 0 }} {{ t('active') }}
-                  </span>
-                  <span class="badge bg-secondary">
-                    <i class="fas fa-pause-circle me-1"></i>
-                    {{ dashboardData?.Projects?.inactive || 0 }} {{ t('stopped') }}
-                  </span>
-                </div>
+            </div>
+
+            <div class="card-metric-section">
+              <div class="metric-header">
+                <div class="main-metric">{{ dashboardData?.Projects?.total || 0 }}</div>
+                <span class="trend-badge" :class="dashboardData?.Projects?.active > 0 ? 'trend-up' : 'trend-neutral'">
+                  <i :class="dashboardData?.Projects?.active > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
+                  {{ dashboardData?.Projects?.active || 0 }} {{ t('active') }}
+                </span>
               </div>
+              <div class="metric-subtitle">{{ t('active') }} / {{ t('stopped') }}</div>
+            </div>
+
+            <div class="card-badges-section">
+              <span class="status-pill pill-success">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Projects?.active || 0 }} {{ t('active') }}
+              </span>
+              <span class="status-pill pill-secondary">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Projects?.inactive || 0 }} {{ t('stopped') }}
+              </span>
+            </div>
+
+            <div class="card-footer-v2">
+              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
             </div>
           </div>
         </div>
@@ -471,59 +524,43 @@ const refreshAIAnalysis = async () => {
 
       <!-- Charts Section -->
       <div class="container-fluid mb-5">
-        <div class="section-header mb-4">
+        <!-- <div class="section-header mb-4">
           <h3 class="section-title">
             <i class="fas fa-chart-line me-2"></i>
             {{ t('chartsTitle') }}
           </h3>
           <p class="section-subtitle">{{ t('chartsSubtitle') }}</p>
-        </div>
+        </div> -->
 
         <div class="row g-4">
           <!-- Tasks Progress Chart -->
           <div class="col-lg-6 col-12">
             <div class="chart-card">
-              <div class="chart-card-header">
-                <div class="d-flex align-items-center justify-content-between">
+              <div class="chart-card-body-with-header">
+                <div class="chart-inline-header">
                   <div>
-                    <h5 class="chart-title mb-1">
+                    <h5 class="chart-title-inline">
                       <i class="fas fa-chart-area me-2 text-primary"></i>
                       {{ t('taskProgressByDept') }}
                     </h5>
-                    <p class="chart-subtitle">{{ t('taskProgressSubtitle') }}</p>
+                    <p class="chart-subtitle-inline">{{ t('taskProgressSubtitle') }}</p>
                   </div>
-                  <div class="chart-legend">
-                    <span class="legend-item">
-                      <span class="legend-color bg-success"></span>
+                  <!-- <div class="chart-legend-inline">
+                    <span class="legend-item-inline">
+                      <span class="legend-dot bg-success"></span>
                       {{ t('done') }}
                     </span>
-                    <span class="legend-item">
-                      <span class="legend-color bg-danger"></span>
+                    <span class="legend-item-inline">
+                      <span class="legend-dot bg-danger"></span>
                       {{ t('notDone') }}
                     </span>
-                  </div>
+                  </div> -->
                 </div>
-              </div>
-              <div class="chart-card-body">
-                <gradient-line-chart v-if="!isLoading" id="chart-line" :chart="{
-                  labels: (
-                    dashboardData?.DailyTasks?.DailyTaskDepts || []
-                  ).map((dept) => dept.department_name),
-                  datasets: [
-                    {
-                      label: t('completed'),
-                      data: (
-                        dashboardData?.DailyTasks?.DailyTaskDepts || []
-                      ).map((dept) => dept.done_reports || 0),
-                    },
-                    {
-                      label: t('notDone'),
-                      data: (
-                        dashboardData?.DailyTasks?.DailyTaskDepts || []
-                      ).map((dept) => dept.not_done_reports || 0),
-                    }
-                  ],
-                }" />
+                <div class="chart-content">
+                  <ShBar v-if="!isLoading && taskProgressChartData.length > 0" :data="taskProgressChartData"
+                    index="dept" :categories="[t('done'), t('notDone')]" :colors="['#10b981', '#ef4444']" type="grouped"
+                    :show-grid-line="true" :rounded-corners="8" />
+                </div>
               </div>
             </div>
           </div>
@@ -531,47 +568,31 @@ const refreshAIAnalysis = async () => {
           <!-- Tasks Status Chart -->
           <div class="col-lg-6 col-12">
             <div class="chart-card">
-              <div class="chart-card-header">
-                <div class="d-flex align-items-center justify-content-between">
+              <div class="chart-card-body-with-header">
+                <div class="chart-inline-header">
                   <div>
-                    <h5 class="chart-title mb-1">
+                    <h5 class="chart-title-inline">
                       <i class="fas fa-chart-bar me-2 text-info"></i>
                       {{ t('reportsStatus') }}
                     </h5>
-                    <p class="chart-subtitle">{{ t('reportsStatusSubtitle') }}</p>
+                    <p class="chart-subtitle-inline">{{ t('reportsStatusSubtitle') }}</p>
                   </div>
-                  <div class="chart-legend">
-                    <span class="legend-item">
-                      <span class="legend-color bg-primary"></span>
+                  <!-- <div class="chart-legend-inline">
+                    <span class="legend-item-inline">
+                      <span class="legend-dot bg-primary"></span>
                       {{ t('reported') }}
                     </span>
-                    <span class="legend-item">
-                      <span class="legend-color bg-warning"></span>
+                    <span class="legend-item-inline">
+                      <span class="legend-dot bg-warning"></span>
                       {{ t('notReported') }}
                     </span>
-                  </div>
+                  </div> -->
                 </div>
-              </div>
-              <div class="chart-card-body">
-                <gradient-line-chart v-if="!isLoading" id="chart-line2" :chart="{
-                  labels: (
-                    dashboardData?.DailyTasks?.DailyTaskDepts || []
-                  ).map((dept) => dept.department_name),
-                  datasets: [
-                    {
-                      label: t('reported'),
-                      data: (
-                        dashboardData?.DailyTasks?.DailyTaskDepts || []
-                      ).map((dept) => dept.total_reports || 0),
-                    },
-                    {
-                      label: t('notReported'),
-                      data: (
-                        dashboardData?.DailyTasks?.DailyTaskDepts || []
-                      ).map((dept) => (dept.total_tasks || 0) - (dept.total_reports || 0)),
-                    },
-                  ],
-                }" />
+                <div class="chart-content">
+                  <ShBar v-if="!isLoading && reportsStatusChartData.length > 0" :data="reportsStatusChartData"
+                    index="dept" :categories="[t('reported'), t('notReported')]" :colors="['#3b82f6', '#f59e0b']"
+                    type="grouped" :show-grid-line="true" :rounded-corners="8" />
+                </div>
               </div>
             </div>
           </div>
@@ -579,7 +600,7 @@ const refreshAIAnalysis = async () => {
       </div>
 
       <!-- Floating AI Widget -->
-      <div class="floating-ai-widget">
+      <!-- <div class="floating-ai-widget">
         <div class="ai-widget-trigger" @click="openAIModal" :class="{ 'pulse': !hasOpenedAI }">
           <div class="ai-icon">
             <i class="fas fa-robot"></i>
@@ -589,7 +610,7 @@ const refreshAIAnalysis = async () => {
             <div class="ai-badge-mini">AI</div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- AI Analysis Sidebar -->
       <div v-if="showAIModal" class="ai-sidebar-overlay" @click="closeAIModal">
@@ -733,7 +754,7 @@ const refreshAIAnalysis = async () => {
                             <div class="mt-1">
                               <span class="mini-badge bg-success">{{ dept.done_reports || 0 }} {{ t('done') }}</span>
                               <span class="mini-badge bg-danger">{{ dept.not_done_reports || 0 }} {{ t('notDone')
-                              }}</span>
+                                }}</span>
                             </div>
                           </div>
                         </td>
@@ -944,109 +965,524 @@ const refreshAIAnalysis = async () => {
   right: 20px;
 }
 
-/* Stats Cards */
-.stats-card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  height: 100%;
-}
-
-.stats-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-.stats-card-header {
-  height: 80px;
+/* Stats Row Container */
+.stats-row-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* ========================================
+   V2 Card Design - Professional & Modern
+   ======================================== */
+
+.stats-card-v2 {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 18px;
+  flex: 1;
+  min-width: 220px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
   position: relative;
   overflow: hidden;
 }
 
-.stats-card-header::before {
+.stats-card-v2::before {
   content: '';
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
-  /* animation: shimmer 3s infinite; */
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, transparent);
+  transition: all 0.3s ease;
 }
 
-/* @keyframes shimmer {
-  0% {
-    transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  }
+.stats-card-v2:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.12);
+}
 
-  100% {
-    transform: translateX(100%) translateY(100%) rotate(45deg);
-  }
-} */
+.stats-card-v2:hover::before {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
 
-.stats-icon {
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
+/* Card Header with Icon & Title */
+.card-header-v2 {
+  margin-bottom: 14px;
+}
+
+.card-icon-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
+  font-size: 0.95rem;
+  color: rgb(255, 255, 255);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+}
+
+.stats-card-v2:hover .card-icon {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+/* Helpers for merged metric layout (keeps existing style scale) */
+.metric-split {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.metric-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-divider {
+  width: 1px;
+  height: 20px;
+  background: #e5e7eb;
+}
+
+.card-title-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.01em;
+}
+
+/* Main Metric Section */
+.card-metric-section {
+  margin-bottom: 12px;
+}
+
+.metric-header {
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+  margin-bottom: 4px;
+  gap: 12px;
+}
+
+.main-metric {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1a202c;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.metric-subtitle {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Trend Section - Moved inside metric section */
+.card-trend-section {
+  margin-bottom: 12px;
+}
+
+.trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.trend-badge i {
+  font-size: 0.65rem;
+}
+
+.trend-up {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.trend-down {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.trend-neutral {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+}
+
+/* Status Pills Section */
+.card-badges-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-pill.pill-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.status-pill.pill-success .pill-dot {
+  background: #10b981;
+}
+
+.status-pill.pill-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.status-pill.pill-danger .pill-dot {
+  background: #ef4444;
+}
+
+.status-pill.pill-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.status-pill.pill-warning .pill-dot {
+  background: #f59e0b;
+}
+
+.status-pill.pill-secondary {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+}
+
+.status-pill.pill-secondary .pill-dot {
+  background: #94a3b8;
+}
+
+.status-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Card Footer */
+.card-footer-v2 {
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.card-link {
+  color: #667eea;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.card-link:hover {
+  color: #5568d3;
+  gap: 7px;
+}
+
+.card-link i {
+  font-size: 0.65rem;
+  transition: transform 0.2s ease;
+}
+
+/* Stats Cards - Professional Design */
+.stats-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: visible;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.stats-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.stats-card-header {
+  padding: 0.875rem 1rem 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background: transparent;
+}
+
+.stats-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.stats-card:hover .stats-icon {
+  transform: scale(1.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.stats-icon::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
 }
 
 .stats-icon i {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   color: white;
+  position: relative;
+  z-index: 1;
 }
 
 .stats-card-body {
-  padding: 1.5rem;
-  text-align: center;
+  padding: 0.5rem 1rem 0.875rem;
+  text-align: left;
 }
 
 .stats-number {
-  font-size: 3rem;
-  font-weight: 800;
-  color: #2d3748;
-  line-height: 1;
-  margin-bottom: 0.5rem;
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: #1a202c;
+  line-height: 1.1;
+  margin-bottom: 0.125rem;
+  letter-spacing: -0.02em;
 }
 
 .stats-title {
-  font-size: 1rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  color: #4a5568;
-  margin-bottom: 1rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
 }
 
 .stats-details {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
+  gap: 0.3rem;
+  justify-content: flex-start;
 }
 
 .stats-details .badge {
-  font-size: 0.75rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: 50px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.45rem;
+  border-radius: 5px;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  line-height: 1.3;
+}
+
+/* Compact Stats Cards */
+.stats-card.compact {
+  padding: 0;
+}
+
+.stats-card.compact .stats-card-header {
+  padding: 0.875rem 1rem 0;
+}
+
+.stats-card.compact .stats-card-body {
+  padding: 0.5rem 1rem 0.875rem;
+}
+
+.stats-card.compact .stats-number {
+  font-size: 1.625rem;
+  margin-bottom: 0.125rem;
+}
+
+.stats-card.compact .stats-title {
+  font-size: 0.7rem;
+  margin-bottom: 0.5rem;
+}
+
+.stats-card.compact .stats-icon {
+  width: 42px;
+  height: 42px;
+}
+
+.stats-card.compact .stats-icon i {
+  font-size: 1.2rem;
+}
+
+/* Icon Color Variants - Professional Gradients */
+.card-icon.icon-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card-icon.icon-info {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+}
+
+.card-icon.icon-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.card-icon.icon-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.stats-icon.icon-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stats-icon.icon-info {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+}
+
+.stats-icon.icon-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.stats-icon.icon-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+/* Badge Enhancements */
+.stats-details .badge.bg-success {
+  background: #10b981 !important;
+  color: white;
+}
+
+.stats-details .badge.bg-danger {
+  background: #ef4444 !important;
+  color: white;
+}
+
+.stats-details .badge.bg-primary {
+  background: #3b82f6 !important;
+  color: white;
+}
+
+.stats-details .badge.bg-warning {
+  background: #f59e0b !important;
+  color: white;
+}
+
+.stats-details .badge.bg-secondary {
+  background: #6b7280 !important;
+  color: white;
 }
 
 /* Chart Cards */
 .chart-card {
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+/* New Inline Header Layout */
+.chart-card-body-with-header {
+  padding: 1.25rem;
+}
+
+.chart-inline-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.chart-title-inline {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 0.25rem 0;
+}
+
+.chart-subtitle-inline {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.chart-legend-inline {
+  display: flex;
+  gap: 0.875rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.legend-item-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.chart-content {
+  min-height: 320px;
+}
+
+/* Old styles - keep for backward compatibility */
 .chart-card-header {
   padding: 1.5rem;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -1270,6 +1706,57 @@ const refreshAIAnalysis = async () => {
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+  .stats-row-container {
+    gap: 1.25rem;
+  }
+
+  .stats-card {
+    min-width: 180px;
+  }
+
+  .stats-card-v2 {
+    min-width: 220px;
+  }
+}
+
+@media (max-width: 992px) {
+  .stats-row-container {
+    gap: 1rem;
+  }
+
+  .stats-card {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 160px;
+  }
+
+  .stats-card-v2 {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 200px;
+    padding: 16px;
+  }
+
+  .main-metric {
+    font-size: 2rem;
+  }
+
+  .card-header-v2 {
+    margin-bottom: 10px;
+  }
+
+  .card-metric-section {
+    margin-bottom: 10px;
+  }
+
+  .metric-header {
+    gap: 8px;
+  }
+
+  .card-badges-section {
+    margin-bottom: 10px;
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard-title {
     font-size: 2rem;
@@ -1284,8 +1771,39 @@ const refreshAIAnalysis = async () => {
     margin-top: 1rem;
   }
 
+  .stats-row-container {
+    gap: 0.75rem;
+  }
+
+  .stats-card {
+    flex: 1 1 calc(50% - 0.375rem);
+    min-width: 140px;
+  }
+
   .stats-number {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
+  }
+
+  .stats-card.compact .stats-number {
+    font-size: 1.5rem;
+  }
+
+  .stats-card.compact .stats-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .stats-card.compact .stats-icon i {
+    font-size: 1.125rem;
+  }
+
+  .stats-title {
+    font-size: 0.7rem;
+  }
+
+  .stats-details .badge {
+    font-size: 0.625rem;
+    padding: 0.2rem 0.4rem;
   }
 
   .section-title {
@@ -1298,10 +1816,84 @@ const refreshAIAnalysis = async () => {
     gap: 0.5rem;
   }
 
+  .chart-inline-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .chart-legend-inline {
+    gap: 0.5rem;
+  }
+
   .department-info {
     flex-direction: column;
     text-align: center;
     gap: 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-row-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .stats-card {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .stats-card-v2 {
+    flex: 1 1 100%;
+    min-width: 100%;
+    padding: 16px;
+  }
+
+  .main-metric {
+    font-size: 1.875rem;
+  }
+
+  .card-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+
+  .card-title-text {
+    font-size: 0.8125rem;
+  }
+
+  .status-pill {
+    font-size: 0.65rem;
+    padding: 4px 8px;
+  }
+
+  .trend-badge {
+    font-size: 0.65rem;
+    padding: 4px 8px;
+  }
+
+  .card-header-v2 {
+    margin-bottom: 10px;
+  }
+
+  .card-metric-section {
+    margin-bottom: 8px;
+  }
+
+  .metric-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .card-badges-section {
+    margin-bottom: 8px;
+  }
+
+  .card-footer-v2 {
+    padding-top: 10px;
   }
 }
 
