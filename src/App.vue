@@ -66,11 +66,15 @@ console.log("currentCompanyName:", currentCompanyName.value);
 
 onBeforeMount(async () => {
   const token = localStorage.getItem("token");
-  if (token) {
-    // إذا كان المستخدم مسجل دخوله، قم بطلب البيانات
-    await store.dispatch("fetchPlanInfo");
-    // await store.dispatch("fetchPermissions");
-    await store.dispatch("fetchProfileData");
+  try {
+    if (token) {
+      // إذا كان المستخدم مسجل دخوله، قم بطلب البيانات
+      await store.dispatch("fetchPlanInfo");
+      // await store.dispatch("fetchPermissions");
+      await store.dispatch("fetchProfileData");
+    }
+  } catch (err) {
+    console.warn("Boot fetch failed:", err);
   }
   // تحميل اللغة بغض النظر عن حالة تسجيل الدخول
   const language = localStorage.getItem("language");
