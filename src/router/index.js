@@ -251,6 +251,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/:companyName/charts-analytics",
+    name: "charts analytics",
+    component: () => import("@/views/ChartReportedShadcn.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/:companyName/goals",
     name: "goals",
     component: () => import("@/views/ComingSoon.vue"),
