@@ -2,6 +2,7 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, computed } from "vue";
 import ShBar from "../components/charts/ShBar.vue";
+// import ShLine from "../components/charts/ShLine.vue";
 import AIAnalysisCard from "@/components/AIAnalysisCard.vue";
 import { useStore } from "vuex";
 
@@ -99,12 +100,20 @@ onUnmounted(() => {
 });
 
 // Helper function for progress bar classes
-const getProgressBarClass = (percentage) => {
-  if (percentage >= 80) return 'bg-success';
-  if (percentage >= 60) return 'bg-warning';
-  if (percentage >= 40) return 'bg-info';
-  return 'bg-danger';
-};
+// const getProgressBarClass = (percentage) => {
+//   if (percentage >= 80) return 'bg-success';
+//   if (percentage >= 60) return 'bg-warning';
+//   if (percentage >= 40) return 'bg-info';
+//   return 'bg-danger';
+// };
+
+// One-Time Tasks computed metrics
+const oneTimeOpenTasks = computed(() => {
+  const t = dashboardData.value?.Tasks || {};
+  return (t.pending || 0) + (t.inProgress || 0);
+});
+
+const oneTimeUrgent = computed(() => (dashboardData.value?.Tasks?.urgent || 0));
 
 // Translation system
 const translations = {
@@ -147,10 +156,21 @@ const translations = {
     pending: "Pending",
     reported: "Reported",
     notReported: "Not Reported",
+    // One-Time tasks labels
+    oneTimeTasks: "One-Time Tasks",
+    openTasks: "Open Tasks",
+    inProgress: "In Progress",
+    overdue: "Overdue",
+    dueToday: "Due Today",
+    dueSoon: "Due Soon",
+    review: "Review",
+    urgent: "Urgent",
 
     // Charts section
     chartsTitle: "Charts and Analytics",
     chartsSubtitle: "Visual representation of department and task performance",
+    performanceTrends: "Performance Trends",
+    performanceTrendsSubtitle: "Open, Review and Done over time",
     taskProgressByDept: "Task Progress by Department",
     taskProgressSubtitle: "Comparison of completed and incomplete tasks",
     reportsStatus: "Reports Status",
@@ -219,6 +239,15 @@ const translations = {
     pending: "معلق",
     reported: "مُبلغ عنها",
     notReported: "لم يُبلغ عنها",
+    // One-Time tasks labels
+    oneTimeTasks: "مهام لمرة واحدة",
+    openTasks: "مهام مفتوحة",
+    inProgress: "قيد التنفيذ",
+    overdue: "متأخرة",
+    dueToday: "مستحقة اليوم",
+    dueSoon: "مستحقة قريبًا",
+    review: "قيد المراجعة",
+    urgent: "عاجلة",
 
     // Charts section
     chartsTitle: "الرسوم البيانية والتحليلات",
@@ -227,6 +256,8 @@ const translations = {
     taskProgressSubtitle: "مقارنة المهام المنجزة وغير المنجزة",
     reportsStatus: "حالة التقارير",
     reportsStatusSubtitle: "المهام المُبلغ عنها وغير المُبلغ عنها",
+    performanceTrends: "اتجاهات الأداء",
+    performanceTrendsSubtitle: "المهام المفتوحة والمراجعة والمنجزة عبر الزمن",
 
     // Tables section
     tablesTitle: "البيانات التفصيلية",
@@ -278,6 +309,86 @@ const reportsStatusChartData = computed(() => {
     [t('reported')]: dept.total_reports || 0,
     [t('notReported')]: (dept.total_tasks || 0) - (dept.total_reports || 0)
   }));
+});
+
+// Toggle between charts in a single card
+const activeChartIndex = ref(0); // 0 = Task Progress, 1 = Reports Status
+const chartsConfig = computed(() => ([
+  {
+    key: 'taskProgress',
+    titleIconClass: 'fas fa-chart-area me-2 text-primary',
+    title: t('taskProgressByDept'),
+    subtitle: t('taskProgressSubtitle'),
+    data: taskProgressChartData.value,
+    categories: [t('done'), t('notDone')],
+    colors: ['#10b981', '#ef4444']
+  },
+  {
+    key: 'reportsStatus',
+    titleIconClass: 'fas fa-chart-bar me-2 text-info',
+    title: t('reportsStatus'),
+    subtitle: t('reportsStatusSubtitle'),
+    data: reportsStatusChartData.value,
+    categories: [t('reported'), t('notReported')],
+    colors: ['#3b82f6', '#f59e0b']
+  }
+]));
+
+const activeChart = computed(() => chartsConfig.value[activeChartIndex.value]);
+
+const nextChart = () => {
+  activeChartIndex.value = (activeChartIndex.value + 1) % chartsConfig.value.length;
+};
+
+const prevChart = () => {
+  activeChartIndex.value = (activeChartIndex.value - 1 + chartsConfig.value.length) % chartsConfig.value.length;
+};
+
+// Line chart data (Open, Review, Done over time)
+// We keep a small rolling history in localStorage keyed by day
+const lineHistoryKey = 'oneTimeTasksHistory';
+
+function snapshotOneTimeTasks() {
+  const t = dashboardData.value?.Tasks || {};
+  const open = (t.pending || 0) + (t.inProgress || 0);
+  const review = t.review || 0;
+  const done = t.done || 0;
+  const label = new Date().toLocaleDateString();
+  return { label, open, review, done };
+}
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(lineHistoryKey);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(history) {
+  localStorage.setItem(lineHistoryKey, JSON.stringify(history));
+}
+
+// Update history whenever dashboardData changes (per fetch)
+watch(() => dashboardData.value?.Tasks, (val) => {
+  if (!val) return;
+  const history = loadHistory();
+  const snap = snapshotOneTimeTasks();
+  // avoid duplicate for same label (day), replace last
+  if (history.length > 0 && history[history.length - 1].label === snap.label) {
+    history[history.length - 1] = snap;
+  } else {
+    history.push(snap);
+  }
+  // keep last 14 entries
+  const trimmed = history.slice(-14);
+  saveHistory(trimmed);
+}, { deep: true });
+
+const performanceLineData = computed(() => {
+  const history = loadHistory();
+  return history.map(h => ({ date: h.label, [t('openTasks')]: h.open, [t('review')]: h.review, [t('done')]: h.done }));
 });
 
 // AI Modal Functions
@@ -519,79 +630,121 @@ const refreshAIAnalysis = async () => {
               <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
             </div>
           </div>
+
+          <!-- One-Time Tasks -->
+          <div class="stats-card-v2">
+            <div class="card-header-v2">
+              <div class="card-icon-title">
+                <div class="card-icon icon-info">
+                  <i class="fas fa-tasks"></i>
+                </div>
+                <div class="card-title-text">{{ t('oneTimeTasks') }}</div>
+              </div>
+            </div>
+
+            <div class="card-metric-section">
+              <div class="metric-header">
+                <div class="main-metric">{{ oneTimeOpenTasks }}</div>
+                <span class="trend-badge" :class="(oneTimeUrgent || 0) > 0 ? 'trend-down' : 'trend-neutral'">
+                  <i :class="(oneTimeUrgent || 0) > 0 ? 'fas fa-exclamation-triangle' : 'fas fa-minus'"></i>
+                  {{ oneTimeUrgent }} {{ t('urgent') }}
+                </span>
+              </div>
+              <div class="metric-subtitle">{{ t('openTasks') }}</div>
+            </div>
+
+            <div class="card-badges-section">
+              <!-- <span class="status-pill pill-success">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Tasks?.done || 0 }} {{ t('done') }}
+              </span> -->
+
+              <!-- <span class="status-pill pill-warning">
+                <span class="pill-dot"></span>
+                {{ oneTimeOpenTasks }} {{ t('openTasks') }}
+              </span> -->
+
+              <!-- <span class="status-pill pill-danger">
+                <span class="pill-dot"></span>
+                {{ oneTimeUrgent }} {{ t('urgent') }}
+              </span> -->
+
+              <span class="status-pill pill-secondary">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Tasks?.review || 0 }} {{ t('review') }}
+              </span>
+
+              <span class="status-pill pill-warning">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Tasks?.dueToday || 0 }} {{ t('dueToday') }}
+              </span>
+
+              <span class="status-pill pill-warning">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Tasks?.dueSoon || 0 }} {{ t('dueSoon') }}
+              </span>
+
+              <span class="status-pill pill-danger">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Tasks?.overdue || 0 }} {{ t('overdue') }}
+              </span>
+            </div>
+
+            <div class="card-footer-v2">
+              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Charts Section -->
+      <!-- Charts Section (Merged with Toggle + Line Trends side by side) -->
       <div class="container-fluid mb-5">
-        <!-- <div class="section-header mb-4">
-          <h3 class="section-title">
-            <i class="fas fa-chart-line me-2"></i>
-            {{ t('chartsTitle') }}
-          </h3>
-          <p class="section-subtitle">{{ t('chartsSubtitle') }}</p>
-        </div> -->
-
         <div class="row g-4">
-          <!-- Tasks Progress Chart -->
           <div class="col-lg-6 col-12">
             <div class="chart-card">
               <div class="chart-card-body-with-header">
                 <div class="chart-inline-header">
                   <div>
                     <h5 class="chart-title-inline">
-                      <i class="fas fa-chart-area me-2 text-primary"></i>
-                      {{ t('taskProgressByDept') }}
+                      <i :class="activeChart.titleIconClass"></i>
+                      {{ activeChart.title }}
                     </h5>
-                    <p class="chart-subtitle-inline">{{ t('taskProgressSubtitle') }}</p>
+                    <p class="chart-subtitle-inline">{{ activeChart.subtitle }}</p>
                   </div>
-                  <!-- <div class="chart-legend-inline">
-                    <span class="legend-item-inline">
-                      <span class="legend-dot bg-success"></span>
-                      {{ t('done') }}
-                    </span>
-                    <span class="legend-item-inline">
-                      <span class="legend-dot bg-danger"></span>
-                      {{ t('notDone') }}
-                    </span>
-                  </div> -->
+                  <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-sm btn-light" @click="prevChart" title="Prev">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light" @click="nextChart" title="Next">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </div>
                 </div>
                 <div class="chart-content">
-                  <ShBar v-if="!isLoading && taskProgressChartData.length > 0" :data="taskProgressChartData"
-                    index="dept" :categories="[t('done'), t('notDone')]" :colors="['#10b981', '#ef4444']" type="grouped"
-                    :show-grid-line="true" :rounded-corners="8" />
+                  <ShBar v-if="!isLoading && activeChart.data.length > 0" :key="activeChart.key"
+                    :data="activeChart.data" index="dept" :categories="activeChart.categories"
+                    :colors="activeChart.colors" type="grouped" :show-grid-line="true" :rounded-corners="12" />
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Tasks Status Chart -->
           <div class="col-lg-6 col-12">
             <div class="chart-card">
               <div class="chart-card-body-with-header">
                 <div class="chart-inline-header">
                   <div>
                     <h5 class="chart-title-inline">
-                      <i class="fas fa-chart-bar me-2 text-info"></i>
-                      {{ t('reportsStatus') }}
+                      <i class="fas fa-chart-bar me-2 text-primary"></i>
+                      {{ t('performanceTrends') }}
                     </h5>
-                    <p class="chart-subtitle-inline">{{ t('reportsStatusSubtitle') }}</p>
+                    <p class="chart-subtitle-inline">{{ t('performanceTrendsSubtitle') }}</p>
                   </div>
-                  <!-- <div class="chart-legend-inline">
-                    <span class="legend-item-inline">
-                      <span class="legend-dot bg-primary"></span>
-                      {{ t('reported') }}
-                    </span>
-                    <span class="legend-item-inline">
-                      <span class="legend-dot bg-warning"></span>
-                      {{ t('notReported') }}
-                    </span>
-                  </div> -->
                 </div>
                 <div class="chart-content">
-                  <ShBar v-if="!isLoading && reportsStatusChartData.length > 0" :data="reportsStatusChartData"
-                    index="dept" :categories="[t('reported'), t('notReported')]" :colors="['#3b82f6', '#f59e0b']"
-                    type="grouped" :show-grid-line="true" :rounded-corners="8" />
+                  <ShBar :data="performanceLineData" index="date" :categories="[t('openTasks'), t('review'), t('done')]"
+                    :colors="['#f59e0b', '#3b82f6', '#10b981']" type="grouped" :show-grid-line="true"
+                    :rounded-corners="12" />
                 </div>
               </div>
             </div>
@@ -680,18 +833,18 @@ const refreshAIAnalysis = async () => {
       </div>
 
       <!-- Data Tables Section -->
-      <div class="container-fluid mb-5">
-        <div class="section-header mb-4">
+      <!-- <div class="container-fluid mb-5"> -->
+      <!-- <div class="section-header mb-4">
           <h3 class="section-title">
             <i class="fas fa-table me-2"></i>
             {{ t('tablesTitle') }}
           </h3>
           <p class="section-subtitle">{{ t('tablesSubtitle') }}</p>
-        </div>
+        </div> -->
 
-        <div class="row g-4">
-          <!-- Daily Tasks by Department Table -->
-          <div class="col-lg-8 col-12">
+      <!-- <div class="row g-4"> -->
+      <!-- Daily Tasks by Department Table -->
+      <!-- <div class="col-lg-8 col-12">
             <div class="data-table-card">
               <div class="data-table-header">
                 <div class="d-flex align-items-center justify-content-between">
@@ -780,10 +933,10 @@ const refreshAIAnalysis = async () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
-          <!-- Employees by Department Table -->
-          <div class="col-lg-4 col-12">
+      <!-- Employees by Department Table -->
+      <!-- <div class="col-lg-4 col-12">
             <div class="data-table-card">
               <div class="data-table-header">
                 <div>
@@ -829,9 +982,9 @@ const refreshAIAnalysis = async () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </div> -->
+      <!-- </div> -->
+      <!-- </div> -->
     </div>
   </div>
 </template>
