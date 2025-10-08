@@ -32,8 +32,8 @@
 
             <div v-else>
               <div v-if="plansForCard && plansForCard.data && plansForCard.data.length">
-                <PricingCard :plans="plansForCard" :is-subscribing="isSubscribing" :current-plan-id="currentPlanId"
-                  @select="selectPlanAndGoToCheckout" />
+                <PricingCard :plans="plansForCard" :is-subscribing="isSubscribing"
+                  :current-plan-id="displayCurrentPlanId" @select="selectPlanAndGoToCheckout" />
               </div>
             </div>
 
@@ -62,6 +62,13 @@ const currentPlanId = computed(() => store.state.planInfo?.plan_id);
 console.log("currentPlanId", currentPlanId.value);
 // const promoCode = ref("");
 
+const displayCurrentPlanId = computed(() => {
+  const realId = store.state.planInfo?.plan_id;
+  if (store.state.planExpired) {
+    return store.state.plans?.[0]?.id ?? realId ?? null;
+  }
+  return realId ?? null;
+});
 
 const plansForCard = computed(() => {
   return { data: store.state.plans };
