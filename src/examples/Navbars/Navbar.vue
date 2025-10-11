@@ -32,6 +32,7 @@ const planName = computed(() => {
     p?.data?.plan_name ||
     p?.data?.name ||
     p?.data?.plan?.name ||
+    p?.data?.expire_date ||
     null
   );
 });
@@ -57,6 +58,7 @@ const companyNameNormalized = currentCompanyName.value.replace(/\s+/g, "-"); // 
 
 const userName = computed(() => store.getters.userName);
 const lastName = computed(() => store.getters.lastName);
+// const planExpireAt = computed(() => store.getters.planExpireAt);
 console.log("username " + userName.value)
 
 const minimizeSidebar = () => store.commit("sidebarMinimize");
@@ -144,6 +146,10 @@ const logout = () => {
                   <small v-if="isOwner" class="d-sm-inline lh-1"><span class="font-weight-bold">Plan:</span> {{
                     planName || "Free"
                   }}</small>
+                  <small v-if="isOwner" class="d-sm-inline lh-1 font-weight-bold">
+                    <span class="font-weight-bold">Expire At:</span>
+                    {{ planInfo?.expire_date }}
+                  </small>
 
                   <small class="d-sm-inline lh-1 font-weight-bold"> {{
                     profileData ? profileData.data.profile?.position : "Free"
