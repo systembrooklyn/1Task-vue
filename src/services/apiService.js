@@ -116,8 +116,10 @@ apiClient.interceptors.response.use(
       if (isAuthError) {
         const url = String(error?.config?.url || "");
         const isLoginRequest = url.includes("/login");
+        const hasToken =
+          !!localStorage.getItem("token") || !!store.getters.token;
 
-        if (!isLoginRequest && !window.__AUTH_ERROR_HANDLED__) {
+        if (!isLoginRequest && !window.__AUTH_ERROR_HANDLED__ && hasToken) {
           window.__AUTH_ERROR_HANDLED__ = true;
 
           try {

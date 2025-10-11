@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeMount, onMounted, watch, ref } from "vue";
 import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 import Sidenav from "./examples/Sidenav";
 import Configurator from "@/examples/Configurator.vue";
 import Navbar from "@/examples/Navbars/Navbar.vue";
@@ -64,13 +65,13 @@ const mainContentClass = computed(() => {
 
 console.log("currentCompanyName:", currentCompanyName.value);
 
+const route = useRoute();
 onBeforeMount(async () => {
   const token = localStorage.getItem("token");
+  const isPublic = route.meta.public === true;
   try {
-    if (token) {
-      // إذا كان المستخدم مسجل دخوله، قم بطلب البيانات
+    if (token && !isPublic) {
       await store.dispatch("fetchPlanInfo");
-      // await store.dispatch("fetchPermissions");
       await store.dispatch("fetchProfileData");
     }
   } catch (err) {

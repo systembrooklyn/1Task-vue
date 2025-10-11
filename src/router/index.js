@@ -292,14 +292,16 @@ const router = createRouter({
   linkActiveClass: "active",
 });
 
-function isUserAuthenticated() {
-  return !!localStorage.getItem("token");
-}
+// function isUserAuthenticated() {
+//   return !!localStorage.getItem("token");
+// }
 
 // 4. حارس المسارات العام (Global Navigation Guard) المحدّث والكامل
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = isUserAuthenticated();
+router.beforeEach(async (to, from, next) => {
+  const token = localStorage.getItem("token");
+  const isAuthenticated = !!token;
   const { companyName: userCompanyName, isOwner } = getCompanyName();
+  const isPublic = to.meta.public === true;
 
   // قراءة حالة انتهاء الباقة من التخزين
   let planExpired = false;
@@ -309,23 +311,47 @@ router.beforeEach((to, from, next) => {
     // ignore
   }
 
+  // إذا كان المستخدم يزور صفحة عامة ومعه توكن → نتحقق أولاً من صحته
+  if (isPublic && isAuthenticated) {
+    try {
+      // تحقق من صحة التوكن باستخدام endpoint خفيف
+      await store.dispatch("fetchProfileData");
+      // نجح التحقق ⇒ اسمح بالانتقال التلقائي إلى الداشبورد
+      if (userCompanyName) {
+        return next({
+          name: "Dashboard",
+          params: { companyName: userCompanyName },
+        });
+      }
+    } catch (e) {
+      // التوكن غير صالح ⇒ نعامله كمستخدم غير مسجل
+      console.warn("Token validation failed:", e);
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (clearError) {
+        console.warn("Clear storage failed:", clearError);
+      }
+      return next(); // ابقَ في الصفحة العامة بلا تنبيه
+    }
+  }
+
   // الحالة الأولى: المسار يتطلب تسجيل دخول، والمستخدم غير مسجل
   if (to.meta.requiresAuth && !isAuthenticated) {
     return next({ name: "Signin" });
   }
 
-  // الحالة الثانية: المستخدم مسجل بالفعل ويحاول الوصول لصفحة عامة (تسجيل دخول، بداية)
-  if (
-    isAuthenticated &&
-    to.meta.public &&
-    (to.name === "Signin" || to.name === "start" || to.name === "/")
-  ) {
-    if (userCompanyName) {
-      // تأكد من وجود اسم الشركة قبل التوجيه
-      return next({
-        name: "Dashboard",
-        params: { companyName: userCompanyName },
-      });
+  // عند الحاجة إلى مصادقة ولدينا توكن، تأكد من تحميل بيانات الشركة مرة واحدة فقط
+  if (to.meta.requiresAuth && isAuthenticated) {
+    try {
+      if (!store.getters.planInfo) {
+        await store.dispatch("fetchPlanInfo");
+      }
+      if (!store.getters.profileData) {
+        await store.dispatch("fetchProfileData");
+      }
+    } catch (e) {
+      console.warn("Auto-fetch failed:", e);
     }
   }
 
