@@ -133,6 +133,36 @@ watch(
 </template>
 
 <style>
+/* ========================================
+   Z-Index Global Management - حل نهائي وقوي
+   ======================================== */
+/* منع قص الـ dropdowns في المودال فقط */
+.quick-add-dropdown {
+  overflow: visible !important;
+}
+
+.quick-add-dropdown * {
+  overflow: visible !important;
+}
+
+/* خاصة للمكونات داخل المودال */
+.gmail-people-section,
+.gmail-toolbar {
+  overflow: visible !important;
+}
+
+/* z-index عالي جداً للـ dropdowns */
+body .dropdown-menu,
+body .vs__dropdown-menu,
+body .select-dropdown,
+body .options-dropdown,
+body .toolbar-dropdown,
+body .custom-select-dropdown,
+body .argon-tags-input .options-dropdown {
+  z-index: 999999 !important;
+  position: absolute !important;
+}
+
 /* Main content responsive behavior */
 .main-content-expanded {
   margin-left: 260px !important;

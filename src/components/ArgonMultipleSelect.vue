@@ -20,8 +20,8 @@
       </div>
 
       <!-- Dropdown Menu -->
-      <div v-if="isDropdownOpen" class="custom-select-dropdown border rounded shadow-sm bg-white" :id="dropdownId"
-        role="listbox">
+      <div v-if="isDropdownOpen" class="custom-select-dropdown border rounded shadow-sm bg-white"
+        :class="{ 'dropdown-up': shouldOpenUp }" :id="dropdownId" role="listbox">
         <!-- Search Input Inside Dropdown -->
         <div class="px-2 pt-2 pb-1" v-if="searchable">
           <input v-model="searchQuery" type="text" class="form-control form-control-sm" :placeholder="searchPlaceholder"
@@ -111,6 +111,7 @@ const isDropdownOpen = ref(false);
 const searchQuery = ref("");
 const dropdownId = ref(`multi-select-dropdown-${Math.random().toString(36).substr(2, 9)}`);
 const componentId = ref(`argon-multi-select-${Math.random().toString(36).substr(2, 9)}`);
+const shouldOpenUp = ref(false);
 
 // Watchers for prop changes
 watch(() => props.modelValue, (newVal) => {
@@ -180,6 +181,23 @@ function openDropdown() {
 
   isDropdownOpen.value = true;
   window.__argonMultiSelectOpenDropdown = componentId.value;
+
+  // Calculate dropdown direction after DOM update
+  setTimeout(() => {
+    const container = document.querySelector(`#${componentId.value} .custom-select-container`);
+    if (container) {
+      const triggerRect = container.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const dropdownHeight = 200; // Estimated dropdown height
+
+      // Calculate space below and above
+      const spaceBelow = viewportHeight - triggerRect.bottom;
+      const spaceAbove = triggerRect.top;
+
+      // Open upward if there's insufficient space below (more aggressive)
+      shouldOpenUp.value = spaceBelow < dropdownHeight || (spaceAbove > spaceBelow && spaceBelow < 250);
+    }
+  }, 10);
 }
 
 function toggleDropdown() {
@@ -311,9 +329,15 @@ onUnmounted(() => {
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 9999;
   /* max-height: 200px; */
   overflow-y: auto;
+}
+
+.custom-select-dropdown.dropdown-up {
+  top: auto;
+  bottom: 100%;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .options-container {

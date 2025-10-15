@@ -180,8 +180,8 @@ function calculateDropdownDirection() {
     const spaceBelow = viewportHeight - triggerRect.bottom;
     const spaceAbove = triggerRect.top;
 
-    // Open upward if there's more space above or not enough space below
-    shouldOpenUp.value = spaceAbove > spaceBelow && spaceBelow < dropdownHeight;
+    // Open upward if there's insufficient space below (more aggressive)
+    shouldOpenUp.value = spaceBelow < dropdownHeight || (spaceAbove > spaceBelow && spaceBelow < 250);
   }, 10);
 }
 
@@ -258,7 +258,7 @@ onUnmounted(() => {
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1000;
+  /* z-index managed by z-index-variables.css */
   /* max-height: 200px; */
   overflow-y: auto;
 }
@@ -266,6 +266,7 @@ onUnmounted(() => {
 .custom-select-dropdown.dropdown-up {
   top: auto;
   bottom: 100%;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .options-container {

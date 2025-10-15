@@ -4,8 +4,14 @@ import { ref, watch, onMounted, onUnmounted, computed } from "vue";
 import ShBar from "../components/charts/ShBar.vue";
 // import ShLine from "../components/charts/ShLine.vue";
 import AIAnalysisCard from "@/components/AIAnalysisCard.vue";
+import ArgonInput from "@/components/ArgonInput.vue";
+import ArgonSelect from "@/components/ArgonSelect.vue";
+import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
+import ArgonTagsInput from "@/components/ArgonTagsInput.vue";
+import ArgonTextarea from "@/components/ArgonTextarea.vue";
+import ArgonButton from "@/components/ArgonButton.vue";
 import { useStore } from "vuex";
-
+import Swal from 'sweetalert2';
 
 const store = useStore();
 // const userName = computed(() => store.getters.userName);
@@ -42,6 +48,56 @@ const currentAIData = ref(null);
 const aiLastUpdated = ref(null);
 // const hasOpenedAI = ref(localStorage.getItem('hasOpenedAI') === 'true');
 const showAIModal = ref(false);
+
+// Quick Add State
+const showQuickAddRoutine = ref(false);
+const showQuickAddOneTime = ref(false);
+const isSubmittingRoutine = ref(false);
+const isSubmittingOneTime = ref(false);
+const buttonPositionRoutine = ref({ top: 0, left: 0, buttonTop: 0, buttonLeft: 0 });
+const buttonPositionOneTime = ref({ top: 0, left: 0, buttonTop: 0, buttonLeft: 0 });
+
+// Gmail Toolbar State
+const showCompactPeople = ref(false);
+const showClearIcon = ref(null);
+const showProjectDropdown = ref(false);
+const showPriorityDropdown = ref(false);
+const showStartDatePicker = ref(false);
+const showEndDatePicker = ref(false);
+const showCcFields = ref(false);
+const showBccFields = ref(false);
+
+// Validation errors
+const validationErrors = ref({});
+
+// Quick Add Form Data - Matches API structure
+const quickRoutineTask = ref({
+  task_name: '',          // API field
+  description: '',        // API field
+  task_type: '',          // API field (daily/weekly/monthly/custom)
+  start_date: '',         // API field
+  dept_id: '',            // API field
+  from: '',               // Optional time field
+  to: '',                 // Optional time field
+  // Conditional fields for weekly/monthly/last_day_of_month
+  recurrent_days: [],     // For weekly: [1,2,3,4,5] (Mon-Fri)
+  day_of_month: '',       // For monthly: 1-31
+  last_day_of_month: ''   // For last_day_of_month: last_day
+});
+
+const quickOneTimeTask = ref({
+  title: '',                    // API field (NOT task_name!)
+  description: '',              // API field
+  start_date: '',              // API field
+  deadline: '',                // API field (NOT end_date!)
+  priority: '',                // API field (low/normal/high/urgent)
+  assigned_user_id: [],        // API field (array!)
+  project_id: null,            // Optional
+  supervisor_user_id: null,    // Optional
+  inform_user_id: [],          // Array for multiple selection
+  consult_user_id: [],         // Array for multiple selection
+  department_id: null          // Optional
+});
 
 // Fetch and save dashboard data
 const fetchAndSaveDashboardData = async () => {
@@ -114,6 +170,94 @@ const oneTimeOpenTasks = computed(() => {
 });
 
 const oneTimeUrgent = computed(() => (dashboardData.value?.Tasks?.urgent || 0));
+
+// Data for Quick Add forms
+const dataFromApi = computed(() => store.getters.dataFromApi || []);
+const departments = computed(() => store.getters.departments || []);
+const projects = computed(() => store.getters.projects || []);
+
+const employeeOptions = computed(() => {
+  return dataFromApi.value.map((employee) => ({
+    value: employee.id,
+    label: employee.name,
+  }));
+});
+
+// Gmail Toolbar Computed Properties
+const hasSelectedPeople = computed(() => {
+  return quickOneTimeTask.value.assigned_user_id &&
+    quickOneTimeTask.value.assigned_user_id.length > 0;
+});
+
+const getEmployeeName = (userId) => {
+  const employee = dataFromApi.value.find(emp => emp.id === userId);
+  return employee ? employee.name : '';
+};
+
+// OneTime Gmail toolbar state/data
+const projectId = ref(null);
+const priorityValue = ref('');
+const projectSearchQuery = ref('');
+const prioritySearchQuery = ref('');
+const filteredProjects = ref([]);
+const filteredPriorities = ref([
+  { value: 'low', label: 'Low' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'high', label: 'High' },
+  { value: 'urgent', label: 'Urgent' }
+]);
+
+const formattedProjects = computed(() => {
+  return projects.value
+    .filter((project) => project.status == true)
+    .map((project) => ({ value: project.id, label: project.name }));
+});
+
+
+const formattedDepartments = computed(() => {
+  return departments.value.map((department) => ({
+    value: department.id,
+    label: department.name,
+  }));
+});
+
+// Task type options for Routine Task (4 options)
+const taskTypeOptions = computed(() => [
+  { value: "daily", label: t('daily') },
+  { value: "weekly", label: t('weekly') },
+  { value: "monthly", label: t('monthly') },
+  { value: "last_day_of_month", label: t('lastDayOfMonth') }
+]);
+
+// Conditional field visibility for Routine Task
+const showWeeklyOptions = computed(() => quickRoutineTask.value.task_type === 'weekly');
+const showMonthlyOptions = computed(() => quickRoutineTask.value.task_type === 'monthly');
+const showLastDayOfMonthOptions = computed(() => quickRoutineTask.value.task_type === 'last_day_of_month');
+
+// Day options for weekly task type
+const weekDaysOptions = computed(() => [
+  { value: 1, label: t('monday') },
+  { value: 2, label: t('tuesday') },
+  { value: 3, label: t('wednesday') },
+  { value: 4, label: t('thursday') },
+  { value: 5, label: t('friday') },
+  { value: 6, label: t('saturday') },
+  { value: 7, label: t('sunday') }
+]);
+
+// Day of month options for monthly task type
+const monthDaysOptions = computed(() => {
+  const days = [];
+  for (let i = 1; i <= 31; i++) {
+    days.push({ value: i, label: i.toString() });
+  }
+  return days;
+});
+
+// Options for last day of month (no additional options needed)
+const lastDayOfMonthOptions = computed(() => [
+  { value: 'last_day', label: t('lastDayOfMonth') }
+]);
 
 // Translation system
 const translations = {
@@ -198,7 +342,63 @@ const translations = {
     stopped: "Stopped",
     undefined: "Undefined",
     stable: "Stable",
-    viewDetails: "View details"
+    viewDetails: "View details",
+
+    // Quick Add
+    quickAddTask: "Quick Add",
+    quickAddRoutineTask: "Quick Add Routine Task",
+    quickAddOneTimeTask: "Quick Add One-Time Task",
+    taskName: "Task Name",
+    description: "Description",
+    assignTo: "Assign To",
+    selectAssignee: "Select Assignee",
+    selectDepartment: "Select Department",
+    selectTaskType: "Select Task Type",
+    selectPriority: "Select Priority",
+    selectProject: "Select Project",
+    startDate: "Start Date",
+    endDate: "End Date",
+    deadline: "Deadline",
+    priority: "Priority",
+    project: "Project",
+    taskType: "Task Type",
+    daily: "Daily",
+    weekly: "Weekly",
+    monthly: "Monthly",
+    high: "High",
+    normal: "Normal",
+    medium: "Medium",
+    low: "Low",
+    cancel: "Cancel",
+    create: "Create",
+    saving: "Saving...",
+    fillRequiredFields: "Please fill all required fields",
+    validationError: "Validation Error",
+    success: "Success",
+    error: "Error",
+    routineTaskAdded: "Routine task added successfully",
+    oneTimeTaskAdded: "One-time task added successfully",
+    routineTaskAddedError: "Error adding routine task",
+    oneTimeTaskAddedError: "Error adding one-time task",
+    enterTaskName: "Enter task name",
+    enterDescription: "Enter description",
+    searchEmployees: "Search Employees",
+    searchProjects: "Search Projects",
+    clickToAddPeople: "Click to add Employees",
+    clickToEdit: "Click to edit",
+    lastDayOfMonth: "Last Day of Month",
+    selectLastDayOfMonth: "Select Last Day of Month",
+    selectDays: "Select Days",
+    selectDaysOfWeek: "Select Days of Week",
+    dayOfMonth: "Day of Month",
+    selectDayOfMonth: "Select Day of Month",
+    monday: "Monday",
+    tuesday: "Tuesday",
+    wednesday: "Wednesday",
+    thursday: "Thursday",
+    friday: "Friday",
+    saturday: "Saturday",
+    sunday: "Sunday"
   },
   ar: {
     // Header
@@ -281,7 +481,63 @@ const translations = {
     stopped: "متوقف",
     undefined: "غير محدد",
     stable: "مستقر",
-    viewDetails: "عرض التفاصيل"
+    viewDetails: "عرض التفاصيل",
+
+    // Quick Add
+    quickAddTask: "إضافة سريعة",
+    quickAddRoutineTask: "إضافة مهمة روتينية",
+    quickAddOneTimeTask: "إضافة مهمة لمرة واحدة",
+    taskName: "اسم المهمة",
+    description: "الوصف",
+    assignTo: "تعيين إلى",
+    selectAssignee: "اختر المكلف",
+    selectDepartment: "اختر القسم",
+    selectTaskType: "اختر نوع المهمة",
+    selectPriority: "اختر الأولوية",
+    selectProject: "اختر المشروع",
+    startDate: "تاريخ البدء",
+    endDate: "تاريخ الانتهاء",
+    deadline: "الموعد النهائي",
+    priority: "الأولوية",
+    project: "المشروع",
+    taskType: "نوع المهمة",
+    daily: "يومي",
+    weekly: "أسبوعي",
+    monthly: "شهري",
+    high: "عالية",
+    normal: "عادية",
+    medium: "متوسطة",
+    low: "منخفضة",
+    cancel: "إلغاء",
+    create: "إنشاء",
+    saving: "جاري الحفظ...",
+    fillRequiredFields: "يرجى ملء جميع الحقول المطلوبة",
+    validationError: "خطأ في التحقق",
+    success: "نجح",
+    error: "خطأ",
+    routineTaskAdded: "تم إضافة المهمة الروتينية بنجاح",
+    oneTimeTaskAdded: "تم إضافة المهمة بنجاح",
+    routineTaskAddedError: "خطأ في إضافة المهمة الروتينية",
+    oneTimeTaskAddedError: "خطأ في إضافة المهمة",
+    enterTaskName: "أدخل اسم المهمة",
+    enterDescription: "أدخل الوصف",
+    searchEmployees: "ابحث عن الموظفين",
+    searchProjects: "ابحث عن المشاريع",
+    clickToAddPeople: "اضغط لإضافة موظفين",
+    clickToEdit: "اضغط للتعديل",
+    lastDayOfMonth: "آخر يوم من الشهر",
+    selectLastDayOfMonth: "اختر آخر يوم من الشهر",
+    selectDays: "اختر الأيام",
+    selectDaysOfWeek: "اختر أيام الأسبوع",
+    dayOfMonth: "يوم الشهر",
+    selectDayOfMonth: "اختر يوم الشهر",
+    monday: "الاثنين",
+    tuesday: "الثلاثاء",
+    wednesday: "الأربعاء",
+    thursday: "الخميس",
+    friday: "الجمعة",
+    saturday: "السبت",
+    sunday: "الأحد"
   }
 };
 
@@ -424,6 +680,453 @@ const refreshAIAnalysis = async () => {
     isLoadingAI.value = false;
   }
 };
+
+// Quick Add Methods
+const openQuickAddRoutine = (event) => {
+  const rect = event.currentTarget.getBoundingClientRect();
+  const dropdownHeight = 500;
+
+  // Calculate position to appear above the card
+  let topPosition = rect.top - dropdownHeight - 20;
+
+  // If not enough space above, position below
+  if (topPosition < 20) {
+    topPosition = rect.bottom + 10;
+  }
+
+  buttonPositionRoutine.value = {
+    top: topPosition,
+    left: Math.max(20, rect.right - 450),
+    buttonTop: rect.top + rect.height / 2,
+    buttonLeft: rect.left + rect.width / 2
+  };
+
+  showQuickAddRoutine.value = true;
+  showQuickAddOneTime.value = false;
+};
+
+const openQuickAddOneTime = (event) => {
+  const rect = event.currentTarget.getBoundingClientRect();
+  const dropdownHeight = 450;
+
+  let topPosition = rect.top - dropdownHeight - 20;
+
+  if (topPosition < 20) {
+    topPosition = rect.bottom + 10;
+  }
+
+  buttonPositionOneTime.value = {
+    top: topPosition,
+    left: Math.max(20, rect.right - 450),
+    buttonTop: rect.top + rect.height / 2,
+    buttonLeft: rect.left + rect.width / 2
+  };
+
+  showQuickAddOneTime.value = true;
+  showQuickAddRoutine.value = false;
+};
+
+const closeQuickAdd = () => {
+  showQuickAddRoutine.value = false;
+  showQuickAddOneTime.value = false;
+
+  // Clear Gmail toolbar state
+  showCompactPeople.value = false;
+  showClearIcon.value = null;
+  showProjectDropdown.value = false;
+  showPriorityDropdown.value = false;
+  showStartDatePicker.value = false;
+  showEndDatePicker.value = false;
+
+  // Clear validation errors
+  validationErrors.value = {};
+
+  // Reset forms
+  quickRoutineTask.value = {
+    task_name: '',
+    description: '',
+    task_type: '',
+    start_date: '',
+    dept_id: '',
+    from: '',
+    to: '',
+    recurrent_days: [],
+    day_of_month: '',
+    last_day_of_month: ''
+  };
+
+  quickOneTimeTask.value = {
+    title: '',                    // Correct API field
+    description: '',
+    start_date: '',
+    deadline: '',                 // Correct API field
+    priority: '',
+    assigned_user_id: [],         // Correct API field
+    project_id: null,
+    supervisor_user_id: null,
+    inform_user_id: [],           // Array for multiple selection
+    consult_user_id: [],          // Array for multiple selection
+    department_id: null
+  };
+};
+
+// Gmail Toolbar Functions
+const expandPeopleSection = () => {
+  showCompactPeople.value = !showCompactPeople.value;
+};
+
+// Close all dropdowns when clicking on content
+const onContentClick = (event) => {
+  // Check if click is not on toolbar icons or dropdowns
+  if (!event.target.closest('.gmail-toolbar-icon-group') &&
+    !event.target.closest('.toolbar-dropdown') &&
+    !event.target.closest('.gmail-people-section') &&
+    !event.target.closest('.gmail-compact-people-bar')) {
+    // Close all toolbar dropdowns
+    showProjectDropdown.value = false;
+    showPriorityDropdown.value = false;
+    showStartDatePicker.value = false;
+    showEndDatePicker.value = false;
+    // Close people section
+    showCompactPeople.value = false;
+  }
+};
+
+const removeAssignee = (userId) => {
+  const index = quickOneTimeTask.value.assigned_user_id.indexOf(userId);
+  if (index > -1) {
+    quickOneTimeTask.value.assigned_user_id.splice(index, 1);
+  }
+};
+
+// Match OneTimeTask behavior: clear supervisor and remove from informer/consultant arrays
+const removeSupervisor = () => {
+  quickOneTimeTask.value.supervisor_user_id = null;
+};
+
+const removeInformer = (userId) => {
+  const list = quickOneTimeTask.value.inform_user_id;
+  const idx = list ? list.indexOf(userId) : -1;
+  if (idx > -1) {
+    list.splice(idx, 1);
+  }
+};
+
+const removeConsultant = (userId) => {
+  const list = quickOneTimeTask.value.consult_user_id;
+  const idx = list ? list.indexOf(userId) : -1;
+  if (idx > -1) {
+    list.splice(idx, 1);
+  }
+};
+
+const toggleProjectDropdown = () => {
+  showProjectDropdown.value = !showProjectDropdown.value;
+  showPriorityDropdown.value = false;
+  showStartDatePicker.value = false;
+  showEndDatePicker.value = false;
+
+  // Initialize filtered projects when opening
+  if (showProjectDropdown.value) {
+    filteredProjects.value = formattedProjects.value;
+    projectSearchQuery.value = '';
+  }
+};
+
+const togglePriorityDropdown = () => {
+  showPriorityDropdown.value = !showPriorityDropdown.value;
+  showProjectDropdown.value = false;
+  showStartDatePicker.value = false;
+  showEndDatePicker.value = false;
+
+  // Initialize filtered priorities when opening
+  if (showPriorityDropdown.value) {
+    prioritySearchQuery.value = '';
+  }
+};
+
+const toggleStartDatePicker = () => {
+  showStartDatePicker.value = !showStartDatePicker.value;
+  showProjectDropdown.value = false;
+  showPriorityDropdown.value = false;
+  showEndDatePicker.value = false;
+};
+
+const toggleEndDatePicker = () => {
+  showEndDatePicker.value = !showEndDatePicker.value;
+  showProjectDropdown.value = false;
+  showPriorityDropdown.value = false;
+  showStartDatePicker.value = false;
+};
+
+const clearProject = () => {
+  quickOneTimeTask.value.project_id = null;
+  projectId.value = null;
+  showProjectDropdown.value = false;
+};
+
+const clearPriority = () => {
+  quickOneTimeTask.value.priority = '';
+  priorityValue.value = '';
+  showPriorityDropdown.value = false;
+};
+
+const clearStartDate = () => {
+  quickOneTimeTask.value.start_date = '';
+  showStartDatePicker.value = false;
+};
+
+const clearEndDate = () => {
+  quickOneTimeTask.value.deadline = '';
+  showEndDatePicker.value = false;
+};
+
+// Toolbar Helpers
+const getProjectTooltip = () => {
+  if (quickOneTimeTask.value.project_id) {
+    const p = formattedProjects.value.find(p => p.value === quickOneTimeTask.value.project_id);
+    return p ? `${t('project')}: ${p.label}` : t('project');
+  }
+  return t('selectProject');
+};
+
+const getPriorityTooltip = () => {
+  if (quickOneTimeTask.value.priority) {
+    const opt = filteredPriorities.value.find(p => p.value === quickOneTimeTask.value.priority);
+    return opt ? `${t('priority')}: ${opt.label}` : t('priority');
+  }
+  return t('selectPriority');
+};
+
+// eslint-disable-next-line no-unused-vars
+const filterProjects = () => {
+  if (!projectSearchQuery.value.trim()) {
+    filteredProjects.value = formattedProjects.value;
+  } else {
+    const q = projectSearchQuery.value.toLowerCase();
+    filteredProjects.value = formattedProjects.value.filter(p => p.label.toLowerCase().includes(q));
+  }
+};
+
+// eslint-disable-next-line no-unused-vars
+const filterPriorities = () => {
+  const base = [
+    { value: 'low', label: t('low') },
+    { value: 'normal', label: t('normal') },
+    { value: 'high', label: t('high') },
+    { value: 'urgent', label: t('urgent') }
+  ];
+  if (!prioritySearchQuery.value.trim()) {
+    filteredPriorities.value = base;
+  } else {
+    const q = prioritySearchQuery.value.toLowerCase();
+    filteredPriorities.value = base.filter(pr => pr.label.toLowerCase().includes(q));
+  }
+};
+
+// eslint-disable-next-line no-unused-vars
+const selectProject = (project) => {
+  projectId.value = project.value;
+  quickOneTimeTask.value.project_id = project.value;
+  projectSearchQuery.value = '';
+  showProjectDropdown.value = false;
+};
+
+// eslint-disable-next-line no-unused-vars
+const selectPriority = (priorityOption) => {
+  priorityValue.value = priorityOption.value;
+  quickOneTimeTask.value.priority = priorityOption.value;
+  prioritySearchQuery.value = '';
+  showPriorityDropdown.value = false;
+};
+
+// Simple tooltips for dates
+const getStartDateTooltip = () => {
+  return quickOneTimeTask.value.start_date ? `${t('startDate')}: ${quickOneTimeTask.value.start_date}` : t('enterStartDate');
+};
+
+const getEndDateTooltip = () => {
+  return quickOneTimeTask.value.deadline ? `${t('endDate')}: ${quickOneTimeTask.value.deadline}` : t('endDate');
+};
+
+// Dropdown positioning
+const dropdownStyleRoutine = computed(() => ({
+  top: `${buttonPositionRoutine.value.top}px`,
+  left: `${buttonPositionRoutine.value.left}px`,
+  '--btn-top': `${buttonPositionRoutine.value.buttonTop}px`,
+  '--btn-left': `${buttonPositionRoutine.value.buttonLeft}px`
+}));
+
+const dropdownStyleOneTime = computed(() => ({
+  top: `${buttonPositionOneTime.value.top}px`,
+  left: `${buttonPositionOneTime.value.left}px`,
+  '--btn-top': `${buttonPositionOneTime.value.buttonTop}px`,
+  '--btn-left': `${buttonPositionOneTime.value.buttonLeft}px`
+}));
+
+// Validation function for Routine Task
+const validateRoutineTask = () => {
+  validationErrors.value = {
+    task_name: !quickRoutineTask.value.task_name,
+    task_type: !quickRoutineTask.value.task_type,
+    start_date: !quickRoutineTask.value.start_date
+  };
+
+  // Add validation for conditional fields if required
+  if (quickRoutineTask.value.task_type === 'weekly' && quickRoutineTask.value.recurrent_days.length === 0) {
+    validationErrors.value.recurrent_days = true;
+  }
+  if (quickRoutineTask.value.task_type === 'monthly' && !quickRoutineTask.value.day_of_month) {
+    validationErrors.value.day_of_month = true;
+  }
+
+  return !Object.values(validationErrors.value).some(v => v === true);
+};
+
+// Submit Routine Task - API Integration
+const submitQuickRoutineTask = async () => {
+  // Clear previous errors
+  validationErrors.value = {};
+
+  // Validate
+  if (!validateRoutineTask()) {
+    Swal.fire({
+      icon: 'warning',
+      title: t('validationError'),
+      text: t('fillRequiredFields'),
+      timer: 2000,
+      showConfirmButton: false
+    });
+    return;
+  }
+
+  try {
+    isSubmittingRoutine.value = true;
+
+    // Call Vuex action which calls API
+    const response = await store.dispatch('addRoutineTask', quickRoutineTask.value);
+
+    if (response.status === 201) {
+      Swal.fire({
+        icon: 'success',
+        title: t('success'),
+        text: t('routineTaskAdded'),
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      closeQuickAdd();
+
+      // Refresh dashboard data
+      await fetchAndSaveDashboardData();
+    }
+  } catch (error) {
+    console.error('Error creating routine task:', error);
+
+    Swal.fire({
+      icon: 'error',
+      title: t('error'),
+      html: error.response?.data?.message || error.message || t('routineTaskAddedError'),
+      confirmButtonText: t('close')
+    });
+  } finally {
+    isSubmittingRoutine.value = false;
+  }
+};
+
+// Validation function for One-Time Task
+const validateOneTimeTask = () => {
+  validationErrors.value = {
+    title: !quickOneTimeTask.value.title,
+    start_date: !quickOneTimeTask.value.start_date,
+    assigned_user_id: !quickOneTimeTask.value.assigned_user_id ||
+      quickOneTimeTask.value.assigned_user_id.length === 0
+  };
+
+  return !Object.values(validationErrors.value).some(v => v === true);
+};
+
+// Submit One-Time Task - API Integration
+const submitQuickOneTimeTask = async () => {
+  // Clear previous errors
+  validationErrors.value = {};
+
+  // Validate
+  if (!validateOneTimeTask()) {
+    Swal.fire({
+      icon: 'warning',
+      title: t('validationError'),
+      text: t('fillRequiredFields'),
+      timer: 2000,
+      showConfirmButton: false
+    });
+    return;
+  }
+
+  try {
+    isSubmittingOneTime.value = true;
+
+    // Ensure assigned_user_id is array (matching OneTimeTask.vue structure)
+    const taskData = {
+      ...quickOneTimeTask.value,
+      assigned_user_id: Array.isArray(quickOneTimeTask.value.assigned_user_id)
+        ? quickOneTimeTask.value.assigned_user_id
+        : [quickOneTimeTask.value.assigned_user_id].filter(Boolean)
+    };
+
+    // Call Vuex action which calls API
+    const response = await store.dispatch('createOneTimeTask', taskData);
+
+    if (response.status === 201 || response.status === 200) {
+      Swal.fire({
+        icon: 'success',
+        title: t('success'),
+        text: t('oneTimeTaskAdded'),
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      closeQuickAdd();
+
+      // Refresh dashboard data
+      await fetchAndSaveDashboardData();
+    }
+  } catch (error) {
+    console.error('Error creating one-time task:', error);
+
+    Swal.fire({
+      icon: 'error',
+      title: t('error'),
+      html: error.response?.data?.message || error.message || t('oneTimeTaskAddedError'),
+      confirmButtonText: t('close')
+    });
+  } finally {
+    isSubmittingOneTime.value = false;
+  }
+};
+
+// Fetch employees, departments, and projects on mount
+onMounted(async () => {
+  try {
+    await store.dispatch("getCompanyUsers");
+    await store.dispatch("fetchDepartments");
+    await store.dispatch("fetchProjects");
+  } catch (error) {
+    console.warn("Error fetching users/departments/projects:", error);
+  }
+
+  // Close on Escape key
+  const handleEscape = (e) => {
+    if (e.key === 'Escape') {
+      closeQuickAdd();
+    }
+  };
+  document.addEventListener('keydown', handleEscape);
+
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handleEscape);
+  });
+});
 </script>
 
 <template>
@@ -505,6 +1208,10 @@ const refreshAIAnalysis = async () => {
                 </div>
                 <div class="card-title-text">{{ t('totalDailyTasks') }}</div>
               </div>
+              <!-- Quick Add Button -->
+              <button @click="openQuickAddRoutine($event)" class="quick-add-btn-top" :title="t('quickAddTask')">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
 
             <div class="card-metric-section">
@@ -546,83 +1253,7 @@ const refreshAIAnalysis = async () => {
               <span class="status-pill pill-warning">
                 <span class="pill-dot"></span>
                 {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
-                  || 0) }} {{ t('notReported') }}
-              </span>
-            </div>
-
-            <div class="card-footer-v2">
-              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
-          </div>
-
-          <!-- Employees -->
-          <div class="stats-card-v2">
-            <div class="card-header-v2">
-              <div class="card-icon-title">
-                <div class="card-icon icon-success">
-                  <i class="fas fa-users"></i>
-                </div>
-                <div class="card-title-text">{{ t('employees') }}</div>
-              </div>
-            </div>
-
-            <div class="card-metric-section">
-              <div class="metric-header">
-                <div class="main-metric">{{ dashboardData?.Emps?.total || 0 }}</div>
-                <span class="trend-badge" :class="dashboardData?.Emps?.invited > 0 ? 'trend-up' : 'trend-neutral'">
-                  <i :class="dashboardData?.Emps?.invited > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
-                  {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
-                </span>
-              </div>
-              <div class="metric-subtitle">{{ t('active') }} / {{ t('pending') }}</div>
-            </div>
-
-            <div class="card-badges-section">
-              <span class="status-pill pill-success">
-                <span class="pill-dot"></span>
-                {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
-              </span>
-              <span class="status-pill pill-warning">
-                <span class="pill-dot"></span>
-                {{ dashboardData?.Emps?.pending || 0 }} {{ t('pending') }}
-              </span>
-            </div>
-
-            <div class="card-footer-v2">
-              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
-          </div>
-
-          <!-- Projects -->
-          <div class="stats-card-v2">
-            <div class="card-header-v2">
-              <div class="card-icon-title">
-                <div class="card-icon icon-warning">
-                  <i class="fas fa-folder-open"></i>
-                </div>
-                <div class="card-title-text">{{ t('projects') }}</div>
-              </div>
-            </div>
-
-            <div class="card-metric-section">
-              <div class="metric-header">
-                <div class="main-metric">{{ dashboardData?.Projects?.total || 0 }}</div>
-                <span class="trend-badge" :class="dashboardData?.Projects?.active > 0 ? 'trend-up' : 'trend-neutral'">
-                  <i :class="dashboardData?.Projects?.active > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
-                  {{ dashboardData?.Projects?.active || 0 }} {{ t('active') }}
-                </span>
-              </div>
-              <div class="metric-subtitle">{{ t('active') }} / {{ t('stopped') }}</div>
-            </div>
-
-            <div class="card-badges-section">
-              <span class="status-pill pill-success">
-                <span class="pill-dot"></span>
-                {{ dashboardData?.Projects?.active || 0 }} {{ t('active') }}
-              </span>
-              <span class="status-pill pill-secondary">
-                <span class="pill-dot"></span>
-                {{ dashboardData?.Projects?.inactive || 0 }} {{ t('stopped') }}
+                || 0) }} {{ t('notReported') }}
               </span>
             </div>
 
@@ -640,6 +1271,10 @@ const refreshAIAnalysis = async () => {
                 </div>
                 <div class="card-title-text">{{ t('oneTimeTasks') }}</div>
               </div>
+              <!-- Quick Add Button -->
+              <button @click="openQuickAddOneTime($event)" class="quick-add-btn-top" :title="t('quickAddTask')">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
 
             <div class="card-metric-section">
@@ -694,6 +1329,86 @@ const refreshAIAnalysis = async () => {
               <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
             </div>
           </div>
+
+
+
+          <!-- Projects -->
+          <div class="stats-card-v2">
+            <div class="card-header-v2">
+              <div class="card-icon-title">
+                <div class="card-icon icon-warning">
+                  <i class="fas fa-folder-open"></i>
+                </div>
+                <div class="card-title-text">{{ t('projects') }}</div>
+              </div>
+            </div>
+
+            <div class="card-metric-section">
+              <div class="metric-header">
+                <div class="main-metric">{{ dashboardData?.Projects?.total || 0 }}</div>
+                <span class="trend-badge" :class="dashboardData?.Projects?.active > 0 ? 'trend-up' : 'trend-neutral'">
+                  <i :class="dashboardData?.Projects?.active > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
+                  {{ dashboardData?.Projects?.active || 0 }} {{ t('active') }}
+                </span>
+              </div>
+              <div class="metric-subtitle">{{ t('active') }} / {{ t('stopped') }}</div>
+            </div>
+
+            <div class="card-badges-section">
+              <span class="status-pill pill-success">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Projects?.active || 0 }} {{ t('active') }}
+              </span>
+              <span class="status-pill pill-secondary">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Projects?.inactive || 0 }} {{ t('stopped') }}
+              </span>
+            </div>
+
+            <div class="card-footer-v2">
+              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+          </div>
+
+          <!-- Employees -->
+          <div class="stats-card-v2">
+            <div class="card-header-v2">
+              <div class="card-icon-title">
+                <div class="card-icon icon-success">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div class="card-title-text">{{ t('employees') }}</div>
+              </div>
+            </div>
+
+            <div class="card-metric-section">
+              <div class="metric-header">
+                <div class="main-metric">{{ dashboardData?.Emps?.total || 0 }}</div>
+                <span class="trend-badge" :class="dashboardData?.Emps?.invited > 0 ? 'trend-up' : 'trend-neutral'">
+                  <i :class="dashboardData?.Emps?.invited > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
+                  {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
+                </span>
+              </div>
+              <div class="metric-subtitle">{{ t('active') }} / {{ t('pending') }}</div>
+            </div>
+
+            <div class="card-badges-section">
+              <span class="status-pill pill-success">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
+              </span>
+              <span class="status-pill pill-warning">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Emps?.pending || 0 }} {{ t('pending') }}
+              </span>
+            </div>
+
+            <div class="card-footer-v2">
+              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+          </div>
+
+
         </div>
       </div>
 
@@ -986,6 +1701,404 @@ const refreshAIAnalysis = async () => {
       <!-- </div> -->
       <!-- </div> -->
     </div>
+
+    <!-- Quick Add Routine Task Dropdown -->
+    <transition name="emerge-from-button">
+      <div v-if="showQuickAddRoutine" class="quick-add-backdrop" @click="closeQuickAdd">
+        <div class="quick-add-dropdown routine-dropdown" @click.stop :style="dropdownStyleRoutine">
+
+          <!-- Gmail-style header -->
+          <div class="gmail-quick-header">
+            <div class="gmail-quick-header-left">
+              <span class="gmail-quick-title">
+                <i class="fas fa-sync me-2"></i>
+                {{ t('quickAddRoutineTask') }}
+              </span>
+            </div>
+            <div class="gmail-quick-header-right">
+              <button @click="closeQuickAdd" class="gmail-quick-btn gmail-quick-close" title="Close">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="quick-add-body">
+            <!-- Task Name -->
+            <div>
+              <!-- <label class="form-label small text-muted mb-1">{{ t('taskName') }} *</label> -->
+              <ArgonInput id="quick-routine-task-name" v-model="quickRoutineTask.task_name" type="text"
+                :placeholder="t('enterTaskName')" size="sm" :error="validationErrors.task_name" />
+            </div>
+
+            <!-- Description -->
+            <div class="mb-2">
+              <!-- <label class="form-label small text-muted mb-1">{{ t('description') }}</label> -->
+              <ArgonTextarea id="quick-routine-description" v-model="quickRoutineTask.description"
+                :placeholder="t('enterDescription')" :rows="2" />
+            </div>
+
+            <!-- Task Type -->
+            <div class="mb-2">
+              <!-- <label class="form-label small text-muted mb-1">{{ t('taskType') }} *</label> -->
+              <ArgonSelect v-model="quickRoutineTask.task_type" :options="taskTypeOptions"
+                :placeholder="t('selectTaskType')" :searchable="false" :error="validationErrors.task_type" />
+            </div>
+
+            <!-- Weekly Options -->
+            <div v-if="showWeeklyOptions" class="row mb-2">
+              <div class="col-12 ">
+                <!-- <label class="form-label small text-muted mb-1">{{ t('selectDays') }}</label> -->
+                <ArgonMultipleSelect v-model="quickRoutineTask.recurrent_days" :options="weekDaysOptions"
+                  :placeholder="t('selectDaysOfWeek')" :searchable="false" class="w-100" />
+              </div>
+            </div>
+
+            <!-- Monthly Options -->
+            <div v-if="showMonthlyOptions" class="row mb-2">
+              <div class="col-12 ">
+                <!-- <label class="form-label small text-muted mb-1">{{ t('dayOfMonth') }}</label> -->
+                <ArgonSelect v-model="quickRoutineTask.day_of_month" :options="monthDaysOptions"
+                  :placeholder="t('selectDayOfMonth')" :searchable="true" />
+              </div>
+            </div>
+
+            <!-- Last Day of Month Options (no additional fields needed) -->
+            <div v-if="showLastDayOfMonthOptions" class="row mb-2">
+              <div class="col-12 ">
+                <!-- <label class="form-label small text-muted mb-1">{{ t('lastDayOfMonth') }}</label> -->
+                <ArgonSelect v-model="quickRoutineTask.last_day_of_month" :options="lastDayOfMonthOptions"
+                  :placeholder="t('selectLastDayOfMonth')" :searchable="true" />
+              </div>
+            </div>
+
+
+
+            <div class="row mb-2">
+
+              <!-- Department -->
+              <div class="col-md-6 ">
+                <!-- <label class="form-label small text-muted mb-1">{{ t('department') }}</label> -->
+                <ArgonSelect v-model="quickRoutineTask.dept_id" :options="formattedDepartments"
+                  :placeholder="t('selectDepartment')" :searchable="true" />
+              </div>
+
+              <!-- Start Date -->
+              <div class="col-md-6 ">
+                <!-- <label class="form-label small text-muted mb-1">{{ t('startDate') }} *</label> -->
+                <ArgonInput id="quick-routine-start-date" type="date" v-model="quickRoutineTask.start_date" size="sm"
+                  :error="validationErrors.start_date" />
+              </div>
+            </div>
+
+            <div class="row mb-2">
+
+
+              <!-- From Time -->
+              <div class="col-md-6 ">
+                <!-- <label class="form-label small text-muted mb-1">{{ t('from') }}</label> -->
+                <ArgonInput id="quick-routine-from" type="time" v-model="quickRoutineTask.from" size="sm" />
+              </div>
+
+              <!-- To Time -->
+              <div class="col-md-6 ">
+                <!-- <label class="form-label small text-muted mb-1">{{ t('to') }}</label> -->
+                <ArgonInput id="quick-routine-to" type="time" v-model="quickRoutineTask.to" size="sm" />
+              </div>
+            </div>
+
+
+          </div>
+
+          <div class="quick-add-footer">
+            <ArgonButton color="light" size="sm" @click="closeQuickAdd" class="me-2">
+              <i class="fas fa-times me-1"></i>
+              {{ t('cancel') }}
+            </ArgonButton>
+            <ArgonButton color="success" size="sm" @click="submitQuickRoutineTask" :disabled="isSubmittingRoutine">
+              <span v-if="isSubmittingRoutine" class="spinner-border spinner-border-sm" role="status"
+                aria-hidden="true"></span>
+              {{ isSubmittingRoutine ? t('saving') : t('create') }}
+            </ArgonButton>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Quick Add One-Time Task Dropdown -->
+    <transition name="emerge-from-button">
+      <div v-if="showQuickAddOneTime" class="quick-add-backdrop" @click="closeQuickAdd">
+        <div class="quick-add-dropdown onetime-dropdown" @click.stop :style="dropdownStyleOneTime">
+
+          <!-- Gmail-style header -->
+          <div class="gmail-quick-header">
+            <div class="gmail-quick-header-left">
+              <span class="gmail-quick-title">
+                <i class="fas fa-tasks me-2"></i>
+                {{ t('quickAddOneTimeTask') }}
+              </span>
+            </div>
+            <div class="gmail-quick-header-right">
+              <button @click="closeQuickAdd" class="gmail-quick-btn gmail-quick-close" title="Close">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Gmail-style content -->
+          <div class="gmail-quick-content" @click="onContentClick">
+            <div class="gmail-quick-scroll">
+
+              <!-- شريط الأشخاص المضغوط -->
+              <div v-show="!showCompactPeople" class="gmail-compact-people-bar mb-2">
+                <div class="gmail-compact-content" @click="expandPeopleSection">
+                  <div class="gmail-compact-tags">
+                    <template v-if="hasSelectedPeople">
+
+                      <!-- Assign To -->
+                      <span v-if="quickOneTimeTask.assigned_user_id && quickOneTimeTask.assigned_user_id.length > 0"
+                        class="gmail-compact-tag assignee">
+                        <i class="fas fa-user"></i>:
+                      </span>
+                      <span v-for="userId in quickOneTimeTask.assigned_user_id" :key="userId"
+                        class="gmail-compact-person-name">
+                        {{ getEmployeeName(userId) }}
+                        <i class="fas fa-times mx-1" @click.stop="removeAssignee(userId)"></i>
+                      </span>
+
+                      <!-- Supervisor -->
+                      <span v-if="quickOneTimeTask.supervisor_user_id" class="gmail-compact-tag supervisor">
+                        <i class="fas fa-user-tie"></i>:
+                      </span>
+                      <span v-if="quickOneTimeTask.supervisor_user_id" class="gmail-compact-person-name">
+                        {{ getEmployeeName(quickOneTimeTask.supervisor_user_id) }}
+                        <i class="fas fa-times mx-1" @click.stop="removeSupervisor()"></i>
+                      </span>
+
+                      <!-- Informer -->
+                      <span v-if="quickOneTimeTask.inform_user_id && quickOneTimeTask.inform_user_id.length > 0"
+                        class="gmail-compact-tag informer">
+                        <i class="fas fa-bell"></i>:
+                      </span>
+                      <span v-for="userId in quickOneTimeTask.inform_user_id" :key="userId"
+                        class="gmail-compact-person-name">
+                        {{ getEmployeeName(userId) }}
+                        <i class="fas fa-times mx-1" @click.stop="removeInformer(userId)"></i>
+                      </span>
+
+                      <!-- Consultant -->
+                      <span v-if="quickOneTimeTask.consult_user_id && quickOneTimeTask.consult_user_id.length > 0"
+                        class="gmail-compact-tag consultant">
+                        <i class="fas fa-user-graduate"></i>:
+                      </span>
+                      <span v-for="userId in quickOneTimeTask.consult_user_id" :key="userId"
+                        class="gmail-compact-person-name">
+                        {{ getEmployeeName(userId) }}
+                        <i class="fas fa-times mx-1" @click.stop="removeConsultant(userId)"></i>
+                      </span>
+                    </template>
+                    <template v-else>
+                      <span class="gmail-compact-placeholder">
+                        <i class="fas fa-users"></i>
+                        {{ t('clickToAddPeople') }}
+                      </span>
+                    </template>
+                  </div>
+                  <span class="gmail-compact-hint">{{ t('clickToEdit') }}</span>
+                </div>
+              </div>
+
+              <!-- حقول الأشخاص -->
+              <div v-show="showCompactPeople" class="gmail-people-section mb-2" @click.stop>
+                <!-- To Field (Assignee) -->
+                <div class="gmail-people-row">
+                  <div class="gmail-row-content w-100">
+                    <div class="w-100">
+                      <ArgonTagsInput v-model="quickOneTimeTask.assigned_user_id" :options="employeeOptions"
+                        :placeholder="t('selectAssignee')" class="gmail-people-input" />
+                    </div>
+                    <div class="gmail-shortcuts">
+                      <a href="#" @click.prevent="showCcFields = !showCcFields" class="gmail-shortcut-link">
+                        {{ showCcFields ? '-' : '' }}SV
+                      </a>
+                      <a href="#" @click.prevent="showBccFields = !showBccFields" class="gmail-shortcut-link">
+                        {{ showBccFields ? '-' : '' }}IN/CN
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Cc Field (Supervisor) -->
+                <div v-show="showCcFields" class="gmail-people-row">
+                  <div class="gmail-row-content w-100">
+                    <ArgonSelect v-model="quickOneTimeTask.supervisor_user_id" :options="employeeOptions"
+                      :placeholder="t('selectSupervisor')" class="gmail-people-input w-100" :searchable="true"
+                      :search-placeholder="t('searchEmployees')" />
+                  </div>
+                </div>
+
+                <!-- Bcc Fields (Informer + Consultant) -->
+                <div v-show="showBccFields" class="gmail-people-row">
+                  <div class="gmail-row-content w-100">
+                    <!-- Informer -->
+                    <div class="mb-2 w-100">
+                      <ArgonTagsInput v-model="quickOneTimeTask.inform_user_id" :options="employeeOptions"
+                        :placeholder="t('selectInformer')" class="gmail-people-input" />
+                    </div>
+
+                    <!-- Consultant -->
+                    <div class="w-100">
+                      <ArgonTagsInput v-model="quickOneTimeTask.consult_user_id" :options="employeeOptions"
+                        :placeholder="t('selectConsultant')" class="gmail-people-input" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- حقل اسم المهمة -->
+              <div class="gmail-field">
+                <ArgonInput v-model="quickOneTimeTask.title" class="gmail-input gmail-title-input"
+                  :placeholder="t('enterTaskName')" dir="auto" :error="validationErrors.title" />
+              </div>
+
+              <!-- حقل الوصف -->
+              <div class="gmail-field">
+                <ArgonTextarea v-model="quickOneTimeTask.description" class="gmail-textarea"
+                  :placeholder="t('enterDescription')" :rows="2" dir="auto" />
+              </div>
+
+              <!-- شريط الأدوات مع الأيقونات -->
+              <div class="gmail-toolbar mb-2">
+                <!-- Project Icon -->
+                <div class="gmail-toolbar-icon-group">
+                  <div class="gmail-toolbar-icon" :class="{ 'has-value': quickOneTimeTask.project_id }"
+                    @mouseenter="() => { }" :title="getProjectTooltip()" @click="toggleProjectDropdown">
+                    <i class="fas fa-project-diagram"></i>
+                    <span v-if="quickOneTimeTask.project_id" class="gmail-icon-indicator" @click.stop="clearProject">
+                      <span v-if="showClearIcon === 'project'" class="clear-icon">✕</span>
+                      <span v-else>✓</span>
+                    </span>
+                  </div>
+                  <span class="gmail-icon-label">{{ t("project") }}</span>
+
+                  <!-- Project Dropdown -->
+                  <div v-show="showProjectDropdown" class="toolbar-dropdown" @click.stop>
+                    <div class="toolbar-dropdown-content">
+                      <div class="toolbar-search-container mb-3">
+                        <input v-model="projectSearchQuery" type="text" class="toolbar-search-input"
+                          :placeholder="t('searchProjects')" @input="filterProjects" />
+                      </div>
+                      <div class="toolbar-options-container">
+                        <div v-for="project in filteredProjects" :key="project.value" class="toolbar-option-item"
+                          :class="{ 'selected': quickOneTimeTask.project_id === project.value }"
+                          @click="selectProject(project)">
+                          <span class="toolbar-option-text">{{ project.label }}</span>
+                          <i v-if="quickOneTimeTask.project_id === project.value"
+                            class="fas fa-check toolbar-option-check"></i>
+                        </div>
+                        <div v-if="filteredProjects.length === 0" class="toolbar-no-results">
+                          {{ t('noResultsFound') }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Priority Icon -->
+                <div class="gmail-toolbar-icon-group">
+                  <div class="gmail-toolbar-icon" :class="{ 'has-value': quickOneTimeTask.priority }"
+                    @mouseenter="() => { }" :title="getPriorityTooltip()" @click="togglePriorityDropdown">
+                    <i class="fas fa-flag"></i>
+                    <span v-if="quickOneTimeTask.priority" class="gmail-icon-indicator" @click.stop="clearPriority">
+                      <span v-if="showClearIcon === 'priority'" class="clear-icon">✕</span>
+                      <span v-else>✓</span>
+                    </span>
+                  </div>
+                  <span class="gmail-icon-label">{{ t("priority") }}</span>
+
+                  <!-- Priority Dropdown -->
+                  <div v-show="showPriorityDropdown" class="toolbar-dropdown" @click.stop>
+                    <div class="toolbar-dropdown-content">
+                      <div class="toolbar-search-container mb-3">
+                        <input v-model="prioritySearchQuery" type="text" class="toolbar-search-input"
+                          :placeholder="t('searchPriorities')" @input="filterPriorities" />
+                      </div>
+                      <div class="toolbar-options-container">
+                        <div v-for="priorityOption in filteredPriorities" :key="priorityOption.value"
+                          class="toolbar-option-item"
+                          :class="{ 'selected': quickOneTimeTask.priority === priorityOption.value }"
+                          @click="selectPriority(priorityOption)">
+                          <span class="toolbar-option-text">{{ priorityOption.label }}</span>
+                          <i v-if="quickOneTimeTask.priority === priorityOption.value"
+                            class="fas fa-check toolbar-option-check"></i>
+                        </div>
+                        <div v-if="filteredPriorities.length === 0" class="toolbar-no-results">
+                          {{ t('noResultsFound') }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Start Date Icon -->
+                <div class="gmail-toolbar-icon-group">
+                  <div class="gmail-toolbar-icon" :class="{ 'has-value': quickOneTimeTask.start_date }"
+                    @mouseenter="() => { }" :title="getStartDateTooltip()" @click="toggleStartDatePicker">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span v-if="quickOneTimeTask.start_date" class="gmail-icon-indicator" @click.stop="clearStartDate">
+                      <span v-if="showClearIcon === 'startDate'" class="clear-icon">✕</span>
+                      <span v-else>✓</span>
+                    </span>
+                  </div>
+                  <span class="gmail-icon-label">{{ t("startDate") }}*</span>
+
+                  <!-- Start Date Picker -->
+                  <div v-show="showStartDatePicker" class="toolbar-dropdown" @click.stop>
+                    <div class="toolbar-dropdown-content">
+                      <ArgonInput type="date" v-model="quickOneTimeTask.start_date"
+                        :placeholder="t('enterStartDate')" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- End Date Icon -->
+                <div class="gmail-toolbar-icon-group">
+                  <div class="gmail-toolbar-icon" :class="{ 'has-value': quickOneTimeTask.deadline }"
+                    @mouseenter="() => { }" :title="getEndDateTooltip()" @click="toggleEndDatePicker">
+                    <i class="fas fa-calendar-check"></i>
+                    <span v-if="quickOneTimeTask.deadline" class="gmail-icon-indicator" @click.stop="clearEndDate">
+                      <span v-if="showClearIcon === 'endDate'" class="clear-icon">✕</span>
+                      <span v-else>✓</span>
+                    </span>
+                  </div>
+                  <span class="gmail-icon-label">{{ t("endDate") }}</span>
+
+                  <!-- End Date Picker -->
+                  <div v-show="showEndDatePicker" class="toolbar-dropdown" @click.stop>
+                    <div class="toolbar-dropdown-content">
+                      <ArgonInput type="date" v-model="quickOneTimeTask.deadline" :placeholder="t('enterEndDate')" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Gmail-style footer -->
+          <div class="gmail-quick-footer">
+            <ArgonButton color="light" size="sm" @click="closeQuickAdd" class="me-2">
+              <i class="fas fa-times me-1"></i>
+              {{ t('cancel') }}
+            </ArgonButton>
+            <ArgonButton color="success" size="sm" @click="submitQuickOneTimeTask" :disabled="isSubmittingOneTime">
+              <span v-if="isSubmittingOneTime" class="spinner-border spinner-border-sm" role="status"
+                aria-hidden="true"></span>
+              {{ isSubmittingOneTime ? t('saving') : t('create') }}
+            </ArgonButton>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -1066,11 +2179,11 @@ const refreshAIAnalysis = async () => {
   margin-bottom: 2rem;
 }
 
-.spinner-border {
+/* .spinner-border {
   width: 4rem;
   height: 4rem;
   border-width: 0.4rem;
-}
+} */
 
 .loading-title {
   color: #495057;
@@ -1167,6 +2280,9 @@ const refreshAIAnalysis = async () => {
 /* Card Header with Icon & Title */
 .card-header-v2 {
   margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .card-icon-title {
@@ -1910,6 +3026,56 @@ const refreshAIAnalysis = async () => {
   }
 }
 
+/* ====== ArgonMultipleSelect Width Fix ====== */
+.selected-options {
+  width: 100% !important;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 120px;
+  /* Limit height */
+  overflow-y: auto;
+  /* Scroll if too many */
+}
+
+.selected-option {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e3f2fd;
+  border: 1px solid #2196f3;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  max-width: calc(33.333% - 4px);
+  /* Max 3 per row */
+  word-wrap: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-remove {
+  margin-left: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #f44336;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.btn-remove:hover {
+  background-color: #f44336;
+  color: white;
+}
+
 @media (max-width: 768px) {
   .dashboard-title {
     font-size: 2rem;
@@ -2464,5 +3630,853 @@ const refreshAIAnalysis = async () => {
 .chart-title,
 .table-title {
   color: #1a202c;
+}
+
+/* ========================================
+   Quick Add Feature Styles
+   ======================================== */
+
+/* Quick Add Button - Top Right */
+.quick-add-btn-top {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.875rem;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.quick-add-btn-top:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.quick-add-btn-top:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.quick-add-btn-top i {
+  transition: transform 0.3s ease;
+}
+
+.quick-add-btn-top:hover i {
+  transform: rotate(90deg);
+}
+
+/* Backdrop */
+.quick-add-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dropdown - Positioned Above Card */
+.quick-add-dropdown {
+  position: fixed;
+  width: 450px;
+  max-height: 90vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  transform-origin: var(--btn-left, 50%) var(--btn-top, 50%);
+}
+
+.quick-add-header {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.quick-add-header h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.btn-close-dropdown {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-close-dropdown:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.quick-add-body {
+  padding: 0.9rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 140px);
+  flex: 1;
+}
+
+.quick-add-body .form-label {
+  font-weight: 500;
+  color: #64748b;
+}
+
+.quick-add-body .form-control,
+.quick-add-body .form-select {
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.quick-add-body .form-control:focus,
+.quick-add-body .form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.quick-add-footer {
+  padding: 1rem 1.25rem;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Animation - Emerge from Button */
+.emerge-from-button-enter-active {
+  animation: emergeFromButton 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.emerge-from-button-leave-active {
+  animation: shrinkToButton 0.3s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes emergeFromButton {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(50px);
+    filter: blur(10px);
+  }
+
+  60% {
+    opacity: 0.9;
+    transform: scale(1.05) translateY(-5px);
+    filter: blur(0px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes shrinkToButton {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.3) translateY(30px);
+    filter: blur(10px);
+  }
+}
+
+/* Backdrop animation */
+.quick-add-backdrop {
+  animation: backdropFadeIn 0.3s ease;
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+
+  to {
+    opacity: 1;
+    backdrop-filter: blur(3px);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .quick-add-dropdown {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90% !important;
+    max-width: 400px !important;
+  }
+
+  .quick-add-btn-top {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .quick-add-body {
+    padding: 1rem;
+  }
+
+  .quick-add-footer {
+    padding: 0.875rem 1rem;
+  }
+}
+
+/* RTL Support for Quick Add */
+.rtl .quick-add-header {
+  direction: rtl;
+}
+
+.rtl .quick-add-body {
+  direction: rtl;
+}
+
+.rtl .quick-add-footer {
+  direction: rtl;
+  justify-content: flex-start;
+}
+
+/* ========================================
+   Gmail-Style Quick Add Modal Styles
+   ======================================== */
+
+/* Gmail Header */
+.gmail-quick-header {
+  background: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.gmail-quick-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.gmail-quick-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.gmail-quick-header-right {
+  display: flex;
+  align-items: center;
+}
+
+.gmail-quick-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+}
+
+.gmail-quick-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.gmail-quick-close:hover {
+  background: #ea4335;
+  color: white;
+}
+
+/* Gmail Content */
+.gmail-quick-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.gmail-quick-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Compact People Bar */
+.gmail-compact-people-bar {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gmail-compact-people-bar:hover {
+  border-color: #ccc;
+  background: #f5f5f5;
+}
+
+.gmail-compact-content {
+  /* padding: 8px 12px; */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gmail-compact-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+}
+
+.gmail-compact-tag {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.gmail-compact-tag.assignee {
+  color: #ffffff;
+}
+
+/* Align tag color variants with OneTimeTask.vue */
+.gmail-compact-tag.supervisor {
+  background: #28a745;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.gmail-compact-tag.informer {
+  background: #ffc107;
+  color: #212529;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.gmail-compact-tag.consultant {
+  background: #6f42c1;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.gmail-compact-person-name {
+  background: #e9ecef;
+  /* match OneTimeTask */
+  color: #495057;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid #dee2e6;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gmail-compact-placeholder {
+  color: #999;
+  font-size: 12px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gmail-compact-hint {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+}
+
+/* People Section */
+.gmail-people-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0;
+  background: white;
+}
+
+.gmail-people-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 6px 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.gmail-people-row:last-child {
+  border-bottom: none;
+}
+
+.gmail-row-label {
+  min-width: 50px;
+  padding-top: 8px;
+  color: #5f6368;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.gmail-row-content {
+  flex: 1;
+  /* display: flex; */
+  align-items: center;
+  /* gap: 8px; */
+  /* flex-wrap: wrap; */
+}
+
+.gmail-row-content>.w-100 {
+  flex: 0 0 100%;
+}
+
+.gmail-shortcuts {
+  display: flex;
+  gap: 8px;
+  margin-left: 8px;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+.gmail-shortcut-link {
+  color: #1a73e8;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.gmail-shortcut-link:hover {
+  color: #174ea6;
+  text-decoration: underline;
+}
+
+.gmail-bcc-label {
+  font-size: 12px;
+  color: #5f6368;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.gmail-people-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gmail-field-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.gmail-people-input {
+  width: 100%;
+}
+
+/* Gmail Fields */
+.gmail-field {
+  margin-bottom: 4px;
+}
+
+/* إزالة تأثير form-group على جميع الحقول */
+.gmail-field :deep(.form-group),
+.gmail-field :deep(.input-group) {
+  margin-bottom: 0 !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* تم نقل z-index إلى ملف z-index-variables.css الموحد */
+
+.gmail-input {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  width: 100%;
+  padding: 6px 8px;
+}
+
+.gmail-input:focus {
+  border-bottom-color: #1a73e8;
+  outline: none;
+  box-shadow: none;
+}
+
+.gmail-title-input {
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 0;
+}
+
+.gmail-textarea {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 14px;
+  background: white;
+  width: 100%;
+  min-height: 64px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.gmail-textarea:focus {
+  border-color: #1a73e8;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+/* Gmail Toolbar */
+.gmail-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 8px;
+}
+
+.gmail-toolbar-icon-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.gmail-toolbar-icon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.gmail-toolbar-icon:hover {
+  border-color: #ccc;
+  background: #f5f5f5;
+}
+
+.gmail-toolbar-icon.has-value {
+  border-color: #1a73e8;
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+
+.gmail-toolbar-icon i {
+  font-size: 16px;
+}
+
+.gmail-icon-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: #1a73e8;
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.clear-icon {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.gmail-icon-label {
+  font-size: 11px;
+  color: #666;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Toolbar Dropdown Styles */
+.toolbar-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  width: 255px;
+  max-height: 300px;
+  overflow: hidden;
+  animation: toolbarDropdownSlideUp 0.2s ease;
+  /* z-index managed by z-index-variables.css */
+  margin-bottom: 8px;
+}
+
+/* للأيقونات في النهاية - يفتح من اليمين */
+.gmail-toolbar-icon-group:nth-last-child(-n+2) .toolbar-dropdown {
+  left: auto;
+  right: auto;
+  transform: none;
+}
+
+/* للأيقونات في البداية - يفتح من اليسار */
+.gmail-toolbar-icon-group:nth-child(-n+2) .toolbar-dropdown {
+  left: 0;
+  right: auto;
+  transform: none;
+}
+
+@keyframes toolbarDropdownSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation للأيقونات المتوسطة */
+.gmail-toolbar-icon-group:nth-child(n+3):nth-last-child(n+3) .toolbar-dropdown {
+  animation: toolbarDropdownSlideUpCenter 0.2s ease;
+}
+
+@keyframes toolbarDropdownSlideUpCenter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.toolbar-dropdown-content {
+  padding: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.toolbar-search-container {
+  position: relative;
+}
+
+.toolbar-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.toolbar-search-input:focus {
+  outline: none;
+  border-color: #a6c956;
+  box-shadow: 0 0 0 0.2rem rgba(166, 201, 86, 0.25);
+}
+
+.toolbar-options-container {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  background: white;
+}
+
+.toolbar-option-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.toolbar-option-item:last-child {
+  border-bottom: none;
+}
+
+.toolbar-option-item:hover {
+  background-color: #f8f9fa;
+}
+
+.toolbar-option-item.selected {
+  background-color: #e8f5e8;
+  border-left: 3px solid #a6c956;
+}
+
+.toolbar-option-text {
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.toolbar-option-check {
+  color: #a6c956;
+  font-size: 0.8rem;
+}
+
+.toolbar-no-results {
+  padding: 20px;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Gmail Footer */
+.gmail-quick-footer {
+  background: #f9f9f9;
+  border-top: 1px solid #e0e0e0;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Mobile Responsive for Gmail Styles */
+@media (max-width: 768px) {
+  .gmail-toolbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .gmail-toolbar-icon-group {
+    flex: 1;
+    min-width: calc(50% - 6px);
+  }
+
+  .gmail-toolbar-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .gmail-toolbar-icon i {
+    font-size: 14px;
+  }
+
+  .gmail-icon-label {
+    font-size: 10px;
+  }
+
+  .gmail-people-field {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .gmail-field-label {
+    min-width: auto;
+  }
+}
+
+/* RTL Support for Gmail Styles */
+.rtl .gmail-quick-header {
+  direction: rtl;
+}
+
+.rtl .gmail-quick-content {
+  direction: rtl;
+}
+
+.rtl .gmail-quick-footer {
+  direction: rtl;
+  justify-content: flex-start;
+}
+
+.rtl .gmail-people-field {
+  direction: rtl;
+}
+
+.rtl .gmail-toolbar {
+  direction: rtl;
+}
+
+/* إزالة تأثير form-group على جميع الحقول في Routine Task */
+.routine-dropdown .form-label,
+.routine-dropdown .mb-1,
+.routine-dropdown .col-md-6,
+.routine-dropdown .col-12 {
+  margin-bottom: 4px !important;
+}
+
+.routine-dropdown :deep(.form-group),
+.routine-dropdown :deep(.input-group) {
+  margin-bottom: 0 !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.routine-dropdown :deep(.form-control),
+.routine-dropdown :deep(.form-select) {
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 4px !important;
+  padding: 6px 8px !important;
 }
 </style>

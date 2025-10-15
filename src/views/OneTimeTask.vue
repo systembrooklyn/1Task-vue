@@ -2139,9 +2139,6 @@ const translations = {
               </div>
             </div>
 
-
-
-
           </div>
         </div>
 
