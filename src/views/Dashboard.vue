@@ -3959,7 +3959,7 @@ onMounted(async () => {
 }
 
 .gmail-compact-content {
-  /* padding: 8px 12px; */
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
