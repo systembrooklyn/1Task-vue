@@ -1038,7 +1038,6 @@ const submitQuickRoutineTask = async () => {
 const validateOneTimeTask = () => {
   validationErrors.value = {
     title: !quickOneTimeTask.value.title,
-    start_date: !quickOneTimeTask.value.start_date,
     assigned_user_id: !quickOneTimeTask.value.assigned_user_id ||
       quickOneTimeTask.value.assigned_user_id.length === 0
   };
