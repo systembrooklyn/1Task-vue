@@ -197,9 +197,9 @@ const translations = {
     departmentNameRequired: "Please enter the department name.",
     departmentAddedError:
       "An error occurred while adding the department. Please try again later.",
-      noDepartments: "No Departments",
-      createDepartments: "Create Your Company Departments ",
-      departmentAddedAlreadyExists: "Department already exists",
+    noDepartments: "No Departments",
+    createDepartments: "Create Your Company Departments ",
+    departmentAddedAlreadyExists: "Department already exists",
   },
   ar: {
     addMember: "إضافة عضو",
@@ -221,9 +221,9 @@ const translations = {
     departmentNameRequired: "يرجى إدخال اسم القسم",
     departmentAddedError:
       "حدث خطأ أثناء إضافة القسم. يرجى المحاولة مرة أخرى لاحقًا.",
-      noDepartments: "لا يوجد اقسام",
-      createDepartments: "انشاء أقسام شركتك",
-      departmentAddedAlreadyExists: "القسم موجود بالفعل",
+    noDepartments: "لا يوجد اقسام",
+    createDepartments: "انشاء أقسام شركتك",
+    departmentAddedAlreadyExists: "القسم موجود بالفعل",
   },
 };
 </script>
@@ -244,40 +244,27 @@ const translations = {
           </div>
           <div class="card-body">
             <form @submit.prevent>
-              <argon-alert
-                v-if="showAlert"
-                color="danger"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showAlert" color="danger" dismissible class="mt-3">
                 {{ errorMessage }}
               </argon-alert>
-              <argon-alert
-                v-if="showSuccess"
-                color="success"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showSuccess" color="success" dismissible class="mt-3">
                 {{ successMessage }}
               </argon-alert>
             </form>
             <div v-if="isLoading" class="d-flex justify-content-center py-5">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-        </div>
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
 
-        <div v-else-if="departments.length === 0" class="d-flex justify-content-center py-5 flex-column align-items-center">
-          <h5>{{ t("noDepartments") }}</h5>
-          <p>
-            {{ t("createDepartments") }}
-          </p>
-        </div>
-            <departments-table
-              v-else
-              :departments="departments"
-              :key="componentKey"
-            />
+            <div v-else-if="departments.length === 0"
+              class="d-flex justify-content-center py-5 flex-column align-items-center">
+              <h5>{{ t("noDepartments") }}</h5>
+              <p>
+                {{ t("createDepartments") }}
+              </p>
+            </div>
+            <departments-table v-else :departments="departments" :key="componentKey" />
           </div>
         </div>
       </div>
@@ -286,25 +273,16 @@ const translations = {
 
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
-      <ArgonModal
-        v-if="showPopup"
-        :title="t('addDepartment')"
-        @close="closePopup"
-      >
+      <ArgonModal v-if="showPopup" :title="t('addDepartment')" @close="closePopup">
         <template #default>
           <label>{{ t("departmentName") }}:</label>
           <input v-model="departmentName" class="form-control" />
         </template>
 
         <template #footer>
-          
+
           <argon-button @click="addDepartment" :disabled="isLoading">
-            <span
-            v-if="isLoading"
-            class="spinner-border spinner-border-sm"
-            role="status"
-            aria-hidden="true"
-            ></span>
+            <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{ isLoading ? t("saving") : t("add") }}
           </argon-button>
           <argon-button @click="closePopup">{{ t("close") }}</argon-button>

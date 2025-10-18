@@ -68,10 +68,7 @@
     <div class="mt-3">
       <div v-if="props.reportActiveTab === 'reported'">
         <!-- لودر يظهر فقط أثناء تحميل بيانات Not Reported Tasks -->
-        <div
-          v-if="props.isNotReportedLoading"
-          class="d-flex justify-content-center py-5"
-        >
+        <div v-if="props.isNotReportedLoading" class="d-flex justify-content-center py-5">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
@@ -86,15 +83,11 @@
             >
               {{ t("status") }}
             </th> -->
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("taskName") }}
                 </th>
 
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("department") }}
                 </th>
                 <!-- <th
@@ -102,19 +95,13 @@
             >
               {{ t("taskType") }}
             </th> -->
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("from") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("to") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("priority") }}
                 </th>
                 <!-- <th
@@ -122,9 +109,7 @@
             >
               {{ t("taskCreatedBy") }}
             </th> -->
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("lateTime") }}
                 </th>
 
@@ -134,20 +119,14 @@
               {{ t("notes") }}
             </th> -->
 
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("employeeName") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("report") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                  v-if="isOwner || permissions['create-dailytaskevaluation']"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                  v-if="isOwner || permissions['create-dailytaskevaluation']">
                   {{ t("evaluate") }}
                 </th>
               </tr>
@@ -169,22 +148,15 @@
             </td> -->
 
                 <td>
-                  <div
-                    class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
-                  >
+                  <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
                     <div
                       class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
-                      @click="openDescriptionModal(task)"
-                      title="Open Task Description"
-                    >
+                      @click="openDescriptionModal(task)" title="Open Task Description">
                       <h6 dir="auto" class="mb-0 text-sm hover-effect mx-1">
                         {{ task.daily_task.task_name }}
                       </h6>
-                      <div
-                        v-if="loadingTaskId === task.id"
-                        class="spinner-border spinner-border-sm text-primary"
-                        role="status"
-                      >
+                      <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary"
+                        role="status">
                         <span class="visually-hidden">Loading...</span>
                       </div>
                     </div>
@@ -213,35 +185,28 @@
                   </p>
                 </td>
                 <td>
-                  <p
-                    class="text-xs font-weight-bold mb-0"
-                    :class="
-                      task.daily_task.priority === 'critical'
-                        ? 'text-danger'
-                        : ''
-                    "
-                  >
+                  <p class="text-xs font-weight-bold mb-0" :class="task.daily_task.priority === 'critical'
+                      ? 'text-danger'
+                      : ''
+                    ">
                     <!-- {{ formatReportDate(task.created_at) }} -->
                     {{ task.daily_task.priority || "No Priority" }}
                   </p>
                 </td>
 
                 <td>
-                  <p
-                    class="text-xs font-weight-bold mb-0"
-                    :class="{
-                      'text-success': calculateTaskStatus(
-                        task.daily_task.from,
-                        task.daily_task.to,
-                        task.created_at
-                      ).includes('early'),
-                      'text-danger': calculateTaskStatus(
-                        task.daily_task.from,
-                        task.daily_task.to,
-                        task.created_at
-                      ).includes('late'),
-                    }"
-                  >
+                  <p class="text-xs font-weight-bold mb-0" :class="{
+                    'text-success': calculateTaskStatus(
+                      task.daily_task.from,
+                      task.daily_task.to,
+                      task.created_at
+                    ).includes('early'),
+                    'text-danger': calculateTaskStatus(
+                      task.daily_task.from,
+                      task.daily_task.to,
+                      task.created_at
+                    ).includes('late'),
+                  }">
                     {{
                       calculateTaskStatus(
                         task.daily_task.from,
@@ -269,39 +234,30 @@
                   </p>
                 </td>
                 <td class="align-middle">
-                  <a
-                    href="javascript:;"
-                    class="font-weight-bold text-lg me-2"
-                    :class="{
-                      'text-success': task.status === 'done',
-                      'text-danger': task.status === 'not_done',
-                      'text-secondary': !['done', 'not_done'].includes(
-                        task.status
-                      ),
-                    }"
-                    :aria-disabled="['done', 'not_done'].includes(task.status)"
-                    :style="{
+                  <a href="javascript:;" class="font-weight-bold text-lg me-2" :class="{
+                    'text-success': task.status === 'done',
+                    'text-danger': task.status === 'not_done',
+                    'text-secondary': !['done', 'not_done'].includes(
+                      task.status
+                    ),
+                  }" :aria-disabled="['done', 'not_done'].includes(task.status)" :style="{
                       pointerEvents: ['done', 'not_done'].includes(task.status)
                         ? 'none'
                         : 'auto',
                       opacity: ['done', 'not_done'].includes(task.status)
                         ? 0.6
                         : 1,
-                    }"
-                    @click="
+                    }" @click="
                       !['done', 'not_done'].includes(task.status) &&
-                        openEvaluationModal(task.id)
-                    "
-                  >
-                    <i
-                      :class="{
-                        'fa fa-check-circle': task.status === 'done',
-                        'fa fa-times-circle': task.status === 'not_done',
-                        'fa fa-circle': !['done', 'not_done'].includes(
-                          task.status
-                        ),
-                      }"
-                    ></i>
+                      openEvaluationModal(task.id)
+                      ">
+                    <i :class="{
+                      'fa fa-check-circle': task.status === 'done',
+                      'fa fa-times-circle': task.status === 'not_done',
+                      'fa fa-circle': !['done', 'not_done'].includes(
+                        task.status
+                      ),
+                    }"></i>
                   </a>
 
                   <!-- <a
@@ -313,24 +269,15 @@
               </a> -->
                 </td>
 
-                <td
-                  class="align-middle"
-                  v-if="isOwner || permissions['create-dailytaskevaluation']"
-                >
-                  <a
-                    href="javascript:;"
-                    class="font-weight-bold text-lg me-2"
-                    :class="{
-                      'text-success': task.today_report_status === 'done',
-                      'text-danger': task.today_report_status === 'not_done',
-                      'text-secondary': !['done', 'not_done'].includes(
-                        task.today_report_status
-                      ),
-                    }"
-                    :aria-disabled="
-                      ['done', 'not_done'].includes(task.today_report_status)
-                    "
-                    :style="{
+                <td class="align-middle" v-if="isOwner || permissions['create-dailytaskevaluation']">
+                  <a href="javascript:;" class="font-weight-bold text-lg me-2" :class="{
+                    'text-success': task.today_report_status === 'done',
+                    'text-danger': task.today_report_status === 'not_done',
+                    'text-secondary': !['done', 'not_done'].includes(
+                      task.today_report_status
+                    ),
+                  }" :aria-disabled="['done', 'not_done'].includes(task.today_report_status)
+                      " :style="{
                       pointerEvents: ['done', 'not_done'].includes(
                         task.today_report_status
                       )
@@ -341,35 +288,27 @@
                       )
                         ? 0.6
                         : 1,
-                    }"
-                    @click="
+                    }" @click="
                       !['done', 'not_done'].includes(
                         task.today_report_status
                       ) && openEvaluationModal(task.daily_task_id)
-                    "
-                  >
-                    <i
-                      :class="{
-                        'fa fa-check-circle':
-                          task.today_report_status === 'done',
-                        'fa fa-times-circle':
-                          task.today_report_status === 'not_done',
-                        'fa fa-star ': !['done', 'not_done'].includes(
-                          task.today_report_status
-                        ),
-                      }"
-                    ></i>
+                      ">
+                    <i :class="{
+                      'fa fa-check-circle':
+                        task.today_report_status === 'done',
+                      'fa fa-times-circle':
+                        task.today_report_status === 'not_done',
+                      'fa fa-star ': !['done', 'not_done'].includes(
+                        task.today_report_status
+                      ),
+                    }"></i>
                   </a>
                   <!-- ✅ الأيقونة الجديدة -->
-                  <i
-                    class="fa fa-bolt text-warning"
-                  v-if="
+                  <i class="fa fa-bolt text-warning" v-if="
                     props.rundomTask?.data?.dailytask_ids?.includes(
                       task.daily_task_id
                     ) && props.rundomTask?.data?.date == formatDateWithoutTime(task?.created_at)
-                  "
-                    :title="t('randomTask')"
-                  ></i>
+                  " :title="t('randomTask')"></i>
                 </td>
               </tr>
             </tbody>
@@ -379,10 +318,7 @@
 
       <div v-if="props.reportActiveTab === 'not_reported'">
         <!-- Spinner أثناء التحميل -->
-        <div
-          v-if="props.isNotReportedLoading"
-          class="d-flex justify-content-center py-5"
-        >
+        <div v-if="props.isNotReportedLoading" class="d-flex justify-content-center py-5">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
@@ -396,15 +332,11 @@
             >
               {{ t("status") }}
             </th> -->
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("taskName") }}
                 </th>
 
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("department") }}
                 </th>
                 <!-- <th
@@ -412,19 +344,13 @@
             >
               {{ t("taskType") }}
             </th> -->
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("from") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("to") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("priority") }}
                 </th>
                 <!-- <th
@@ -449,20 +375,14 @@
               {{ t("notes") }}
             </th> -->
 
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("employeeName") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("report") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                  v-if="isOwner || permissions['create-dailytaskevaluation']"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                  v-if="isOwner || permissions['create-dailytaskevaluation']">
                   {{ t("evaluate") }}
                 </th>
               </tr>
@@ -484,25 +404,15 @@
             </td> -->
 
                 <td>
-                  <div
-                    class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
-                  >
+                  <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
                     <div
                       class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
-                      @click="openDescriptionModal(task)"
-                      title="Open Task Description"
-                    >
-                      <h6
-                        class="mb-0 text-sm hover-effect mx-1"
-                        style="direction: rtl"
-                      >
+                      @click="openDescriptionModal(task)" title="Open Task Description">
+                      <h6 class="mb-0 text-sm hover-effect mx-1" style="direction: rtl">
                         {{ task.daily_task.task_name }}
                       </h6>
-                      <div
-                        v-if="loadingTaskId === task.id"
-                        class="spinner-border spinner-border-sm text-primary"
-                        role="status"
-                      >
+                      <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary"
+                        role="status">
                         <span class="visually-hidden">Loading...</span>
                       </div>
                     </div>
@@ -531,14 +441,10 @@
                   </p>
                 </td>
                 <td>
-                  <p
-                    class="text-xs font-weight-bold mb-0"
-                    :class="
-                      task.daily_task.priority === 'critical'
-                        ? 'text-danger'
-                        : ''
-                    "
-                  >
+                  <p class="text-xs font-weight-bold mb-0" :class="task.daily_task.priority === 'critical'
+                      ? 'text-danger'
+                      : ''
+                    ">
                     <!-- {{ formatReportDate(task.created_at) }} -->
                     {{ task.daily_task.priority || "No Priority" }}
                   </p>
@@ -592,39 +498,30 @@
                   </p>
                 </td>
                 <td class="align-middle">
-                  <a
-                    href="javascript:;"
-                    class="font-weight-bold text-lg me-2"
-                    :class="{
-                      'text-success': task.status === 'done',
-                      'text-danger': task.status === 'not_done',
-                      'text-secondary': !['done', 'not_done'].includes(
-                        task.status
-                      ),
-                    }"
-                    :aria-disabled="!['done', 'not_done'].includes(task.status)"
-                    :style="{
+                  <a href="javascript:;" class="font-weight-bold text-lg me-2" :class="{
+                    'text-success': task.status === 'done',
+                    'text-danger': task.status === 'not_done',
+                    'text-secondary': !['done', 'not_done'].includes(
+                      task.status
+                    ),
+                  }" :aria-disabled="!['done', 'not_done'].includes(task.status)" :style="{
                       pointerEvents: !['done', 'not_done'].includes(task.status)
                         ? 'none'
                         : 'auto',
                       opacity: !['done', 'not_done'].includes(task.status)
                         ? 0.6
                         : 1,
-                    }"
-                    @click="
+                    }" @click="
                       !['done', 'not_done'].includes(task.status) &&
-                        openEvaluationModal(task.id)
-                    "
-                  >
-                    <i
-                      :class="{
-                        'fa fa-check-circle': task.status === 'done',
-                        'fa fa-times-circle': task.status === 'not_done',
-                        'fa fa-circle': !['done', 'not_done'].includes(
-                          task.status
-                        ),
-                      }"
-                    ></i>
+                      openEvaluationModal(task.id)
+                      ">
+                    <i :class="{
+                      'fa fa-check-circle': task.status === 'done',
+                      'fa fa-times-circle': task.status === 'not_done',
+                      'fa fa-circle': !['done', 'not_done'].includes(
+                        task.status
+                      ),
+                    }"></i>
                   </a>
 
                   <!-- <a
@@ -636,24 +533,15 @@
               </a> -->
                 </td>
 
-                <td
-                  v-if="isOwner || permissions['create-dailytaskevaluation']"
-                  class="align-middle"
-                >
-                  <a
-                    href="javascript:;"
-                    class="font-weight-bold text-lg me-2"
-                    :class="{
-                      'text-success': task.today_report_status === 'done',
-                      'text-danger': task.today_report_status === 'not_done',
-                      'text-secondary': !['done', 'not_done'].includes(
-                        task.today_report_status
-                      ),
-                    }"
-                    :aria-disabled="
-                      ['done', 'not_done'].includes(task.today_report_status)
-                    "
-                    :style="{
+                <td v-if="isOwner || permissions['create-dailytaskevaluation']" class="align-middle">
+                  <a href="javascript:;" class="font-weight-bold text-lg me-2" :class="{
+                    'text-success': task.today_report_status === 'done',
+                    'text-danger': task.today_report_status === 'not_done',
+                    'text-secondary': !['done', 'not_done'].includes(
+                      task.today_report_status
+                    ),
+                  }" :aria-disabled="['done', 'not_done'].includes(task.today_report_status)
+                      " :style="{
                       pointerEvents: ['done', 'not_done'].includes(
                         task.today_report_status
                       )
@@ -664,24 +552,20 @@
                       )
                         ? 0.6
                         : 1,
-                    }"
-                    @click="
+                    }" @click="
                       !['done', 'not_done'].includes(
                         task.today_report_status
                       ) && openEvaluationModal(task.daily_task_id)
-                    "
-                  >
-                    <i
-                      :class="{
-                        'fa fa-check-circle':
-                          task.today_report_status === 'done',
-                        'fa fa-times-circle':
-                          task.today_report_status === 'not_done',
-                        'fa fa-star ': !['done', 'not_done'].includes(
-                          task.today_report_status
-                        ),
-                      }"
-                    ></i>
+                      ">
+                    <i :class="{
+                      'fa fa-check-circle':
+                        task.today_report_status === 'done',
+                      'fa fa-times-circle':
+                        task.today_report_status === 'not_done',
+                      'fa fa-star ': !['done', 'not_done'].includes(
+                        task.today_report_status
+                      ),
+                    }"></i>
                   </a>
 
                   <!-- <a
@@ -698,17 +582,12 @@
         </div>
       </div>
 
-      <div
-        v-if="
-          props.reportActiveTab === 'evaluated_Task' &&
-          (isOwner || permissions['view-alldailytaskevaluation'])
-        "
-      >
+      <div v-if="
+        props.reportActiveTab === 'evaluated_Task' &&
+        (isOwner || permissions['view-alldailytaskevaluation'])
+      ">
         <!-- Spinner أثناء التحميل -->
-        <div
-          v-if="props.isNotReportedLoading"
-          class="d-flex justify-content-center py-5"
-        >
+        <div v-if="props.isNotReportedLoading" class="d-flex justify-content-center py-5">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
@@ -727,40 +606,26 @@
                 >
                   {{ t("taskNumber") }}
                 </th> -->
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("taskName") }}
                 </th>
 
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("department") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("priority") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("reportedBy") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("evaluatedAt") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("evaluatedBy") }}
                 </th>
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("comment") }}
                 </th>
                 <!-- <th
@@ -785,9 +650,7 @@
                 >
                   {{ t("employeeName") }}
                 </th> -->
-                <th
-                  class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                >
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                   {{ t("rating") }}
                 </th>
               </tr>
@@ -836,22 +699,15 @@
                 </td> -->
 
                 <td>
-                  <div
-                    class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
-                  >
+                  <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
                     <div
                       class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
-                      @click="openDescriptionModal(task)"
-                      title="Open Task Description"
-                    >
+                      @click="openDescriptionModal(task)" title="Open Task Description">
                       <h6 class="mb-0 text-sm hover-effect mx-1" dir="auto">
                         {{ task.daily_task.task_name }}
                       </h6>
-                      <div
-                        v-if="loadingTaskId === task.id"
-                        class="spinner-border spinner-border-sm text-primary"
-                        role="status"
-                      >
+                      <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary"
+                        role="status">
                         <span class="visually-hidden">Loading...</span>
                       </div>
                     </div>
@@ -865,14 +721,10 @@
                 </td>
 
                 <td>
-                  <p
-                    class="text-xs font-weight-bold mb-0"
-                    :class="
-                      task.daily_task.priority === 'critical'
-                        ? 'text-danger'
-                        : ''
-                    "
-                  >
+                  <p class="text-xs font-weight-bold mb-0" :class="task.daily_task.priority === 'critical'
+                      ? 'text-danger'
+                      : ''
+                    ">
                     <!-- {{ formatReportDate(task.created_at) }} -->
                     {{ task.daily_task.priority || "No Priority" }}
                   </p>
@@ -1028,7 +880,7 @@
             </li>
           </template>
 
-          <template v-else>
+<template v-else>
             <li v-if="pagination.current_page > 5" class="page-item disabled">
               <span class="page-link">...</span>
             </li>
@@ -1059,28 +911,20 @@
             </li>
           </template>
 
-          <li :class="['page-item', { disabled: !pagination.next_page_url }]">
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="changePage(pagination.current_page + 1)"
-            >
-              &raquo;
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div> -->
+<li :class="['page-item', { disabled: !pagination.next_page_url }]">
+  <a class="page-link" href="#" @click.prevent="changePage(pagination.current_page + 1)">
+    &raquo;
+  </a>
+</li>
+</ul>
+</nav>
+</div> -->
 
     <!-- مودال التعديل -->
     <div v-if="showEditPopup" class="popup-overlay">
       <transition name="modal-fade">
-        <ArgonModal
-          v-if="showEditPopup"
-          :title="selectedTask.daily_task.task_name"
-          @close="closeEditPopup"
-          class="routine-task-modal"
-        >
+        <ArgonModal v-if="showEditPopup" :title="selectedTask.daily_task.task_name" @close="closeEditPopup"
+          class="routine-task-modal">
           <template #default>
             <div class="mb-3 modal-content-scroll">
               <!-- <label class="form-label">{{ t("taskName") }}:</label>
@@ -1114,21 +958,11 @@
               /> -->
 
               <label class="form-label">{{ t("rating") }}:</label>
-              <ArgonInput
-                v-model="taskRate"
-                type="number"
-                min="0"
-                max="10"
-                class="form-control mb-3"
-                :placeholder="t('rating')"
-              ></ArgonInput>
+              <ArgonInput v-model="taskRate" type="number" min="0" max="10" class="form-control mb-3"
+                :placeholder="t('rating')"></ArgonInput>
 
               <label class="form-label">{{ t("comment") }}:</label>
-              <textarea
-                v-model="taskComment"
-                class="form-control mb-3"
-                :placeholder="t('comment')"
-              ></textarea>
+              <textarea v-model="taskComment" class="form-control mb-3" :placeholder="t('comment')"></textarea>
 
               <!-- <div
               v-show="selectedTask.task_type === 'weekly'"
@@ -1215,17 +1049,9 @@
               {{ t("close") }}
             </argon-button>
 
-            <argon-button
-              variant="success"
-              @click="evaluateTask"
-              :disabled="isLoading"
-            >
-              <span
-                v-if="isLoading"
-                class="spinner-border spinner-border-sm me-2"
-                role="status"
-                aria-hidden="true"
-              ></span>
+            <argon-button variant="success" @click="evaluateTask" :disabled="isLoading">
+              <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+                aria-hidden="true"></span>
               {{ isLoading ? t("saving") : t("evaluate") }}
             </argon-button>
           </template>
@@ -1240,30 +1066,19 @@
 
     <!-- مودال الوصف المعدل -->
     <div v-if="showDescriptionModal" class="popup-overlay">
-      <ArgonModal
-        :title="selectedTaskName"
-        @close="closeDescriptionModal"
-        class="routine-task-modal"
-      >
+      <ArgonModal :title="selectedTaskName" @close="closeDescriptionModal" class="routine-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <!-- التبويبات -->
             <ul class="nav nav-tabs custom-tabs" role="tablist">
               <li class="nav-item">
-                <argon-button
-                  class="nav-link"
-                  :class="{ active: activeTab === 'info' }"
-                  @click="activeTab = 'info'"
-                >
+                <argon-button class="nav-link" :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">
                   {{ t("info") }}
                 </argon-button>
               </li>
               <li class="nav-item">
-                <argon-button
-                  class="nav-link"
-                  :class="{ active: activeTab === 'evaluation' }"
-                  @click="activeTab = 'evaluation'"
-                >
+                <argon-button class="nav-link" :class="{ active: activeTab === 'evaluation' }"
+                  @click="activeTab = 'evaluation'">
                   {{ t("evaluation") }}
                 </argon-button>
               </li>
@@ -1281,19 +1096,13 @@
                     {{ selectedDescription }}
                   </dd>
 
-                  <dt
-                    v-if="props.reportActiveTab === 'evaluated_Task'"
-                    class="col-sm-3"
-                  >
+                  <dt v-if="props.reportActiveTab === 'evaluated_Task'" class="col-sm-3">
                     {{ t("taskStatus") }}:
                   </dt>
                   <dd v-if="selectedTaskStatus" class="col-sm-9">
                     {{ selectedTaskStatus }}
                   </dd>
-                  <dd
-                    v-else-if="props.reportActiveTab === 'evaluated_Task'"
-                    class="col-sm-9"
-                  >
+                  <dd v-else-if="props.reportActiveTab === 'evaluated_Task'" class="col-sm-9">
                     {{ t("notReported") }}
                   </dd>
 
@@ -1302,22 +1111,16 @@
                     {{ selectedTaskNotes || "No Notes" }}
                   </dd>
 
-                  <dt
-                    v-if="
-                      selectedTaskFound !== null &&
-                      reportActiveTab === 'reported'
-                    "
-                    class="col-sm-3"
-                  >
+                  <dt v-if="
+                    selectedTaskFound !== null &&
+                    reportActiveTab === 'reported'
+                  " class="col-sm-3">
                     {{ t("found") }}:
                   </dt>
-                  <dd
-                    v-if="
-                      selectedTaskFound !== null &&
-                      reportActiveTab === 'reported'
-                    "
-                    class="col-sm-9"
-                  >
+                  <dd v-if="
+                    selectedTaskFound !== null &&
+                    reportActiveTab === 'reported'
+                  " class="col-sm-9">
                     {{ selectedTaskFound === 1 ? "yes" : "no" }}
                   </dd>
                   <!-- task_found -->
@@ -1326,22 +1129,16 @@
                     {{ selectedTaskDepartment }}
                   </dd> -->
 
-                  <dt
-                    v-if="
-                      selectedTaskRecurrentDays &&
-                      selectedTaskRecurrentDays.length
-                    "
-                    class="col-sm-3"
-                  >
+                  <dt v-if="
+                    selectedTaskRecurrentDays &&
+                    selectedTaskRecurrentDays.length
+                  " class="col-sm-3">
                     {{ t("recurrentDays") }}:
                   </dt>
-                  <dd
-                    v-if="
-                      selectedTaskRecurrentDays &&
-                      selectedTaskRecurrentDays.length
-                    "
-                    class="col-sm-9"
-                  >
+                  <dd v-if="
+                    selectedTaskRecurrentDays &&
+                    selectedTaskRecurrentDays.length
+                  " class="col-sm-9">
                     {{
                       selectedTaskRecurrentDays
                         .map(
@@ -1384,12 +1181,8 @@
               <div v-if="activeTab === 'evaluation'">
                 <div v-if="taskEvaluations.length > 0">
                   <ul class="log-list">
-                    <li
-                      v-for="evaluation in taskEvaluations"
-                      :key="evaluation.id"
-                      class="mb-3"
-                      style="list-style-type: none"
-                    >
+                    <li v-for="evaluation in taskEvaluations" :key="evaluation.id" class="mb-3"
+                      style="list-style-type: none">
                       <!-- A small card for each evaluation -->
                       <div class="card">
                         <div class="card-body p-2">
@@ -1531,9 +1324,9 @@ const props = defineProps({
 
 // const rundomTask = ref([]);
 
-console.log("props.rundomTask:", {...props.rundomTask});
+console.log("props.rundomTask:", { ...props.rundomTask });
 
-console.log("props.selectedDate:", typeof(props.selectedDate));
+console.log("props.selectedDate:", typeof (props.selectedDate));
 
 // onMounted( async() => {
 //     await getRundomTask();
@@ -1757,7 +1550,7 @@ const evaluateTask = async () => {
     comment: taskComment.value,
     task_for:
       props.reportActiveTab === "not_reported" ||
-      props.reportActiveTab === "reported"
+        props.reportActiveTab === "reported"
         ? props.selectedDateForNotReported
         : props.selectedDate,
     // ...selectedTask.value,
@@ -2334,7 +2127,8 @@ const calculateTaskStatus = (fromTime, toTime, createdAt) => {
   text-transform: uppercase;
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
-  text-align: center; /* جعل النصوص في رأس الجدول في المنتصف */
+  text-align: center;
+  /* جعل النصوص في رأس الجدول في المنتصف */
 }
 
 /* تأثير hover على الصفوف */
@@ -2345,27 +2139,36 @@ const calculateTaskStatus = (fromTime, toTime, createdAt) => {
 .table td,
 .table th {
   vertical-align: middle;
-  text-align: center; /* جعل جميع النصوص في الأعمدة في المنتصف */
+  text-align: center;
+  /* جعل جميع النصوص في الأعمدة في المنتصف */
 }
 
 /* تنسيق الـ Modal */
 
 .routine-task-modal {
-  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  max-height: 100vh;
+  /* تحديد الحد الأقصى للارتفاع */
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth; /* تمكين التمرير العمودي */
-  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
-  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+  scroll-behavior: smooth;
+  /* تمكين التمرير العمودي */
+  scrollbar-width: none;
+  /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent;
+  /* تحديد لون الشريط الخلفي والخلفية */
 }
 
 .routine-task-modal .modal-content-scroll {
-  overflow-y: auto; /* تمكين التمرير العمودي */
-  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
+  overflow-y: auto;
+  /* تمكين التمرير العمودي */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  max-height: 80vh;
+  /* تحديد الحد الأقصى للارتفاع */
   /* scroll-behavior: smooth;  */
   max-height: 65vh;
 }
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -2390,11 +2193,13 @@ const calculateTaskStatus = (fromTime, toTime, createdAt) => {
 } */
 .routine-task-modal .modal-header,
 .routine-task-modal .modal-footer {
-  flex-shrink: 0; /* منع الانكماش */
+  flex-shrink: 0;
+  /* منع الانكماش */
 }
 
 .routine-task-modal .modal-body {
-  flex: 1; /* السماح للمحتوى بالتمدد */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد */
 }
 
 /* تحسين تنسيق النصوص */
@@ -2406,31 +2211,43 @@ const calculateTaskStatus = (fromTime, toTime, createdAt) => {
 
 /* إضافة موضع للأيقونة */
 .hover-icon {
-  right: 10px; /* اجعل الأيقونة في أقصى اليمين */
-  top: 50%; /* محاذاة رأسية */
-  transform: translateY(-50%) scale(0.8); /* تصحيح المحاذاة العمودية وتقليل الحجم */
-  position: absolute; /* تثبيت الأيقونة بالنسبة للحاوية */
+  right: 10px;
+  /* اجعل الأيقونة في أقصى اليمين */
+  top: 50%;
+  /* محاذاة رأسية */
+  transform: translateY(-50%) scale(0.8);
+  /* تصحيح المحاذاة العمودية وتقليل الحجم */
+  position: absolute;
+  /* تثبيت الأيقونة بالنسبة للحاوية */
   cursor: pointer;
-  color: #4caf50; /* لون الموقع الأساسي */
-  opacity: 0; /* الإخفاء الافتراضي */
+  color: #4caf50;
+  /* لون الموقع الأساسي */
+  opacity: 0;
+  /* الإخفاء الافتراضي */
   transition:
     opacity 0.3s ease,
-    transform 0.3s ease; /* تأثير عند التبديل */
+    transform 0.3s ease;
+  /* تأثير عند التبديل */
 }
 
 .hover-icon:hover {
-  color: #4caf50; /* لون الموقع عند التمرير */
+  color: #4caf50;
+  /* لون الموقع عند التمرير */
 }
 
 td:hover .hover-icon {
-  opacity: 1; /* إظهار الأيقونة عند التمرير */
-  transform: translateY(-50%) scale(1); /* إرجاع الحجم الطبيعي */
+  opacity: 1;
+  /* إظهار الأيقونة عند التمرير */
+  transform: translateY(-50%) scale(1);
+  /* إرجاع الحجم الطبيعي */
 }
 
 /* تحسين الحاوية */
 .d-flex.position-relative {
-  position: relative; /* تهيئة الحاوية للأيقونة */
-  padding-right: 30px; /* إضافة مساحة للأيقونة */
+  position: relative;
+  /* تهيئة الحاوية للأيقونة */
+  padding-right: 30px;
+  /* إضافة مساحة للأيقونة */
 }
 
 /* تصميم الـ tabs */
@@ -2459,32 +2276,42 @@ td:hover .hover-icon {
 }
 
 .custom-tabs .nav-link.active {
-  color: #ffffff; /* نص أبيض */
+  color: #ffffff;
+  /* نص أبيض */
   border-radius: 5px;
-  background-color: #a9ca5c; /* خلفية أخضر فاتح */
+  background-color: #a9ca5c;
+  /* خلفية أخضر فاتح */
 }
 
 .custom-tabs .nav-link:hover {
-  color: #ffffff; /* نص أبيض عند التمرير */
-  background-color: #a9ca5c; /* خلفية أخضر فاتح عند التمرير */
+  color: #ffffff;
+  /* نص أبيض عند التمرير */
+  background-color: #a9ca5c;
+  /* خلفية أخضر فاتح عند التمرير */
 }
 
 .tab-content {
   padding: 1rem;
-  background-color: #ffffff; /* اللون الأبيض */
-  border-radius: 0.5rem; /* حواف ناعمة */
+  background-color: #ffffff;
+  /* اللون الأبيض */
+  border-radius: 0.5rem;
+  /* حواف ناعمة */
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(70vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
+  max-height: calc(70vh - 200px);
+  /* لضمان ظهور المحتويات بشكل جيد */
 }
 
 .modal-body {
   padding: 0.2rem;
-  background-color: #ffffff; /* اللون الأبيض */
-  border-radius: 0.5rem; /* حواف ناعمة */
+  background-color: #ffffff;
+  /* اللون الأبيض */
+  border-radius: 0.5rem;
+  /* حواف ناعمة */
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(100vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
+  max-height: calc(100vh - 200px);
+  /* لضمان ظهور المحتويات بشكل جيد */
   max-width: calc(100vw - 2rem);
 }
 
@@ -2501,14 +2328,17 @@ td:hover .hover-icon {
 
 .modal-body dd {
   margin-left: 0;
-  text-align: left; /* محاذاة النصوص إلى اليسار لتحسين القراءة */
+  text-align: left;
+  /* محاذاة النصوص إلى اليسار لتحسين القراءة */
 }
 
 .log-list {
   padding: 0;
   margin: 0;
-  list-style-type: disc; /* أو circle، أو square، إلخ */
-  padding-left: 1rem; /* لتظهر النقط يسارًا */
+  list-style-type: disc;
+  /* أو circle، أو square، إلخ */
+  padding-left: 1rem;
+  /* لتظهر النقط يسارًا */
 }
 
 /* .log-item {
@@ -2537,7 +2367,8 @@ blockquote {
 }
 
 .log-item strong {
-  color: #4caf50; /* لون النص البارز */
+  color: #4caf50;
+  /* لون النص البارز */
 }
 
 /* تنسيق الترقيم */
@@ -2588,10 +2419,14 @@ blockquote {
 }
 
 td {
-  word-wrap: break-word; /* السماح للنص بالانكسار */
-  white-space: pre-wrap; /* المحافظة على التنسيق والانكسار */
-  max-width: 200px; /* يمكنك تخصيص العرض المناسب للعمود */
-  overflow-wrap: break-word; /* السماح بانكسار النص */
+  word-wrap: break-word;
+  /* السماح للنص بالانكسار */
+  white-space: pre-wrap;
+  /* المحافظة على التنسيق والانكسار */
+  max-width: 200px;
+  /* يمكنك تخصيص العرض المناسب للعمود */
+  overflow-wrap: break-word;
+  /* السماح بانكسار النص */
 }
 
 /* تنسيق للنصوص الاختيارية */

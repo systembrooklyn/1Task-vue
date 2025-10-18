@@ -192,53 +192,53 @@ const openPopup = () => {
 };
 
 const addProject = async () => {
-    isLoading.value = true;
-    const project = {
-      name: projectName.value,
-      desc: projectDescription.value,
-      start_date: fromDate.value,
-      deadline: toDate.value,
-      leader_id: selectedManager.value,
-      status: projectStatus.value,
-      department_ids: departmentIds.value,
-    };
+  isLoading.value = true;
+  const project = {
+    name: projectName.value,
+    desc: projectDescription.value,
+    start_date: fromDate.value,
+    deadline: toDate.value,
+    leader_id: selectedManager.value,
+    status: projectStatus.value,
+    department_ids: departmentIds.value,
+  };
 
-    console.log("project:", project);
-    try {
-      const response = await store.dispatch("addProject", project);
-      if (response.status === 201) {
-        Swal.fire({
-          icon: "success",
-          title: t("projectAdded"),
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true,
-        });
-      
+  console.log("project:", project);
+  try {
+    const response = await store.dispatch("addProject", project);
+    if (response.status === 201) {
+      Swal.fire({
+        icon: "success",
+        title: t("projectAdded"),
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+
       closePopup();
       await fetchProjects();
       componentKey.value += 1;
     }
-    } catch (error) {
+  } catch (error) {
     console.log("error:", error);
-      // استخراج الأخطاء من الرد
-  
-  
-      Swal.fire({
-        icon: "warning",
-        title: t("errorOccurred"),
-        html: error, 
-        showConfirmButton: true,
-        backdrop: 'rgba(0,0,0,0.5)', 
-        heightAuto: false, 
-        customClass: {
-          popup: 'swal-above-modal', 
-        }
-      });
-    } finally {
+    // استخراج الأخطاء من الرد
+
+
+    Swal.fire({
+      icon: "warning",
+      title: t("errorOccurred"),
+      html: error,
+      showConfirmButton: true,
+      backdrop: 'rgba(0,0,0,0.5)',
+      heightAuto: false,
+      customClass: {
+        popup: 'swal-above-modal',
+      }
+    });
+  } finally {
     isLoading.value = false;
   }
-  }
+}
 
 
 
@@ -327,46 +327,33 @@ const translations = {
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
               <p class="mb-0 font-weight-bold">{{ t("projectsTable") }}</p>
-              <argon-button
-                v-show="canCreateProject || isOwner"
-                class="ml-auto mx-2"
-                @click="openPopup"
-              >
+              <argon-button v-show="canCreateProject || isOwner" class="ml-auto mx-2" @click="openPopup">
                 <i class="fas fa-plus"></i>
               </argon-button>
             </div>
           </div>
           <div class="card-body">
             <form @submit.prevent>
-              <argon-alert
-                v-if="showAlert"
-                color="danger"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showAlert" color="danger" dismissible class="mt-3">
                 {{ errorMessage }}
               </argon-alert>
-              <argon-alert
-                v-if="showSuccess"
-                color="success"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showSuccess" color="success" dismissible class="mt-3">
                 {{ successMessage }}
               </argon-alert>
             </form>
             <div v-if="isLoading" class="d-flex justify-content-center py-5">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-        </div>
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
 
-        <div v-else-if="projects.length === 0" class="d-flex justify-content-center py-5 flex-column align-items-center">
-          <h5>{{ t("noProjects") }}</h5>
-          <p>
-            {{ t("createee") }}
-          </p>
-        </div>
+            <div v-else-if="projects.length === 0"
+              class="d-flex justify-content-center py-5 flex-column align-items-center">
+              <h5>{{ t("noProjects") }}</h5>
+              <p>
+                {{ t("createee") }}
+              </p>
+            </div>
             <projects-table v-else :projects="projects" :key="componentKey" />
           </div>
         </div>
@@ -376,116 +363,68 @@ const translations = {
 
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
-      <ArgonModal
-        v-if="showPopup"
-        :title="t('createProject')"
-        @close="closePopup"
-        class="project-modal"
-
-      >
+      <ArgonModal v-if="showPopup" :title="t('createProject')" @close="closePopup" class="project-modal">
         <template #default>
           <div class="modal-content-scroll">
 
-          <div class="form-group mb-3">
-            <label class="form-label">{{ t("projectName") }}:</label>
-            <input
-              v-model="projectName"
-              class="form-control"
-              :placeholder="t('enterProjectName')"
-            />
-          </div>
-
-          <div class="form-group mb-3">
-            <label class="form-label">{{ t("description") }}:</label>
-            <textarea
-              v-model="projectDescription"
-              class="form-control"
-              :placeholder="t('enterDescription')"
-            ></textarea>
-          </div>
-
-          <div v-if="employeeOptions.length > 0" class="mb-3">
-            <label class="form-label">{{ t("projectManager") }}:</label>
-            <argon-select
-              v-model="selectedManager"
-              :options="employeeOptions"
-              :placeholder="t('assignManager')"
-              class="form-control"
-              searchable
-              searchPlaceholder="Search employees..."
-            />
-          </div>
-
-          <div class="mb-3">
-          <label class="form-label">{{ t("departments") }}:</label>
-            <argon-multiple-select
-              v-model="departmentIds"
-              :model-names="departmentNames"
-              :options="formattedDepartments"
-              :placeholder="t('selectDepartment')"
-              class="form-control mb-3"
-            />
-          </div>
-
-          <!-- زر الإعدادات المتقدمة -->
-          <div class="d-flex align-items-center">
-            <ArgonButton
-              class="btn btn-link mb-3"
-              @click="toggleAdvancedSettings"
-            >
-              Advanced Settings
-            </ArgonButton>
-
-            <div class="d-flex align-items-center ms-auto">
-              <span class="me-2">{{ t("inactive") }}</span>
-              <argon-switch
-                class="custom-switch-modal"
-                v-model:checked="projectStatus"
-                aria-label="Project Status"
-                role="switch"
-              ></argon-switch>
-              <span class="ms-2">{{ t("active") }}</span>
+            <div class="form-group mb-3">
+              <label class="form-label">{{ t("projectName") }}:</label>
+              <input v-model="projectName" class="form-control" :placeholder="t('enterProjectName')" />
             </div>
-          </div>
 
-          <!-- الإعدادات المتقدمة -->
-          <transition name="fade">
-            <div v-if="showAdvancedSettings" class="advanced-settings">
-              <div class="form-group mb-3">
-                <label class="form-label">{{ t("from") }}:</label>
-                <input
-                  type="date"
-                  v-model="fromDate"
-                  class="form-control"
-                />
-              </div>
-              <div class="form-group mb-3">
-                <label class="form-label">{{ t("to") }}:</label>
-                <input
-                  type="date"
-                  v-model="toDate"
-                  class="form-control"
-                />
+            <div class="form-group mb-3">
+              <label class="form-label">{{ t("description") }}:</label>
+              <textarea v-model="projectDescription" class="form-control"
+                :placeholder="t('enterDescription')"></textarea>
+            </div>
+
+            <div v-if="employeeOptions.length > 0" class="mb-3">
+              <label class="form-label">{{ t("projectManager") }}:</label>
+              <argon-select v-model="selectedManager" :options="employeeOptions" :placeholder="t('assignManager')"
+                class="form-control" searchable searchPlaceholder="Search employees..." />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">{{ t("departments") }}:</label>
+              <argon-multiple-select v-model="departmentIds" :model-names="departmentNames"
+                :options="formattedDepartments" :placeholder="t('selectDepartment')" class="form-control mb-3" />
+            </div>
+
+            <!-- زر الإعدادات المتقدمة -->
+            <div class="d-flex align-items-center">
+              <ArgonButton class="btn btn-link mb-3" @click="toggleAdvancedSettings">
+                Advanced Settings
+              </ArgonButton>
+
+              <div class="d-flex align-items-center ms-auto">
+                <span class="me-2">{{ t("inactive") }}</span>
+                <argon-switch class="custom-switch-modal" v-model:checked="projectStatus" aria-label="Project Status"
+                  role="switch"></argon-switch>
+                <span class="ms-2">{{ t("active") }}</span>
               </div>
             </div>
-          </transition>
+
+            <!-- الإعدادات المتقدمة -->
+            <transition name="fade">
+              <div v-if="showAdvancedSettings" class="advanced-settings">
+                <div class="form-group mb-3">
+                  <label class="form-label">{{ t("from") }}:</label>
+                  <input type="date" v-model="fromDate" class="form-control" />
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">{{ t("to") }}:</label>
+                  <input type="date" v-model="toDate" class="form-control" />
+                </div>
+              </div>
+            </transition>
 
           </div>
         </template>
 
         <template #footer>
-          
-          <argon-button
-            variant="success"
-            @click="addProject"
-            :disabled="isLoading"
-          >
-            <span
-              v-if="isLoading"
-              class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
+
+          <argon-button variant="success" @click="addProject" :disabled="isLoading">
+            <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{ isLoading ? t("saving") : t("create") }}
           </argon-button>
           <argon-button variant="secondary" @click="closePopup">
@@ -504,6 +443,7 @@ const translations = {
 .fade-leave-active {
   transition: opacity 0.5s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -529,23 +469,30 @@ const translations = {
 
 /* إضافة هذه الأنماط لشريط التمرير */
 .modal-content-scroll {
-  overflow-y: auto; /* تفعيل التمرير الرأسي */
-  overflow-x: hidden; /* إخفاء التمرير الأفقي */
-  max-height: 65vh; /* الحد الأقصى لارتفاع المحتوى */
-  scrollbar-width: thin; /* لـ Firefox */
-  scrollbar-color: #888 #f1f1f1; /* لـ Firefox */
+  overflow-y: auto;
+  /* تفعيل التمرير الرأسي */
+  overflow-x: hidden;
+  /* إخفاء التمرير الأفقي */
+  max-height: 65vh;
+  /* الحد الأقصى لارتفاع المحتوى */
+  scrollbar-width: thin;
+  /* لـ Firefox */
+  scrollbar-color: #888 #f1f1f1;
+  /* لـ Firefox */
 }
 
 /* إصلاح عرض المودال لتجنب التمرير الأفقي\ */
 
 /* إخفاء التمرير الأفقي في المحتوى الداخلي */
 .modal-content-scroll::-webkit-scrollbar {
-  width: 8px; /* عرض شريط التمرير الرأسي */
-  height: 0px; /* تعطيل شريط التمرير الأفقي */
+  width: 8px;
+  /* عرض شريط التمرير الرأسي */
+  height: 0px;
+  /* تعطيل شريط التمرير الأفقي */
 }
 
 /* حل مشكلة العرض الزائد */
-.modal-content-scroll > .row {
+.modal-content-scroll>.row {
   max-width: 100%;
   margin: 0 auto;
 }
@@ -563,6 +510,4 @@ const translations = {
   flex: 1;
   max-height: 65vh;
 }
-
-
 </style>

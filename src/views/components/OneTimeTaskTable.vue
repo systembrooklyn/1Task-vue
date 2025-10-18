@@ -54,7 +54,7 @@
             <span class="task-title" :class="{ 'text-white': task.is_urgent }">
               <span dir="rtl">{{ task.title }}</span>
               <small class="task-date" :class="{ 'text-white': task.is_urgent }">{{ formatDateWithTime(task.created_at)
-                }}</small>
+              }}</small>
 
               <!-- deadline -->
               <small v-if="

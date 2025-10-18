@@ -4,33 +4,24 @@
       <table class="table align-items-center table-hover mb-0">
         <thead class="thead-light">
           <tr>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-              v-if="isOwner || permissions['edit-project']"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+              v-if="isOwner || permissions['edit-project']">
               {{ t("status") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("projectName") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("assignManager") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("projectCreatedBy") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("departmentName") }}
             </th>
-            <th class="text-secondary opacity-7" v-if="isOwner || permissions['edit-project'] || permissions['delete-project']"></th>
+            <th class="text-secondary opacity-7"
+              v-if="isOwner || permissions['edit-project'] || permissions['delete-project']"></th>
           </tr>
         </thead>
         <tbody>
@@ -38,10 +29,7 @@
             <td v-if="isOwner || permissions['edit-project']">
               <div class="px-2 py-1">
                 <div class="d-flex justify-content-center text-sm">
-                  <argon-switch
-                    :checked="Boolean(Project.status)"
-                    @update:checked="() => toggleStatus(Project.id)"
-                  >
+                  <argon-switch :checked="Boolean(Project.status)" @update:checked="() => toggleStatus(Project.id)">
                     {{ Project.status ? t("active") : t("inactive") }}
                   </argon-switch>
                 </div>
@@ -64,25 +52,14 @@
             </td> -->
 
             <td>
-              <div
-                class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
-              >
-                <div
-                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
-                  @click="openDescriptionModal(Project)"
-                  title="Open Task Description"
-                >
-                  <h6
-                    class="mb-0 text-sm hover-effect mx-1"
-                    style="direction: rtl"
-                  >
+              <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
+                <div class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
+                  @click="openDescriptionModal(Project)" title="Open Task Description">
+                  <h6 class="mb-0 text-sm hover-effect mx-1" style="direction: rtl">
                     {{ Project.name }}
                   </h6>
-                  <div
-                    v-if="loadingTaskId === Project.id"
-                    class="spinner-border spinner-border-sm text-primary"
-                    role="status"
-                  >
+                  <div v-if="loadingTaskId === Project.id" class="spinner-border spinner-border-sm text-primary"
+                    role="status">
                     <span class="visually-hidden">Loading...</span>
                   </div>
                 </div>
@@ -101,15 +78,8 @@
             </td>
 
             <td>
-              <div
-                v-if="Project.department_name.length"
-                class="selected-options"
-              >
-                <span
-                  v-for="departmentName in Project.department_name"
-                  :key="departmentName"
-                  class="selected-option"
-                >
+              <div v-if="Project.department_name.length" class="selected-options">
+                <span v-for="departmentName in Project.department_name" :key="departmentName" class="selected-option">
                   {{ departmentName }}
                   <!-- <button
                     v-show="canEditUser || isOwner"
@@ -125,20 +95,12 @@
             </td>
 
             <td v-if="isOwner || permissions['edit-project'] || permissions['delete-project']" class="align-middle">
-              <a
-                href="javascript:;"
-                v-if="permissions['edit-project'] || isOwner"
-                class="text-secondary font-weight-bold text-xs me-2"
-                @click="openEditModal(Project)"
-              >
+              <a href="javascript:;" v-if="permissions['edit-project'] || isOwner"
+                class="text-secondary font-weight-bold text-xs me-2" @click="openEditModal(Project)">
                 {{ t("edit") }}
               </a>
-              <a
-                href="javascript:;"
-                v-if="permissions['delete-project'] || isOwner"
-                class="text-danger font-weight-bold text-xs"
-                @click="confirmDelete(Project)"
-              >
+              <a href="javascript:;" v-if="permissions['delete-project'] || isOwner"
+                class="text-danger font-weight-bold text-xs" @click="confirmDelete(Project)">
                 {{ t("delete") }}
               </a>
             </td>
@@ -149,11 +111,7 @@
 
     <div v-if="showEditPopup" class="popup-overlay">
       <transition name="modal-fade">
-        <ArgonModal
-          v-if="showEditPopup"
-          :title="selectedProject.name"
-          @close="closeEditPopup"
-        >
+        <ArgonModal v-if="showEditPopup" :title="selectedProject.name" @close="closeEditPopup">
           <template #default>
             <label class="form-label">{{ t("projectName") }}:</label>
             <input v-model="selectedProject.name" class="form-control mb-3" />
@@ -163,62 +121,32 @@
 
             <div v-if="employeeOptions.length > 0" class="mb-3">
               <label class="form-label">{{ t("assignManager") }}:</label>
-              <argon-select
-                v-model="selectedProject.leader_id"
-                :options="employeeOptions"
-                :placeholder="t('assignManager')"
-                class="form-control"
-                searchable
-                searchPlaceholder="Search manager..."
-              />
+              <argon-select v-model="selectedProject.leader_id" :options="employeeOptions"
+                :placeholder="t('assignManager')" class="form-control" searchable
+                searchPlaceholder="Search manager..." />
             </div>
 
             <label class="form-label">{{ t("startDate") }}:</label>
-            <input
-              v-model="selectedProject.start_date"
-              type="date"
-              class="form-control mb-3"
-            />
+            <input v-model="selectedProject.start_date" type="date" class="form-control mb-3" />
 
             <label class="form-label">{{ t("deadline") }}:</label>
-            <input
-              v-model="selectedProject.deadline"
-              type="date"
-              class="form-control mb-3"
-            />
+            <input v-model="selectedProject.deadline" type="date" class="form-control mb-3" />
 
             <label class="form-label">{{ t("departments") }}:</label>
-            <argon-multiple-select
-              v-model="selectedProject.departmentIds"
-              :model-names="selectedProject.departmentNames"
-              :options="departmentOptions"
-              :placeholder="t('selectDepartment')"
-              class="form-control mb-3"
-            />
+            <argon-multiple-select v-model="selectedProject.departmentIds"
+              :model-names="selectedProject.departmentNames" :options="departmentOptions"
+              :placeholder="t('selectDepartment')" class="form-control mb-3" />
 
-            <label style="display: none" class="form-label"
-              >{{ t("status") }}:</label
-            >
-            <argon-switch
-              style="display: none"
-              v-model:checked="selectedProject.status"
-            >
+            <label style="display: none" class="form-label">{{ t("status") }}:</label>
+            <argon-switch style="display: none" v-model:checked="selectedProject.status">
               {{ selectedProject.status ? t("active") : t("inactive") }}
             </argon-switch>
           </template>
 
           <template #footer>
-            <argon-button
-              variant="success"
-              @click="updateProject"
-              :disabled="isLoading"
-            >
-              <span
-                v-if="isLoading"
-                class="spinner-border spinner-border-sm me-2"
-                role="status"
-                aria-hidden="true"
-              ></span>
+            <argon-button variant="success" @click="updateProject" :disabled="isLoading">
+              <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+                aria-hidden="true"></span>
               {{ isLoading ? t("saving") : t("update") }}
             </argon-button>
             <argon-button variant="secondary" @click="closeEditPopup">
@@ -235,30 +163,18 @@
     </div>
 
     <!-- مودال الوصف المعدل -->
-    <ArgonModal
-      v-if="showDescriptionModal"
-      :title="selectedProjectName"
-      @close="closeDescriptionModal"
-    >
+    <ArgonModal v-if="showDescriptionModal" :title="selectedProjectName" @close="closeDescriptionModal">
       <template #default>
         <div class="modal-body">
           <!-- التبويبات -->
           <ul class="nav nav-tabs custom-tabs" role="tablist">
             <li class="nav-item">
-              <argon-button
-                class="nav-link"
-                :class="{ active: activeTab === 'info' }"
-                @click="activeTab = 'info'"
-              >
+              <argon-button class="nav-link" :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">
                 {{ t("info") }}
               </argon-button>
             </li>
             <li class="nav-item">
-              <argon-button
-                class="nav-link"
-                :class="{ active: activeTab === 'log' }"
-                @click="activeTab = 'log'"
-              >
+              <argon-button class="nav-link" :class="{ active: activeTab === 'log' }" @click="activeTab = 'log'">
                 {{ t("log") }}
               </argon-button>
             </li>
@@ -299,18 +215,14 @@
                 <ul class="log-list">
                   <li v-for="log in projectLogs" :key="log.id" class="log-item">
                     {{ t("onDate") }}
-                    <strong>{{ formatDate(log.changed_at) }}</strong
-                    >,
+                    <strong>{{ formatDate(log.changed_at) }}</strong>,
                     <strong>{{ log.changed_by }}</strong>
                     {{ t("changedTheField") }}
-                    "<strong>{{ log.field }}</strong
-                    >"
+                    "<strong>{{ log.field }}</strong>"
                     {{ t("from") }}
-                    "<strong>{{ log.old_value }}</strong
-                    >"
+                    "<strong>{{ log.old_value }}</strong>"
                     {{ t("to") }}
-                    "<strong>{{ log.new_value }}</strong
-                    >".
+                    "<strong>{{ log.new_value }}</strong>".
                   </li>
                 </ul>
               </div>
@@ -809,7 +721,8 @@ const translations = {
   text-transform: uppercase;
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
-  text-align: center; /* جعل النصوص في رأس الجدول في المنتصف */
+  text-align: center;
+  /* جعل النصوص في رأس الجدول في المنتصف */
 }
 
 /* تأثير hover على الصفوف */
@@ -820,7 +733,8 @@ const translations = {
 .table td,
 .table th {
   vertical-align: middle;
-  text-align: center; /* جعل جميع النصوص في الأعمدة في المنتصف */
+  text-align: center;
+  /* جعل جميع النصوص في الأعمدة في المنتصف */
 }
 
 /* تنسيق الـ Modal */
@@ -856,31 +770,43 @@ const translations = {
 
 /* إضافة موضع للأيقونة */
 .hover-icon {
-  right: 10px; /* اجعل الأيقونة في أقصى اليمين */
-  top: 50%; /* محاذاة رأسية */
-  transform: translateY(-50%) scale(0.8); /* تصحيح المحاذاة العمودية وتقليل الحجم */
-  position: absolute; /* تثبيت الأيقونة بالنسبة للحاوية */
+  right: 10px;
+  /* اجعل الأيقونة في أقصى اليمين */
+  top: 50%;
+  /* محاذاة رأسية */
+  transform: translateY(-50%) scale(0.8);
+  /* تصحيح المحاذاة العمودية وتقليل الحجم */
+  position: absolute;
+  /* تثبيت الأيقونة بالنسبة للحاوية */
   cursor: pointer;
-  color: #4caf50; /* لون الموقع الأساسي */
-  opacity: 0; /* الإخفاء الافتراضي */
+  color: #4caf50;
+  /* لون الموقع الأساسي */
+  opacity: 0;
+  /* الإخفاء الافتراضي */
   transition:
     opacity 0.3s ease,
-    transform 0.3s ease; /* تأثير عند التبديل */
+    transform 0.3s ease;
+  /* تأثير عند التبديل */
 }
 
 .hover-icon:hover {
-  color: #4caf50; /* لون الموقع عند التمرير */
+  color: #4caf50;
+  /* لون الموقع عند التمرير */
 }
 
 td:hover .hover-icon {
-  opacity: 1; /* إظهار الأيقونة عند التمرير */
-  transform: translateY(-50%) scale(1); /* إرجاع الحجم الطبيعي */
+  opacity: 1;
+  /* إظهار الأيقونة عند التمرير */
+  transform: translateY(-50%) scale(1);
+  /* إرجاع الحجم الطبيعي */
 }
 
 /* تحسين الحاوية */
 .d-flex.position-relative {
-  position: relative; /* تهيئة الحاوية للأيقونة */
-  padding-right: 30px; /* إضافة مساحة للأيقونة */
+  position: relative;
+  /* تهيئة الحاوية للأيقونة */
+  padding-right: 30px;
+  /* إضافة مساحة للأيقونة */
 }
 
 /* تصميم الـ tabs */
@@ -909,32 +835,42 @@ td:hover .hover-icon {
 }
 
 .custom-tabs .nav-link.active {
-  color: #ffffff; /* نص أبيض */
+  color: #ffffff;
+  /* نص أبيض */
   border-radius: 5px;
-  background-color: #a9ca5c; /* خلفية أخضر فاتح */
+  background-color: #a9ca5c;
+  /* خلفية أخضر فاتح */
 }
 
 .custom-tabs .nav-link:hover {
-  color: #ffffff; /* نص أبيض عند التمرير */
-  background-color: #a9ca5c; /* خلفية أخضر فاتح عند التمرير */
+  color: #ffffff;
+  /* نص أبيض عند التمرير */
+  background-color: #a9ca5c;
+  /* خلفية أخضر فاتح عند التمرير */
 }
 
 .tab-content {
   padding: 1rem;
-  background-color: #ffffff; /* اللون الأبيض */
-  border-radius: 0.5rem; /* حواف ناعمة */
+  background-color: #ffffff;
+  /* اللون الأبيض */
+  border-radius: 0.5rem;
+  /* حواف ناعمة */
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(70vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
+  max-height: calc(70vh - 200px);
+  /* لضمان ظهور المحتويات بشكل جيد */
 }
 
 .modal-body {
   padding: 0.2rem;
-  background-color: #ffffff; /* اللون الأبيض */
-  border-radius: 0.5rem; /* حواف ناعمة */
+  background-color: #ffffff;
+  /* اللون الأبيض */
+  border-radius: 0.5rem;
+  /* حواف ناعمة */
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(100vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
+  max-height: calc(100vh - 200px);
+  /* لضمان ظهور المحتويات بشكل جيد */
   max-width: calc(100vw - 2rem);
 }
 
@@ -951,14 +887,17 @@ td:hover .hover-icon {
 
 .modal-body dd {
   margin-left: 0;
-  text-align: left; /* محاذاة النصوص إلى اليسار لتحسين القراءة */
+  text-align: left;
+  /* محاذاة النصوص إلى اليسار لتحسين القراءة */
 }
 
 .log-list {
   padding: 0;
   margin: 0;
-  list-style-type: disc; /* أو circle، أو square، إلخ */
-  padding-left: 1rem; /* لتظهر النقط يسارًا */
+  list-style-type: disc;
+  /* أو circle، أو square، إلخ */
+  padding-left: 1rem;
+  /* لتظهر النقط يسارًا */
 }
 
 .log-item {
@@ -968,7 +907,8 @@ td:hover .hover-icon {
 }
 
 .log-item strong {
-  color: #4caf50; /* لون النص البارز */
+  color: #4caf50;
+  /* لون النص البارز */
 }
 
 .hover-effect {
@@ -988,6 +928,7 @@ td:hover .hover-icon {
   gap: 5px;
   margin-top: 5px;
 }
+
 .selected-option {
   display: inline-flex;
   align-items: center;
@@ -998,6 +939,7 @@ td:hover .hover-icon {
   font-size: 11px;
   color: #333;
 }
+
 .selected-option:hover {
   background-color: #dee2e6;
 }
@@ -1011,6 +953,7 @@ td:hover .hover-icon {
   color: #dc3545;
   padding: 0;
 }
+
 .btn-remove:hover {
   color: #a71d2a;
 }

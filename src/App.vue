@@ -141,7 +141,13 @@ watch(
   overflow: visible !important;
 }
 
-.quick-add-dropdown * {
+/* استهداف العناصر المحددة فقط بدلاً من كل شيء */
+.quick-add-dropdown .gmail-toolbar,
+.quick-add-dropdown .gmail-toolbar-icon-group,
+.quick-add-dropdown .toolbar-dropdown,
+.quick-add-dropdown .toolbar-dropdown-content,
+.quick-add-dropdown .gmail-quick-content,
+.quick-add-dropdown .gmail-quick-scroll {
   overflow: visible !important;
 }
 
@@ -151,16 +157,12 @@ watch(
   overflow: visible !important;
 }
 
-/* z-index عالي جداً للـ dropdowns */
-body .dropdown-menu,
-body .vs__dropdown-menu,
-body .select-dropdown,
-body .options-dropdown,
-body .toolbar-dropdown,
-body .custom-select-dropdown,
-body .argon-tags-input .options-dropdown {
-  z-index: 999999 !important;
-  position: absolute !important;
+/* ====== جعل جميع الـ dropdowns مرئية (Global) ====== */
+body,
+.main-content,
+.gmail-toolbar,
+.gmail-toolbar-icon-group {
+  overflow: visible !important;
 }
 
 /* Main content responsive behavior */

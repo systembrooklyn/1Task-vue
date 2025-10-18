@@ -57,19 +57,19 @@ const employeeOptions = computed(() => {
 const statuses = computed(() => {
   return currentLanguage.value === "ar"
     ? [
-        { value: "", label: "جميع الحالات" },
-        { value: "done", label: "مكتمل" },
-        { value: "not_done", label: "غير مكتمل" },
-        { value: "null", label: "غير مبلغ" },
-        { value: "lated", label: "متاخر" },
-      ]
+      { value: "", label: "جميع الحالات" },
+      { value: "done", label: "مكتمل" },
+      { value: "not_done", label: "غير مكتمل" },
+      { value: "null", label: "غير مبلغ" },
+      { value: "lated", label: "متاخر" },
+    ]
     : [
-        { value: "", label: "All Statuses" },
-        { value: "done", label: "Done" },
-        { value: "not_done", label: "Not Done" },
-        { value: "null", label: "Not Paid" },
-        { value: "lated", label: "Lated" },
-      ];
+      { value: "", label: "All Statuses" },
+      { value: "done", label: "Done" },
+      { value: "not_done", label: "Not Done" },
+      { value: "null", label: "Not Paid" },
+      { value: "lated", label: "Lated" },
+    ];
 });
 
 console.log("employeeOptions:", employeeOptions.value);
@@ -821,30 +821,16 @@ const searchMatch = (task) => {
                 <!-- القسم الأوسط: شريط البحث -->
                 <div class="col-12 col-md-4 my-2 my-md-0">
                   <div class="input-group">
-                    <input
-                      type="text"
-                      class="form-control"
-                      :placeholder="t('searchPlaceholder')"
-                      v-model="searchQuery"
-                    />
+                    <input type="text" class="form-control" :placeholder="t('searchPlaceholder')"
+                      v-model="searchQuery" />
                   </div>
                 </div>
 
                 <!-- القسم الأيمن: زر الفلتر -->
-                <div
-                  class="col-12 col-md-4"
-                  :class="
-                    currentLanguage === 'ar' ? 'text-md-start' : 'text-md-end'
-                  "
-                >
-                  <button
-                    class="btn btn-link"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#filterCollapse"
-                    aria-expanded="false"
-                    aria-controls="filterCollapse"
-                  >
+                <div class="col-12 col-md-4" :class="currentLanguage === 'ar' ? 'text-md-start' : 'text-md-end'
+                  ">
+                  <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse"
+                    aria-expanded="false" aria-controls="filterCollapse">
                     <i class="fas fa-filter"></i>
                   </button>
                 </div>
@@ -870,13 +856,8 @@ const searchMatch = (task) => {
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
-                      <button
-                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
-                        type="button"
-                        id="departmentDropdown"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
+                      <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
+                        id="departmentDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         {{
                           selectedDepartments.length === 0
                             ? t("allDepartments")
@@ -885,49 +866,26 @@ const searchMatch = (task) => {
                               : `${selectedDepartments.length} ${t("departmentsSelected")}`
                         }}
                       </button>
-                      <ul
-                        class="dropdown-menu w-100"
-                        aria-labelledby="departmentDropdown"
-                      >
+                      <ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
                         <li class="px-2">
                           <!-- "Select All" option -->
                           <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="selectAllDepartments"
-                              :checked="
-                                selectedDepartments?.length ===
-                                userDepartment?.length
-                              "
-                              @change="toggleAllDepartments"
-                            />
-                            <label
-                              class="form-check-label"
-                              for="selectAllDepartments"
-                            >
+                            <input class="form-check-input" type="checkbox" id="selectAllDepartments" :checked="selectedDepartments?.length ===
+                              userDepartment?.length
+                              " @change="toggleAllDepartments" />
+                            <label class="form-check-label" for="selectAllDepartments">
                               {{ t("selectAll") }}
                             </label>
                           </div>
                         </li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li
-                          v-for="dept in userDepartment"
-                          :key="dept.value"
-                          class="px-2"
-                        >
+                        <li>
+                          <hr class="dropdown-divider" />
+                        </li>
+                        <li v-for="dept in userDepartment" :key="dept.value" class="px-2">
                           <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              :id="'department-' + dept.value"
-                              :value="{ id: dept.value, name: dept.label }"
-                              v-model="selectedDepartments"
-                            />
-                            <label
-                              class="form-check-label"
-                              :for="'department-' + dept.value"
-                            >
+                            <input class="form-check-input" type="checkbox" :id="'department-' + dept.value"
+                              :value="{ id: dept.value, name: dept.label }" v-model="selectedDepartments" />
+                            <label class="form-check-label" :for="'department-' + dept.value">
                               {{ dept.label }}
                             </label>
                           </div>
@@ -938,19 +896,11 @@ const searchMatch = (task) => {
 
                   <!-- filter by project -->
 
-                  <div
-                    v-if="formattedProjects.length !== 0"
-                    class="col-md-4 mb-3"
-                  >
+                  <div v-if="formattedProjects.length !== 0" class="col-md-4 mb-3">
                     <label class="form-label">{{ t("project") }}</label>
                     <div class="dropdown">
-                      <button
-                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
-                        type="button"
-                        id="projectDropdown"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
+                      <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
+                        id="projectDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="me-2">
                           {{
                             selectedProjects.length === 0
@@ -964,51 +914,27 @@ const searchMatch = (task) => {
                           <i class="fas fa-angle-down"></i>
                         </span>
                       </button>
-                      <ul
-                        class="dropdown-menu w-100"
-                        aria-labelledby="projectDropdown"
-                      >
+                      <ul class="dropdown-menu w-100" aria-labelledby="projectDropdown">
                         <li class="px-2">
                           <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="selectAllProjects"
-                              :checked="
-                                selectedProjects.length ===
-                                formattedProjects.length
-                              "
-                              @change="toggleAllProjects"
-                            />
-                            <label
-                              class="form-check-label"
-                              for="selectAllProjects"
-                            >
+                            <input class="form-check-input" type="checkbox" id="selectAllProjects" :checked="selectedProjects.length ===
+                              formattedProjects.length
+                              " @change="toggleAllProjects" />
+                            <label class="form-check-label" for="selectAllProjects">
                               {{ t("selectAll") }}
                             </label>
                           </div>
                         </li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li
-                          v-for="project in formattedProjects"
-                          :key="project.value"
-                          class="px-2"
-                        >
+                        <li>
+                          <hr class="dropdown-divider" />
+                        </li>
+                        <li v-for="project in formattedProjects" :key="project.value" class="px-2">
                           <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              :id="'project-' + project.value"
-                              :value="{
-                                id: project.value,
-                                name: project.label,
-                              }"
-                              v-model="selectedProjects"
-                            />
-                            <label
-                              class="form-check-label"
-                              :for="'project-' + project.value"
-                            >
+                            <input class="form-check-input" type="checkbox" :id="'project-' + project.value" :value="{
+                              id: project.value,
+                              name: project.label,
+                            }" v-model="selectedProjects" />
+                            <label class="form-check-label" :for="'project-' + project.value">
                               {{ project.label }}
                             </label>
                           </div>
@@ -1020,11 +946,7 @@ const searchMatch = (task) => {
                   <!-- Status Filter -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("status") }}</label>
-                    <argon-select
-                      class="form-select"
-                      v-model="selectedStatus"
-                      :options="statuses"
-                    >
+                    <argon-select class="form-select" v-model="selectedStatus" :options="statuses">
                     </argon-select>
                   </div>
                 </div>
@@ -1043,20 +965,10 @@ const searchMatch = (task) => {
           </div>
           <div class="card-body">
             <form @submit.prevent>
-              <argon-alert
-                v-if="showAlert"
-                color="danger"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showAlert" color="danger" dismissible class="mt-3">
                 {{ errorMessage }}
               </argon-alert>
-              <argon-alert
-                v-if="showSuccess"
-                color="success"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showSuccess" color="success" dismissible class="mt-3">
                 {{ successMessage }}
               </argon-alert>
             </form>
@@ -1066,24 +978,16 @@ const searchMatch = (task) => {
               </div>
             </div>
 
-            <div
-              v-else-if="routineTasks.length === 0"
-              class="d-flex justify-content-center py-5 flex-column align-items-center"
-            >
+            <div v-else-if="routineTasks.length === 0"
+              class="d-flex justify-content-center py-5 flex-column align-items-center">
               <h5>{{ t("noRoutineTasks") }}</h5>
               <!-- تعديل الترجمة -->
               <p>
                 {{ t("createee") }}
               </p>
             </div>
-            <routine-tasks-table
-              v-else
-              :routineTasks="paginatedTasks"
-              :key="componentKey"
-              @page-changed="handlePageChange"
-              :pagination="pagination"
-              @reload-tasks="refreshTasks"
-            />
+            <routine-tasks-table v-else :routineTasks="paginatedTasks" :key="componentKey"
+              @page-changed="handlePageChange" :pagination="pagination" @reload-tasks="refreshTasks" />
             <!-- تعديل المكون والخصائص -->
           </div>
         </div>
@@ -1093,59 +997,34 @@ const searchMatch = (task) => {
 
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
-      <ArgonModal
-        v-if="showPopup"
-        :title="t('createRoutineTask')"
-        @close="closePopup"
-        class="routine-task-modal"
-      >
+      <ArgonModal v-if="showPopup" :title="t('createRoutineTask')" @close="closePopup" class="routine-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <div class="form-group mb-3">
               <label class="form-label">{{ t("routineTaskName") }}:</label>
-              <input
-                v-model="routineTaskName"
-                class="form-control"
-                :placeholder="t('enterRoutineTaskName')"
-              />
+              <input v-model="routineTaskName" class="form-control" :placeholder="t('enterRoutineTaskName')" />
             </div>
 
             <div class="form-group mb-3">
               <label class="form-label">{{ t("description") }}:</label>
-              <textarea
-                v-model="routineTaskDescription"
-                class="form-control"
-                :placeholder="t('enterDescription')"
-              ></textarea>
+              <textarea v-model="routineTaskDescription" class="form-control"
+                :placeholder="t('enterDescription')"></textarea>
             </div>
 
             <div class="form-group mb-3">
               <label class="form-label">{{ t("taskType") }}:</label>
-              <argon-select
-                v-model="taskType"
-                :options="taskTypeOptions"
-                :placeholder="t('selectTaskType')"
-                class="form-control"
-              />
+              <argon-select v-model="taskType" :options="taskTypeOptions" :placeholder="t('selectTaskType')"
+                class="form-control" />
             </div>
 
             <div v-show="taskType === 'weekly'" class="form-group mb-3">
               <label class="form-label">{{ t("recurrentDays") }}:</label>
               <div class="d-flex flex-wrap">
-                <div
-                  v-for="day in daysOfWeek"
-                  :key="day.value"
-                  class="form-check me-3"
-                >
-                  <argon-checkbox
-                    :id="'day-' + day.value"
-                    :name="'recurrentDays'"
-                    :value="day.value"
-                    :modelValue="recurrentDays"
-                    @update:modelValue="
+                <div v-for="day in daysOfWeek" :key="day.value" class="form-check me-3">
+                  <argon-checkbox :id="'day-' + day.value" :name="'recurrentDays'" :value="day.value"
+                    :modelValue="recurrentDays" @update:modelValue="
                       (checked) => toggleRecurrentDay(day.value, checked)
-                    "
-                  >
+                    ">
                     {{ day.label }}
                   </argon-checkbox>
                 </div>
@@ -1154,36 +1033,20 @@ const searchMatch = (task) => {
 
             <div v-show="taskType === 'monthly'" class="form-group mb-3">
               <label class="form-label">{{ t("dayOfMonth") }}:</label>
-              <input
-                type="number"
-                v-model="dayOfMonth"
-                class="form-control"
-                :placeholder="t('enterDayOfMonth')"
-                min="1"
-                max="31"
-              />
+              <input type="number" v-model="dayOfMonth" class="form-control" :placeholder="t('enterDayOfMonth')" min="1"
+                max="31" />
             </div>
 
             <div class="form-group mb-3">
               <label class="form-label">{{ t("department") }}:</label>
-              <argon-select
-                v-model="deptId"
-                :options="formattedDepartments"
-                :placeholder="t('selectDepartment')"
-                class="form-control"
-              />
+              <argon-select v-model="deptId" :options="formattedDepartments" :placeholder="t('selectDepartment')"
+                class="form-control" />
             </div>
 
             <div class="form-group mb-3">
               <label class="form-label">{{ t("startDate") }}:</label>
-              <input
-                type="date"
-                v-model="startDate"
-                class="form-control"
-                :placeholder="t('enterStartDate')"
-                min="1"
-                max="31"
-              />
+              <input type="date" v-model="startDate" class="form-control" :placeholder="t('enterStartDate')" min="1"
+                max="31" />
             </div>
 
             <!-- زر الإعدادات المتقدمة -->
@@ -1241,17 +1104,8 @@ const searchMatch = (task) => {
         </template>
 
         <template #footer>
-          <argon-button
-            variant="success"
-            @click="addRoutineTask"
-            :disabled="isLoading"
-          >
-            <span
-              v-if="isLoading"
-              class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
+          <argon-button variant="success" @click="addRoutineTask" :disabled="isLoading">
+            <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{ isLoading ? t("saving") : t("create") }}
           </argon-button>
           <argon-button variant="secondary" @click="closePopup">
@@ -1271,6 +1125,7 @@ const searchMatch = (task) => {
 .fade-leave-active {
   transition: opacity 0.5s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -1287,18 +1142,25 @@ const searchMatch = (task) => {
 
 /* كلاس مخصص للمودال لجعله قابلًا للتمرير */
 .routine-task-modal {
-  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  max-height: 100vh;
+  /* تحديد الحد الأقصى للارتفاع */
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth; /* تمكين التمرير العمودي */
-  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
-  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+  scroll-behavior: smooth;
+  /* تمكين التمرير العمودي */
+  scrollbar-width: none;
+  /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent;
+  /* تحديد لون الشريط الخلفي والخلفية */
 }
 
 .routine-task-modal .modal-content-scroll {
-  overflow-y: auto; /* تمكين التمرير العمودي */
-  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
+  overflow-y: auto;
+  /* تمكين التمرير العمودي */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  max-height: 80vh;
+  /* تحديد الحد الأقصى للارتفاع */
   /* scroll-behavior: smooth;  */
   max-height: 65vh;
 }
@@ -1319,10 +1181,12 @@ const searchMatch = (task) => {
 /* تحسين تصميم المودال الداخلي */
 .routine-task-modal .modal-header,
 .routine-task-modal .modal-footer {
-  flex-shrink: 0; /* منع الانكماش */
+  flex-shrink: 0;
+  /* منع الانكماش */
 }
 
 .routine-task-modal .modal-body {
-  flex: 1; /* السماح للمحتوى بالتمدد */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد */
 }
 </style>

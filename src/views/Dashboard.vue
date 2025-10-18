@@ -1253,7 +1253,7 @@ onMounted(async () => {
               <span class="status-pill pill-warning">
                 <span class="pill-dot"></span>
                 {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
-                || 0) }} {{ t('notReported') }}
+                  || 0) }} {{ t('notReported') }}
               </span>
             </div>
 
@@ -4266,9 +4266,9 @@ onMounted(async () => {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   width: 255px;
   max-height: 300px;
-  overflow: hidden;
+  overflow: visible;
   animation: toolbarDropdownSlideUp 0.2s ease;
-  /* z-index managed by z-index-variables.css */
+  z-index: 1000;
   margin-bottom: 8px;
 }
 
@@ -4316,13 +4316,19 @@ onMounted(async () => {
 }
 
 .toolbar-dropdown-content {
+  display: flex;
+  flex-direction: column;
   padding: 16px;
   max-height: 300px;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .toolbar-search-container {
-  position: relative;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 2;
+  padding-bottom: 8px;
 }
 
 .toolbar-search-input {
@@ -4341,11 +4347,33 @@ onMounted(async () => {
 }
 
 .toolbar-options-container {
-  max-height: 200px;
+  flex: 1;
   overflow-y: auto;
+  max-height: none;
   border: 1px solid #e9ecef;
   border-radius: 4px;
   background: white;
+  scrollbar-width: thin;
+  scrollbar-color: #ced4da #f8f9fa;
+}
+
+/* تحسين scrollbar في WebKit browsers */
+.toolbar-options-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.toolbar-options-container::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 3px;
+}
+
+.toolbar-options-container::-webkit-scrollbar-thumb {
+  background: #ced4da;
+  border-radius: 3px;
+}
+
+.toolbar-options-container::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
 }
 
 .toolbar-option-item {
@@ -4478,5 +4506,48 @@ onMounted(async () => {
   border: 1px solid #e0e0e0 !important;
   border-radius: 4px !important;
   padding: 6px 8px !important;
+}
+
+/* ====== Gmail-toolbar adjustments ====== */
+.gmail-toolbar,
+.gmail-toolbar-icon-group {
+  overflow: visible;
+}
+
+/* ====== Dropdown نفسه ====== */
+.toolbar-dropdown {
+  overflow: visible;
+}
+
+/* ====== محتوى dropdown ====== */
+.toolbar-dropdown-content {
+  padding: 16px;
+}
+
+/* ====== قائمة الخيارات: Scroll هنا فقط ====== */
+.toolbar-options-container {
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ced4da #f8f9fa;
+}
+
+/* WebKit Scrollbar */
+.toolbar-options-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.toolbar-options-container::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 3px;
+}
+
+.toolbar-options-container::-webkit-scrollbar-thumb {
+  background: #ced4da;
+  border-radius: 3px;
+}
+
+.toolbar-options-container::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
 }
 </style>

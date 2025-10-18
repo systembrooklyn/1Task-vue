@@ -6,20 +6,14 @@
       <table class="table align-items-center table-hover mb-0">
         <thead class="thead-light">
           <tr>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-              v-if="permissions['edit-dailytask'] || isOwner"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+              v-if="permissions['edit-dailytask'] || isOwner">
               {{ t("status") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("taskName") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("department") }}
             </th>
             <!-- <th
@@ -36,24 +30,16 @@
               </option>
             </select>
             </th> -->
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("taskType") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("from") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("to") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("project") }}
             </th>
             <th class="text-secondary opacity-7"></th>
@@ -65,10 +51,7 @@
             <td v-if="permissions['edit-dailytask'] || isOwner">
               <div class="mb-0 py-1">
                 <div class="d-flex justify-content-center text-sm">
-                  <argon-switch
-                    :checked="task.active"
-                    @update:checked="() => toggleStatus(task.id)"
-                  >
+                  <argon-switch :checked="task.active" @update:checked="() => toggleStatus(task.id)">
                     <!-- {{ task.active ? t("active") : t("inactive") }} -->
                   </argon-switch>
                 </div>
@@ -76,22 +59,14 @@
             </td>
 
             <td>
-              <div
-                class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
-              >
-                <div
-                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
-                  @click="openDescriptionModal(task)"
-                  title="Open Task Description"
-                >
+              <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
+                <div class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
+                  @click="openDescriptionModal(task)" title="Open Task Description">
                   <h6 class="mb-0 text-sm hover-effect mx-1" dir="auto">
                     {{ task.task_name }}
                   </h6>
-                  <div
-                    v-if="loadingTaskId === task.id"
-                    class="spinner-border spinner-border-sm text-primary"
-                    role="status"
-                  >
+                  <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary"
+                    role="status">
                     <span class="visually-hidden">Loading...</span>
                   </div>
                 </div>
@@ -125,20 +100,12 @@
               </p>
             </td>
             <td class="align-middle">
-              <a
-                href="javascript:;"
-                v-show="permissions['edit-dailytask'] || isOwner"
-                class="text-secondary font-weight-bold text-xs me-2"
-                @click="openEditModal(task)"
-              >
+              <a href="javascript:;" v-show="permissions['edit-dailytask'] || isOwner"
+                class="text-secondary font-weight-bold text-xs me-2" @click="openEditModal(task)">
                 {{ t("edit") }}
               </a>
-              <a
-                href="javascript:;"
-                v-show="permissions['delete-dailytask'] || isOwner"
-                class="text-danger font-weight-bold text-xs"
-                @click="confirmDelete(task)"
-              >
+              <a href="javascript:;" v-show="permissions['delete-dailytask'] || isOwner"
+                class="text-danger font-weight-bold text-xs" @click="confirmDelete(task)">
                 {{ t("delete") }}
               </a>
             </td>
@@ -150,31 +117,17 @@
       <nav aria-label="Page navigation">
         <ul class="pagination">
           <!-- زر الانتقال للصفحة السابقة -->
-          <li
-            :class="['page-item', { disabled: pagination.current_page === 1 }]"
-          >
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="
-                $emit('page-changed', pagination.current_page - 1)
-              "
-            >
+          <li :class="['page-item', { disabled: pagination.current_page === 1 }]">
+            <a class="page-link" href="#" @click.prevent="
+              $emit('page-changed', pagination.current_page - 1)
+              ">
               &laquo;
             </a>
           </li>
 
           <!-- لو في صفحات قبل الـ startIndex نعرض أول صفحة ... -->
-          <li
-            v-if="startIndex > 1"
-            class="page-item"
-            :class="{ active: 1 === pagination.current_page }"
-          >
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="$emit('page-changed', 1)"
-            >
+          <li v-if="startIndex > 1" class="page-item" :class="{ active: 1 === pagination.current_page }">
+            <a class="page-link" href="#" @click.prevent="$emit('page-changed', 1)">
               1
             </a>
           </li>
@@ -183,57 +136,33 @@
           </li>
 
           <!-- الصفحات الوسيطة اللي هتعرضها -->
-          <li
-            v-for="page in pagesToShow"
-            :key="page"
-            :class="['page-item', { active: page === pagination.current_page }]"
-          >
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="$emit('page-changed', page)"
-            >
+          <li v-for="page in pagesToShow" :key="page"
+            :class="['page-item', { active: page === pagination.current_page }]">
+            <a class="page-link" href="#" @click.prevent="$emit('page-changed', page)">
               {{ page }}
             </a>
           </li>
 
           <!-- لو في صفحات بعد الـ endIndex نعرض آخر صفحة ... -->
-          <li
-            v-if="endIndex < pagination.last_page - 1"
-            class="page-item disabled"
-          >
+          <li v-if="endIndex < pagination.last_page - 1" class="page-item disabled">
             <span class="page-link">...</span>
           </li>
-          <li
-            v-if="endIndex < pagination.last_page"
-            class="page-item"
-            :class="{
-              active: pagination.last_page === pagination.current_page,
-            }"
-          >
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="$emit('page-changed', pagination.last_page)"
-            >
+          <li v-if="endIndex < pagination.last_page" class="page-item" :class="{
+            active: pagination.last_page === pagination.current_page,
+          }">
+            <a class="page-link" href="#" @click.prevent="$emit('page-changed', pagination.last_page)">
               {{ pagination.last_page }}
             </a>
           </li>
 
           <!-- زر الانتقال للصفحة التالية -->
-          <li
-            :class="[
-              'page-item',
-              { disabled: pagination.current_page === pagination.last_page },
-            ]"
-          >
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="
-                $emit('page-changed', pagination.current_page + 1)
-              "
-            >
+          <li :class="[
+            'page-item',
+            { disabled: pagination.current_page === pagination.last_page },
+          ]">
+            <a class="page-link" href="#" @click.prevent="
+              $emit('page-changed', pagination.current_page + 1)
+              ">
               &raquo;
             </a>
           </li>
@@ -269,7 +198,7 @@
             </li>
           </template>
 
-          <template v-else>
+<template v-else>
             <li v-if="pagination.current_page > 5" class="page-item disabled">
               <span class="page-link">...</span>
             </li>
@@ -300,41 +229,26 @@
             </li>
           </template>
 
-          <li :class="['page-item', { disabled: !pagination.next_page_url }]">
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="changePage(pagination.current_page + 1)"
-            >
-              &raquo;
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div> -->
+<li :class="['page-item', { disabled: !pagination.next_page_url }]">
+  <a class="page-link" href="#" @click.prevent="changePage(pagination.current_page + 1)">
+    &raquo;
+  </a>
+</li>
+</ul>
+</nav>
+</div> -->
 
     <!-- مودال التعديل -->
     <div v-if="showEditPopup" class="popup-overlay">
       <transition name="modal-fade">
-        <ArgonModal
-          v-if="showEditPopup"
-          :title="t('editTask')"
-          @close="closeEditPopup"
-          class="routine-task-modal"
-        >
+        <ArgonModal v-if="showEditPopup" :title="t('editTask')" @close="closeEditPopup" class="routine-task-modal">
           <template #default>
             <div class="mb-3 modal-content-scroll">
               <label class="form-label">{{ t("taskName") }}:</label>
-              <input
-                v-model="selectedTask.task_name"
-                class="form-control mb-3"
-              />
+              <input v-model="selectedTask.task_name" class="form-control mb-3" />
 
               <label class="form-label">{{ t("description") }}:</label>
-              <input
-                v-model="selectedTask.description"
-                class="form-control mb-3"
-              />
+              <input v-model="selectedTask.description" class="form-control mb-3" />
 
               <!-- <div v-if="employeeOptions.length > 0" class="mb-3">
                 <label class="form-label">{{ t("assignManager") }}:</label>
@@ -347,48 +261,24 @@
               </div> -->
 
               <label class="form-label">{{ t("taskType") }}:</label>
-              <argon-select
-                v-model="selectedTask.task_type"
-                :options="taskTypeOptions"
-                class="form-control mb-3"
-              />
+              <argon-select v-model="selectedTask.task_type" :options="taskTypeOptions" class="form-control mb-3" />
 
-              <div
-                v-show="selectedTask.task_type === 'weekly'"
-                class="form-group mb-3"
-              >
+              <div v-show="selectedTask.task_type === 'weekly'" class="form-group mb-3">
                 <label class="form-label">{{ t("recurrentDays") }}:</label>
                 <div class="d-flex flex-wrap">
-                  <div
-                    v-for="day in daysOfWeek"
-                    :key="day.value"
-                    class="form-check me-3"
-                  >
-                    <argon-checkbox
-                      :id="'day-' + day.value"
-                      :name="'recurrentDays'"
-                      :value="day.value"
-                      v-model="selectedTask.recurrent_days"
-                    >
+                  <div v-for="day in daysOfWeek" :key="day.value" class="form-check me-3">
+                    <argon-checkbox :id="'day-' + day.value" :name="'recurrentDays'" :value="day.value"
+                      v-model="selectedTask.recurrent_days">
                       {{ day.label }}
                     </argon-checkbox>
                   </div>
                 </div>
               </div>
 
-              <div
-                v-show="selectedTask.task_type === 'monthly'"
-                class="form-group mb-3"
-              >
+              <div v-show="selectedTask.task_type === 'monthly'" class="form-group mb-3">
                 <label class="form-label">{{ t("dayOfMonth") }}:</label>
-                <input
-                  type="number"
-                  v-model="selectedTask.day_of_month"
-                  class="form-control"
-                  :placeholder="t('enterDayOfMonth')"
-                  min="1"
-                  max="31"
-                />
+                <input type="number" v-model="selectedTask.day_of_month" class="form-control"
+                  :placeholder="t('enterDayOfMonth')" min="1" max="31" />
               </div>
 
               <!-- select Department -->
@@ -396,11 +286,7 @@
               <div class="mb-3">
                 <label class="form-label">{{ t("department") }}</label>
                 <select v-model="selectedDepartment" class="form-control mb-3">
-                  <option
-                    v-for="dept in departments"
-                    :key="dept.id"
-                    :value="dept.id"
-                  >
+                  <option v-for="dept in departments" :key="dept.id" :value="dept.id">
                     {{ dept.name }}
                   </option>
                 </select>
@@ -409,44 +295,23 @@
               <!-- select Project -->
               <div class="mb-3">
                 <label class="form-label">{{ t("project") }}:</label>
-                <argon-select
-                  v-model="projectId"
-                  :options="formattedProjects"
-                  :placeholder="t('selectProject')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search projects..."
-                  required
-                />
+                <argon-select v-model="projectId" :options="formattedProjects" :placeholder="t('selectProject')"
+                  class="form-control" searchable searchPlaceholder="Search projects..." required />
               </div>
 
               <!-- أولوية (priority) في نصف عرض -->
               <div class=" mb-3">
                 <label class="form-label">{{ t("priority") }}:</label>
-                <argon-select
-                  v-model="selectedTaskPriority"
-                  :options="prioritiesOptions"
-                  :placeholder="t('selectPriority')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search priorities..."
-                  required
-                />
+                <argon-select v-model="selectedTaskPriority" :options="prioritiesOptions"
+                  :placeholder="t('selectPriority')" class="form-control" searchable
+                  searchPlaceholder="Search priorities..." required />
               </div>
 
               <label class="form-label">{{ t("to") }}:</label>
-              <input
-                v-model="selectedTask.to"
-                type="time"
-                class="form-control mb-3"
-              />
+              <input v-model="selectedTask.to" type="time" class="form-control mb-3" />
 
               <label class="form-label">{{ t("startDate") }}:</label>
-              <input
-                v-model="selectedTask.start_date"
-                type="date"
-                class="form-control mb-3"
-              />
+              <input v-model="selectedTask.start_date" type="date" class="form-control mb-3" />
 
               <!-- <label class="form-label">{{ t("deadline") }}:</label>
               <input
@@ -455,13 +320,8 @@
                 class="form-control mb-3"
               /> -->
 
-              <label style="display: none" class="form-label"
-                >{{ t("status") }}:</label
-              >
-              <argon-switch
-                style="display: none"
-                v-model:checked="selectedTask.status"
-              >
+              <label style="display: none" class="form-label">{{ t("status") }}:</label>
+              <argon-switch style="display: none" v-model:checked="selectedTask.status">
                 {{
                   selectedTask.status === "done" ? t("active") : t("inactive")
                 }}
@@ -473,17 +333,9 @@
             <argon-button variant="secondary" @click="closeEditPopup">
               {{ t("close") }}
             </argon-button>
-            <argon-button
-              variant="success"
-              @click="updateTask"
-              :disabled="isLoading"
-            >
-              <span
-                v-if="isLoading"
-                class="spinner-border spinner-border-sm me-2"
-                role="status"
-                aria-hidden="true"
-              ></span>
+            <argon-button variant="success" @click="updateTask" :disabled="isLoading">
+              <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+                aria-hidden="true"></span>
               {{ isLoading ? t("saving") : t("update") }}
             </argon-button>
           </template>
@@ -498,30 +350,18 @@
 
     <!-- مودال الوصف المعدل -->
     <div v-if="showDescriptionModal" class="popup-overlay">
-      <ArgonModal
-        :title="selectedTaskName"
-        @close="closeDescriptionModal"
-        class="routine-task-modal"
-      >
+      <ArgonModal :title="selectedTaskName" @close="closeDescriptionModal" class="routine-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <!-- التبويبات -->
             <ul class="nav nav-tabs custom-tabs" role="tablist">
               <li class="nav-item">
-                <argon-button
-                  class="nav-link"
-                  :class="{ active: activeTab === 'info' }"
-                  @click="activeTab = 'info'"
-                >
+                <argon-button class="nav-link" :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">
                   {{ t("info") }}
                 </argon-button>
               </li>
               <li class="nav-item">
-                <argon-button
-                  class="nav-link"
-                  :class="{ active: activeTab === 'log' }"
-                  @click="activeTab = 'log'"
-                >
+                <argon-button class="nav-link" :class="{ active: activeTab === 'log' }" @click="activeTab = 'log'">
                   {{ t("log") }}
                 </argon-button>
               </li>
@@ -539,22 +379,16 @@
                     {{ selectedDescription }}
                   </dd>
 
-                  <dt
-                    v-if="
-                      selectedTaskRecurrentDays &&
-                      selectedTaskRecurrentDays.length
-                    "
-                    class="col-sm-3"
-                  >
+                  <dt v-if="
+                    selectedTaskRecurrentDays &&
+                    selectedTaskRecurrentDays.length
+                  " class="col-sm-3">
                     {{ t("recurrentDays") }}:
                   </dt>
-                  <dd
-                    v-if="
-                      selectedTaskRecurrentDays &&
-                      selectedTaskRecurrentDays.length
-                    "
-                    class="col-sm-9"
-                  >
+                  <dd v-if="
+                    selectedTaskRecurrentDays &&
+                    selectedTaskRecurrentDays.length
+                  " class="col-sm-9">
                     {{
                       selectedTaskRecurrentDays
                         .map(
@@ -604,18 +438,14 @@
                   <ul class="log-list">
                     <li v-for="log in taskLogs" :key="log.id" class="log-item">
                       {{ t("onDate") }}
-                      <strong>{{ formatDate(log.created_at) }}</strong
-                      >,
+                      <strong>{{ formatDate(log.created_at) }}</strong>,
                       <strong>{{ log.user.name || "N/A" }}</strong>
                       {{ t("changedTheField") }}
-                      "<strong>{{ log.field_name }}</strong
-                      >"
+                      "<strong>{{ log.field_name }}</strong>"
                       {{ t("from") }}
-                      "<strong>{{ log.old_value }}</strong
-                      >"
+                      "<strong>{{ log.old_value }}</strong>"
                       {{ t("to") }}
-                      "<strong>{{ log.new_value }}</strong
-                      >".
+                      "<strong>{{ log.new_value }}</strong>".
                     </li>
                   </ul>
                 </div>
@@ -1272,7 +1102,8 @@ const pagesToShow = computed(() => {
   text-transform: uppercase;
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
-  text-align: center; /* جعل النصوص في رأس الجدول في المنتصف */
+  text-align: center;
+  /* جعل النصوص في رأس الجدول في المنتصف */
 }
 
 /* تأثير hover على الصفوف */
@@ -1283,27 +1114,36 @@ const pagesToShow = computed(() => {
 .table td,
 .table th {
   vertical-align: middle;
-  text-align: center; /* جعل جميع النصوص في الأعمدة في المنتصف */
+  text-align: center;
+  /* جعل جميع النصوص في الأعمدة في المنتصف */
 }
 
 /* تنسيق الـ Modal */
 
 .routine-task-modal {
-  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  max-height: 100vh;
+  /* تحديد الحد الأقصى للارتفاع */
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth; /* تمكين التمرير العمودي */
-  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
-  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+  scroll-behavior: smooth;
+  /* تمكين التمرير العمودي */
+  scrollbar-width: none;
+  /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent;
+  /* تحديد لون الشريط الخلفي والخلفية */
 }
 
 .routine-task-modal .modal-content-scroll {
-  overflow-y: auto; /* تمكين التمرير العمودي */
-  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
+  overflow-y: auto;
+  /* تمكين التمرير العمودي */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  max-height: 80vh;
+  /* تحديد الحد الأقصى للارتفاع */
   /* scroll-behavior: smooth;  */
   max-height: 65vh;
 }
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -1328,11 +1168,13 @@ const pagesToShow = computed(() => {
 } */
 .routine-task-modal .modal-header,
 .routine-task-modal .modal-footer {
-  flex-shrink: 0; /* منع الانكماش */
+  flex-shrink: 0;
+  /* منع الانكماش */
 }
 
 .routine-task-modal .modal-body {
-  flex: 1; /* السماح للمحتوى بالتمدد */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد */
 }
 
 /* تحسين تنسيق النصوص */
@@ -1344,31 +1186,43 @@ const pagesToShow = computed(() => {
 
 /* إضافة موضع للأيقونة */
 .hover-icon {
-  right: 10px; /* اجعل الأيقونة في أقصى اليمين */
-  top: 50%; /* محاذاة رأسية */
-  transform: translateY(-50%) scale(0.8); /* تصحيح المحاذاة العمودية وتقليل الحجم */
-  position: absolute; /* تثبيت الأيقونة بالنسبة للحاوية */
+  right: 10px;
+  /* اجعل الأيقونة في أقصى اليمين */
+  top: 50%;
+  /* محاذاة رأسية */
+  transform: translateY(-50%) scale(0.8);
+  /* تصحيح المحاذاة العمودية وتقليل الحجم */
+  position: absolute;
+  /* تثبيت الأيقونة بالنسبة للحاوية */
   cursor: pointer;
-  color: #4caf50; /* لون الموقع الأساسي */
-  opacity: 0; /* الإخفاء الافتراضي */
+  color: #4caf50;
+  /* لون الموقع الأساسي */
+  opacity: 0;
+  /* الإخفاء الافتراضي */
   transition:
     opacity 0.3s ease,
-    transform 0.3s ease; /* تأثير عند التبديل */
+    transform 0.3s ease;
+  /* تأثير عند التبديل */
 }
 
 .hover-icon:hover {
-  color: #4caf50; /* لون الموقع عند التمرير */
+  color: #4caf50;
+  /* لون الموقع عند التمرير */
 }
 
 td:hover .hover-icon {
-  opacity: 1; /* إظهار الأيقونة عند التمرير */
-  transform: translateY(-50%) scale(1); /* إرجاع الحجم الطبيعي */
+  opacity: 1;
+  /* إظهار الأيقونة عند التمرير */
+  transform: translateY(-50%) scale(1);
+  /* إرجاع الحجم الطبيعي */
 }
 
 /* تحسين الحاوية */
 .d-flex.position-relative {
-  position: relative; /* تهيئة الحاوية للأيقونة */
-  padding-right: 30px; /* إضافة مساحة للأيقونة */
+  position: relative;
+  /* تهيئة الحاوية للأيقونة */
+  padding-right: 30px;
+  /* إضافة مساحة للأيقونة */
 }
 
 /* تصميم الـ tabs */
@@ -1397,32 +1251,42 @@ td:hover .hover-icon {
 }
 
 .custom-tabs .nav-link.active {
-  color: #ffffff; /* نص أبيض */
+  color: #ffffff;
+  /* نص أبيض */
   border-radius: 5px;
-  background-color: #a9ca5c; /* خلفية أخضر فاتح */
+  background-color: #a9ca5c;
+  /* خلفية أخضر فاتح */
 }
 
 .custom-tabs .nav-link:hover {
-  color: #ffffff; /* نص أبيض عند التمرير */
-  background-color: #a9ca5c; /* خلفية أخضر فاتح عند التمرير */
+  color: #ffffff;
+  /* نص أبيض عند التمرير */
+  background-color: #a9ca5c;
+  /* خلفية أخضر فاتح عند التمرير */
 }
 
 .tab-content {
   padding: 1rem;
-  background-color: #ffffff; /* اللون الأبيض */
-  border-radius: 0.5rem; /* حواف ناعمة */
+  background-color: #ffffff;
+  /* اللون الأبيض */
+  border-radius: 0.5rem;
+  /* حواف ناعمة */
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(70vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
+  max-height: calc(70vh - 200px);
+  /* لضمان ظهور المحتويات بشكل جيد */
 }
 
 .modal-body {
   padding: 0.2rem;
-  background-color: #ffffff; /* اللون الأبيض */
-  border-radius: 0.5rem; /* حواف ناعمة */
+  background-color: #ffffff;
+  /* اللون الأبيض */
+  border-radius: 0.5rem;
+  /* حواف ناعمة */
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(100vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
+  max-height: calc(100vh - 200px);
+  /* لضمان ظهور المحتويات بشكل جيد */
   max-width: calc(100vw - 2rem);
 }
 
@@ -1439,14 +1303,17 @@ td:hover .hover-icon {
 
 .modal-body dd {
   margin-left: 0;
-  text-align: left; /* محاذاة النصوص إلى اليسار لتحسين القراءة */
+  text-align: left;
+  /* محاذاة النصوص إلى اليسار لتحسين القراءة */
 }
 
 .log-list {
   padding: 0;
   margin: 0;
-  list-style-type: disc; /* أو circle، أو square، إلخ */
-  padding-left: 1rem; /* لتظهر النقط يسارًا */
+  list-style-type: disc;
+  /* أو circle، أو square، إلخ */
+  padding-left: 1rem;
+  /* لتظهر النقط يسارًا */
 }
 
 .log-item {
@@ -1456,7 +1323,8 @@ td:hover .hover-icon {
 }
 
 .log-item strong {
-  color: #4caf50; /* لون النص البارز */
+  color: #4caf50;
+  /* لون النص البارز */
 }
 
 /* تنسيق الترقيم */

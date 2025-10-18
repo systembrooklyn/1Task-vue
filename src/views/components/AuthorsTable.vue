@@ -98,8 +98,7 @@
               <div class="w-50">
                 <label class="form-label">{{ t("firstName") }} <span class="text-danger">*</span>:</label>
                 <argon-input v-model="selectedEmployee.name" :placeholder="t('firstName')"
-                  :class="{ 'is-invalid': !selectedEmployee.name || !selectedEmployee.name.trim() }"
-                  required />
+                  :class="{ 'is-invalid': !selectedEmployee.name || !selectedEmployee.name.trim() }" required />
                 <div v-if="!selectedEmployee.name || !selectedEmployee.name.trim()" class="invalid-feedback">
                   {{ t("firstNameRequired") }}
                 </div>
@@ -107,7 +106,8 @@
               <div class="w-50">
                 <label class="form-label">{{ t("lastName") }} <span class="text-danger">*</span>:</label>
                 <argon-input v-model="selectedEmployee.last_name" :placeholder="t('lastName')"
-                  :class="{ 'is-invalid': !selectedEmployee.last_name || !selectedEmployee.last_name.trim() }" required />
+                  :class="{ 'is-invalid': !selectedEmployee.last_name || !selectedEmployee.last_name.trim() }"
+                  required />
                 <div v-if="!selectedEmployee.last_name || !selectedEmployee.last_name.trim()" class="invalid-feedback">
                   {{ t("lastNameRequired") }}
                 </div>
@@ -131,7 +131,7 @@
             </argon-button>
             <argon-button variant="secondary" @click="closeModal">{{
               t("close")
-            }}</argon-button>
+              }}</argon-button>
           </template>
 
           <template #title>

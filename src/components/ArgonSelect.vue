@@ -9,28 +9,9 @@
   <div :class="inputGroupClasses">
     <!-- Custom Dropdown Trigger -->
     <div class="custom-select-container position-relative">
-      <div class="form-control" :class="controlClasses" @click="toggleDropdown" role="combobox" aria-haspopup="listbox"
-        :aria-expanded="isDropdownOpen" :aria-controls="dropdownId">
+      <div ref="triggerEl" class="form-control" :class="controlClasses" @click="toggleDropdown" role="combobox"
+        aria-haspopup="listbox" :aria-expanded="isDropdownOpen" :aria-controls="dropdownId">
         {{ selectedLabel || placeholder }}
-      </div>
-
-      <!-- Dropdown Menu -->
-      <div v-if="isDropdownOpen" class="custom-select-dropdown border rounded shadow-sm bg-white"
-        :class="{ 'dropdown-up': shouldOpenUp }" :id="dropdownId" role="listbox">
-        <!-- Search Input Inside Dropdown -->
-        <div class="px-2 pt-2 pb-1" v-if="searchable">
-          <input v-model="searchQuery" type="text" class="form-control form-control-sm" :placeholder="searchPlaceholder"
-            @click.stop autofocus />
-        </div>
-
-        <!-- Options List -->
-        <div class="options-container py-1" :class="{ 'pt-0': !searchable }">
-          <div v-for="(option, index) in filteredOptions" :key="index" class="custom-select-option px-3 py-2"
-            role="option" :aria-selected="option.value === modelValue" @click="selectOption(option)"
-            @keydown.enter="selectOption(option)" tabindex="0">
-            {{ option.label }}
-          </div>
-        </div>
       </div>
     </div>
 
@@ -49,10 +30,31 @@
       {{ errorMessage }}
     </div>
   </div>
+
+  <!-- Dropdown Menu (Teleported to body) -->
+  <teleport to="body" v-if="isDropdownOpen">
+    <div class="custom-select-dropdown border rounded shadow-sm bg-white" :class="{ 'dropdown-up': shouldOpenUp }"
+      :id="dropdownId" :style="teleportStyle" role="listbox">
+      <!-- Search Input Inside Dropdown -->
+      <div class="px-2 pt-2 pb-1" v-if="searchable">
+        <input v-model="searchQuery" type="text" class="form-control form-control-sm" :placeholder="searchPlaceholder"
+          @click.stop autofocus />
+      </div>
+
+      <!-- Options List -->
+      <div class="options-container py-1" :class="{ 'pt-0': !searchable }">
+        <div v-for="(option, index) in filteredOptions" :key="index" class="custom-select-option px-3 py-2"
+          role="option" :aria-selected="option.value === modelValue" @click="selectOption(option)"
+          @keydown.enter="selectOption(option)" tabindex="0">
+          {{ option.label }}
+        </div>
+      </div>
+    </div>
+  </teleport>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
 
 // =========== PROPS ===========
 const props = defineProps({
@@ -88,6 +90,8 @@ const selectedLabel = ref('');
 const dropdownId = ref(`select-dropdown-${Math.random().toString(36).substr(2, 9)}`);
 const componentId = ref(`argon-select-${Math.random().toString(36).substr(2, 9)}`);
 const shouldOpenUp = ref(false);
+const triggerEl = ref(null);
+const teleportStyle = ref({});
 // =========== END INTERNAL STATE ===========
 
 // =========== FILTERED OPTIONS ===========
@@ -128,9 +132,54 @@ watch(
 // =========== END WATCHERS ===========
 
 // =========== METHODS ===========
+function positionDropdown() {
+  if (!triggerEl.value) return;
+
+  const rect = triggerEl.value.getBoundingClientRect();
+  const dropdownHeight = 300; // Max height of dropdown
+
+  // ============ NEW Z-INDEX LOGIC ============
+  // لو هناك مودال مفتوح سنجعل القائمة تعلوه
+  const modalOverlay = document.querySelector('.modal-overlay');
+  const modalBaseZ = modalOverlay ? +(getComputedStyle(modalOverlay).zIndex || 1050) : 0;
+
+  // نبحث صعوداً عن أقرب سلف يملك z-index مُعلَن
+  let ancestor = triggerEl.value;
+  let parentZ = 0;
+  while (ancestor && ancestor !== document.body) {
+    const z = getComputedStyle(ancestor).zIndex;
+    if (z !== 'auto' && +z > 0) {
+      parentZ = +z;
+      break;
+    }
+    ancestor = ancestor.parentElement;
+  }
+
+  let zIndexValue = 150; // الافتراضى
+
+  if (modalOverlay) {
+    // داخل مودال
+    zIndexValue = modalBaseZ + 50;
+  } else if (parentZ > 0) {
+    // داخل Quick-Add أو أى حاوية لها z-index
+    zIndexValue = parentZ + 50;
+  }
+  // ============ END NEW LOGIC ============
+
+  teleportStyle.value = {
+    position: 'fixed',
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    top: shouldOpenUp.value ? `${rect.top - dropdownHeight}px` : `${rect.bottom}px`,
+    zIndex: zIndexValue,
+  };
+}
+
 function closeDropdown() {
   isDropdownOpen.value = false;
   searchQuery.value = '';
+  window.removeEventListener('resize', positionDropdown);
+  window.removeEventListener('scroll', positionDropdown, true);
   if (window.__argonSelectOpenDropdown === componentId.value) {
     window.__argonSelectOpenDropdown = null;
   }
@@ -155,6 +204,13 @@ function openDropdown() {
   // Calculate dropdown direction
   calculateDropdownDirection();
 
+  // Position dropdown and add listeners
+  nextTick(() => {
+    positionDropdown();
+    window.addEventListener('resize', positionDropdown);
+    window.addEventListener('scroll', positionDropdown, true);
+  });
+
   isDropdownOpen.value = true;
   window.__argonSelectOpenDropdown = componentId.value;
 }
@@ -169,10 +225,9 @@ function toggleDropdown() {
 
 function calculateDropdownDirection() {
   setTimeout(() => {
-    const trigger = document.querySelector(`[aria-controls="${dropdownId.value}"]`);
-    if (!trigger) return;
+    if (!triggerEl.value) return;
 
-    const triggerRect = trigger.getBoundingClientRect();
+    const triggerRect = triggerEl.value.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
     const dropdownHeight = 300; // Max height of dropdown
 
@@ -193,9 +248,16 @@ function selectOption(option) {
 // Handle click outside to close dropdown
 function handleClickOutside(event) {
   const dropdown = document.getElementById(dropdownId.value);
-  const container = dropdown?.parentElement;
+  const trigger = triggerEl.value;
 
-  if (container && !container.contains(event.target) && isDropdownOpen.value) {
+  // Close if click is outside both dropdown and trigger
+  if (
+    isDropdownOpen.value &&
+    dropdown &&
+    !dropdown.contains(event.target) &&
+    trigger &&
+    !trigger.contains(event.target)
+  ) {
     closeDropdown();
   }
 }
@@ -239,6 +301,8 @@ onUnmounted(() => {
   window.removeEventListener('argon-select-close-others', handleGlobalClose);
   window.removeEventListener('argon-multi-select-close-others', handleMultiSelectClose);
   document.removeEventListener('keydown', handleEscapeKey);
+  window.removeEventListener('resize', positionDropdown);
+  window.removeEventListener('scroll', positionDropdown, true);
 
   // Clean up global state if this was the open dropdown
   if (window.__argonSelectOpenDropdown === componentId.value) {
@@ -251,38 +315,6 @@ onUnmounted(() => {
 <style scoped>
 .custom-select-container {
   flex-grow: 1;
-}
-
-.custom-select-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  /* z-index managed by z-index-variables.css */
-  /* max-height: 200px; */
-  overflow-y: auto;
-}
-
-.custom-select-dropdown.dropdown-up {
-  top: auto;
-  bottom: 100%;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.options-container {
-  max-height: calc(200px - 38px);
-  overflow-y: auto;
-}
-
-.options-container.pt-0 {
-  /* max-height: calc(200px - 38px); */
-  overflow-y: auto;
-}
-
-.custom-select-option:hover,
-.custom-select-option:focus {
-  background-color: #f1f1f1;
-  outline: none;
 }
 
 .clear-btn {
@@ -300,5 +332,39 @@ onUnmounted(() => {
 
 .input-group.input-group-right.has-clear-btn .clear-btn {
   right: 2.5rem;
+}
+</style>
+
+<style>
+/* Styles for teleported dropdown (not scoped) */
+.custom-select-dropdown {
+  /* position, top, left, width, zIndex managed by teleportStyle (JS) */
+  max-height: 300px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  background: white;
+}
+
+.custom-select-dropdown.dropdown-up {
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.custom-select-dropdown .options-container {
+  max-height: calc(300px - 50px);
+  overflow-y: auto;
+}
+
+.custom-select-dropdown .options-container.pt-0 {
+  max-height: 300px;
+}
+
+.custom-select-dropdown .custom-select-option {
+  cursor: pointer;
+}
+
+.custom-select-dropdown .custom-select-option:hover,
+.custom-select-dropdown .custom-select-option:focus {
+  background-color: #f1f1f1;
+  outline: none;
 }
 </style>

@@ -208,7 +208,7 @@ const submitRoleAndPermissions = async () => {
         );
 
         if (savedPermissionsResponse.status === 200) {
-        closePopup();
+          closePopup();
 
           Swal.fire({
             icon: "success",
@@ -302,11 +302,7 @@ onBeforeUnmount(() => {
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
               <h5 class="mb-0 font-weight-bold">{{ t("addRole") }}</h5>
-              <argon-button
-                v-show="permissions['create-role'] || isOwner"
-                class="ml-auto mx-2"
-                @click="openPopup"
-              >
+              <argon-button v-show="permissions['create-role'] || isOwner" class="ml-auto mx-2" @click="openPopup">
                 <i class="fas fa-plus"></i>
               </argon-button>
             </div>
@@ -403,11 +399,7 @@ onBeforeUnmount(() => {
           </div>
           <!-- عند تحديث rolesList سيعاد تحميل الجدول -->
           <div v-else class="col-md-6 col-sm-12 col-lg-12">
-            <roleTable
-              :rolesList="rolesList"
-              :permissionsList="permissionsList"
-              :key="componentKey"
-            />
+            <roleTable :rolesList="rolesList" :permissionsList="permissionsList" :key="componentKey" />
           </div>
         </div>
       </div>
@@ -416,56 +408,27 @@ onBeforeUnmount(() => {
 
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
-      <ArgonModal
-        v-if="showPopup"
-        :title="t('addRolePermission')"
-        @close="closePopup"
-        class="routine-task-modal"
-      >
+      <ArgonModal v-if="showPopup" :title="t('addRolePermission')" @close="closePopup" class="routine-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <!-- المحتوى الجديد المضاف -->
             <div class="form-group mb-3">
               <label for="role-input" class="form-label">{{ t("role") }}</label>
-              <argon-input
-                id="role-input"
-                v-model="roleName"
-                :placeholder="t('role')"
-                class="form-control"
-                required
-              />
+              <argon-input id="role-input" v-model="roleName" :placeholder="t('role')" class="form-control" required />
             </div>
 
-            <argon-button
-              class="mt-3"
-              variant="gradient"
-              color="info"
-              size="sm"
-              @click="toggleAccordion"
-            >
+            <argon-button class="mt-3" variant="gradient" color="info" size="sm" @click="toggleAccordion">
               {{ t("addPermission") }}
             </argon-button>
 
-            <div
-              v-if="showAccordion"
-              class="mt-3 card card-body border shadow-sm"
-            >
+            <div v-if="showAccordion" class="mt-3 card card-body border shadow-sm">
               <h6 class="text-secondary">{{ t("addPermission") }}</h6>
               <hr />
               <div class="d-flex flex-wrap">
-                <div
-                  v-for="permission in permissionsList"
-                  :key="permission"
-                  class="form-check me-4 mb-2"
-                  style="min-width: 150px"
-                >
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    :id="permission"
-                    :value="permission"
-                    v-model="selectedPermissions"
-                  />
+                <div v-for="permission in permissionsList" :key="permission" class="form-check me-4 mb-2"
+                  style="min-width: 150px">
+                  <input class="form-check-input" type="checkbox" :id="permission" :value="permission"
+                    v-model="selectedPermissions" />
                   <label class="form-check-label ms-1" :for="permission">
                     {{ permission.name }}
                   </label>
@@ -486,38 +449,19 @@ onBeforeUnmount(() => {
             </div> -->
 
             <div class="mt-3">
-              <argon-alert
-                v-if="showAlert"
-                color="danger"
-                dismissible
-                class="my-2"
-              >
+              <argon-alert v-if="showAlert" color="danger" dismissible class="my-2">
                 {{ errorMessage }}
               </argon-alert>
 
-              <argon-alert
-                v-if="showSuccess"
-                color="success"
-                dismissible
-                class="my-2"
-              >
+              <argon-alert v-if="showSuccess" color="success" dismissible class="my-2">
                 {{ successMessage }}
               </argon-alert>
             </div>
           </div>
         </template>
         <template #footer>
-          <argon-button
-            variant="success"
-            @click="submitRoleAndPermissions"
-            :disabled="isLoadingData"
-          >
-            <span
-              v-if="isLoadingData"
-              class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
+          <argon-button variant="success" @click="submitRoleAndPermissions" :disabled="isLoadingData">
+            <span v-if="isLoadingData" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{ isLoadingData ? t("saving") : t("create") }}
           </argon-button>
           <argon-button variant="secondary" @click="closePopup">
@@ -533,9 +477,11 @@ onBeforeUnmount(() => {
 .card {
   border-radius: 10px;
 }
+
 .form-check-input {
   cursor: pointer;
 }
+
 .form-check-label {
   cursor: pointer;
 }
@@ -545,6 +491,7 @@ onBeforeUnmount(() => {
 .fade-leave-active {
   transition: opacity 0.5s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -561,18 +508,25 @@ onBeforeUnmount(() => {
 
 /* كلاس مخصص للمودال لجعله قابلًا للتمرير */
 .routine-task-modal {
-  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  max-height: 100vh;
+  /* تحديد الحد الأقصى للارتفاع */
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth; /* تمكين التمرير العمودي */
-  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
-  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+  scroll-behavior: smooth;
+  /* تمكين التمرير العمودي */
+  scrollbar-width: none;
+  /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent;
+  /* تحديد لون الشريط الخلفي والخلفية */
 }
 
 .routine-task-modal .modal-content-scroll {
-  overflow-y: auto; /* تمكين التمرير العمودي */
-  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
+  overflow-y: auto;
+  /* تمكين التمرير العمودي */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  max-height: 80vh;
+  /* تحديد الحد الأقصى للارتفاع */
   /* scroll-behavior: smooth;  */
   max-height: 65vh;
 }
@@ -593,11 +547,13 @@ onBeforeUnmount(() => {
 /* تحسين تصميم المودال الداخلي */
 .routine-task-modal .modal-header,
 .routine-task-modal .modal-footer {
-  flex-shrink: 0; /* منع الانكماش */
+  flex-shrink: 0;
+  /* منع الانكماش */
 }
 
 .routine-task-modal .modal-body {
-  flex: 1; /* السماح للمحتوى بالتمدد */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد */
 }
 
 /* swal */

@@ -11,15 +11,11 @@
             >
               {{ t("status") }}
             </th> -->
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("taskName") }}
             </th>
 
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("department") }}
             </th>
             <!-- <th
@@ -27,14 +23,10 @@
             >
               {{ t("taskType") }}
             </th> -->
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("from") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("to") }}
             </th>
             <!-- <th
@@ -42,38 +34,29 @@
             >
               {{ t("taskCreatedBy") }}
             </th> -->
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("project") }}
             </th>
 
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("notes") }}
             </th>
 
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("employeeName") }}
             </th>
-            <th
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("taskFound") }}
             </th>
-            <th
-              v-if="permissions['report-dailytask']"
-              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-            >
+            <th v-if="permissions['report-dailytask']"
+              class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("report") }}
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="task in routineTasks" :key="task.id" :class="{ 'critical-routine-task': task.priority === 'critical' }">
+          <tr v-for="task in routineTasks" :key="task.id"
+            :class="{ 'critical-routine-task': task.priority === 'critical' }">
             <!-- استخدام routineTasks -->
             <!-- <td>
               <div class="mb-0 py-1">
@@ -89,25 +72,14 @@
             </td> -->
 
             <td>
-              <div
-                class="d-flex px-2 py-1 align-items-center justify-content-center position-relative"
-              >
-                <div
-                  class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
-                  @click="openDescriptionModal(task)"
-                  title="Open Task Description"
-                >
-                  <h6
-                    class="mb-0 text-sm hover-effect mx-1"
-                    style="direction: rtl"
-                  >
+              <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
+                <div class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
+                  @click="openDescriptionModal(task)" title="Open Task Description">
+                  <h6 class="mb-0 text-sm hover-effect mx-1" style="direction: rtl">
                     {{ task.task_name }}
                   </h6>
-                  <div
-                    v-if="loadingTaskId === task.id"
-                    class="spinner-border spinner-border-sm text-primary"
-                    role="status"
-                  >
+                  <div v-if="loadingTaskId === task.id" class="spinner-border spinner-border-sm text-primary"
+                    role="status">
                     <span class="visually-hidden">Loading...</span>
                   </div>
                 </div>
@@ -162,24 +134,19 @@
             </td>
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ task.today_report_status === null ? "Not Report" : ""  ||  task.today_report?.task_found === 1 ? "yes" : "No" }}
+                {{ task.today_report_status === null ? "Not Report" : "" || task.today_report?.task_found === 1 ? "yes"
+                : "No" }}
               </p>
             </td>
             <td class="align-middle" v-if="permissions['report-dailytask']">
-              <a
-                href="javascript:;"
-                class="font-weight-bold text-lg me-2"
-                :class="{
-                  'text-success': task.today_report_status === 'done',
-                  'text-danger': task.today_report_status === 'not_done',
-                  'text-secondary': !['done', 'not_done'].includes(
-                    task.today_report_status
-                  ),
-                }"
-                :aria-disabled="
-                  ['done', 'not_done'].includes(task.today_report_status) 
-                "
-                :style="{
+              <a href="javascript:;" class="font-weight-bold text-lg me-2" :class="{
+                'text-success': task.today_report_status === 'done',
+                'text-danger': task.today_report_status === 'not_done',
+                'text-secondary': !['done', 'not_done'].includes(
+                  task.today_report_status
+                ),
+              }" :aria-disabled="['done', 'not_done'].includes(task.today_report_status)
+                  " :style="{
                   pointerEvents: ['done', 'not_done'].includes(
                     task.today_report_status
                   )
@@ -190,22 +157,18 @@
                   )
                     ? 0.6
                     : 1,
-                }"
-                @click="
+                }" @click="
                   !['done', 'not_done'].includes(task.today_report_status) &&
-                    openReportModal(task.id)
-                "
-              >
-                <i
-                  :class="{
-                    'fa fa-check-circle': task.today_report_status === 'done',
-                    'fa fa-times-circle':
-                      task.today_report_status === 'not_done',
-                    'fa fa-circle': !['done', 'not_done'].includes(
-                      task.today_report_status
-                    ),
-                  }"
-                ></i>
+                  openReportModal(task.id)
+                  ">
+                <i :class="{
+                  'fa fa-check-circle': task.today_report_status === 'done',
+                  'fa fa-times-circle':
+                    task.today_report_status === 'not_done',
+                  'fa fa-circle': !['done', 'not_done'].includes(
+                    task.today_report_status
+                  ),
+                }"></i>
               </a>
 
               <!-- <a
@@ -229,40 +192,22 @@
     <nav aria-label="Page navigation" class="pagination-container">
       <ul class="pagination">
         <!-- Previous Button -->
-        <li
-          class="page-item"
-          :class="{ disabled: pagination.current_page === 1 }"
-        >
-          <a
-            class="page-link"
-            href="#"
-            @click.prevent="changePage(pagination.current_page - 1)"
-          >
+        <li class="page-item" :class="{ disabled: pagination.current_page === 1 }">
+          <a class="page-link" href="#" @click.prevent="changePage(pagination.current_page - 1)">
             <i class="fas fa-angle-left"></i>
           </a>
         </li>
 
         <!-- Page Numbers -->
-        <li
-          v-for="page in lastPage"
-          :key="page"
-          :class="['page-item', { active: pagination.current_page === page }]"
-        >
+        <li v-for="page in lastPage" :key="page" :class="['page-item', { active: pagination.current_page === page }]">
           <a class="page-link" href="#" @click.prevent="changePage(page)">
             {{ page }}
           </a>
         </li>
 
         <!-- Next Button -->
-        <li
-          class="page-item"
-          :class="{ disabled: pagination.current_page === lastPage }"
-        >
-          <a
-            class="page-link"
-            href="#"
-            @click.prevent="changePage(pagination.current_page + 1)"
-          >
+        <li class="page-item" :class="{ disabled: pagination.current_page === lastPage }">
+          <a class="page-link" href="#" @click.prevent="changePage(pagination.current_page + 1)">
             <i class="fas fa-angle-right"></i>
           </a>
         </li>
@@ -293,8 +238,8 @@
               </a>
             </li>
           </template>
-          
-          <template v-else>
+
+<template v-else>
             <li v-if="pagination.current_page > 5" class="page-item disabled">
               <span class="page-link">...</span>
             </li>
@@ -317,29 +262,21 @@
               <span class="page-link">...</span>
             </li>
           </template>
-          
-          <li :class="['page-item', { disabled: !pagination.next_page_url }]">
-            <a
-              class="page-link"
-              href="#"
-              @click.prevent="changePage(pagination.current_page + 1)"
-            >
-              &raquo;
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div> -->
+
+<li :class="['page-item', { disabled: !pagination.next_page_url }]">
+  <a class="page-link" href="#" @click.prevent="changePage(pagination.current_page + 1)">
+    &raquo;
+  </a>
+</li>
+</ul>
+</nav>
+</div> -->
 
     <!-- مودال التعديل -->
     <div v-if="showEditPopup" class="popup-overlay">
       <transition name="modal-fade">
-        <ArgonModal
-          v-if="showEditPopup"
-          :title="selectedTask.task_name"
-          @close="closeEditPopup"
-          class="routine-task-modal"
-        >
+        <ArgonModal v-if="showEditPopup" :title="selectedTask.task_name" @close="closeEditPopup"
+          class="routine-task-modal">
           <template #default>
             <div class="mb-3 modal-content-scroll">
               <!-- <label class="form-label">{{ t("taskName") }}:</label>
@@ -365,28 +302,15 @@
               </div> -->
 
               <label class="form-label">{{ t("reportTaskType") }}:</label>
-              <argon-select
-                required
-                v-model="taskStatus"
-                :options="reportTypeOptions"
-                class="form-control mb-3"
-                :placeholder="t('selectReportTaskType')"
-              />
+              <argon-select required v-model="taskStatus" :options="reportTypeOptions" class="form-control mb-3"
+                :placeholder="t('selectReportTaskType')" />
 
               <label class="form-label">{{ t("taskFound") }}</label>
-              <argon-select
-                v-model="taskFound"
-                :options="taskFoundOptions"
-                class="form-control mb-3"
-                :placeholder="t('selectTaskFound')"
-              />
+              <argon-select v-model="taskFound" :options="taskFoundOptions" class="form-control mb-3"
+                :placeholder="t('selectTaskFound')" />
 
               <label class="form-label">{{ t("notes") }}:</label>
-              <textarea
-                v-model="taskNotes"
-                class="form-control mb-3"
-                :placeholder="t('enterNotes')"
-              ></textarea>
+              <textarea v-model="taskNotes" class="form-control mb-3" :placeholder="t('enterNotes')"></textarea>
 
               <!-- <div
               v-show="selectedTask.task_type === 'weekly'"
@@ -469,17 +393,9 @@
           </template>
 
           <template #footer>
-            <argon-button
-              variant="success"
-              @click="reportTask"
-              :disabled="isLoading"
-            >
-              <span
-                v-if="isLoading"
-                class="spinner-border spinner-border-sm me-2"
-                role="status"
-                aria-hidden="true"
-              ></span>
+            <argon-button variant="success" @click="reportTask" :disabled="isLoading">
+              <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+                aria-hidden="true"></span>
               {{ isLoading ? t("saving") : t("report") }}
             </argon-button>
             <argon-button variant="secondary" @click="closeEditPopup">
@@ -497,40 +413,25 @@
 
     <!-- مودال الوصف المعدل -->
     <div v-if="showDescriptionModal" class="popup-overlay">
-      <ArgonModal
-        :title="selectedTaskName"
-        @close="closeDescriptionModal"
-        class="routine-task-modal"
-      >
+      <ArgonModal :title="selectedTaskName" @close="closeDescriptionModal" class="routine-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <!-- التبويبات -->
             <ul class="nav nav-tabs custom-tabs" role="tablist">
               <li class="nav-item">
-                <argon-button
-                  class="nav-link"
-                  :class="{ active: activeTab === 'info' }"
-                  @click="activeTab = 'info'"
-                >
+                <argon-button class="nav-link" :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">
                   {{ t("info") }}
                 </argon-button>
               </li>
               <li class="nav-item">
-                <argon-button
-                  class="nav-link"
-                  :class="{ active: activeTab === 'log' }"
-                  @click="activeTab = 'log'"
-                >
+                <argon-button class="nav-link" :class="{ active: activeTab === 'log' }" @click="activeTab = 'log'">
                   {{ t("log") }}
                 </argon-button>
               </li>
             </ul>
             <div class="tab-content">
               <div v-if="activeTab === 'info'">
-                <dl
-                  class="task-info"
-                  :class="{ 'rtl-mode': currentLanguage === 'ar' }"
-                >
+                <dl class="task-info" :class="{ 'rtl-mode': currentLanguage === 'ar' }">
                   <div class="info-item">
                     <dt>{{ t("taskNumber") }}:</dt>
                     <dd>{{ selectedTaskNumber }}</dd>
@@ -546,13 +447,10 @@
                     <dd>{{ selectedTaskDepartment }}</dd>
                   </div>
 
-                  <div
-                    v-if="
-                      selectedTaskRecurrentDays &&
-                      selectedTaskRecurrentDays.length
-                    "
-                    class="info-item"
-                  >
+                  <div v-if="
+                    selectedTaskRecurrentDays &&
+                    selectedTaskRecurrentDays.length
+                  " class="info-item">
                     <dt>{{ t("recurrentDays") }}:</dt>
                     <dd>
                       {{
@@ -589,18 +487,14 @@
                   <ul class="log-list">
                     <li v-for="log in taskLogs" :key="log.id" class="log-item">
                       {{ t("onDate") }}
-                      <strong>{{ formatDate(log.created_at) }}</strong
-                      >,
+                      <strong>{{ formatDate(log.created_at) }}</strong>,
                       <strong>{{ log.user.name || "N/A" }}</strong>
                       {{ t("changedTheField") }}
-                      "<strong>{{ log.field_name }}</strong
-                      >"
+                      "<strong>{{ log.field_name }}</strong>"
                       {{ t("from") }}
-                      "<strong>{{ log.old_value }}</strong
-                      >"
+                      "<strong>{{ log.old_value }}</strong>"
                       {{ t("to") }}
-                      "<strong>{{ log.new_value }}</strong
-                      >".
+                      "<strong>{{ log.new_value }}</strong>".
                     </li>
                   </ul>
                 </div>
@@ -1145,23 +1039,23 @@ const translations = {
 const daysOfWeek = computed(() => {
   return currentLanguage.value === "ar"
     ? [
-        { label: "الأحد", value: 0 },
-        { label: "الإثنين", value: 1 },
-        { label: "الثلاثاء", value: 2 },
-        { label: "الأربعاء", value: 3 },
-        { label: "الخميس", value: 4 },
-        { label: "الجمعة", value: 5 },
-        { label: "السبت", value: 6 },
-      ]
+      { label: "الأحد", value: 0 },
+      { label: "الإثنين", value: 1 },
+      { label: "الثلاثاء", value: 2 },
+      { label: "الأربعاء", value: 3 },
+      { label: "الخميس", value: 4 },
+      { label: "الجمعة", value: 5 },
+      { label: "السبت", value: 6 },
+    ]
     : [
-        { label: "Sunday", value: 0 },
-        { label: "Monday", value: 1 },
-        { label: "Tuesday", value: 2 },
-        { label: "Wednesday", value: 3 },
-        { label: "Thursday", value: 4 },
-        { label: "Friday", value: 5 },
-        { label: "Saturday", value: 6 },
-      ];
+      { label: "Sunday", value: 0 },
+      { label: "Monday", value: 1 },
+      { label: "Tuesday", value: 2 },
+      { label: "Wednesday", value: 3 },
+      { label: "Thursday", value: 4 },
+      { label: "Friday", value: 5 },
+      { label: "Saturday", value: 6 },
+    ];
 });
 
 
@@ -1203,7 +1097,8 @@ const lastPage = computed(() =>
   text-transform: uppercase;
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
-  text-align: center; /* جعل النصوص في رأس الجدول في المنتصف */
+  text-align: center;
+  /* جعل النصوص في رأس الجدول في المنتصف */
 }
 
 /* تأثير hover على الصفوف */
@@ -1212,11 +1107,11 @@ const lastPage = computed(() =>
 }
 
 .critical-routine-task {
-  background-color:#FCE4E4;
+  background-color: #FCE4E4;
 }
 
 .circle-critical-routine-task {
-  background-color:#FCE4E4;
+  background-color: #FCE4E4;
   border-radius: 50%;
   border: 1px solid rgb(0, 0, 0);
   width: 20px;
@@ -1226,27 +1121,36 @@ const lastPage = computed(() =>
 .table td,
 .table th {
   vertical-align: middle;
-  text-align: center; /* جعل جميع النصوص في الأعمدة في المنتصف */
+  text-align: center;
+  /* جعل جميع النصوص في الأعمدة في المنتصف */
 }
 
 /* تنسيق الـ Modal */
 
 .routine-task-modal {
-  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  max-height: 100vh;
+  /* تحديد الحد الأقصى للارتفاع */
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth; /* تمكين التمرير العمودي */
-  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
-  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+  scroll-behavior: smooth;
+  /* تمكين التمرير العمودي */
+  scrollbar-width: none;
+  /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent;
+  /* تحديد لون الشريط الخلفي والخلفية */
 }
 
 .routine-task-modal .modal-content-scroll {
-  overflow-y: auto; /* تمكين التمرير العمودي */
-  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
+  overflow-y: auto;
+  /* تمكين التمرير العمودي */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  max-height: 80vh;
+  /* تحديد الحد الأقصى للارتفاع */
   /* scroll-behavior: smooth;  */
   max-height: 65vh;
 }
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -1271,11 +1175,13 @@ const lastPage = computed(() =>
 } */
 .routine-task-modal .modal-header,
 .routine-task-modal .modal-footer {
-  flex-shrink: 0; /* منع الانكماش */
+  flex-shrink: 0;
+  /* منع الانكماش */
 }
 
 .routine-task-modal .modal-body {
-  flex: 1; /* السماح للمحتوى بالتمدد */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد */
 }
 
 /* تحسين تنسيق النصوص */
@@ -1287,31 +1193,43 @@ const lastPage = computed(() =>
 
 /* إضافة موضع للأيقونة */
 .hover-icon {
-  right: 10px; /* اجعل الأيقونة في أقصى اليمين */
-  top: 50%; /* محاذاة رأسية */
-  transform: translateY(-50%) scale(0.8); /* تصحيح المحاذاة العمودية وتقليل الحجم */
-  position: absolute; /* تثبيت الأيقونة بالنسبة للحاوية */
+  right: 10px;
+  /* اجعل الأيقونة في أقصى اليمين */
+  top: 50%;
+  /* محاذاة رأسية */
+  transform: translateY(-50%) scale(0.8);
+  /* تصحيح المحاذاة العمودية وتقليل الحجم */
+  position: absolute;
+  /* تثبيت الأيقونة بالنسبة للحاوية */
   cursor: pointer;
-  color: #4caf50; /* لون الموقع الأساسي */
-  opacity: 0; /* الإخفاء الافتراضي */
+  color: #4caf50;
+  /* لون الموقع الأساسي */
+  opacity: 0;
+  /* الإخفاء الافتراضي */
   transition:
     opacity 0.3s ease,
-    transform 0.3s ease; /* تأثير عند التبديل */
+    transform 0.3s ease;
+  /* تأثير عند التبديل */
 }
 
 .hover-icon:hover {
-  color: #4caf50; /* لون الموقع عند التمرير */
+  color: #4caf50;
+  /* لون الموقع عند التمرير */
 }
 
 td:hover .hover-icon {
-  opacity: 1; /* إظهار الأيقونة عند التمرير */
-  transform: translateY(-50%) scale(1); /* إرجاع الحجم الطبيعي */
+  opacity: 1;
+  /* إظهار الأيقونة عند التمرير */
+  transform: translateY(-50%) scale(1);
+  /* إرجاع الحجم الطبيعي */
 }
 
 /* تحسين الحاوية */
 .d-flex.position-relative {
-  position: relative; /* تهيئة الحاوية للأيقونة */
-  padding-right: 30px; /* إضافة مساحة للأيقونة */
+  position: relative;
+  /* تهيئة الحاوية للأيقونة */
+  padding-right: 30px;
+  /* إضافة مساحة للأيقونة */
 }
 
 /* تصميم الـ tabs */
@@ -1340,32 +1258,42 @@ td:hover .hover-icon {
 }
 
 .custom-tabs .nav-link.active {
-  color: #ffffff; /* نص أبيض */
+  color: #ffffff;
+  /* نص أبيض */
   border-radius: 5px;
-  background-color: #a9ca5c; /* خلفية أخضر فاتح */
+  background-color: #a9ca5c;
+  /* خلفية أخضر فاتح */
 }
 
 .custom-tabs .nav-link:hover {
-  color: #ffffff; /* نص أبيض عند التمرير */
-  background-color: #a9ca5c; /* خلفية أخضر فاتح عند التمرير */
+  color: #ffffff;
+  /* نص أبيض عند التمرير */
+  background-color: #a9ca5c;
+  /* خلفية أخضر فاتح عند التمرير */
 }
 
 .tab-content {
   padding: 1rem;
-  background-color: #ffffff; /* اللون الأبيض */
-  border-radius: 0.5rem; /* حواف ناعمة */
+  background-color: #ffffff;
+  /* اللون الأبيض */
+  border-radius: 0.5rem;
+  /* حواف ناعمة */
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(70vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
+  max-height: calc(70vh - 200px);
+  /* لضمان ظهور المحتويات بشكل جيد */
 }
 
 .modal-body {
   padding: 0.2rem;
-  background-color: #ffffff; /* اللون الأبيض */
-  border-radius: 0.5rem; /* حواف ناعمة */
+  background-color: #ffffff;
+  /* اللون الأبيض */
+  border-radius: 0.5rem;
+  /* حواف ناعمة */
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(100vh - 200px); /* لضمان ظهور المحتويات بشكل جيد */
+  max-height: calc(100vh - 200px);
+  /* لضمان ظهور المحتويات بشكل جيد */
   max-width: calc(100vw - 2rem);
 }
 
@@ -1382,14 +1310,17 @@ td:hover .hover-icon {
 
 .modal-body dd {
   margin-left: 0;
-  text-align: left; /* محاذاة النصوص إلى اليسار لتحسين القراءة */
+  text-align: left;
+  /* محاذاة النصوص إلى اليسار لتحسين القراءة */
 }
 
 .log-list {
   padding: 0;
   margin: 0;
-  list-style-type: disc; /* أو circle، أو square، إلخ */
-  padding-left: 1rem; /* لتظهر النقط يسارًا */
+  list-style-type: disc;
+  /* أو circle، أو square، إلخ */
+  padding-left: 1rem;
+  /* لتظهر النقط يسارًا */
 }
 
 .log-item {
@@ -1399,7 +1330,8 @@ td:hover .hover-icon {
 }
 
 .log-item strong {
-  color: #4caf50; /* لون النص البارز */
+  color: #4caf50;
+  /* لون النص البارز */
 }
 
 /* تنسيق الترقيم */
@@ -1450,10 +1382,14 @@ td:hover .hover-icon {
 }
 
 td {
-  word-wrap: break-word; /* السماح للنص بالانكسار */
-  white-space: pre-wrap; /* المحافظة على التنسيق والانكسار */
-  max-width: 200px; /* يمكنك تخصيص العرض المناسب للعمود */
-  overflow-wrap: break-word; /* السماح بانكسار النص */
+  word-wrap: break-word;
+  /* السماح للنص بالانكسار */
+  white-space: pre-wrap;
+  /* المحافظة على التنسيق والانكسار */
+  max-width: 200px;
+  /* يمكنك تخصيص العرض المناسب للعمود */
+  overflow-wrap: break-word;
+  /* السماح بانكسار النص */
 }
 
 /* تنسيق للنصوص الاختيارية */
@@ -1502,10 +1438,12 @@ td {
   display: flex;
   justify-content: center;
 }
+
 .page-item.active .page-link {
   background-color: #007bff;
   color: #fff;
 }
+
 .page-item.disabled .page-link {
   pointer-events: none;
   opacity: 0.6;
@@ -1515,7 +1453,8 @@ td {
 .task-info {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* Space between items */
+  gap: 12px;
+  /* Space between items */
 }
 
 /* Flexbox for alignment */
@@ -1531,14 +1470,16 @@ td {
 /* Default LTR alignment */
 dt {
   font-weight: bold;
-  min-width: 150px; /* Ensures labels are aligned */
+  min-width: 150px;
+  /* Ensures labels are aligned */
   text-align: left;
 }
 
 dd {
   margin: 0;
   flex-grow: 1;
-  text-align: left; /* Align content properly */
+  text-align: left;
+  /* Align content properly */
 }
 
 /* RTL Mode (Arabic) */
@@ -1550,15 +1491,19 @@ dd {
   /* flex-direction: row-reverse;  */
   text-align: right;
   border-left: none;
-  border-right: 4px solid #a9ca5c; /* Move border to right */
+  border-right: 4px solid #a9ca5c;
+  /* Move border to right */
 }
 
 .rtl-mode dt {
-  text-align: right; /* Ensure labels are on the right */
-  justify-content: flex-end; /* Push labels to the right */
+  text-align: right;
+  /* Ensure labels are on the right */
+  justify-content: flex-end;
+  /* Push labels to the right */
 }
 
 .rtl-mode dd {
-  text-align: right; /* Keep values aligned left */
+  text-align: right;
+  /* Keep values aligned left */
 }
 </style>

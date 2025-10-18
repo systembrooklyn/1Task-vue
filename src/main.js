@@ -27,6 +27,8 @@ import "./assets/css/nucleo-icons.css";
 import "./assets/css/nucleo-svg.css";
 // main.js
 import "bootstrap-icons/font/bootstrap-icons.css";
+// Z-Index Layer System - نظام موحد لإدارة الطبقات
+import "./assets/css/z-layers.css";
 import ArgonDashboard from "./argon-dashboard";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";

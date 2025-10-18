@@ -36,10 +36,12 @@
               </p>
             </td> -->
             <td class="align-middle">
-              <a href="javascript:;" v-show="permissions['edit-department'] || isOwner" class="text-secondary font-weight-bold text-xs me-2" @click="openEditModal(department)">
+              <a href="javascript:;" v-show="permissions['edit-department'] || isOwner"
+                class="text-secondary font-weight-bold text-xs me-2" @click="openEditModal(department)">
                 {{ t("edit") }}
               </a>
-              <a href="javascript:;" v-show="permissions['delete-department'] || isOwner" class="text-danger font-weight-bold text-xs" @click="confirmDelete(department)">
+              <a href="javascript:;" v-show="permissions['delete-department'] || isOwner"
+                class="text-danger font-weight-bold text-xs" @click="confirmDelete(department)">
                 {{ t("delete") }}
               </a>
             </td>
@@ -69,7 +71,8 @@
 
           <template #footer>
             <argon-button variant="success" @click="updateDepartment" :disabled="isLoading">
-              <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+                aria-hidden="true"></span>
               {{ isLoading ? t("saving") : t("update") }}
             </argon-button>
             <argon-button variant="secondary" @click="closeEditPopup">{{ t("close") }}</argon-button>
@@ -124,7 +127,7 @@ const permissions = ref(
   loadPermissionsFromLocalStorage(userData.value?.id) || {}
 );
 
-console.log( permissions.value);
+console.log(permissions.value);
 
 // عند تحميل الصفحة لأول مرة، حفظ الصلاحيات في localStorage
 onBeforeMount(() => {
@@ -293,10 +296,10 @@ const updateDepartment = async () => {
       department_id: selectedDepartment.value.id,
     };
 
-  // if (departmentManagerId) {
-  //   departmentData.managerId = departmentManagerId;
-  // }
-  console.log("departmentManagerId:", departmentManagerId);
+    // if (departmentManagerId) {
+    //   departmentData.managerId = departmentManagerId;
+    // }
+    console.log("departmentManagerId:", departmentManagerId);
 
 
     const result = await store.dispatch('updateDepartment', departmentData);
@@ -459,7 +462,8 @@ console.log(employeeOptions.value);
   background: #f1f1f1;
 }
 
-.table td, .table th {
+.table td,
+.table th {
   vertical-align: middle;
 }
 
@@ -480,6 +484,7 @@ console.log(employeeOptions.value);
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .modal-fade-enter,
 .modal-fade-leave-to {
   opacity: 0;
@@ -498,18 +503,25 @@ console.log(employeeOptions.value);
 
 /* كلاس مخصص للمودال لجعله قابلًا للتمرير */
 .routine-task-modal {
-  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  max-height: 100vh;
+  /* تحديد الحد الأقصى للارتفاع */
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth; /* تمكين التمرير العمودي */
-  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
-  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+  scroll-behavior: smooth;
+  /* تمكين التمرير العمودي */
+  scrollbar-width: none;
+  /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent;
+  /* تحديد لون الشريط الخلفي والخلفية */
 }
 
 .routine-task-modal .modal-content-scroll {
-  overflow-y: auto; /* تمكين التمرير العمودي */
-  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
-  max-height: 80vh; /* تحديد الحد الأقصى للارتفاع */
+  overflow-y: auto;
+  /* تمكين التمرير العمودي */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  max-height: 80vh;
+  /* تحديد الحد الأقصى للارتفاع */
   /* scroll-behavior: smooth;  */
   max-height: 65vh;
 }
@@ -530,11 +542,13 @@ console.log(employeeOptions.value);
 /* تحسين تصميم المودال الداخلي */
 .routine-task-modal .modal-header,
 .routine-task-modal .modal-footer {
-  flex-shrink: 0; /* منع الانكماش */
+  flex-shrink: 0;
+  /* منع الانكماش */
 }
 
 .routine-task-modal .modal-body {
-  flex: 1; /* السماح للمحتوى بالتمدد */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد */
 }
 
 

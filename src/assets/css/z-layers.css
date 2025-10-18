@@ -1,0 +1,84 @@
+/* ================================================================
+   Z-Index Layer System
+   ================================================================
+   نظام موحد لإدارة طبقات العناصر في المشروع
+   - يمنع التضارب بين المودالات والقوائم المنسدلة
+   - يسهل الصيانة والتطوير المستقبلي
+   ================================================================ */
+
+:root {
+  --z-base: 1;
+  --z-dropdown: 150;
+  --z-sidenav: 1000;
+  --z-modal-overlay: 1050;
+  --z-modal-content: 1060;
+  --z-toast: 1100;
+}
+
+/* ================================================================
+   Modal System
+   ================================================================ */
+
+/* خلفية المودال المعتمة */
+.modal-overlay {
+  z-index: var(--z-modal-overlay) !important;
+}
+
+/* محتوى المودال نفسه */
+.modal-content {
+  z-index: var(--z-modal-content) !important;
+  position: relative;
+}
+
+/* أجزاء المودال */
+.modal-header,
+.modal-body,
+.modal-footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ================================================================
+   Dropdowns & Select Menus
+   ================================================================ */
+
+/* القوائم المنسدلة - تطبق فقط خارج المودالات لتجنب التعارض مع القيم الديناميكية */
+body:not(.modal-open) .dropdown-menu,
+body:not(.modal-open) .vs__dropdown-menu,
+body:not(.modal-open) .toolbar-dropdown,
+body:not(.modal-open) .select-dropdown,
+body:not(.modal-open) .options-dropdown,
+body:not(.modal-open) .custom-select-dropdown {
+  z-index: var(--z-dropdown);
+}
+
+/* القوائم المنسدلة داخل المودالات تُدار ديناميكياً عبر JavaScript (ArgonSelect/ArgonMultipleSelect) */
+/* لا حاجة لقاعدة CSS ثابتة هنا - يتم حساب z-index تلقائياً: modalBaseZ + 50 */
+
+/* ================================================================
+   Toast & Alerts (SweetAlert)
+   ================================================================ */
+
+.swal2-container,
+.toast-container,
+.swal-above-modal {
+  z-index: var(--z-toast) !important;
+}
+
+/* ================================================================
+   Sidebar & Navigation
+   ================================================================ */
+
+#g-sidenav-show,
+.sidenav,
+.navbar {
+  z-index: var(--z-sidenav) !important;
+}
+
+/* ================================================================
+   Popup Overlays (مثل popup-overlay في المشروع)
+   ================================================================ */
+
+.popup-overlay {
+  z-index: var(--z-modal-overlay) !important;
+}
