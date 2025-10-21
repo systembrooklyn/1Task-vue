@@ -300,6 +300,7 @@ const translations = {
     pending: "Pending",
     reported: "Reported",
     notReported: "Not Reported",
+    task : "Tasks",
     // One-Time tasks labels
     oneTimeTasks: "One-Time Tasks",
     openTasks: "Open Tasks",
@@ -439,6 +440,7 @@ const translations = {
     pending: "معلق",
     reported: "مُبلغ عنها",
     notReported: "لم يُبلغ عنها",
+    task : "مهمة",
     // One-Time tasks labels
     oneTimeTasks: "مهام لمرة واحدة",
     openTasks: "مهام مفتوحة",
@@ -602,49 +604,54 @@ const prevChart = () => {
 
 // Line chart data (Open, Review, Done over time)
 // We keep a small rolling history in localStorage keyed by day
-const lineHistoryKey = 'oneTimeTasksHistory';
+// const lineHistoryKey = 'oneTimeTasksHistory';
 
-function snapshotOneTimeTasks() {
-  const t = dashboardData.value?.Tasks || {};
-  const open = (t.pending || 0) + (t.inProgress || 0);
-  const review = t.review || 0;
-  const done = t.done || 0;
-  const label = new Date().toLocaleDateString();
-  return { label, open, review, done };
-}
+// function snapshotOneTimeTasks() {
+//   const t = dashboardData.value?.Tasks || {};
+//   const open = (t.pending || 0) + (t.inProgress || 0);
+//   const review = t.review || 0;
+//   const done = t.done || 0;
+//   const label = new Date().toLocaleDateString();
+//   return { label, open, review, done };
+// }
 
-function loadHistory() {
-  try {
-    const raw = localStorage.getItem(lineHistoryKey);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
+// function loadHistory() {
+//   try {
+//     const raw = localStorage.getItem(lineHistoryKey);
+//     return raw ? JSON.parse(raw) : [];
+//   } catch {
+//     return [];
+//   }
+// }
 
-function saveHistory(history) {
-  localStorage.setItem(lineHistoryKey, JSON.stringify(history));
-}
+// function saveHistory(history) {
+//   localStorage.setItem(lineHistoryKey, JSON.stringify(history));
+// }
 
 // Update history whenever dashboardData changes (per fetch)
-watch(() => dashboardData.value?.Tasks, (val) => {
-  if (!val) return;
-  const history = loadHistory();
-  const snap = snapshotOneTimeTasks();
-  // avoid duplicate for same label (day), replace last
-  if (history.length > 0 && history[history.length - 1].label === snap.label) {
-    history[history.length - 1] = snap;
-  } else {
-    history.push(snap);
-  }
-  // keep last 14 entries
-  const trimmed = history.slice(-14);
-  saveHistory(trimmed);
-}, { deep: true });
+// watch(() => dashboardData.value?.Tasks, (val) => {
+//   if (!val) return;
+//   const history = loadHistory();
+//   const snap = snapshotOneTimeTasks();
+//   // avoid duplicate for same label (day), replace last
+//   if (history.length > 0 && history[history.length - 1].label === snap.label) {
+//     history[history.length - 1] = snap;
+//   } else {
+//     history.push(snap);
+//   }
+//   // keep last 14 entries
+//   const trimmed = history.slice(-14);
+//   saveHistory(trimmed);
+// }, { deep: true });
 
 const performanceLineData = computed(() => {
-  const history = loadHistory();
-  return history.map(h => ({ date: h.label, [t('openTasks')]: h.open, [t('review')]: h.review, [t('done')]: h.done }));
+  const tasks = dashboardData.value?.Tasks || {};
+  return [{
+    date: new Date().toLocaleDateString(),
+    [t('openTasks')]: (tasks.pending || 0) + (tasks.inProgress || 0),
+    [t('review')]: tasks.review || 0,
+    [t('done')]: tasks.done || 0
+  }];
 });
 
 // AI Modal Functions
@@ -1205,7 +1212,7 @@ onMounted(async () => {
                 <div class="card-icon icon-primary">
                   <i class="fas fa-clipboard-list"></i>
                 </div>
-                <div class="card-title-text">{{ t('totalDailyTasks') }}</div>
+                <div class="card-title-text">{{ t('todayTasks') }}</div>
               </div>
               <!-- Quick Add Button -->
               <button @click="openQuickAddRoutine($event)" class="quick-add-btn-top" :title="t('quickAddTask')">
@@ -1215,26 +1222,21 @@ onMounted(async () => {
 
             <div class="card-metric-section">
               <div class="metric-header">
-                <div class="metric-split">
-                  <div class="metric-col">
-                    <div class="main-metric">{{ dashboardData?.AllDailyTasks?.total || 0 }}</div>
-                    <div class="metric-subtitle">{{ t('totalTasks') }}</div>
-                  </div>
-                  <div class="metric-divider"></div>
-                  <div class="metric-col">
-                    <div class="main-metric">{{ dashboardData?.DailyTasks?.today_total_daily_tasks || 0 }}</div>
-                    <div class="metric-subtitle">{{ t('todayTasks') }}</div>
-                  </div>
+                <div class="main-metric">{{ dashboardData?.DailyTasks?.today_total_daily_tasks || 0 }}</div>
+                  <span class="trend-badge" :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'trend-up' : 'trend-neutral'">
+                    <i :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
+                    {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
+                  </span>
                 </div>
-
-                <span class="trend-badge"
-                  :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'trend-up' : 'trend-neutral'">
-                  <i
-                    :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
-                  {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
-                </span>
-              </div>
+              <div class="metric-subtitle">{{ t('task') }}</div>
             </div>
+            <!-- <div class="metric-col">
+                <div class="metric-subtitle">{{ t('totalTasks') }}</div>
+              </div> -->
+            <!-- <div class="metric-divider"></div> -->
+            <!-- <div class="metric-col">
+                <div class="main-metric">{{ dashboardData?.DailyTasks?.today_total_daily_tasks || 0 }}</div>
+              </div> -->
 
             <div class="card-badges-section">
               <span class="status-pill pill-success">
@@ -1252,7 +1254,7 @@ onMounted(async () => {
               <span class="status-pill pill-warning">
                 <span class="pill-dot"></span>
                 {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
-                  || 0) }} {{ t('notReported') }}
+                || 0) }} {{ t('notReported') }}
               </span>
             </div>
 
@@ -1383,19 +1385,19 @@ onMounted(async () => {
             <div class="card-metric-section">
               <div class="metric-header">
                 <div class="main-metric">{{ dashboardData?.Emps?.total || 0 }}</div>
-                <span class="trend-badge" :class="dashboardData?.Emps?.invited > 0 ? 'trend-up' : 'trend-neutral'">
+                <!-- <span class="trend-badge" :class="dashboardData?.Emps?.invited > 0 ? 'trend-up' : 'trend-neutral'">
                   <i :class="dashboardData?.Emps?.invited > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
                   {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
-                </span>
+                </span> -->
               </div>
-              <div class="metric-subtitle">{{ t('active') }} / {{ t('pending') }}</div>
+              <div class="metric-subtitle">{{ t('active') }}</div>
             </div>
 
             <div class="card-badges-section">
-              <span class="status-pill pill-success">
+              <!-- <span class="status-pill pill-success">
                 <span class="pill-dot"></span>
                 {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
-              </span>
+              </span> -->
               <span class="status-pill pill-warning">
                 <span class="pill-dot"></span>
                 {{ dashboardData?.Emps?.pending || 0 }} {{ t('pending') }}
