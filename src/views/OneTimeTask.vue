@@ -3,12 +3,14 @@
 <script setup>
 import {
   ref,
+  reactive,
   computed,
   onBeforeMount,
   watch,
   onMounted,
   onBeforeUnmount,
 } from "vue";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { useStore } from "vuex";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
@@ -49,6 +51,10 @@ import { isTaskCommentSeen } from "@/utils/commentCache";
 const permissions = ref(
   loadPermissionsFromLocalStorage(userData.value?.id) || {}
 );
+// Router for query-driven filters
+const route = useRoute();
+const router = useRouter();
+
 
 // عند تحميل الصفحة لأول مرة، حفظ الصلاحيات في localStorage
 onBeforeMount(async () => {
@@ -176,6 +182,17 @@ const projectSearchQuery = ref("");
 const prioritySearchQuery = ref("");
 const filteredProjects = ref([]);
 const filteredPriorities = ref([]);
+// Unified query-driven filters
+const selectedPriority = ref(""); // existing UI binding
+const activeQuery = reactive({
+  priority: "",
+  status: "",
+  due: "", // today | soon | overdue
+});
+// Prevent query-sync while leaving the page
+let isLeavingPage = false;
+// deadline dropdown binding needs early declaration to avoid TDZ in hooks below
+const selectedDeadLine = ref("");
 
 // متغير للتحكم في عرض أيقونة الحذف
 const showClearIcon = ref(null);
@@ -202,6 +219,52 @@ onBeforeMount(() => {
   filteredPriorities.value = prioritiesOptions;
   console.log("Initial setup - Projects:", filteredProjects.value);
   console.log("Initial setup - Priorities:", filteredPriorities.value);
+  // Apply initial priority from query if present
+  const pr = route.query.priority;
+  if (pr && ["low", "normal", "high", "urgent"].includes(pr)) {
+    selectedPriority.value = pr;
+  }
+  // Load any known filters from query
+  Object.keys(activeQuery).forEach((k) => {
+    if (route.query[k]) activeQuery[k] = String(route.query[k]);
+  });
+  // Map due query to dropdown
+  const due = route.query.due;
+  if (due && ["soon", "overdue", "noDueDate"].includes(due)) {
+    selectedDeadLine.value = due === "noDueDate" ? "noDueDate" : due;
+  }
+  // Focus tab if status passed in query
+  if (route.query.status) {
+    // Tabs labels are capitalized (Inbox, Own, Archive, Started, Review, Done)
+    activeTab.value = String(route.query.status);
+  }
+});
+
+// Keep route query synced with selectedPriority filter for shareable/refreshable state
+watch(selectedPriority, (val) => {
+  const nextQuery = { ...route.query };
+  if (val) nextQuery.priority = val; else delete nextQuery.priority;
+  router.replace({ query: nextQuery });
+});
+
+// Keep full activeQuery in sync with route
+watch(
+  activeQuery,
+  () => {
+    // if we're navigating away, don't touch the URL to avoid cancelling navigation
+    if (isLeavingPage || route.name !== 'one time task') return;
+    const next = { ...route.query };
+    Object.keys(activeQuery).forEach((k) => {
+      if (activeQuery[k]) next[k] = activeQuery[k]; else delete next[k];
+    });
+    router.replace({ query: next });
+  },
+  { deep: true }
+);
+
+// Keep due query synced with the dropdown selection
+watch(selectedDeadLine, (val) => {
+  activeQuery.due = val || "";
 });
 // const taskTypeOptions = [
 //   { value: "daily", label: "Daily" },
@@ -419,6 +482,8 @@ const selectPriority = (priorityOption) => {
   closePriorityDropdown();
 };
 
+// (moved below after selectedPriority declaration to avoid TDZ)
+
 // دوال حذف القيم
 const clearProject = () => {
   projectId.value = "";
@@ -571,11 +636,29 @@ const refreshTasks = async () => {
         activeTab.value,
         currentUserId.value
       );
+      // Apply client-side priority filter if active
+      if (selectedPriority.value) {
+        oneTimeTasks.value = oneTimeTasks.value.filter(
+          (t) => t.priority === selectedPriority.value
+        );
+      }
     }
   } catch (error) {
     console.error("Error fetching tasks:", error);
   }
 };
+
+// Helper to clear priority filter programmatically if needed
+// removed unused helper (can be re-added when used in template)
+
+// Clear query and filters when leaving this page
+onBeforeRouteLeave(() => {
+  // just clear local state; allow navigation to proceed
+  isLeavingPage = true;
+  selectedPriority.value = "";
+  selectedDeadLine.value = "";
+  Object.keys(activeQuery).forEach((k) => (activeQuery[k] = ""));
+});
 
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
@@ -679,8 +762,6 @@ const selectedTaskType = ref("");
 const selectedDepartments = ref([]);
 const selectedProjects = ref([]);
 const selectedStatus = ref("");
-const selectedPriority = ref("");
-const selectedDeadLine = ref("");
 
 console.log("userDepartment:", userDepartment.value);
 
@@ -691,6 +772,19 @@ function formatDate(dateString) {
     currentLanguage.value,
     options
   );
+}
+
+// Helper: difference in whole days between deadline and today (deadline - today)
+// Positive values mean deadline in the future, 0 means today, negative means overdue
+function daysDiffFromToday(dateString) {
+  if (!dateString) return Number.POSITIVE_INFINITY;
+  const deadlineDate = new Date(dateString);
+  const today = new Date();
+  const strip = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const d0 = strip(deadlineDate);
+  const t0 = strip(today);
+  const diffMs = d0.getTime() - t0.getTime();
+  return Math.floor(diffMs / (24 * 60 * 60 * 1000));
 }
 
 // const nowTime = ref(new Date());
@@ -726,8 +820,17 @@ const filteredTasks = computed(() => {
     // }
   }
 
-  if (selectedPriority.value) {
-    tasks = tasks.filter((t) => t.priority === selectedPriority.value);
+  // priority filter (from dropdown or query)
+  const effPriority = selectedPriority.value || activeQuery.priority;
+  if (effPriority) {
+    tasks = tasks.filter((t) => t.priority === effPriority);
+  }
+
+  // status filter via query (e.g., review)
+  if (activeQuery.status) {
+    if (activeQuery.status === "inProgress") tasks = tasks.filter(t => t.status === "inProgress");
+    else if (activeQuery.status === "pending") tasks = tasks.filter(t => t.status === "pending");
+    else if (activeQuery.status === "review") tasks = tasks.filter(t => t.status === "review");
   }
 
   if (selectedEmployee.value) {
@@ -758,12 +861,36 @@ const filteredTasks = computed(() => {
   const today = formatDate(new Date());
   console.log(today);
 
+  // deadline dropdown filter (existing)
   if (selectedDeadLine.value) {
     tasks = tasks.filter((t) => {
+      // no due date option
+      if (selectedDeadLine.value === "noDueDate") return !t.deadline;
+
+      // when we need a date but it's missing → exclude
+      if (!t.deadline) return false;
+
       if (selectedDeadLine.value === "overdue") {
         return formatDate(t.deadline) < today;
-      } else if (selectedDeadLine.value === "noDueDate") {
-        return !t.deadline;
+      }
+      if (selectedDeadLine.value === "soon") {
+        // soon within 2 days: 0, 1, or 2 days remaining
+        const diff = daysDiffFromToday(t.deadline);
+        return diff >= 0 && diff <= 2;
+      }
+      return true;
+    });
+  }
+
+  // due filter via query (today | soon | overdue)
+  if (activeQuery.due) {
+    tasks = tasks.filter((t) => {
+      if (!t.deadline) return false;
+      if (activeQuery.due === "overdue") return formatDate(t.deadline) < today;
+      if (activeQuery.due === "today") return formatDate(t.deadline) === today;
+      if (activeQuery.due === "soon") {
+        const diff = daysDiffFromToday(t.deadline);
+        return diff >= 0 && diff <= 2;
       }
       return true;
     });
@@ -1013,7 +1140,7 @@ const getEmployeeName = (id) => {
   );
 
   console.log("Found employee:", employee);
-  return employee.label;
+  return employee ? employee.label : String(id ?? "");
 };
 
 // دوال إزالة الأشخاص
@@ -1361,6 +1488,7 @@ const translations = {
     low: "Low",
     urgent: "Urgent",
     overDue: "Overdue",
+    soon: "Soon within 2 days",
     noDueDate: "No Due Date",
     hasNewUpdate: "Has New Update",
     not_reported: "Not Reported",
@@ -1481,6 +1609,7 @@ const translations = {
     low: "منخفضة",
     urgent: "عاجلة",
     overDue: "متأخر",
+    soon: "قريب خلال 2 يوم",
     noDueDate: "غير محدد",
     hasNewUpdate: "يوجد تحديث جديد",
     not_reported: "لم يتم التقرير",
@@ -1726,6 +1855,7 @@ const translations = {
                     <label class="form-label">{{ t("deadLine") }}</label>
                     <select class="form-select" v-model="selectedDeadLine">
                       <option value="">{{ t("allDeadLines") }}</option>
+                      <option value="soon">{{ t("soon") }}</option>
                       <option value="overdue">{{ t("overDue") }}</option>
                       <option value="noDueDate">{{ t("noDueDate") }}</option>
                     </select>
