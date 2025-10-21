@@ -1,6 +1,7 @@
 // Dashboard.vue
 <script setup>
 import { ref, watch, onMounted, onUnmounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import ShBar from "../components/charts/ShBar.vue";
 // import ShLine from "../components/charts/ShLine.vue";
 import AIAnalysisCard from "@/components/AIAnalysisCard.vue";
@@ -14,6 +15,8 @@ import { useStore } from "vuex";
 import Swal from 'sweetalert2';
 
 const store = useStore();
+const router = useRouter();
+const route = useRoute();
 // const userName = computed(() => store.getters.userName);
 
 // Loading and error states
@@ -171,6 +174,16 @@ const oneTimeOpenTasks = computed(() => {
 
 const oneTimeUrgent = computed(() => (dashboardData.value?.Tasks?.urgent || 0));
 
+// Generic navigator to One-Time Task with a query filter
+const goToOneTimeTasks = (key, val) => {
+  const companyName = route.params.companyName;
+  router.push({
+    name: "one time task",
+    params: { companyName },
+    query: { [key]: val }
+  });
+};
+
 // Data for Quick Add forms
 const dataFromApi = computed(() => store.getters.dataFromApi || []);
 const departments = computed(() => store.getters.departments || []);
@@ -300,7 +313,7 @@ const translations = {
     pending: "Pending",
     reported: "Reported",
     notReported: "Not Reported",
-    task : "Tasks",
+    task: "Tasks",
     // One-Time tasks labels
     oneTimeTasks: "One-Time Tasks",
     openTasks: "Open Tasks",
@@ -440,7 +453,7 @@ const translations = {
     pending: "معلق",
     reported: "مُبلغ عنها",
     notReported: "لم يُبلغ عنها",
-    task : "مهمة",
+    task: "مهمة",
     // One-Time tasks labels
     oneTimeTasks: "مهام لمرة واحدة",
     openTasks: "مهام مفتوحة",
@@ -1223,11 +1236,13 @@ onMounted(async () => {
             <div class="card-metric-section">
               <div class="metric-header">
                 <div class="main-metric">{{ dashboardData?.DailyTasks?.today_total_daily_tasks || 0 }}</div>
-                  <span class="trend-badge" :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'trend-up' : 'trend-neutral'">
-                    <i :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
-                    {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
-                  </span>
-                </div>
+                <span class="trend-badge"
+                  :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'trend-up' : 'trend-neutral'">
+                  <i
+                    :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
+                  {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
+                </span>
+              </div>
               <div class="metric-subtitle">{{ t('task') }}</div>
             </div>
             <!-- <div class="metric-col">
@@ -1254,7 +1269,7 @@ onMounted(async () => {
               <span class="status-pill pill-warning">
                 <span class="pill-dot"></span>
                 {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
-                || 0) }} {{ t('notReported') }}
+                  || 0) }} {{ t('notReported') }}
               </span>
             </div>
 
@@ -1281,7 +1296,8 @@ onMounted(async () => {
             <div class="card-metric-section">
               <div class="metric-header">
                 <div class="main-metric">{{ oneTimeOpenTasks }}</div>
-                <span class="trend-badge" :class="(oneTimeUrgent || 0) > 0 ? 'trend-down' : 'trend-neutral'">
+                <span class="trend-badge" :class="(oneTimeUrgent || 0) > 0 ? 'trend-down' : 'trend-neutral'"
+                  @click="goToOneTimeTasks('priority', 'urgent')" style="cursor:pointer">
                   <i :class="(oneTimeUrgent || 0) > 0 ? 'fas fa-exclamation-triangle' : 'fas fa-minus'"></i>
                   {{ oneTimeUrgent }} {{ t('urgent') }}
                 </span>
@@ -1305,22 +1321,23 @@ onMounted(async () => {
                 {{ oneTimeUrgent }} {{ t('urgent') }}
               </span> -->
 
-              <span class="status-pill pill-secondary">
+              <span class="status-pill pill-secondary" @click="goToOneTimeTasks('status', 'Review')"
+                style="cursor:pointer">
                 <span class="pill-dot"></span>
                 {{ dashboardData?.Tasks?.review || 0 }} {{ t('review') }}
               </span>
 
-              <span class="status-pill pill-warning">
+              <span class="status-pill pill-warning" @click="goToOneTimeTasks('due', 'today')" style="cursor:pointer">
                 <span class="pill-dot"></span>
                 {{ dashboardData?.Tasks?.dueToday || 0 }} {{ t('dueToday') }}
               </span>
 
-              <span class="status-pill pill-warning">
+              <span class="status-pill pill-warning" @click="goToOneTimeTasks('due', 'soon')" style="cursor:pointer">
                 <span class="pill-dot"></span>
                 {{ dashboardData?.Tasks?.dueSoon || 0 }} {{ t('dueSoon') }}
               </span>
 
-              <span class="status-pill pill-danger">
+              <span class="status-pill pill-danger" @click="goToOneTimeTasks('due', 'overdue')" style="cursor:pointer">
                 <span class="pill-dot"></span>
                 {{ dashboardData?.Tasks?.overdue || 0 }} {{ t('overdue') }}
               </span>
@@ -2252,7 +2269,6 @@ onMounted(async () => {
   flex: 1;
   min-width: 220px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
   position: relative;
   overflow: hidden;
 }
@@ -2377,6 +2393,7 @@ onMounted(async () => {
   font-size: 0.7rem;
   font-weight: 600;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .trend-badge i {
