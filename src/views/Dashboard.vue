@@ -184,6 +184,21 @@ const goToOneTimeTasks = (key, val) => {
   });
 };
 
+// Generic navigator to page
+// Global page navigator
+const goToPage = ({ name, params = {}, query = {} }) => {
+  // Try pulling companyName from current route if not supplied
+  if (!params.companyName && route && route.params && route.params.companyName) {
+    params.companyName = route.params.companyName;
+  }
+  router.push({ name, params, query });
+};
+
+// Generic navigation function for all cards
+const navigateToCard = (pageName) => {
+  goToPage({ name: pageName });
+};
+
 // Data for Quick Add forms
 const dataFromApi = computed(() => store.getters.dataFromApi || []);
 const departments = computed(() => store.getters.departments || []);
@@ -1225,7 +1240,12 @@ onMounted(async () => {
                 <div class="card-icon icon-primary">
                   <i class="fas fa-clipboard-list"></i>
                 </div>
-                <div class="card-title-text">{{ t('todayTasks') }}</div>
+                <div class="card-title-text">
+                  {{ t('todayTasks') }}
+                  <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('routine task')"
+                    title="Click to view Routine Tasks"
+                    style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
+                </div>
               </div>
               <!-- Quick Add Button -->
               <button @click="openQuickAddRoutine($event)" class="quick-add-btn-top" :title="t('quickAddTask')">
@@ -1285,7 +1305,12 @@ onMounted(async () => {
                 <div class="card-icon icon-info">
                   <i class="fas fa-tasks"></i>
                 </div>
-                <div class="card-title-text">{{ t('oneTimeTasks') }}</div>
+                <div class="card-title-text" style="font-weight:600;">
+                  {{ t('oneTimeTasks') }}
+                  <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('one time task')"
+                    title="Click to view One-Time Tasks"
+                    style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
+                </div>
               </div>
               <!-- Quick Add Button -->
               <button @click="openQuickAddOneTime($event)" class="quick-add-btn-top" :title="t('quickAddTask')">
@@ -1343,9 +1368,9 @@ onMounted(async () => {
               </span>
             </div>
 
-            <div class="card-footer-v2">
+            <!-- <div class="card-footer-v2">
               <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
+            </div> -->
           </div>
 
 
@@ -1357,7 +1382,12 @@ onMounted(async () => {
                 <div class="card-icon icon-warning">
                   <i class="fas fa-folder-open"></i>
                 </div>
-                <div class="card-title-text">{{ t('projects') }}</div>
+                <div class="card-title-text">
+                  {{ t('projects') }}
+                  <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('project')"
+                    title="Click to view Projects"
+                    style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
+                </div>
               </div>
             </div>
 
@@ -1395,7 +1425,12 @@ onMounted(async () => {
                 <div class="card-icon icon-success">
                   <i class="fas fa-users"></i>
                 </div>
-                <div class="card-title-text">{{ t('employees') }}</div>
+                <div class="card-title-text">
+                  {{ t('employees') }}
+                  <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('team')"
+                    title="Click to view Team/Employees"
+                    style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
+                </div>
               </div>
             </div>
 
