@@ -132,7 +132,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="task in props.routineTasksReport" :key="task.id">
+              <tr v-for="task in props.routineTasksReport.filter(matchesReportStatus)" :key="task.id">
                 <!-- استخدام routineTasks -->
                 <!-- <td>
               <div class="mb-0 py-1">
@@ -186,8 +186,8 @@
                 </td>
                 <td>
                   <p class="text-xs font-weight-bold mb-0" :class="task.daily_task.priority === 'critical'
-                      ? 'text-danger'
-                      : ''
+                    ? 'text-danger'
+                    : ''
                     ">
                     <!-- {{ formatReportDate(task.created_at) }} -->
                     {{ task.daily_task.priority || "No Priority" }}
@@ -241,16 +241,16 @@
                       task.status
                     ),
                   }" :aria-disabled="['done', 'not_done'].includes(task.status)" :style="{
-                      pointerEvents: ['done', 'not_done'].includes(task.status)
-                        ? 'none'
-                        : 'auto',
-                      opacity: ['done', 'not_done'].includes(task.status)
-                        ? 0.6
-                        : 1,
-                    }" @click="
-                      !['done', 'not_done'].includes(task.status) &&
-                      openEvaluationModal(task.id)
-                      ">
+                    pointerEvents: ['done', 'not_done'].includes(task.status)
+                      ? 'none'
+                      : 'auto',
+                    opacity: ['done', 'not_done'].includes(task.status)
+                      ? 0.6
+                      : 1,
+                  }" @click="
+                    !['done', 'not_done'].includes(task.status) &&
+                    openEvaluationModal(task.id)
+                    ">
                     <i :class="{
                       'fa fa-check-circle': task.status === 'done',
                       'fa fa-times-circle': task.status === 'not_done',
@@ -277,7 +277,7 @@
                       task.today_report_status
                     ),
                   }" :aria-disabled="['done', 'not_done'].includes(task.today_report_status)
-                      " :style="{
+                    " :style="{
                       pointerEvents: ['done', 'not_done'].includes(
                         task.today_report_status
                       )
@@ -388,7 +388,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="task in props.notReportedTasks" :key="task.id">
+              <tr v-for="task in props.notReportedTasks.filter(matchesReportStatus)" :key="task.id">
                 <!-- استخدام routineTasks -->
                 <!-- <td>
               <div class="mb-0 py-1">
@@ -442,8 +442,8 @@
                 </td>
                 <td>
                   <p class="text-xs font-weight-bold mb-0" :class="task.daily_task.priority === 'critical'
-                      ? 'text-danger'
-                      : ''
+                    ? 'text-danger'
+                    : ''
                     ">
                     <!-- {{ formatReportDate(task.created_at) }} -->
                     {{ task.daily_task.priority || "No Priority" }}
@@ -505,16 +505,16 @@
                       task.status
                     ),
                   }" :aria-disabled="!['done', 'not_done'].includes(task.status)" :style="{
-                      pointerEvents: !['done', 'not_done'].includes(task.status)
-                        ? 'none'
-                        : 'auto',
-                      opacity: !['done', 'not_done'].includes(task.status)
-                        ? 0.6
-                        : 1,
-                    }" @click="
-                      !['done', 'not_done'].includes(task.status) &&
-                      openEvaluationModal(task.id)
-                      ">
+                    pointerEvents: !['done', 'not_done'].includes(task.status)
+                      ? 'none'
+                      : 'auto',
+                    opacity: !['done', 'not_done'].includes(task.status)
+                      ? 0.6
+                      : 1,
+                  }" @click="
+                    !['done', 'not_done'].includes(task.status) &&
+                    openEvaluationModal(task.id)
+                    ">
                     <i :class="{
                       'fa fa-check-circle': task.status === 'done',
                       'fa fa-times-circle': task.status === 'not_done',
@@ -541,7 +541,7 @@
                       task.today_report_status
                     ),
                   }" :aria-disabled="['done', 'not_done'].includes(task.today_report_status)
-                      " :style="{
+                    " :style="{
                       pointerEvents: ['done', 'not_done'].includes(
                         task.today_report_status
                       )
@@ -656,7 +656,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="task in props.evaluatedTasks" :key="task.id">
+              <tr v-for="task in props.evaluatedTasks.filter(matchesReportStatus)" :key="task.id">
                 <!-- استخدام routineTasks -->
                 <!-- <td>
               <div class="mb-0 py-1">
@@ -722,8 +722,8 @@
 
                 <td>
                   <p class="text-xs font-weight-bold mb-0" :class="task.daily_task.priority === 'critical'
-                      ? 'text-danger'
-                      : ''
+                    ? 'text-danger'
+                    : ''
                     ">
                     <!-- {{ formatReportDate(task.created_at) }} -->
                     {{ task.daily_task.priority || "No Priority" }}
@@ -1309,6 +1309,11 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  // optional activeQuery from parent for report-status filtering
+  activeQuery: {
+    type: Object,
+    default: () => ({})
+  },
 
   // ,
   // showAllTasks: {
@@ -1489,6 +1494,39 @@ const selectedTask = ref(null); // لتخزين المهمة المحددة لل
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
 const t = (key) => translations[currentLanguage.value][key];
+
+function matchesReportStatus(task) {
+  // Tabs control reported/not_reported. When active tab is one of them, ignore activeQuery for that part.
+  // Select controls done/not_done via activeQuery.reportStatus.
+  const tab = props.reportActiveTab;
+  const q = props.activeQuery?.reportStatus || '';
+
+  // If tab is 'reported', only show items that have been reported.
+  if (tab === 'reported') {
+    const isReported = Boolean(task.report || task.today_report_status || task.created_at);
+    if (!isReported) return false;
+    if (q === 'done') {
+      return task.status === 'done' || task.today_report_status === 'done';
+    }
+    if (q === 'not_done') {
+      return task.status === 'not_done' || task.today_report_status === 'not_done';
+    }
+    return true;
+  }
+  // If tab is 'not_reported', only show items not reported.
+  if (tab === 'not_reported') {
+    return !task.report && !task.today_report_status;
+  }
+
+  // Else (e.g., evaluated_Task), apply done/not_done from select if provided
+  if (q === 'done') {
+    return task.status === 'done' || task.today_report_status === 'done';
+  }
+  if (q === 'not_done') {
+    return task.status === 'not_done' || task.today_report_status === 'not_done';
+  }
+  return true;
+}
 
 // const dataFromApi = computed(() => store.getters.dataFromApi);
 

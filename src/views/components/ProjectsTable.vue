@@ -4,8 +4,7 @@
       <table class="table align-items-center table-hover mb-0">
         <thead class="thead-light">
           <tr>
-            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-              v-if="isOwner || permissions['edit-project']">
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" >
               {{ t("status") }}
             </th>
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
@@ -26,10 +25,18 @@
         </thead>
         <tbody>
           <tr v-for="Project in props.projects" :key="Project.id">
-            <td v-if="isOwner || permissions['edit-project']">
-              <div class="px-2 py-1">
+            <td :class="{ 'disabled-cell': !(isOwner || permissions['edit-project']) }">
+              <div class="px-2 py-1" :style="!(isOwner || permissions['edit-project']) ? 'pointer-events: none; opacity: 0.6;' : ''">
                 <div class="d-flex justify-content-center text-sm">
-                  <argon-switch :checked="Boolean(Project.status)" @update:checked="() => toggleStatus(Project.id)">
+                  <argon-switch
+                    :checked="Boolean(Project.status)"
+                    :disabled="!(isOwner || permissions['edit-project'])"
+                    @update:checked="() => {
+                      if (isOwner || permissions['edit-project']) {
+                        toggleStatus(Project.id)
+                      }
+                    }"
+                  >
                     {{ Project.status ? t("active") : t("inactive") }}
                   </argon-switch>
                 </div>

@@ -235,6 +235,18 @@ const goToPage = ({ name, params = {}, query = {} }) => {
   router.push({ name, params, query });
 };
 
+// Navigate depending on owner: owners -> reported tasks, others -> routine task
+const isOwner = computed(() => store.getters.isOwner);
+const goToRoutineOrReported = (status = "") => {
+  const companyName = route.params.companyName;
+  const query = status ? { reportStatus: status } : {};
+  if (isOwner.value) {
+    router.push({ name: "reported tasks", params: { companyName }, query });
+  } else {
+    router.push({ name: "routine task", params: { companyName }, query });
+  }
+};
+
 // Generic navigation function for all cards
 const navigateToCard = (pageName) => {
   goToPage({ name: pageName });
@@ -409,7 +421,7 @@ const translations = {
     // Status indicators
     done: "Done",
     notDone: "Not Done",
-    stopped: "Stopped",
+    inActive: "Inactive",
     undefined: "Undefined",
     stable: "Stable",
     viewDetails: "View details",
@@ -549,7 +561,7 @@ const translations = {
     // Status indicators
     done: "منجز",
     notDone: "غير منجز",
-    stopped: "متوقف",
+    inActive: "غير نشط",
     undefined: "غير محدد",
     stable: "مستقر",
     viewDetails: "عرض التفاصيل",
@@ -1296,9 +1308,12 @@ onMounted(async () => {
 
             <div class="card-metric-section">
               <div class="metric-header">
-                <div class="main-metric">{{ dashboardData?.DailyTasks?.today_total_daily_tasks || 0 }}</div>
-                <span class="trend-badge"
-                  :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'trend-up' : 'trend-neutral'">
+                <div class="main-metric" style="cursor:pointer" @click="goToRoutineOrReported()">
+                  {{ dashboardData?.DailyTasks?.today_total_daily_tasks || 0 }}
+                </div>
+                <span class="trend-badge" style="cursor:pointer"
+                  :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'trend-up' : 'trend-neutral'"
+                  @click="goToRoutineOrReported('reported')">
                   <i
                     :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
                   {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
@@ -1315,11 +1330,11 @@ onMounted(async () => {
               </div> -->
 
             <div class="card-badges-section">
-              <span class="status-pill pill-success">
+              <span class="status-pill pill-success" style="cursor:pointer" @click="goToRoutineOrReported('done')">
                 <span class="pill-dot"></span>
                 {{ dashboardData?.DailyTasks?.done_reports || 0 }} {{ t('done') }}
               </span>
-              <span class="status-pill pill-danger">
+              <span class="status-pill pill-danger" style="cursor:pointer" @click="goToRoutineOrReported('not_done')">
                 <span class="pill-dot"></span>
                 {{ dashboardData?.DailyTasks?.not_done_reports || 0 }} {{ t('notDone') }}
               </span>
@@ -1327,7 +1342,8 @@ onMounted(async () => {
                 <span class="pill-dot"></span>
                 {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
               </span> -->
-              <span class="status-pill pill-warning">
+              <span class="status-pill pill-warning" style="cursor:pointer"
+                @click="goToRoutineOrReported('not_reported')">
                 <span class="pill-dot"></span>
                 {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
                   || 0) }} {{ t('notReported') }}
@@ -1452,7 +1468,7 @@ onMounted(async () => {
               </span>
               <span class="status-pill pill-secondary">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Projects?.inactive || 0 }} {{ t('stopped') }}
+                {{ dashboardData?.Projects?.inActive || 0 }} {{ t('inActive') }}
               </span>
             </div>
 

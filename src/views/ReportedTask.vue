@@ -1,7 +1,8 @@
 <!-- src/views/RoutineTask.vue -->
 <script setup>
-import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
+import { ref, computed, onBeforeMount, watch, onMounted, reactive } from "vue";
 import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
@@ -10,9 +11,18 @@ import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import ReportedTaskTable from "@/views/components/ReportedTaskTable.vue";
 
 const store = useStore();
+const router = useRouter();
+const route = useRoute();
 
 const userData = computed(() => store.getters.user);
 const departments = computed(() => store.getters.departments);
+const isOwner = computed(() => store.getters.isOwner);
+
+// Unified report status filter (for owner)
+const activeQuery = reactive({
+  // '', 'reported', 'not_reported', 'done', 'not_done'
+  reportStatus: "",
+});
 
 const formattedDepartments = computed(() => {
   return departments.value.map((department) => ({
@@ -103,13 +113,13 @@ const toggleRecurrentDay = (dayValue, isChecked) => {
 };
 
 const getRundomTask = async () => {
-    try {
-        const response = await store.dispatch("getRundomTask");
-        console.log("rundomTask dddd:", response.data);
-        rundomTask.value = response.data;
-    } catch (error) {
-        console.error("Error fetching rundom task:", error);
-    }
+  try {
+    const response = await store.dispatch("getRundomTask");
+    console.log("rundomTask dddd:", response.data);
+    rundomTask.value = response.data;
+  } catch (error) {
+    console.error("Error fetching rundom task:", error);
+  }
 };
 
 watch(
@@ -148,11 +158,30 @@ onBeforeMount(async () => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 
+  // initialize from URL
+  if (route.query.reportStatus) {
+    const rs = String(route.query.reportStatus);
+    if (rs === 'reported' || rs === 'not_reported') {
+      // tabs control reported/not_reported
+      reportActiveTab.value = rs;
+    } else if (rs === 'done' || rs === 'not_done') {
+      // select controls done/not_done
+      activeQuery.reportStatus = rs;
+    }
+  }
+
   await fetchTasksReports();
   await fetchNotReportedTasks();
   await fetchEvaluatedTasks();
   await getRundomTask();
 });
+
+// keep URL in sync
+// keep URL in sync — moved below after reportActiveTab declaration to avoid TDZ
+
+function resetReportStatus() {
+  activeQuery.reportStatus = "";
+}
 
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
@@ -168,6 +197,23 @@ const setActiveTab = (tab) => {
   sessionStorage.setItem("reportActiveTab", tab);
   console.log(reportActiveTab.value);
 };
+
+// keep URL in sync (after reportActiveTab is defined)
+watch(
+  [() => reportActiveTab.value, () => activeQuery.reportStatus],
+  () => {
+    const next = { ...route.query };
+    if (reportActiveTab.value === 'reported' || reportActiveTab.value === 'not_reported') {
+      next.reportStatus = reportActiveTab.value;
+    } else if (activeQuery.reportStatus) {
+      next.reportStatus = activeQuery.reportStatus;
+    } else {
+      delete next.reportStatus;
+    }
+    router.replace({ query: next });
+  },
+  { deep: false }
+);
 
 watch(
   () => reportActiveTab.value,
@@ -390,7 +436,7 @@ const applyFilter = () => {
     isNotReportedLoading.value = true;
     fetchTasksReports(selectedDateForNotReported.value);
   }
-    
+
 };
 
 const translations = {
@@ -466,6 +512,8 @@ const translations = {
     not_reported: "Not Reported",
     searchPlaceholder: "Search tasks...",
     evaluated_Task: "Evaluated Tasks",
+    done: "Done",
+    notDone: "Not Done",
   },
   ar: {
     addMember: "اضافة عضو",
@@ -538,6 +586,8 @@ const translations = {
     not_reported: "لم يتم التقرير",
     searchPlaceholder: "...ابحث هنا",
     evaluated_Task: "المهام المقيدة",
+    done: "تم التقرير",
+    notDone: "لم يتم التقرير",
   },
 };
 
@@ -632,6 +682,9 @@ const resetFilters = () => {
     dynamicDepartmentsForNotReported.value = [];
   }
 
+  // Clear report status filter as well
+  activeQuery.reportStatus = "";
+
   // Finally apply the filter
   applyFilter();
 };
@@ -674,7 +727,7 @@ const filteredTasks = computed(() => {
   return routineTasksReport.value.filter((task) => {
     const taskName = (task.daily_task.task_name || "").toLowerCase();
     const taskNo = (task.daily_task.task_no || "").toLowerCase();
-    
+
     // Department match: if the user hasn't selected any department,
     // all departments are shown; otherwise, check if the task's department is selected
     const departmentMatch =
@@ -693,11 +746,11 @@ const filteredTasks = computed(() => {
 // In your <script setup>:
 const filteredNotReportedTasks = computed(() => {
   const query = searchQuery.value.toLowerCase();
-  
+
   return notReportedTasks.value.filter((task) => {
     const taskName = (task.daily_task.task_name || "").toLowerCase();
     const taskNo = (task.daily_task.task_no || "").toLowerCase();
-    
+
     // Department match: if the user hasn't selected any department,
     // all departments are shown; otherwise, check if the task's department is selected
     const departmentMatch =
@@ -728,7 +781,7 @@ const filteredEvaluatedTasks = computed(() => {
     const taskName = (task.daily_task.task_name || "").toLowerCase();
     const taskNo = (task.daily_task.task_no || "").toLowerCase();
 
-     // Department match: if the user hasn't selected any department,
+    // Department match: if the user hasn't selected any department,
     // all departments are shown; otherwise, check if the task's department is selected
     const departmentMatch =
       selectedDepartmentForNotReported.value.length === 0 ||
@@ -736,9 +789,9 @@ const filteredEvaluatedTasks = computed(() => {
         (dept) => dept.id === task.department?.id
       );
 
-      
-      return (taskName.includes(query) || taskNo.includes(query)) && departmentMatch;
-    });
+
+    return (taskName.includes(query) || taskNo.includes(query)) && departmentMatch;
+  });
 });
 </script>
 
@@ -755,29 +808,20 @@ const filteredEvaluatedTasks = computed(() => {
               <div class="col">
                 <ul class="nav custom-tabs flex-nowrap overflow-x-auto">
                   <li class="nav-item">
-                    <argon-button
-                      class="nav-link"
-                      :class="{ active: reportActiveTab === 'reported' }"
-                      @click="setActiveTab('reported')"
-                    >
+                    <argon-button class="nav-link" :class="{ active: reportActiveTab === 'reported' }"
+                      @click="setActiveTab('reported')">
                       {{ t("reported") }}
                     </argon-button>
                   </li>
                   <li class="nav-item">
-                    <argon-button
-                      class="nav-link"
-                      :class="{ active: reportActiveTab === 'not_reported' }"
-                      @click="setActiveTab('not_reported')"
-                    >
+                    <argon-button class="nav-link" :class="{ active: reportActiveTab === 'not_reported' }"
+                      @click="setActiveTab('not_reported')">
                       {{ t("not_reported") }}
                     </argon-button>
                   </li>
                   <li class="nav-item">
-                    <argon-button
-                      class="nav-link"
-                      :class="{ active: reportActiveTab === 'evaluated_Task' }"
-                      @click="setActiveTab('evaluated_Task')"
-                    >
+                    <argon-button class="nav-link" :class="{ active: reportActiveTab === 'evaluated_Task' }"
+                      @click="setActiveTab('evaluated_Task')">
                       {{ t("evaluated_Task") }}
                     </argon-button>
                   </li>
@@ -787,51 +831,44 @@ const filteredEvaluatedTasks = computed(() => {
               <!-- Search -->
               <div class="col-12 col-md-auto">
                 <div class="input-group" style="max-width: 100%">
-                  <input
-                    type="text"
-                    class="form-control"
-                    :placeholder="t('searchPlaceholder')"
-                    v-model="searchQuery"
-                  />
+                  <input type="text" class="form-control" :placeholder="t('searchPlaceholder')" v-model="searchQuery" />
                 </div>
               </div>
 
               <!-- Filter Button -->
               <div class="col-12 col-md-4 text-end">
-                <button
-                  class="btn btn-link"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#filterCollapse"
-                >
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
                   <i class="fas fa-filter"></i>
                 </button>
               </div>
             </div>
+            <!-- Owner-only report status quick filters moved to filter panel as select -->
             <!-- Filter Panel -->
             <div class="collapse" id="filterCollapse">
               <div class="card card-body">
                 <div class="row">
+                  <!-- Report Status (Owner only) -->
+                  <div class="col-md-6 mb-3" v-if="isOwner">
+                    <label class="form-label">{{ t("status") }}</label>
+                    <select class="form-control" v-model="activeQuery.reportStatus">
+                      <option value="">{{ t("allStatuses") }}</option>
+                      <option value="reported">{{ t("reported") }}</option>
+                      <option value="not_reported">{{ t("not_reported") }}</option>
+                      <option value="done">{{ t("done") }}</option>
+                      <option value="not_done">{{ t("notDone") }}</option>
+                    </select>
+                  </div>
                   <!-- Filter by Department (shown only in 'reported' tab) -->
-                  <div
-                    class="col-md-6 mb-3"
-                  >
+                  <div class="col-md-6 mb-3">
                     <label class="form-label">{{ t("department") }}</label>
                     <div class="dropdown">
-                      <button
-                        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
-                        type="button"
-                        id="departmentDropdown"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                        :aria-label="
-                          selectedDepartments.length === 0
-                            ? 'All Departments'
-                            : selectedDepartments.length === 1
-                              ? selectedDepartments[0].name
-                              : `${selectedDepartments.length} Departments Selected`
-                        "
-                      >
+                      <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
+                        id="departmentDropdown" data-bs-toggle="dropdown" aria-expanded="false" :aria-label="selectedDepartments.length === 0
+                          ? 'All Departments'
+                          : selectedDepartments.length === 1
+                            ? selectedDepartments[0].name
+                            : `${selectedDepartments.length} Departments Selected`
+                          ">
                         {{
                           selectedDepartments.length === 0
                             ? t("allDepartments")
@@ -840,37 +877,25 @@ const filteredEvaluatedTasks = computed(() => {
                               : `${selectedDepartments.length} ${t("departmentsSelected")}`
                         }}
                       </button>
-                      <ul
-                        class="dropdown-menu w-100"
-                        aria-labelledby="departmentDropdown"
-                      >
+                      <ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
                         <!-- Select All Checkbox -->
                         <li class="px-2">
                           <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="selectAllDepartments"
-                              :checked="areAllDepartmentsSelected"
-                              @change="toggleAllDepartments"
-                            />
-                            <label
-                              class="form-check-label"
-                              for="selectAllDepartments"
-                            >
+                            <input class="form-check-input" type="checkbox" id="selectAllDepartments"
+                              :checked="areAllDepartmentsSelected" @change="toggleAllDepartments" />
+                            <label class="form-check-label" for="selectAllDepartments">
                               {{ t("selectAll") }}
                             </label>
                           </div>
                         </li>
                         <li class="px-2">
-                          <button
-                            class="btn btn-link text-danger"
-                            @click="clearAllDepartments"
-                          >
+                          <button class="btn btn-link text-danger" @click="clearAllDepartments">
                             {{ t("clearAll") }}
                           </button>
                         </li>
-                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                          <hr class="dropdown-divider" />
+                        </li>
 
                         <!-- Department Checkboxes -->
                         <!-- <li
@@ -898,24 +923,14 @@ const filteredEvaluatedTasks = computed(() => {
                             </label>
                           </div>
                         </li> -->
-                        <li
-                          v-for="department in dynamicDepartmentsForNotReported"
+                        <li v-for="department in dynamicDepartmentsForNotReported"
                           v-show="reportActiveTab === 'not_reported' || reportActiveTab === 'evaluated_Task' || reportActiveTab === 'reported'"
-                          :key="department.id"
-                          class="px-2"
-                        >
+                          :key="department.id" class="px-2">
                           <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              :id="'notreported-department-' + department.id"
-                              :value="department"
-                              v-model="selectedDepartmentForNotReported"
-                            />
-                            <label
-                              class="form-check-label"
-                              :for="'notreported-department-' + department.id"
-                            >
+                            <input class="form-check-input" type="checkbox"
+                              :id="'notreported-department-' + department.id" :value="department"
+                              v-model="selectedDepartmentForNotReported" />
+                            <label class="form-check-label" :for="'notreported-department-' + department.id">
                               {{ department.name }}
                             </label>
                           </div>
@@ -928,34 +943,26 @@ const filteredEvaluatedTasks = computed(() => {
                   <div class="col-md-6 mb-3">
                     <label class="form-label">{{ t("filterByDate") }}</label>
                     <div v-if="reportActiveTab === 'reported'">
-                      <input
-                        type="date"
-                        class="form-control"
-                        v-model="selectedDateForNotReported"
-                        @change="applyFilter"
-                      />
+                      <input type="date" class="form-control" v-model="selectedDateForNotReported"
+                        @change="applyFilter" />
                     </div>
                     <div v-if="reportActiveTab === 'not_reported'">
-                      <input
-                        type="date"
-                        class="form-control"
-                        v-model="selectedDateForNotReported"
-                        @change="applyFilter"
-                      />
+                      <input type="date" class="form-control" v-model="selectedDateForNotReported"
+                        @change="applyFilter" />
                     </div>
                     <div v-if="reportActiveTab === 'evaluated_Task'">
-                      <input
-                        type="date"
-                        class="form-control"
-                        v-model="selectedDateForNotReported"
-                        @change="applyFilter"
-                      />
+                      <input type="date" class="form-control" v-model="selectedDateForNotReported"
+                        @change="applyFilter" />
                     </div>
                   </div>
                 </div>
 
                 <!-- Reset Filters -->
                 <div class="d-flex justify-content-end">
+                  <button class="btn btn-outline-secondary me-2" v-if="activeQuery.reportStatus"
+                    @click="resetReportStatus">
+                    {{ t("resetFilters") }}
+                  </button>
                   <button class="btn btn-secondary" @click="resetFilters">
                     {{ t("resetFilters") }}
                   </button>
@@ -967,20 +974,10 @@ const filteredEvaluatedTasks = computed(() => {
           <!-- alert for errors and success -->
           <div class="card-body">
             <form @submit.prevent>
-              <argon-alert
-                v-if="showAlert"
-                color="danger"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showAlert" color="danger" dismissible class="mt-3">
                 {{ errorMessage }}
               </argon-alert>
-              <argon-alert
-                v-if="showSuccess"
-                color="success"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showSuccess" color="success" dismissible class="mt-3">
                 {{ successMessage }}
               </argon-alert>
             </form>
@@ -991,19 +988,11 @@ const filteredEvaluatedTasks = computed(() => {
               </div>
             </div>
 
-            <ReportedTaskTable
-              v-else
-              :routineTasksReport="filteredTasks"
-              :notReportedTasks="filteredNotReportedTasks"
-              :evaluatedTasks="filteredEvaluatedTasks"
-              :reportActiveTab="reportActiveTab"
-              :isNotReportedLoading="isNotReportedLoading"
-              :selectedDateForNotReported="selectedDateForNotReported"
-              :selectedDate="selectedDate"
-              :rundomTask="rundomTask"
-              :key="componentKey"
-              @page-changed="handlePageChange"
-            />
+            <ReportedTaskTable v-else :routineTasksReport="filteredTasks" :notReportedTasks="filteredNotReportedTasks"
+              :evaluatedTasks="filteredEvaluatedTasks" :reportActiveTab="reportActiveTab"
+              :isNotReportedLoading="isNotReportedLoading" :selectedDateForNotReported="selectedDateForNotReported"
+              :selectedDate="selectedDate" :rundomTask="rundomTask" :active-query="activeQuery" :key="componentKey"
+              @page-changed="handlePageChange" />
           </div>
         </div>
       </div>
@@ -1013,59 +1002,34 @@ const filteredEvaluatedTasks = computed(() => {
   <!-- Add Routine Task Modal -->
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
-      <ArgonModal
-        v-if="showPopup"
-        :title="t('createRoutineTask')"
-        @close="closePopup"
-        class="routine-task-modal"
-      >
+      <ArgonModal v-if="showPopup" :title="t('createRoutineTask')" @close="closePopup" class="routine-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <div class="form-group mb-3">
               <label class="form-label">{{ t("routineTaskName") }}:</label>
-              <input
-                v-model="routineTaskName"
-                class="form-control"
-                :placeholder="t('enterRoutineTaskName')"
-              />
+              <input v-model="routineTaskName" class="form-control" :placeholder="t('enterRoutineTaskName')" />
             </div>
 
             <div class="form-group mb-3">
               <label class="form-label">{{ t("description") }}:</label>
-              <textarea
-                v-model="routineTaskDescription"
-                class="form-control"
-                :placeholder="t('enterDescription')"
-              ></textarea>
+              <textarea v-model="routineTaskDescription" class="form-control"
+                :placeholder="t('enterDescription')"></textarea>
             </div>
 
             <div class="form-group mb-3">
               <label class="form-label">{{ t("taskType") }}:</label>
-              <argon-select
-                v-model="taskType"
-                :options="taskTypeOptions"
-                :placeholder="t('selectTaskType')"
-                class="form-control"
-              />
+              <argon-select v-model="taskType" :options="taskTypeOptions" :placeholder="t('selectTaskType')"
+                class="form-control" />
             </div>
 
             <div v-show="taskType === 'weekly'" class="form-group mb-3">
               <label class="form-label">{{ t("recurrentDays") }}:</label>
               <div class="d-flex flex-wrap">
-                <div
-                  v-for="day in daysOfWeek"
-                  :key="day.value"
-                  class="form-check me-3"
-                >
-                  <argon-checkbox
-                    :id="'day-' + day.value"
-                    :name="'recurrentDays'"
-                    :value="day.value"
-                    :modelValue="recurrentDays"
-                    @update:modelValue="
+                <div v-for="day in daysOfWeek" :key="day.value" class="form-check me-3">
+                  <argon-checkbox :id="'day-' + day.value" :name="'recurrentDays'" :value="day.value"
+                    :modelValue="recurrentDays" @update:modelValue="
                       (checked) => toggleRecurrentDay(day.value, checked)
-                    "
-                  >
+                    ">
                     {{ day.label }}
                   </argon-checkbox>
                 </div>
@@ -1074,36 +1038,19 @@ const filteredEvaluatedTasks = computed(() => {
 
             <div v-show="taskType === 'monthly'" class="form-group mb-3">
               <label class="form-label">{{ t("dayOfMonth") }}:</label>
-              <input
-                type="number"
-                v-model="dayOfMonth"
-                class="form-control"
-                :placeholder="t('enterDayOfMonth')"
-                min="1"
-                max="31"
-              />
+              <input type="number" v-model="dayOfMonth" class="form-control" :placeholder="t('enterDayOfMonth')" min="1"
+                max="31" />
             </div>
 
             <div class="form-group mb-3">
               <label class="form-label">{{ t("department") }}:</label>
-              <argon-select
-                v-model="deptId"
-                :options="formattedDepartments"
-                :placeholder="t('selectDepartment')"
-                class="form-control"
-                searchable
-                searchPlaceholder="Search departments..."
-              />
+              <argon-select v-model="deptId" :options="formattedDepartments" :placeholder="t('selectDepartment')"
+                class="form-control" searchable searchPlaceholder="Search departments..." />
             </div>
 
             <div class="form-group mb-3">
               <label class="form-label">{{ t("startDate") }}:</label>
-              <input
-                type="date"
-                v-model="startDate"
-                class="form-control"
-                :placeholder="t('enterStartDate')"
-              />
+              <input type="date" v-model="startDate" class="form-control" :placeholder="t('enterStartDate')" />
             </div>
 
             <div class="form-group mb-3">
@@ -1118,17 +1065,8 @@ const filteredEvaluatedTasks = computed(() => {
         </template>
 
         <template #footer>
-          <argon-button
-            variant="success"
-            @click="addRoutineTask"
-            :disabled="isLoading"
-          >
-            <span
-              v-if="isLoading"
-              class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
+          <argon-button variant="success" @click="addRoutineTask" :disabled="isLoading">
+            <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{ isLoading ? t("saving") : t("create") }}
           </argon-button>
           <argon-button variant="secondary" @click="closePopup">
@@ -1146,6 +1084,7 @@ const filteredEvaluatedTasks = computed(() => {
 .fade-leave-active {
   transition: opacity 0.5s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -1162,17 +1101,23 @@ const filteredEvaluatedTasks = computed(() => {
 
 /* كلاس مخصص للمودال لجعله قابلًا للتمرير */
 .routine-task-modal {
-  max-height: 100vh; /* تحديد الحد الأقصى للارتفاع */
+  max-height: 100vh;
+  /* تحديد الحد الأقصى للارتفاع */
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth; /* تمكين التمرير العمودي */
-  scrollbar-width: none; /* تحديد حجم الشريط الخلفي */
-  scrollbar-color: transparent transparent; /* تحديد لون الشريط الخلفي والخلفية */
+  scroll-behavior: smooth;
+  /* تمكين التمرير العمودي */
+  scrollbar-width: none;
+  /* تحديد حجم الشريط الخلفي */
+  scrollbar-color: transparent transparent;
+  /* تحديد لون الشريط الخلفي والخلفية */
 }
 
 .routine-task-modal .modal-content-scroll {
-  overflow-y: auto; /* تمكين التمرير العمودي */
-  flex: 1; /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
+  overflow-y: auto;
+  /* تمكين التمرير العمودي */
+  flex: 1;
+  /* السماح للمحتوى بالتمدد لملء المساحة المتاحة */
   max-height: 80vh;
   max-height: 65vh;
 }
@@ -1234,9 +1179,11 @@ const filteredEvaluatedTasks = computed(() => {
 }
 
 .custom-tabs .nav-link.active {
-  color: #ffffff; /* نص أبيض */
+  color: #ffffff;
+  /* نص أبيض */
   border-radius: 5px;
-  background-color: #a9ca5c; /* خلفية أخضر فاتح */
+  background-color: #a9ca5c;
+  /* خلفية أخضر فاتح */
 }
 
 .custom-tabs .nav-link:hover {
@@ -1250,10 +1197,12 @@ const filteredEvaluatedTasks = computed(() => {
     overflow-x: auto;
     white-space: nowrap;
   }
+
   .nav-item {
     display: inline-block;
     float: none;
   }
+
   .input-group {
     max-width: 100% !important;
   }
