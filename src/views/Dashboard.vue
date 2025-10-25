@@ -166,13 +166,54 @@ onUnmounted(() => {
 //   return 'bg-danger';
 // };
 
-// One-Time Tasks computed metrics
-const oneTimeOpenTasks = computed(() => {
-  const t = dashboardData.value?.Tasks || {};
-  return (t.pending || 0) + (t.inProgress || 0);
+// One-Time Tasks metrics (filtered via actual list below)
+
+// Fetch One-Time tasks and compute filtered metrics (exclude review/done)
+const oneTimeList = ref([]);
+
+onMounted(async () => {
+  try {
+    await store.dispatch("fetchOneTimeTasks");
+    oneTimeList.value = store.getters.oneTimeTasks || [];
+  } catch (err) {
+    console.warn("Error fetching one-time tasks for dashboard:", err);
+  }
 });
 
-const oneTimeUrgent = computed(() => (dashboardData.value?.Tasks?.urgent || 0));
+watch(() => store.getters.oneTimeTasks, (n) => {
+  oneTimeList.value = n || [];
+});
+
+function daysDiffFromToday(dateString) {
+  if (!dateString) return Number.POSITIVE_INFINITY;
+  const deadlineDate = new Date(dateString);
+  const today = new Date();
+  const strip = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const d0 = strip(deadlineDate);
+  const t0 = strip(today);
+  const diffMs = d0.getTime() - t0.getTime();
+  return Math.floor(diffMs / (24 * 60 * 60 * 1000));
+}
+
+const oneTimeMetricsFiltered = computed(() => {
+  const base = Array.isArray(oneTimeList.value) ? oneTimeList.value : [];
+  const list = base.filter((t) => !['review', 'done'].includes(t?.status));
+
+  const isDueToday = (d) => d && daysDiffFromToday(d) === 0;
+  const isDueSoon = (d) => {
+    const k = daysDiffFromToday(d);
+    return k >= 0 && k <= 2;
+  };
+  const isOverdue = (d) => d && daysDiffFromToday(d) < 0;
+
+  return {
+    open: list.filter((t) => ['pending', 'inProgress'].includes(t?.status)).length,
+    urgent: list.filter((t) => t?.priority === 'urgent').length,
+    dueToday: list.filter((t) => isDueToday(t?.deadline)).length,
+    dueSoon: list.filter((t) => isDueSoon(t?.deadline)).length,
+    overdue: list.filter((t) => isOverdue(t?.deadline)).length,
+  };
+});
 
 // Generic navigator to One-Time Task with a query filter
 const goToOneTimeTasks = (key, val) => {
@@ -182,6 +223,21 @@ const goToOneTimeTasks = (key, val) => {
     params: { companyName },
     query: { [key]: val }
   });
+};
+
+// Generic navigator to page
+// Global page navigator
+const goToPage = ({ name, params = {}, query = {} }) => {
+  // Try pulling companyName from current route if not supplied
+  if (!params.companyName && route && route.params && route.params.companyName) {
+    params.companyName = route.params.companyName;
+  }
+  router.push({ name, params, query });
+};
+
+// Generic navigation function for all cards
+const navigateToCard = (pageName) => {
+  goToPage({ name: pageName });
 };
 
 // Data for Quick Add forms
@@ -1225,7 +1281,12 @@ onMounted(async () => {
                 <div class="card-icon icon-primary">
                   <i class="fas fa-clipboard-list"></i>
                 </div>
-                <div class="card-title-text">{{ t('todayTasks') }}</div>
+                <div class="card-title-text">
+                  {{ t('todayTasks') }}
+                  <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('routine task')"
+                    title="Click to view Routine Tasks"
+                    style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
+                </div>
               </div>
               <!-- Quick Add Button -->
               <button @click="openQuickAddRoutine($event)" class="quick-add-btn-top" :title="t('quickAddTask')">
@@ -1273,9 +1334,9 @@ onMounted(async () => {
               </span>
             </div>
 
-            <div class="card-footer-v2">
+            <!-- <div class="card-footer-v2">
               <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
+            </div> -->
           </div>
 
           <!-- One-Time Tasks -->
@@ -1285,7 +1346,12 @@ onMounted(async () => {
                 <div class="card-icon icon-info">
                   <i class="fas fa-tasks"></i>
                 </div>
-                <div class="card-title-text">{{ t('oneTimeTasks') }}</div>
+                <div class="card-title-text" style="font-weight:600;">
+                  {{ t('oneTimeTasks') }}
+                  <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('one time task')"
+                    title="Click to view One-Time Tasks"
+                    style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
+                </div>
               </div>
               <!-- Quick Add Button -->
               <button @click="openQuickAddOneTime($event)" class="quick-add-btn-top" :title="t('quickAddTask')">
@@ -1295,11 +1361,13 @@ onMounted(async () => {
 
             <div class="card-metric-section">
               <div class="metric-header">
-                <div class="main-metric">{{ oneTimeOpenTasks }}</div>
-                <span class="trend-badge" :class="(oneTimeUrgent || 0) > 0 ? 'trend-down' : 'trend-neutral'"
+                <div class="main-metric">{{ oneTimeMetricsFiltered.open }}</div>
+                <span class="trend-badge"
+                  :class="(oneTimeMetricsFiltered.urgent || 0) > 0 ? 'trend-down' : 'trend-neutral'"
                   @click="goToOneTimeTasks('priority', 'urgent')" style="cursor:pointer">
-                  <i :class="(oneTimeUrgent || 0) > 0 ? 'fas fa-exclamation-triangle' : 'fas fa-minus'"></i>
-                  {{ oneTimeUrgent }} {{ t('urgent') }}
+                  <i
+                    :class="(oneTimeMetricsFiltered.urgent || 0) > 0 ? 'fas fa-exclamation-triangle' : 'fas fa-minus'"></i>
+                  {{ oneTimeMetricsFiltered.urgent }} {{ t('urgent') }}
                 </span>
               </div>
               <div class="metric-subtitle">{{ t('openTasks') }}</div>
@@ -1329,23 +1397,23 @@ onMounted(async () => {
 
               <span class="status-pill pill-warning" @click="goToOneTimeTasks('due', 'today')" style="cursor:pointer">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Tasks?.dueToday || 0 }} {{ t('dueToday') }}
+                {{ oneTimeMetricsFiltered.dueToday }} {{ t('dueToday') }}
               </span>
 
               <span class="status-pill pill-warning" @click="goToOneTimeTasks('due', 'soon')" style="cursor:pointer">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Tasks?.dueSoon || 0 }} {{ t('dueSoon') }}
+                {{ oneTimeMetricsFiltered.dueSoon }} {{ t('dueSoon') }}
               </span>
 
               <span class="status-pill pill-danger" @click="goToOneTimeTasks('due', 'overdue')" style="cursor:pointer">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Tasks?.overdue || 0 }} {{ t('overdue') }}
+                {{ oneTimeMetricsFiltered.overdue }} {{ t('overdue') }}
               </span>
             </div>
 
-            <div class="card-footer-v2">
+            <!-- <div class="card-footer-v2">
               <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
+            </div> -->
           </div>
 
 
@@ -1357,7 +1425,12 @@ onMounted(async () => {
                 <div class="card-icon icon-warning">
                   <i class="fas fa-folder-open"></i>
                 </div>
-                <div class="card-title-text">{{ t('projects') }}</div>
+                <div class="card-title-text">
+                  {{ t('projects') }}
+                  <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('project')"
+                    title="Click to view Projects"
+                    style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
+                </div>
               </div>
             </div>
 
@@ -1383,9 +1456,9 @@ onMounted(async () => {
               </span>
             </div>
 
-            <div class="card-footer-v2">
+            <!-- <div class="card-footer-v2">
               <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
+            </div> -->
           </div>
 
           <!-- Employees -->
@@ -1395,7 +1468,12 @@ onMounted(async () => {
                 <div class="card-icon icon-success">
                   <i class="fas fa-users"></i>
                 </div>
-                <div class="card-title-text">{{ t('employees') }}</div>
+                <div class="card-title-text">
+                  {{ t('employees') }}
+                  <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('team')"
+                    title="Click to view Team/Employees"
+                    style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
+                </div>
               </div>
             </div>
 
@@ -1421,9 +1499,9 @@ onMounted(async () => {
               </span>
             </div>
 
-            <div class="card-footer-v2">
+            <!-- <div class="card-footer-v2">
               <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
+            </div> -->
           </div>
 
 

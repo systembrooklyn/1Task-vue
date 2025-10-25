@@ -247,6 +247,11 @@ watch(selectedPriority, (val) => {
   router.replace({ query: nextQuery });
 });
 
+// Also keep activeQuery.priority in sync with the UI dropdown (fix reset for 'urgent')
+watch(selectedPriority, (val) => {
+  activeQuery.priority = val || "";
+});
+
 // Keep full activeQuery in sync with route
 watch(
   activeQuery,
@@ -973,6 +978,13 @@ const resetFilters = () => {
   selectedDepartments.value = [];
   selectedProjects.value = [];
   pagination.value.current_page = 1;
+  // Clear global query-driven filters explicitly
+  Object.keys(activeQuery).forEach((k) => (activeQuery[k] = ""));
+  const cleared = { ...route.query };
+  delete cleared.priority;
+  delete cleared.due;
+  delete cleared.status;
+  router.replace({ query: cleared });
 };
 
 // const toggleAllDepartments = () => {
@@ -1894,9 +1906,9 @@ const translations = {
             </div>
 
             <one-time-task-table v-if="!isPageLoading" :oneTimeTasks="filteredTasks" :key="componentKey"
-              :active-tab="activeTab" @update:active-tab="activeTab = $event" @page-changed="handlePageChange"
-              :pagination="pagination" @reload-tasks="refreshTasks" @filtered-count-changed="handleFilteredCount"
-              @open-edit-popup="openEditPopupInParent" />
+              :active-tab="activeTab" :active-query="activeQuery" @update:active-tab="activeTab = $event"
+              @page-changed="handlePageChange" :pagination="pagination" @reload-tasks="refreshTasks"
+              @filtered-count-changed="handleFilteredCount" @open-edit-popup="openEditPopupInParent" />
           </div>
         </div>
       </div>

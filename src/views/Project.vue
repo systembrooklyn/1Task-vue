@@ -326,7 +326,12 @@ const translations = {
         <div class="card">
           <div class="card-header pb-0">
             <div class="d-flex align-items-center">
-              <p class="mb-0 font-weight-bold">{{ t("projectsTable") }}</p>
+              <p class="mb-0 font-weight-bold">
+                {{ t("projectsTable") }}
+                <span v-if="projects && projects.length > 0" class="text-muted" style="font-size: 0.95em;">
+                  ({{ projects.length }})
+                </span>
+              </p>
               <argon-button v-show="canCreateProject || isOwner" class="ml-auto mx-2" @click="openPopup">
                 <i class="fas fa-plus"></i>
               </argon-button>
