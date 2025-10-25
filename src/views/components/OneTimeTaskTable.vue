@@ -497,6 +497,12 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  // from parent, to reflect dashboard-driven filters (priority/due)
+  activeQuery: {
+    type: Object,
+    required: false,
+    default: () => ({})
+  }
 });
 
 const store = useStore();
@@ -1304,6 +1310,38 @@ const removeFile = () => {
 };
 
 // دالة لحساب عدد المهام في كل filter
+function daysDiffFromToday(dateString) {
+  if (!dateString) return Number.POSITIVE_INFINITY;
+  const deadlineDate = new Date(dateString);
+  const today = new Date();
+  const strip = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const d0 = strip(deadlineDate);
+  const t0 = strip(today);
+  const diffMs = d0.getTime() - t0.getTime();
+  return Math.floor(diffMs / (24 * 60 * 60 * 1000));
+}
+
+function matchesGlobalFilters(task) {
+  const q = props.activeQuery || {};
+  // If global filter (priority/due) is active and no explicit status is selected,
+  // exclude tasks in review/done from ALL tabs and counters
+  if (!q.status && (q.priority || q.due)) {
+    if (['review', 'done'].includes(task.status)) return false;
+  }
+  if (q.priority && task.priority !== q.priority) return false;
+  if (q.due) {
+    const today = formatDate(new Date());
+    if (!task.deadline) return false;
+    if (q.due === 'overdue' && !(formatDate(task.deadline) < today)) return false;
+    if (q.due === 'today' && !(formatDate(task.deadline) === today)) return false;
+    if (q.due === 'soon') {
+      const k = daysDiffFromToday(task.deadline);
+      if (!(k >= 0 && k <= 2)) return false;
+    }
+  }
+  return true;
+}
+
 function getTabCount(tabName) {
   if (!props.oneTimeTasks) return 0;
 
@@ -1322,7 +1360,8 @@ function getTabCount(tabName) {
               ?.map((user) => user.id)
               .includes(userData?.value?.user?.id)) &&
           task.is_archived == false &&
-          task.status !== "done"
+          task.status !== "done" &&
+          matchesGlobalFilters(task)
         );
       }).length;
 
@@ -1331,21 +1370,22 @@ function getTabCount(tabName) {
         return (
           task.creator?.id === userData?.value?.user?.id &&
           task.is_archived == false &&
-          task.status !== "done"
+          task.status !== "done" &&
+          matchesGlobalFilters(task)
         );
       }).length;
 
     case "Archive":
-      return props.oneTimeTasks.filter((task) => task.is_archived == true).length;
+      return props.oneTimeTasks.filter((task) => task.is_archived == true && matchesGlobalFilters(task)).length;
 
     case "Started":
-      return props.oneTimeTasks.filter((task) => task.is_starred == true).length;
+      return props.oneTimeTasks.filter((task) => task.is_starred == true && matchesGlobalFilters(task)).length;
 
     case "Review":
-      return props.oneTimeTasks.filter((task) => task.status === "review").length;
+      return props.oneTimeTasks.filter((task) => task.status === "review" && matchesGlobalFilters(task)).length;
 
     case "Done":
-      return props.oneTimeTasks.filter((task) => task.status === "done").length;
+      return props.oneTimeTasks.filter((task) => task.status === "done" && matchesGlobalFilters(task)).length;
 
     default:
       return 0;
