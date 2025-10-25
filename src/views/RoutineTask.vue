@@ -2,6 +2,7 @@
 
 <script setup>
 import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 // import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonModal from "@/components/ArgonModal.vue";
@@ -17,6 +18,8 @@ import RoutineTasksTable from "@/views/components/RoutineTaskTable.vue";
 const refreshInterval = ref(null); // Will store our setInterval ID
 
 const store = useStore();
+const route = useRoute();
+const router = useRouter();
 
 const userData = computed(() => store.getters.user);
 console.log("userDataaaaaaaaa:", userData.value);
@@ -58,6 +61,8 @@ const statuses = computed(() => {
   return currentLanguage.value === "ar"
     ? [
       { value: "", label: "جميع الحالات" },
+      { value: "reported", label: "تم التقرير" },
+      { value: "not_reported", label: "لم يتم التقرير" },
       { value: "done", label: "مكتمل" },
       { value: "not_done", label: "غير مكتمل" },
       { value: "null", label: "غير مبلغ" },
@@ -65,6 +70,8 @@ const statuses = computed(() => {
     ]
     : [
       { value: "", label: "All Statuses" },
+      { value: "reported", label: "Reported" },
+      { value: "not_reported", label: "Not Reported" },
       { value: "done", label: "Done" },
       { value: "not_done", label: "Not Done" },
       { value: "null", label: "Not Paid" },
@@ -236,6 +243,10 @@ onBeforeMount(async () => {
   if (refreshInterval.value) {
     clearInterval(refreshInterval.value);
   }
+  // initialize selectedStatus from URL reportStatus if present
+  if (route.query.reportStatus) {
+    selectedStatus.value = String(route.query.reportStatus);
+  }
 });
 
 // Method to fetch tasks and update local data
@@ -314,6 +325,16 @@ const selectedDepartments = ref([]);
 const selectedProjects = ref([]);
 
 const selectedStatus = ref("");
+// keep URL in sync for reportStatus-friendly values
+watch(selectedStatus, (val) => {
+  const next = { ...route.query };
+  if (["reported", "not_reported", "done", "not_done"].includes(val)) {
+    next.reportStatus = val;
+  } else {
+    delete next.reportStatus;
+  }
+  router.replace({ query: next });
+});
 console.log("userDepartment:", userDepartment.value);
 // const toggleAllDepartments = () => {
 //   if (selectedDepartments.value.length === userDepartment.value.length) {
@@ -643,7 +664,11 @@ const filteredTasks = computed(() => {
   if (selectedStatus.value) {
     // You need to know how "status" is stored in your tasks
     // e.g., t.active === true/false, or t.status === 'active'/'inactive'
-    if (selectedStatus.value === "done") {
+    if (selectedStatus.value === "reported") {
+      tasks = tasks.filter((t) => t.today_report_status !== null);
+    } else if (selectedStatus.value === "not_reported") {
+      tasks = tasks.filter((t) => t.today_report_status === null);
+    } else if (selectedStatus.value === "done") {
       tasks = tasks.filter((t) => t.today_report_status === "done");
     } else if (selectedStatus.value === "not_done") {
       tasks = tasks.filter((t) => t.today_report_status === "not_done");
