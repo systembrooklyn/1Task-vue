@@ -407,6 +407,58 @@ const toggleSection = (section) => {
         </sidenav-item>
       </li>
 
+      <!-- Goals Section -->
+      <li class="nav-item" v-if="isOwner || permissions['view-goals']">
+        <sidenav-item :to="{
+          name: 'goals',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'goals' ? 'active' : ''" :navText="isRTL ? 'الأهداف' : 'Goals'"
+          :collapsed="props.collapsed">
+          <template v-slot:icon>
+            <i class="fas fa-bullseye text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <!-- Meetings Section -->
+      <li class="nav-item" v-if="isOwner || permissions['view-meetings']">
+        <sidenav-item :to="{
+          name: 'meetings',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'meetings' ? 'active' : ''" :navText="isRTL ? 'الاجتماعات' : 'Meetings'"
+          :collapsed="props.collapsed">
+          <template v-slot:icon>
+            <i class="fas fa-handshake text-info text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <!-- Automation Section -->
+      <li class="nav-item" v-if="isOwner || permissions['view-automation']">
+        <sidenav-item :to="{
+          name: 'automation',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'automation' ? 'active' : ''" :navText="isRTL ? 'الأتمتة' : 'Automation'"
+          :collapsed="props.collapsed">
+          <template v-slot:icon>
+            <i class="fas fa-robot text-primary text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <!-- Apps Section -->
+      <li class="nav-item" v-if="isOwner || permissions['view-apps']">
+        <sidenav-item :to="{
+          name: 'apps',
+          params: { companyName: companyNameNormalized },
+        }" :class="getRoute() === 'apps' ? 'active' : ''" :navText="isRTL ? 'التطبيقات' : 'Apps'"
+          :collapsed="props.collapsed">
+          <template v-slot:icon>
+            <i class="fas fa-plug text-success text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
       <!-- Account Pages Section -->
       <!-- <li class="nav-item">
         <sidenav-item
@@ -440,7 +492,6 @@ const toggleSection = (section) => {
           Expires on: {{ planInfo.expire_date }}
         </p>
       </div>
-      
     </div>
   </div>
 </template>

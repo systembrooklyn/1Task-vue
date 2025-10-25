@@ -47,6 +47,7 @@ const userCountry = ref(""); // User's country of residence
 const userState = ref("");
 const userPosition = ref("");
 const isSaving = ref(false);
+const isLoading = ref(true); // Loading state for initial data fetch
 
 const userPhones = ref([]); // Will hold an array of { CC: string, phone: string }
 const userLinks = ref([]);
@@ -132,6 +133,7 @@ const getDefaultCountryForPhone = () => {
 };
 
 const fetchProfileData = async () => {
+  isLoading.value = true;
   try {
     const response = await store.dispatch("fetchProfileData");
     console.log("API Response:", response.data.data);
@@ -179,6 +181,8 @@ const fetchProfileData = async () => {
     showErrorAlert(error, 'Failed to load profile data');
     const defaultCountry = getDefaultCountryForPhone();
     userPhones.value = [{ CC: defaultCountry.dialCode, phone: "" }];
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -328,73 +332,90 @@ onBeforeUnmount(() => {
   <main class="profile-page">
     <div class="container-fluid py-4">
       <div class="row profile-overview">
-        <div class="col-lg-8 col-md-7">
-          <div class="card mb-4">
-            <div class="card-header pb-0">
-              <div class="d-flex align-items-center">
-                <h5 class="mb-0">Edit Profile</h5>
-                <argon-button color="success" size="sm" class="ms-auto d-flex align-items-center" @click="saveChanges"
-                  :disabled="!allPhonesValid || isSaving">
-                  Save Changes
-
-                  <span v-if="isSaving" class="spinner-border spinner-border-sm ms-2"></span>
-                </argon-button>
+        <!-- Loading Spinner for Profile Overview -->
+        <div v-if="isLoading" class="col-12">
+          <div class="profile-overview-loading">
+            <div class="loading-container">
+              <div class="spinner-modern">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
               </div>
+              <h5 class="loading-text">Loading Profile...</h5>
+              <p class="loading-subtitle">Please wait while we fetch your data</p>
             </div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <label for="username" class="form-label">First Name</label>
-                  <argon-input id="username" type="text" v-model="userName" />
-                </div>
-                <div class="col-md-6">
-                  <label for="username" class="form-label">Last Name</label>
-                  <argon-input id="username" type="text" v-model="userLastName" />
-                </div>
-                <div class="col-md-6">
-                  <label for="email" class="form-label">Email address</label>
-                  <argon-input id="email" type="email" v-model="userEmail" />
-                </div>
-                <div class="col-md-6">
-                  <label for="position" class="form-label">Position</label>
-                  <argon-input id="position" type="text" v-model="userPosition" />
+          </div>
+        </div>
+
+        <!-- Profile Content -->
+        <template v-else>
+          <div class="col-lg-8 col-md-7">
+            <div class="card mb-4">
+              <div class="card-header pb-0">
+                <div class="d-flex align-items-center">
+                  <h5 class="mb-0">Edit Profile</h5>
+                  <argon-button color="success" size="sm" class="ms-auto d-flex align-items-center" @click="saveChanges"
+                    :disabled="!allPhonesValid || isSaving">
+                    Save Changes
+
+                    <span v-if="isSaving" class="spinner-border spinner-border-sm ms-2"></span>
+                  </argon-button>
                 </div>
               </div>
-
-              <hr />
-              <h6 class="text-uppercase text-sm">Contact Information</h6>
-              <div class="row">
-                <div class="col-md-4">
-                  <label for="city" class="form-label">City</label>
-                  <argon-input id="city" type="text" v-model="userCity" />
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="username" class="form-label">First Name</label>
+                    <argon-input id="username" type="text" v-model="userName" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="username" class="form-label">Last Name</label>
+                    <argon-input id="username" type="text" v-model="userLastName" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="email" class="form-label">Email address</label>
+                    <argon-input id="email" type="email" v-model="userEmail" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="position" class="form-label">Position</label>
+                    <argon-input id="position" type="text" v-model="userPosition" />
+                  </div>
                 </div>
-                <div class="col-md-4">
-                  <label for="country" class="form-label">Country</label>
-                  <argon-input id="country" type="text" v-model="userCountry" />
+
+                <hr />
+                <h6 class="text-uppercase text-sm">Contact Information</h6>
+                <div class="row">
+                  <div class="col-md-4">
+                    <label for="city" class="form-label">City</label>
+                    <argon-input id="city" type="text" v-model="userCity" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="country" class="form-label">Country</label>
+                    <argon-input id="country" type="text" v-model="userCountry" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="state" class="form-label">State</label>
+                    <argon-input id="state" type="text" v-model="userState" />
+                  </div>
                 </div>
-                <div class="col-md-4">
-                  <label for="state" class="form-label">State</label>
-                  <argon-input id="state" type="text" v-model="userState" />
+
+                <hr />
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="text-uppercase text-sm">Phone Numbers</h6>
+                  <argon-button color="primary" size="sm" @click="addPhoneNumber" title="Add another phone number">
+                    <i class="fas fa-plus me-1"></i> Add Phone
+                  </argon-button>
                 </div>
-              </div>
 
-              <hr />
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="text-uppercase text-sm">Phone Numbers</h6>
-                <argon-button color="primary" size="sm" @click="addPhoneNumber" title="Add another phone number">
-                  <i class="fas fa-plus me-1"></i> Add Phone
-                </argon-button>
-              </div>
+                <div v-if="userPhones.length === 0" class="text-muted my-3 ps-1">
+                  No phone numbers added. Click 'Add Phone' to add one.
+                </div>
 
-              <div v-if="userPhones.length === 0" class="text-muted my-3 ps-1">
-                No phone numbers added. Click 'Add Phone' to add one.
-              </div>
-
-              <div v-for="(phoneEntry, index) in userPhones" :key="phoneEntry.tempId || index"
-                class="phone-entry-row align-items-start border-bottommb-3">
-                <div class="flex-grow-1">
-                  <argon-input-phone :id="'profile-phone-' + index" :label="userPhones.length > 1 ? 'Phone ' + (index + 1) : 'Phone'
-                    " v-model="userPhones[index]" :countries="allCountriesForPhoneInput" :default-country-iso-code="phoneEntry.CC
+                <div v-for="(phoneEntry, index) in userPhones" :key="phoneEntry.tempId || index"
+                  class="phone-entry-row align-items-start border-bottommb-3">
+                  <div class="flex-grow-1">
+                    <argon-input-phone :id="'profile-phone-' + index" :label="userPhones.length > 1 ? 'Phone ' + (index + 1) : 'Phone'
+                      " v-model="userPhones[index]" :countries="allCountriesForPhoneInput" :default-country-iso-code="phoneEntry.CC
                       ? countriesList.find(
                         (c) => c.dialCode === phoneEntry.CC
                       )?.isoCode || defaultPhoneCountryIso
@@ -402,43 +423,45 @@ onBeforeUnmount(() => {
                       " placeholder="Enter phone number" @validity-change="
                         (isValid) => handlePhoneValidity(index, isValid)
                       " />
+                  </div>
+                  <div class="ms-2 pt-4">
+                    <argon-button v-if="userPhones.length > 0" color="danger" size="sm" class="btn-icon-only"
+                      title="Remove this phone number" @click="removePhoneNumber(index)"
+                      aria-label="Remove phone number">
+                      <i class="fas fa-trash"></i>
+                    </argon-button>
+                  </div>
                 </div>
-                <div class="ms-2 pt-4">
-                  <argon-button v-if="userPhones.length > 0" color="danger" size="sm" class="btn-icon-only"
-                    title="Remove this phone number" @click="removePhoneNumber(index)" aria-label="Remove phone number">
+                <hr />
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="text-uppercase text-sm">Links</h6>
+                  <argon-button color="primary" size="sm" @click="addLink" title="Add another link">
+                    <i class="fas fa-plus me-1"></i> Add Link
+                  </argon-button>
+                </div>
+                <div v-for="(linkEntry, index) in userLinks" :key="linkEntry.tempId || index"
+                  class="link-entry-row align-items-start border-bottom mb-3">
+                  <div class="icon-entry">
+                    <argon-icon-picker :id="'profile-link-type-' + index" v-model="userLinks[index].icon"
+                      :options="linkIcons" placeholder="Select social platform" />
+                  </div>
+                  <div class="url-input">
+                    <argon-input :id="'profile-link-' + index" v-model="userLinks[index].link"
+                      :placeholder="'Enter your profile URL'" />
+                  </div>
+                  <argon-button v-if="userLinks.length > 0" color="danger" size="sm" class="btn-icon-only"
+                    title="Remove this link" @click="removeLink(index)" aria-label="Remove link">
                     <i class="fas fa-trash"></i>
                   </argon-button>
                 </div>
               </div>
-              <hr />
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="text-uppercase text-sm">Links</h6>
-                <argon-button color="primary" size="sm" @click="addLink" title="Add another link">
-                  <i class="fas fa-plus me-1"></i> Add Link
-                </argon-button>
-              </div>
-              <div v-for="(linkEntry, index) in userLinks" :key="linkEntry.tempId || index"
-                class="link-entry-row align-items-start border-bottom mb-3">
-                <div class="icon-entry">
-                  <argon-icon-picker :id="'profile-link-type-' + index" v-model="userLinks[index].icon"
-                    :options="linkIcons" placeholder="Select social platform" />
-                </div>
-                <div class="url-input">
-                  <argon-input :id="'profile-link-' + index" v-model="userLinks[index].link"
-                    :placeholder="'Enter your profile URL'" />
-                </div>
-                <argon-button v-if="userLinks.length > 0" color="danger" size="sm" class="btn-icon-only"
-                  title="Remove this link" @click="removeLink(index)" aria-label="Remove link">
-                  <i class="fas fa-trash"></i>
-                </argon-button>
-              </div>
             </div>
           </div>
-        </div>
 
-        <div class="col-lg-4 col-md-5">
-          <profile-card :user="profileData?.data" @image-uploaded="uploadProfileImage" />
-        </div>
+          <div class="col-lg-4 col-md-5">
+            <profile-card :user="profileData?.data" @image-uploaded="uploadProfileImage" />
+          </div>
+        </template>
       </div>
     </div>
   </main>
@@ -617,4 +640,92 @@ onBeforeUnmount(() => {
 } */
 
 /* SweetAlert is used for error handling */
+
+/* Loading Spinner Styles */
+.profile-overview-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 20px;
+  margin: 1rem 0;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 90%;
+}
+
+.spinner-modern {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 0.5rem;
+}
+
+.spinner-modern .spinner-ring {
+  width: 20px;
+  height: 20px;
+  border: 3px solid transparent;
+  border-top: 3px solid #A5C958;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-modern .spinner-ring:nth-child(2) {
+  animation-delay: 0.2s;
+  border-top-color: #8fb647;
+}
+
+.spinner-modern .spinner-ring:nth-child(3) {
+  animation-delay: 0.4s;
+  border-top-color: #7aa336;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  color: #2d3748;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.loading-subtitle {
+  color: #718096;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+/* Fade in animation for content */
+.row.profile-overview {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>

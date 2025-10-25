@@ -1,77 +1,92 @@
 <template>
   <!-- Page Context (Default) -->
   <div v-if="context === 'page'" class="profile-card-modern">
-    <!-- Profile Image Section -->
-    <div class="profile-image-section">
-      <!-- Hidden file input -->
-      <input ref="fileInput" type="file" class="d-none" accept="image/*" @change="handleFileUpload" />
-
-      <!-- Profile Image Container -->
-      <div class="profile-image-container" @click="triggerFileInput">
-        <!-- Loading Spinner -->
-        <div v-if="isLoading" class="loading-spinner">
+    <!-- Loading Spinner for Profile Card -->
+    <div v-if="isDataLoading" class="profile-card-loading">
+      <div class="card-loading-container">
+        <div class="card-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
           <div class="spinner-ring"></div>
         </div>
-
-        <!-- Profile Image -->
-        <div class="profile-image-wrapper">
-          <img :src="user?.profile?.ppUrl || defaultImg" class="profile-image" :class="{ 'loading-opacity': isLoading }"
-            alt="Profile" />
-          <div v-if="!isLoading" class="edit-overlay">
-            <i class="fas fa-camera"></i>
-            <span>Change Photo</span>
-          </div>
-        </div>
+        <h6 class="card-loading-text">Loading Profile...</h6>
       </div>
     </div>
 
-    <!-- User Details -->
-    <div class="profile-content">
-      <!-- Main Info -->
-      <div class="profile-main-info">
-        <h3 class="profile-name">{{ user?.name }} {{ user?.last_name }}</h3>
-        <div v-if="user?.profile?.position" class="profile-position">
-          <i class="fas fa-briefcase"></i>
-          <span>{{ user.profile.position }}</span>
-        </div>
-        <div v-if="user?.profile?.country" class="profile-location">
-          <i class="fas fa-map-marker-alt"></i>
-          <span>{{ user.profile.country }}</span>
-        </div>
-      </div>
+    <!-- Profile Content -->
+    <div v-else>
+      <!-- Profile Image Section -->
+      <div class="profile-image-section">
+        <!-- Hidden file input -->
+        <input ref="fileInput" type="file" class="d-none" accept="image/*" @change="handleFileUpload" />
 
-      <!-- Contact Info -->
-      <div v-if="user?.phones?.length > 0 || user?.links?.length > 0" class="profile-contact-section">
-        <!-- Phones -->
-        <div v-if="user?.phones?.length > 0" class="contact-group">
-          <h6 class="contact-title">
-            <i class="fas fa-phone"></i>
-            Phone Numbers
-          </h6>
-          <div class="contact-items">
-            <div v-for="phone in user.phones" :key="phone.phone" class="contact-item">
-              <div class="contact-icon">
-                <i class="fas fa-phone-alt"></i>
-              </div>
-              <span class="contact-text">+{{ phone.CC }} {{ phone.phone }}</span>
-              <a :href="`tel:+${phone.CC}${phone.phone}`" class="contact-action">
-                <i class="fas fa-external-link-alt"></i>
-              </a>
+        <!-- Profile Image Container -->
+        <div class="profile-image-container" @click="triggerFileInput">
+          <!-- Loading Spinner -->
+          <div v-if="isLoading" class="loading-spinner">
+            <div class="spinner-ring"></div>
+          </div>
+
+          <!-- Profile Image -->
+          <div class="profile-image-wrapper">
+            <img :src="user?.profile?.ppUrl || defaultImg" class="profile-image"
+              :class="{ 'loading-opacity': isLoading }" alt="Profile" />
+            <div v-if="!isLoading" class="edit-overlay">
+              <i class="fas fa-camera"></i>
+              <span>Change Photo</span>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Social Links -->
-        <div v-if="user?.links?.length > 0" class="contact-group">
-          <h6 class="contact-title">
-            <i class="fas fa-share-alt"></i>
-            Social Links
-          </h6>
-          <div class="social-links">
-            <a v-for="link in user.links" :key="link.link" :href="link.link" target="_blank" class="social-link"
-              :title="link.icon" :class="`social-${link.icon}`">
-              <i :class="getSocialIcon(link.icon)"></i>
-            </a>
+      <!-- User Details -->
+      <div class="profile-content">
+        <!-- Main Info -->
+        <div class="profile-main-info">
+          <h3 class="profile-name">{{ user?.name }} {{ user?.last_name }}</h3>
+          <div v-if="user?.profile?.position" class="profile-position">
+            <i class="fas fa-briefcase"></i>
+            <span>{{ user.profile.position }}</span>
+          </div>
+          <div v-if="user?.profile?.country" class="profile-location">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ user.profile.country }}</span>
+          </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div v-if="user?.phones?.length > 0 || user?.links?.length > 0" class="profile-contact-section">
+          <!-- Phones -->
+          <div v-if="user?.phones?.length > 0" class="contact-group">
+            <h6 class="contact-title">
+              <i class="fas fa-phone"></i>
+              Phone Numbers
+            </h6>
+            <div class="contact-items">
+              <div v-for="phone in user.phones" :key="phone.phone" class="contact-item">
+                <div class="contact-icon">
+                  <i class="fas fa-phone-alt"></i>
+                </div>
+                <span class="contact-text">+{{ phone.CC }} {{ phone.phone }}</span>
+                <a :href="`tel:+${phone.CC}${phone.phone}`" class="contact-action">
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social Links -->
+          <div v-if="user?.links?.length > 0" class="contact-group">
+            <h6 class="contact-title">
+              <i class="fas fa-share-alt"></i>
+              Social Links
+            </h6>
+            <div class="social-links">
+              <a v-for="link in user.links" :key="link.link" :href="link.link" target="_blank" class="social-link"
+                :title="link.icon" :class="`social-${link.icon}`">
+                <i :class="getSocialIcon(link.icon)"></i>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -89,7 +104,7 @@
 </template>
 
 <script setup>
-import { computed, defineProps, defineEmits, ref } from "vue";
+import { computed, defineProps, defineEmits, ref, watch } from "vue";
 import Swal from "sweetalert2";
 import defaultImg from "@/assets/img/userProfile.png";
 
@@ -108,8 +123,18 @@ const emit = defineEmits(["image-uploaded"]);
 
 const fileInput = ref(null);
 const isLoading = ref(false);
+const isDataLoading = ref(true); // Loading state for initial data
 
 const user = computed(() => props.user);
+
+// Watch for user data changes
+watch(() => props.user, (newUser) => {
+  if (newUser && Object.keys(newUser).length > 0) {
+    isDataLoading.value = false;
+  } else {
+    isDataLoading.value = true;
+  }
+}, { immediate: true, deep: true });
 
 const getSocialIcon = (platform) => {
   const iconMap = {
@@ -508,5 +533,71 @@ const handleFileUpload = async (event) => {
 .navbar-profile-details p {
   color: #6c757d;
   font-size: 0.8rem;
+}
+
+/* Profile Card Loading Styles */
+.profile-card-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 20px;
+}
+
+.card-loading-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.card-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 0.4rem;
+}
+
+.card-spinner .spinner-ring {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid #A5C958;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.card-spinner .spinner-ring:nth-child(2) {
+  animation-delay: 0.15s;
+  border-top-color: #8fb647;
+}
+
+.card-spinner .spinner-ring:nth-child(3) {
+  animation-delay: 0.3s;
+  border-top-color: #7aa336;
+}
+
+.card-loading-text {
+  color: #4a5568;
+  font-weight: 600;
+  margin-bottom: 0;
+  font-size: 1rem;
+}
+
+/* Profile Content Animation */
+.profile-content {
+  animation: fadeInScale 0.5s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>
