@@ -1369,7 +1369,7 @@ onMounted(async () => {
                 @click="goToRoutineOrReported('not_reported')">
                 <span class="pill-dot"></span>
                 {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
-                  || 0) }} {{ t('notReported') }}
+                || 0) }} {{ t('notReported') }}
               </span>
             </div>
 
@@ -1428,6 +1428,11 @@ onMounted(async () => {
                 {{ oneTimeUrgent }} {{ t('urgent') }}
               </span> -->
 
+              <span class="status-pill pill-success" @click="goToOneTimeTasks('status', 'inProgress')" style="cursor:pointer">
+                <span class="pill-dot"></span>
+                {{ dashboardData?.Tasks?.inProgress }} {{ t('inProgress') }}
+              </span>
+
               <span class="status-pill pill-secondary" @click="goToOneTimeTasks('status', 'Review')"
                 style="cursor:pointer">
                 <span class="pill-dot"></span>
@@ -1448,6 +1453,7 @@ onMounted(async () => {
                 <span class="pill-dot"></span>
                 {{ oneTimeMetricsFiltered.overdue }} {{ t('overdue') }}
               </span>
+
             </div>
 
             <!-- <div class="card-footer-v2">
