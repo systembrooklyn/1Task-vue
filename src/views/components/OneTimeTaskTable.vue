@@ -1066,6 +1066,11 @@ const translations = {
 
 const filteredTasks = computed(() => {
   if (!props.oneTimeTasks) return [];
+  const q = props.activeQuery || {};
+  // When global priority/due filter is active (and no explicit status), zero certain tabs
+  if (!q.status && (q.priority || q.due) && ["Review", "Done", "Started"].includes(activeTab.value)) {
+    return [];
+  }
   switch (activeTab.value) {
     case "Inbox":
       return props.oneTimeTasks.filter((task) => {
@@ -1083,7 +1088,7 @@ const filteredTasks = computed(() => {
           task.is_archived == false &&
           task.status !== "done"
         );
-      });
+      }).filter(matchesGlobalFilters);
     case "Own":
       return props.oneTimeTasks.filter((task) => {
         return (
@@ -1091,15 +1096,15 @@ const filteredTasks = computed(() => {
           task.is_archived == false &&
           task.status !== "done"
         );
-      });
+      }).filter(matchesGlobalFilters);
     case "Archive":
-      return props.oneTimeTasks.filter((task) => task.is_archived == true);
+      return props.oneTimeTasks.filter((task) => task.is_archived == true).filter(matchesGlobalFilters);
     case "Started":
-      return props.oneTimeTasks.filter((task) => task.is_starred == true);
+      return props.oneTimeTasks.filter((task) => task.is_starred == true).filter(matchesGlobalFilters);
     case "Review":
-      return props.oneTimeTasks.filter((task) => task.status === "review");
+      return props.oneTimeTasks.filter((task) => task.status === "review").filter(matchesGlobalFilters);
     case "Done":
-      return props.oneTimeTasks.filter((task) => task.status === "done");
+      return props.oneTimeTasks.filter((task) => task.status === "done").filter(matchesGlobalFilters);
     case "Label":
       return props.oneTimeTasks.filter(() => {
         // Label-specific logic if needed
@@ -1112,7 +1117,7 @@ const filteredTasks = computed(() => {
             .includes(userData.value?.user?.id) ||
           task.supervisor?.id === userData.value?.user?.id
         );
-      });
+      }).filter(matchesGlobalFilters);
   }
 });
 
@@ -1330,10 +1335,12 @@ function matchesGlobalFilters(task) {
   }
   if (q.priority && task.priority !== q.priority) return false;
   if (q.due) {
-    const today = formatDate(new Date());
     if (!task.deadline) return false;
-    if (q.due === 'overdue' && !(formatDate(task.deadline) < today)) return false;
-    if (q.due === 'today' && !(formatDate(task.deadline) === today)) return false;
+    const strip = (d) => { const x = new Date(d); return new Date(x.getFullYear(), x.getMonth(), x.getDate()); };
+    const today = strip(new Date());
+    const deadline = strip(task.deadline);
+    if (q.due === 'overdue' && !(deadline < today)) return false;
+    if (q.due === 'today' && !(deadline.getTime() === today.getTime())) return false;
     if (q.due === 'soon') {
       const k = daysDiffFromToday(task.deadline);
       if (!(k >= 0 && k <= 2)) return false;
@@ -1344,6 +1351,10 @@ function matchesGlobalFilters(task) {
 
 function getTabCount(tabName) {
   if (!props.oneTimeTasks) return 0;
+  const q = props.activeQuery || {};
+  if (!q.status && (q.priority || q.due) && ["Review", "Done", "Started"].includes(tabName)) {
+    return 0;
+  }
 
   switch (tabName) {
     case "Inbox":
