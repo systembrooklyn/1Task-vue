@@ -101,7 +101,7 @@ watch(
     if (dataFromApi.value && Array.isArray(dataFromApi.value)) {
       employeeOptions.value = dataFromApi.value.map((employee) => ({
         value: employee.id,
-        label: employee.name,
+        label: `${employee.first_name ?? employee.name ?? ''} ${employee.last_name ?? ''}`.trim(),
         // department: employee.department[0].name,
       }));
       console.log("employeeOptions updated:", employeeOptions.value);

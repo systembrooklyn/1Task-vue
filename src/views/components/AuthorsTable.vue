@@ -35,8 +35,14 @@
             <tr v-for="employee in dataFromApi" :key="employee.id">
               <td>
                 <div class="d-flex px-2 py-1">
+                  <div class="avatar me-2" :class="{ clickable: !!employee.ppUrl }" @click="openAvatar(employee)">
+                    <img v-if="employee.ppUrl" :src="employee.ppUrl" alt="avatar" class="avatar-img" />
+                    <div v-else class="avatar-fallback" :style="{ backgroundColor: avatarColor(employee) }">
+                      {{ avatarInitial(employee) }}
+                    </div>
+                  </div>
                   <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">{{ employee.name }} {{ employee.last_name }}</h6>
+                    <h6 class="mb-0 text-sm">{{ fullName(employee) }}</h6>
                   </div>
                 </div>
               </td>
@@ -131,7 +137,7 @@
             </argon-button>
             <argon-button variant="secondary" @click="closeModal">{{
               t("close")
-              }}</argon-button>
+            }}</argon-button>
           </template>
 
           <template #title>
@@ -145,6 +151,16 @@
     <argon-alert v-if="successMessage" color="success" dismissible class="m-3">
       {{ successMessage }}
     </argon-alert>
+
+    <!-- Avatar Lightbox -->
+    <transition name="fade">
+      <div v-if="lightbox.open" class="lightbox-overlay" @click="closeAvatar">
+        <div class="lightbox-content" @click.stop>
+          <img :src="lightbox.src" alt="avatar" />
+          <button class="lightbox-close" @click="closeAvatar">×</button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -308,6 +324,47 @@ const successMessage = ref("");
 
 // استخدام getter `dataFromApi`
 const dataFromApi = computed(() => store.getters.dataFromApi);
+
+// Simple avatar lightbox state
+const lightbox = ref({ open: false, src: "" });
+function openAvatar(e) {
+  if (!e?.ppUrl) return;
+  lightbox.value = { open: true, src: e.ppUrl };
+}
+function closeAvatar() {
+  lightbox.value.open = false;
+  lightbox.value.src = "";
+}
+
+// Avatar helpers
+function fullName(e) {
+  const first = (e?.name || '').trim();
+  const last = (e?.last_name || '').trim();
+  return `${first} ${last}`.trim();
+}
+
+function avatarInitial(e) {
+  const first = (e?.name || '').trim();
+  const last = (e?.last_name || '').trim();
+  const base = first || last || (e?.email || '?');
+  return String(base).charAt(0).toUpperCase();
+}
+
+const AVATAR_COLORS = [
+  '#5b8def', '#00b894', '#e17055', '#6c5ce7', '#fdcb6e',
+  '#0984e3', '#e84393', '#2d3436', '#00cec9', '#ff7675'
+];
+
+function avatarColor(e) {
+  const key = String(e?.id ?? e?.email ?? fullName(e));
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = ((hash << 5) - hash) + key.charCodeAt(i);
+    hash |= 0;
+  }
+  const idx = Math.abs(hash) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[idx];
+}
 
 // دالة فتح الـ Modal وتعبئة بيانات الموظف
 const openEditModal = async (employee) => {
@@ -766,6 +823,90 @@ onMounted(async () => {
 .argon-alert {
   border-radius: 5px;
   font-size: 0.875rem;
+}
+
+/* Avatars */
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e9ecef;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar.clickable {
+  cursor: pointer;
+}
+
+/* Lightbox */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-content {
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.lightbox-content img {
+  max-width: 80vw;
+  max-height: 80vh;
+  display: block;
+  border-radius: 6px;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 /* كلاس مخصص للمودال لجعله قابلًا للتمرير */

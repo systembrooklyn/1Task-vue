@@ -216,18 +216,18 @@
                 </small>
 
                 <small v-if="task.creator" class="badge badge-grey">
-                  {{ t("createdBy") }}: {{ task.creator?.name || "Unknown" }}
+                  {{ t("createdBy") }}: {{ userDisplayName(task.creator) }}
                 </small>
 
                 <small v-if="task.supervisor" class="badge badge-grey">
                   {{ t("supervisor") }}:
-                  {{ task.supervisor?.name || "Unknown" }}
+                  {{ userDisplayName(task.supervisor) }}
                 </small>
 
                 <small v-if="task.assignedUser.length > 0" class="badge badge-grey">
                   {{ t("assignedTo") }}:
                   {{
-                    task.assignedUser.map((user) => user.name).join(", ") ||
+                    task.assignedUser.map((user) => userDisplayName(user)).join(", ") ||
                     "Unknown"
                   }}
                 </small>
@@ -235,7 +235,7 @@
                 <small v-if="task.consult.length > 0" class="badge badge-grey">
                   {{ t("consult") }}:
                   {{
-                    task.consult.map((user) => user.name).join(", ") ||
+                    task.consult.map((user) => userDisplayName(user)).join(", ") ||
                     "Unknown"
                   }}
                 </small>
@@ -243,7 +243,7 @@
                 <small v-if="task.informer.length > 0" class="badge badge-grey">
                   {{ t("informer") }}:
                   {{
-                    task.informer.map((user) => user.name).join(", ") ||
+                    task.informer.map((user) => userDisplayName(user)).join(", ") ||
                     "Unknown"
                   }}
                 </small>
@@ -568,6 +568,12 @@ const t = (key, params = {}) => {
 
   return translation;
 };
+
+function userDisplayName(u) {
+  if (!u) return 'Unknown';
+  const full = `${u.first_name ?? u.name ?? ''} ${u.last_name ?? ''}`.trim();
+  return full || (u.name ?? 'Unknown');
+}
 
 // هيلبر لاستخراج الأسماء الأولى لعدد محدود
 const firstNames = (users, limit = 2) => {

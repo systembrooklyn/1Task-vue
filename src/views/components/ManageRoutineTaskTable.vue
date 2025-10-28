@@ -842,7 +842,7 @@ const openDescriptionModal = async (task) => {
   selectedTaskAssignedTo.value = task.assigned_to;
   selectedTaskRecurrentDays.value = task.recurrent_days;
   selectedTaskDayOfMonth.value = task.day_of_month;
-  selectedTaskCreatedBy.value = task.created_by.name;
+  selectedTaskCreatedBy.value = `${task.created_by?.first_name ?? task.created_by?.name ?? ''} ${task.created_by?.last_name ?? ''}`.trim();
   selectedTaskDepartment.value = task.department?.department_name;
   selectedTaskProject.value = task.project?.name;
   await getTaskLogs(task.id);

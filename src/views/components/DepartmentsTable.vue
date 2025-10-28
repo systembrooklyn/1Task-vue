@@ -256,7 +256,7 @@ const dataFromApi = computed(() => store.getters.dataFromApi);
 const employeeOptions = computed(() => {
   return dataFromApi.value.map((employee) => ({
     value: employee.id,
-    label: employee.name,
+    label: `${employee.first_name ?? employee.name ?? ''} ${employee.last_name ?? ''}`.trim(),
   }));
 });
 
