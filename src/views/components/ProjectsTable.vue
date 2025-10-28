@@ -4,7 +4,7 @@
       <table class="table align-items-center table-hover mb-0">
         <thead class="thead-light">
           <tr>
-            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" >
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("status") }}
             </th>
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
@@ -26,17 +26,15 @@
         <tbody>
           <tr v-for="Project in props.projects" :key="Project.id">
             <td :class="{ 'disabled-cell': !(isOwner || permissions['edit-project']) }">
-              <div class="px-2 py-1" :style="!(isOwner || permissions['edit-project']) ? 'pointer-events: none; opacity: 0.6;' : ''">
+              <div class="px-2 py-1"
+                :style="!(isOwner || permissions['edit-project']) ? 'pointer-events: none; opacity: 0.6;' : ''">
                 <div class="d-flex justify-content-center text-sm">
-                  <argon-switch
-                    :checked="Boolean(Project.status)"
-                    :disabled="!(isOwner || permissions['edit-project'])"
+                  <argon-switch :checked="Boolean(Project.status)" :disabled="!(isOwner || permissions['edit-project'])"
                     @update:checked="() => {
                       if (isOwner || permissions['edit-project']) {
                         toggleStatus(Project.id)
                       }
-                    }"
-                  >
+                    }">
                     {{ Project.status ? t("active") : t("inactive") }}
                   </argon-switch>
                 </div>
@@ -385,7 +383,7 @@ const dataFromApi = computed(() => store.getters.dataFromApi);
 const employeeOptions = computed(() => {
   return dataFromApi.value.map((employee) => ({
     value: employee.id,
-    label: employee.name,
+    label: `${employee.first_name ?? employee.name ?? ''} ${employee.last_name ?? ''}`.trim(),
   }));
 });
 

@@ -1,6 +1,6 @@
 // Dashboard.vue
 <script setup>
-import { ref, watch, onMounted, onUnmounted, computed } from "vue";
+import { ref, watch, onMounted, onUnmounted, onBeforeMount, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import ShBar from "../components/charts/ShBar.vue";
 // import ShLine from "../components/charts/ShLine.vue";
@@ -13,11 +13,28 @@ import ArgonTextarea from "@/components/ArgonTextarea.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import { useStore } from "vuex";
 import Swal from 'sweetalert2';
+import {
+  savePermissionsToLocalStorage,
+  extractPermissionsFromAPI,
+  loadPermissionsFromLocalStorage,
+} from "@/utils/permissions.js";
 
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 // const userName = computed(() => store.getters.userName);
+
+// Permissions (aligned with SidenavList.vue)
+const userData = computed(() => store.getters.user);
+const permissions = ref(loadPermissionsFromLocalStorage(userData.value?.id) || {});
+
+onBeforeMount(() => {
+  if (!permissions.value || Object.keys(permissions.value).length === 0) {
+    const extracted = extractPermissionsFromAPI(userData.value?.roles);
+    permissions.value = extracted || {};
+    savePermissionsToLocalStorage(permissions.value, userData.value?.id);
+  }
+});
 
 // Loading and error states
 const isLoading = ref(true);
@@ -235,12 +252,14 @@ const goToPage = ({ name, params = {}, query = {} }) => {
   router.push({ name, params, query });
 };
 
+// (removed duplicate permissions import and variables)
+
 // Navigate depending on owner: owners -> reported tasks, others -> routine task
 const isOwner = computed(() => store.getters.isOwner);
 const goToRoutineOrReported = (status = "") => {
   const companyName = route.params.companyName;
   const query = status ? { reportStatus: status } : {};
-  if (isOwner.value) {
+  if (isOwner.value || (permissions.value['view-dailyTaskReports'] && permissions.value['view-dashboard-owner'])) {
     router.push({ name: "reported tasks", params: { companyName }, query });
   } else {
     router.push({ name: "routine task", params: { companyName }, query });
@@ -1156,6 +1175,10 @@ const submitQuickOneTimeTask = async () => {
     // Ensure assigned_user_id is array (matching OneTimeTask.vue structure)
     const taskData = {
       ...quickOneTimeTask.value,
+      // Default start_date to today (YYYY-MM-DD) if not provided to satisfy API
+      start_date: quickOneTimeTask.value.start_date && String(quickOneTimeTask.value.start_date).trim()
+        ? quickOneTimeTask.value.start_date
+        : new Date().toISOString().split('T')[0],
       assigned_user_id: Array.isArray(quickOneTimeTask.value.assigned_user_id)
         ? quickOneTimeTask.value.assigned_user_id
         : [quickOneTimeTask.value.assigned_user_id].filter(Boolean)

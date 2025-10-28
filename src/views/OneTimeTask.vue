@@ -101,7 +101,7 @@ watch(
     if (dataFromApi.value && Array.isArray(dataFromApi.value)) {
       employeeOptions.value = dataFromApi.value.map((employee) => ({
         value: employee.id,
-        label: employee.name,
+        label: `${employee.first_name ?? employee.name ?? ''} ${employee.last_name ?? ''}`.trim(),
         // department: employee.department[0].name,
       }));
       console.log("employeeOptions updated:", employeeOptions.value);
@@ -770,14 +770,7 @@ const selectedStatus = ref("");
 
 console.log("userDepartment:", userDepartment.value);
 
-function formatDate(dateString) {
-  if (!dateString) return "N/A";
-  const options = { year: "numeric", month: "long", day: "numeric" };
-  return new Date(dateString).toLocaleDateString(
-    currentLanguage.value,
-    options
-  );
-}
+// Removed old string-based date formatting from filter logic to avoid misclassification
 
 // Helper: difference in whole days between deadline and today (deadline - today)
 // Positive values mean deadline in the future, 0 means today, negative means overdue
@@ -863,8 +856,12 @@ const filteredTasks = computed(() => {
     console.log("tasks after filtering by employee:", tasks);
   }
 
-  const today = formatDate(new Date());
-  console.log(today);
+  const stripDate = (d) => {
+    const x = new Date(d);
+    return new Date(x.getFullYear(), x.getMonth(), x.getDate());
+  };
+  const todayDateOnly = stripDate(new Date());
+  console.log(todayDateOnly);
 
   // deadline dropdown filter (existing)
   if (selectedDeadLine.value) {
@@ -876,7 +873,8 @@ const filteredTasks = computed(() => {
       if (!t.deadline) return false;
 
       if (selectedDeadLine.value === "overdue") {
-        return formatDate(t.deadline) < today;
+        const deadline = stripDate(t.deadline);
+        return deadline < todayDateOnly;
       }
       if (selectedDeadLine.value === "soon") {
         // soon within 2 days: 0, 1, or 2 days remaining
@@ -891,8 +889,9 @@ const filteredTasks = computed(() => {
   if (activeQuery.due) {
     tasks = tasks.filter((t) => {
       if (!t.deadline) return false;
-      if (activeQuery.due === "overdue") return formatDate(t.deadline) < today;
-      if (activeQuery.due === "today") return formatDate(t.deadline) === today;
+      const deadline = stripDate(t.deadline);
+      if (activeQuery.due === "overdue") return deadline < todayDateOnly;
+      if (activeQuery.due === "today") return deadline.getTime() === todayDateOnly.getTime();
       if (activeQuery.due === "soon") {
         const diff = daysDiffFromToday(t.deadline);
         return diff >= 0 && diff <= 2;
