@@ -500,7 +500,9 @@ const translations = {
     friday: "Friday",
     saturday: "Saturday",
     sunday: "Sunday",
-    scrollToSeeMore: "Swipe to see more"
+    scrollToSeeMore: "Swipe to see more",
+    from: "From",
+    to: "To"
   },
   ar: {
     // Header
@@ -641,7 +643,9 @@ const translations = {
     friday: "الجمعة",
     saturday: "السبت",
     sunday: "الأحد",
-    scrollToSeeMore: "اسحب لمشاهدة المزيد"
+    scrollToSeeMore: "اسحب لمشاهدة المزيد",
+    from: "من",
+    to: "إلى"
   }
 };
 
@@ -1927,8 +1931,8 @@ onMounted(async () => {
               </div>
 
               <!-- Start Date -->
-              <div class="col-md-6 ">
-                <!-- <label class="form-label small text-muted mb-1">{{ t('startDate') }} *</label> -->
+              <div class="col-md-6">
+                <label class="form-label small text-muted mb-2">{{ t('startDate') }} *</label>
                 <ArgonInput id="quick-routine-start-date" type="date" v-model="quickRoutineTask.start_date" size="sm"
                   :error="validationErrors.start_date" />
               </div>
@@ -1938,14 +1942,14 @@ onMounted(async () => {
 
 
               <!-- From Time -->
-              <div class="col-md-6 ">
-                <!-- <label class="form-label small text-muted mb-1">{{ t('from') }}</label> -->
+              <div class="col-md-6">
+                <label class="form-label small text-muted mb-2">{{ t('from') }}</label>
                 <ArgonInput id="quick-routine-from" type="time" v-model="quickRoutineTask.from" size="sm" />
               </div>
 
               <!-- To Time -->
-              <div class="col-md-6 ">
-                <!-- <label class="form-label small text-muted mb-1">{{ t('to') }}</label> -->
+              <div class="col-md-6">
+                <label class="form-label small text-muted mb-2">{{ t('to') }}</label>
                 <ArgonInput id="quick-routine-to" type="time" v-model="quickRoutineTask.to" size="sm" />
               </div>
             </div>
@@ -4400,9 +4404,9 @@ onMounted(async () => {
 }
 
 .gmail-toolbar-icon.has-value {
-  border-color: #1a73e8;
-  background: #e8f0fe;
-  color: #1a73e8;
+  border-color: #A5C958;
+  background: #f0f7e6;
+  color: #A5C958;
 }
 
 .gmail-toolbar-icon i {
@@ -4415,7 +4419,7 @@ onMounted(async () => {
   right: -2px;
   width: 16px;
   height: 16px;
-  background: #1a73e8;
+  background: #A5C958;
   color: white;
   border-radius: 50%;
   font-size: 10px;
@@ -4435,6 +4439,11 @@ onMounted(async () => {
   color: #666;
   text-align: center;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
 }
 
 /* Toolbar Dropdown Styles */
@@ -4578,8 +4587,8 @@ onMounted(async () => {
 }
 
 .toolbar-option-item.selected {
-  background-color: #e8f5e8;
-  border-left: 3px solid #a6c956;
+  background-color: #f0f7e6;
+  border-left: 3px solid #A5C958;
 }
 
 .toolbar-option-text {
@@ -4588,7 +4597,7 @@ onMounted(async () => {
 }
 
 .toolbar-option-check {
-  color: #a6c956;
+  color: #A5C958;
   font-size: 0.8rem;
 }
 
@@ -4613,18 +4622,26 @@ onMounted(async () => {
 /* Mobile Responsive for Gmail Styles */
 @media (max-width: 768px) {
   .gmail-toolbar {
-    flex-wrap: wrap;
-    gap: 12px;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding: 8px 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .gmail-toolbar-icon-group {
-    flex: 1;
-    min-width: calc(50% - 6px);
+    flex: 0 0 auto;
+    min-width: auto;
+    max-width: none;
+    margin-bottom: 0;
+    flex-shrink: 0;
   }
 
   .gmail-toolbar-icon {
     width: 36px;
     height: 36px;
+    border-radius: 4px;
   }
 
   .gmail-toolbar-icon i {
@@ -4632,9 +4649,58 @@ onMounted(async () => {
   }
 
   .gmail-icon-label {
-    font-size: 10px;
+    font-size: 9px;
+    font-weight: 500;
+    margin-top: 2px;
+    text-align: center;
+    line-height: 1.1;
+    color: #64748b;
   }
 
+  .gmail-icon-indicator {
+    width: 16px;
+    height: 16px;
+    font-size: 9px;
+    top: -3px;
+    right: -3px;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .gmail-toolbar {
+    gap: 4px;
+    padding: 6px 0;
+  }
+
+  .gmail-toolbar-icon-group {
+    flex: 0 0 auto;
+  }
+
+  .gmail-toolbar-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .gmail-toolbar-icon i {
+    font-size: 13px;
+  }
+
+  .gmail-icon-label {
+    font-size: 8px;
+    margin-top: 1px;
+  }
+
+  .gmail-icon-indicator {
+    width: 14px;
+    height: 14px;
+    font-size: 8px;
+    top: -2px;
+    right: -2px;
+  }
+}
+
+@media (max-width: 768px) {
   .gmail-people-field {
     flex-direction: column;
     align-items: flex-start;
@@ -4669,11 +4735,27 @@ onMounted(async () => {
 }
 
 /* إزالة تأثير form-group على جميع الحقول في Routine Task */
-.routine-dropdown .form-label,
-.routine-dropdown .mb-1,
 .routine-dropdown .col-md-6,
 .routine-dropdown .col-12 {
   margin-bottom: 4px !important;
+}
+
+/* Ensure labels are visible on mobile */
+.routine-dropdown .form-label {
+  display: block !important;
+  margin-bottom: 6px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #64748b !important;
+  line-height: 1.2 !important;
+}
+
+/* Mobile responsive labels */
+@media (max-width: 768px) {
+  .routine-dropdown .form-label {
+    margin-bottom: 8px !important;
+    font-size: 0.8rem !important;
+  }
 }
 
 .routine-dropdown :deep(.form-group),
