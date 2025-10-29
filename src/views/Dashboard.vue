@@ -499,7 +499,8 @@ const translations = {
     thursday: "Thursday",
     friday: "Friday",
     saturday: "Saturday",
-    sunday: "Sunday"
+    sunday: "Sunday",
+    scrollToSeeMore: "Swipe to see more"
   },
   ar: {
     // Header
@@ -639,7 +640,8 @@ const translations = {
     thursday: "الخميس",
     friday: "الجمعة",
     saturday: "السبت",
-    sunday: "الأحد"
+    sunday: "الأحد",
+    scrollToSeeMore: "اسحب لمشاهدة المزيد"
   }
 };
 
@@ -1369,7 +1371,7 @@ onMounted(async () => {
                 @click="goToRoutineOrReported('not_reported')">
                 <span class="pill-dot"></span>
                 {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
-                || 0) }} {{ t('notReported') }}
+                  || 0) }} {{ t('notReported') }}
               </span>
             </div>
 
@@ -1428,7 +1430,8 @@ onMounted(async () => {
                 {{ oneTimeUrgent }} {{ t('urgent') }}
               </span> -->
 
-              <span class="status-pill pill-success" @click="goToOneTimeTasks('status', 'inProgress')" style="cursor:pointer">
+              <span class="status-pill pill-success" @click="goToOneTimeTasks('status', 'inProgress')"
+                style="cursor:pointer">
                 <span class="pill-dot"></span>
                 {{ dashboardData?.Tasks?.inProgress }} {{ t('inProgress') }}
               </span>
@@ -2890,6 +2893,45 @@ onMounted(async () => {
 
 .chart-content {
   min-height: 320px;
+}
+
+.chart-mobile-container {
+  position: relative;
+  overflow-x: visible;
+}
+
+.mobile-scroll-hint {
+  text-align: center;
+  padding: 8px;
+  font-size: 0.75rem;
+  color: #64748b;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .chart-content {
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chart-card {
+    overflow: visible;
+  }
+
+  .chart-mobile-container {
+    position: relative;
+    padding-bottom: 10px;
+  }
+
+  .mobile-scroll-hint {
+    margin-top: 12px;
+    font-size: 0.7rem;
+    padding: 6px 12px;
+  }
 }
 
 /* Old styles - keep for backward compatibility */

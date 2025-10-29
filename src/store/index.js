@@ -6,6 +6,7 @@ import {
   extractPermissionsFromAPI,
   savePermissionsToLocalStorage,
 } from "@/utils/permissions.js";
+import companyModule from "./modules/company.module.js";
 
 // دوال التشفير وفك التشفير
 const encryptData = (data) => {
@@ -870,10 +871,16 @@ export default createStore({
           commit("SET_USER_Name", response.data.user.name);
           commit("SET_USER_LastName", response.data.user.last_name);
 
+          // Sync company data to company module
+          commit("company/SET_COMPANY_ID", response.data.user.company.id);
+          commit("company/SET_COMPANY_NAME", response.data.user.company.name);
+
           // بعد تسجيل الدخول بنجاح، جلب بيانات الباقة والملف الشخصي
           try {
             await this.dispatch("fetchPlanInfo");
             await this.dispatch("fetchProfileData");
+            // Optionally fetch company data if logo is available in API
+            // await this.dispatch("company/fetchCompanyData");
           } catch (e) {
             // تجاهل الخطأ هنا، سيتم إظهاره في الواجهة إذا لزم
           }
@@ -1066,7 +1073,9 @@ export default createStore({
       }
     },
 
-    async signOut() {
+    async signOut({ commit }) {
+      // Clear company data before clearing all
+      commit("company/CLEAR_COMPANY_DATA");
       localStorage.clear();
       sessionStorage.clear();
     },
@@ -1904,6 +1913,10 @@ export default createStore({
         return null;
       }
     },
+  },
+
+  modules: {
+    company: companyModule,
   },
 
   getters: {

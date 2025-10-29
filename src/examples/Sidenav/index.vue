@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import SidenavList from "./SidenavList.vue";
 // import logo from "@/assets/img/logo-ct-dark.png";
@@ -10,26 +10,104 @@ import SidenavList from "./SidenavList.vue";
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
 const layout = computed(() => store.state.layout);
-const sidebarType = computed(() => store.state.sidebarType);
+// const sidebarType = computed(() => store.state.sidebarType);
 // const darkMode = computed(() => store.state.darkMode);
 
-// Sidebar collapse state
+// Sidebar collapse state (for desktop)
 const collapsed = ref(false);
 
+// Mobile sidebar visibility state (show/hide completely)
+const isMobileOpen = ref(false);
+
+// Check if mobile
+const checkMobile = () => {
+  return window.innerWidth < 992;
+};
+
+const updateMobileState = () => {
+  // Reset mobile state when switching to desktop
+  if (!checkMobile()) {
+    if (isMobileOpen.value) {
+      isMobileOpen.value = false;
+      document.body.style.overflow = '';
+    }
+  } else {
+    // On mobile, always start closed (independent of desktop state)
+    isMobileOpen.value = false;
+  }
+};
+
 onMounted(() => {
-  const savedState = localStorage.getItem('sidebarCollapsed');
-  collapsed.value = savedState === 'true';
+  // Desktop state - load from localStorage (only for desktop)
+  if (checkMobile()) {
+    // On mobile, don't load desktop state
+    collapsed.value = false;
+  } else {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    collapsed.value = savedState === 'true';
+  }
+
+  // Listen for mobile sidebar toggle events from Navbar
+  window.addEventListener('mobileSidebarToggle', handleMobileToggle);
+  window.addEventListener('mobileSidebarClose', closeMobileSidebar);
+  window.addEventListener('resize', updateMobileState);
+
+  // Initialize mobile state (always closed on mount)
+  updateMobileState();
 });
 
+onUnmounted(() => {
+  window.removeEventListener('mobileSidebarToggle', handleMobileToggle);
+  window.removeEventListener('mobileSidebarClose', closeMobileSidebar);
+  window.removeEventListener('resize', updateMobileState);
+});
+
+const handleMobileToggle = () => {
+  if (checkMobile()) {
+    isMobileOpen.value = !isMobileOpen.value;
+    // Prevent body scroll when sidebar is open
+    if (isMobileOpen.value) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+};
+
+const closeMobileSidebar = () => {
+  if (checkMobile()) {
+    isMobileOpen.value = false;
+    document.body.style.overflow = '';
+  }
+};
+
 const toggleSidebar = () => {
+  // Only toggle collapse on desktop - mobile uses handleMobileToggle
+  if (checkMobile()) {
+    // On mobile, this should not be called, but if it is, use mobile toggle
+    handleMobileToggle();
+    return;
+  }
+
+  // Desktop only: toggle and save to localStorage
   collapsed.value = !collapsed.value;
   localStorage.setItem('sidebarCollapsed', String(collapsed.value));
 
-  // Dispatch custom event for main content to listen
+  // Dispatch custom event for main content to listen (desktop only)
   window.dispatchEvent(new CustomEvent('sidebarToggle'));
+};
+
+// Close mobile sidebar when clicking on backdrop
+const handleBackdropClick = () => {
+  closeMobileSidebar();
+  window.dispatchEvent(new CustomEvent('mobileSidebarClose'));
 };
 </script>
 <template>
+  <!-- Mobile Backdrop Overlay -->
+  <div v-if="isMobileOpen" class="sidebar-backdrop" @click="handleBackdropClick" @touchstart="handleBackdropClick">
+  </div>
+
   <!-- <div
     v-show="layout === 'default'"
     class="min-height-300 position-absolute w-100"
@@ -37,15 +115,16 @@ const toggleSidebar = () => {
   /> -->
 
   <aside class="sidenav navbar navbar-vertical navbar-expand-xs sidebar-transition sidebar-overlay" :class="`${isRTL ? 'rotate-caret' : ''}    
-      ${layout === 'landing' ? 'bg-transparent shadow-none' : ' '
-    } ${sidebarType} ${collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`" id="sidenav-main">
+      ${layout === 'landing' ? 'bg-transparent shadow-none' : ''}
+      ${checkMobile() ? '' : (collapsed ? 'sidebar-collapsed' : 'sidebar-expanded')}
+      ${checkMobile() ? (isMobileOpen ? 'mobile-sidebar-open' : 'mobile-sidebar-closed') : ''}`" id="sidenav-main">
     <div class="sidenav-header d-flex align-items-center justify-content-between px-3">
       <router-link class="navbar-brand m-0" to="#" v-if="!collapsed">
         <img
           src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?ik-obj-version=9sTuepUtU27Iw3.FfIbdKOdc7MYL4WM0&updatedAt=1737223784202"
           class="navbar-brand-img h-100" alt="main_logo" style="max-height: 40px;" />
       </router-link>
-      <button class="sidebar-toggle-btn" @click="toggleSidebar"
+      <button class="sidebar-toggle-btn desktop-hamburger" @click="toggleSidebar"
         :title="collapsed ? (isRTL ? 'توسيع الشريط الجانبي' : 'Expand Sidebar') : (isRTL ? 'طي الشريط الجانبي' : 'Collapse Sidebar')">
         <div class="hamburger-icon" :class="{ 'active': !collapsed }">
           <span></span>
@@ -88,7 +167,7 @@ const toggleSidebar = () => {
 
 /* Sidebar width transitions */
 .sidebar-transition {
-  transition: width 0.3s ease, min-width 0.3s ease;
+  transition: width 0.3s ease, min-width 0.3s ease, transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .sidebar-expanded {
@@ -99,6 +178,98 @@ const toggleSidebar = () => {
 .sidebar-collapsed {
   width: 80px !important;
   min-width: 80px !important;
+}
+
+/* Mobile Sidebar Styles - Full Overlay */
+@media (max-width: 991px) {
+  .sidebar-overlay {
+    width: 100% !important;
+    max-width: 320px !important;
+    transform: translateX(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mobile-sidebar-open {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .mobile-sidebar-closed {
+    transform: translateX(-100%) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  /* RTL Support for Mobile */
+  [dir="rtl"] .sidebar-overlay {
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
+  }
+
+  [dir="rtl"] .mobile-sidebar-open {
+    transform: translateX(0) !important;
+  }
+
+  [dir="rtl"] .mobile-sidebar-closed {
+    transform: translateX(100%) !important;
+  }
+}
+
+/* Desktop keeps normal behavior */
+@media (min-width: 992px) {
+
+  /* On desktop, ignore mobile classes */
+  .mobile-sidebar-open,
+  .mobile-sidebar-closed {
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* Ensure desktop sidebar always visible */
+  .sidebar-overlay {
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+}
+
+/* On mobile, ignore desktop collapse/expand classes */
+@media (max-width: 991px) {
+
+  .sidebar-expanded,
+  .sidebar-collapsed {
+    width: 100% !important;
+    max-width: 320px !important;
+    min-width: auto !important;
+  }
+}
+
+/* Mobile Backdrop */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 992px) {
+  .sidebar-backdrop {
+    display: none;
+  }
 }
 
 /* Hamburger Toggle Button Styling */
@@ -196,5 +367,19 @@ const toggleSidebar = () => {
 
 .sidebar-icon .material-symbols-rounded {
   font-size: 1.125rem;
+}
+
+/* Hide hamburger icon on mobile - Navbar will handle it */
+@media (max-width: 991px) {
+  .desktop-hamburger {
+    display: none !important;
+  }
+}
+
+/* Show on desktop/tablet */
+@media (min-width: 992px) {
+  .desktop-hamburger {
+    display: flex;
+  }
 }
 </style>

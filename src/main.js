@@ -67,6 +67,9 @@ appInstance.use(VueTelInput, {
 // Load user data from localStorage
 store.commit("LOAD_USER_FROM_STORAGE");
 
+// Load company data from localStorage
+store.commit("company/LOAD_FROM_STORAGE");
+
 appInstance.mount("#app");
 
 // بعد أن يتم التركيب
