@@ -17,6 +17,7 @@ import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
 import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
+import ArgonTagsInput from "@/components/ArgonTagsInput.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonTextarea from "@/components/ArgonTextarea.vue";
 
@@ -144,8 +145,6 @@ const selectedAssignee = ref([]);
 const selectedSupervisor = ref("");
 const selectedConsultant = ref([]);
 const selectedInformer = ref([]);
-
-const employeeNames = ref([]);
 
 const showPopup = ref(false);
 const isMaximized = ref(false);
@@ -337,15 +336,6 @@ const closePopup = () => {
   showSupervisorInput.value = false;
   showInformerInput.value = false;
   showConsultantInput.value = false;
-};
-
-// دوال تبديل حقول Cc و Bcc
-const toggleCcFields = () => {
-  showCcFields.value = !showCcFields.value;
-};
-
-const toggleBccFields = () => {
-  showBccFields.value = !showBccFields.value;
 };
 
 // دوال تبديل القوائم المنسدلة
@@ -2003,129 +1993,47 @@ const translations = {
             </div>
 
             <!-- حقول إضافة الأشخاص (Gmail Style) -->
-            <div v-show="showCompactPeople" class="gmail-people-section mb-3" @click.stop>
-              <!-- Assign To (To) - الحقل الأساسي -->
-              <div class="gmail-people-field">
-                <!-- عرض الأشخاص المختارين فقط -->
-                <div v-if="!showAssigneeInput && selectedAssignee.length > 0" class="gmail-selected-people"
-                  @click="showAssigneeInput = true">
-                  <span class="gmail-field-label">{{ t('assignTo') }}:</span>
-                  <div class="gmail-people-tags">
-                    <span v-for="assigneeId in selectedAssignee" :key="assigneeId" class="gmail-person-tag">
-                      {{ getEmployeeName(assigneeId) }}<i class="fas fa-times mx-1"
-                        @click.stop="removeAssignee(assigneeId)"></i>
-                    </span>
+            <div v-show="showCompactPeople" class="gmail-people-section mb-2" @click.stop>
+              <!-- Assignee -->
+              <div class="gmail-people-row">
+                <div class="gmail-row-content w-100">
+                  <div class="w-100">
+                    <ArgonTagsInput v-model="selectedAssignee" :options="employeeOptions"
+                      :placeholder="t('selectAssignee')" class="gmail-people-input" />
+                  </div>
+                  <div class="gmail-shortcuts">
+                    <a href="#" @click.prevent="showCcFields = !showCcFields" class="gmail-shortcut-link">
+                      {{ showCcFields ? '-' : '' }}SV
+                    </a>
+                    <a href="#" @click.prevent="showBccFields = !showBccFields" class="gmail-shortcut-link">
+                      {{ showBccFields ? '-' : '' }}IN/CN
+                    </a>
                   </div>
                 </div>
+              </div>
 
-                <!-- حالة فارغة -->
-                <div v-else-if="!showAssigneeInput && selectedAssignee.length === 0" class="gmail-empty-field"
-                  @click="showAssigneeInput = true">
-                  <span class="gmail-placeholder">{{ t('selectAssignee') }}</span>
-                </div>
-
-                <!-- حقل الإدخال (مخفي افتراضياً) -->
-                <div v-else class="gmail-input-field">
-                  <ArgonMultipleSelect v-model="selectedAssignee" :model-names="employeeNames"
-                    :options="employeeOptions" :placeholder="t('selectAssignee')" :searchable="true"
-                    :search-placeholder="t('searchEmployees')" class="gmail-people-input" />
+              <!-- Supervisor -->
+              <div v-show="showCcFields" class="gmail-people-row">
+                <div class="gmail-row-content w-100">
+                  <ArgonSelect v-model="selectedSupervisor" :options="employeeOptions"
+                    :placeholder="t('selectSupervisor')" class="gmail-people-input w-100" :searchable="true"
+                    :search-placeholder="t('searchEmployees')" />
                 </div>
               </div>
 
-              <!-- Cc و Bcc على الجانب -->
-              <div class="gmail-people-side-options">
-                <button @click="toggleCcFields" class="gmail-cc-toggle" :class="{ active: showCcFields }">
-                  {{ t('supervisor') }}
-                </button>
-                <button @click="toggleBccFields" class="gmail-bcc-toggle" :class="{ active: showBccFields }">
-                  {{ t('informer') }} , {{ t('consultant') }}
-                </button>
-              </div>
-            </div>
-
-            <!-- حقول Cc (Supervisor) - مخفية افتراضياً -->
-            <div v-show="showCcFields" class="gmail-people-field gmail-cc-field" @click.stop>
-              <!-- عرض المشرف المختار فقط -->
-              <div v-if="!showSupervisorInput && selectedSupervisor" class="gmail-selected-people"
-                @click="showSupervisorInput = true">
-                <span class="gmail-field-label">{{ t('supervisor') }}:</span>
-                <div class="gmail-people-tags">
-                  <span class="gmail-person-tag">
-                    {{ getEmployeeName(selectedSupervisor) }}
-                    <i class="fas fa-times" @click.stop="removeSupervisor()"></i>
-                  </span>
-                </div>
-              </div>
-
-              <!-- حالة فارغة -->
-              <div v-else-if="!showSupervisorInput && !selectedSupervisor" class="gmail-empty-field"
-                @click="showSupervisorInput = true">
-                <span class="gmail-placeholder">{{ t('selectSupervisor') }}</span>
-              </div>
-
-              <!-- حقل الإدخال (مخفي افتراضياً) -->
-              <div v-else class="gmail-input-field">
-                <ArgonSelect v-model="selectedSupervisor" :options="employeeOptions"
-                  :placeholder="t('selectSupervisor')" class="gmail-people-input" :searchable="true"
-                  :search-placeholder="t('searchSupervisors')" />
-              </div>
-            </div>
-
-            <!-- حقول Bcc (Informer + Consultant) - مخفية افتراضياً -->
-            <div v-show="showBccFields" class="gmail-people-field gmail-bcc-field" @click.stop>
               <!-- Informer -->
-              <div class="gmail-people-field mb-2">
-                <!-- عرض الأشخاص المختارين فقط -->
-                <div v-if="!showInformerInput && selectedInformer.length > 0" class="gmail-selected-people"
-                  @click="showInformerInput = true">
-                  <span class="gmail-field-label">{{ t('informer') }}:</span>
-                  <div class="gmail-people-tags">
-                    <span v-for="informerId in selectedInformer" :key="informerId" class="gmail-person-tag">
-                      {{ getEmployeeName(informerId) }}
-                      <i class="fas fa-times" @click.stop="removeInformer(informerId)"></i>
-                    </span>
-                  </div>
-                </div>
-
-                <!-- حالة فارغة -->
-                <div v-else-if="!showInformerInput && selectedInformer.length === 0" class="gmail-empty-field"
-                  @click="showInformerInput = true">
-                  <span class="gmail-placeholder">{{ t('selectInformer') }}</span>
-                </div>
-
-                <!-- حقل الإدخال (مخفي افتراضياً) -->
-                <div v-else class="gmail-input-field">
-                  <ArgonMultipleSelect v-model="selectedInformer" :model-names="employeeNames"
-                    :options="employeeOptions" :placeholder="t('selectInformer')" :searchable="true"
-                    :search-placeholder="t('searchInformers')" class="gmail-people-input" />
+              <div v-show="showBccFields" class="gmail-people-row">
+                <div class="gmail-row-content w-100">
+                  <ArgonTagsInput v-model="selectedInformer" :options="employeeOptions"
+                    :placeholder="t('selectInformer')" class="gmail-people-input w-100" />
                 </div>
               </div>
 
               <!-- Consultant -->
-              <div class="gmail-people-field">
-                <!-- عرض الأشخاص المختارين فقط -->
-                <div v-if="!showConsultantInput && selectedConsultant.length > 0" class="gmail-selected-people"
-                  @click="showConsultantInput = true">
-                  <span class="gmail-field-label">{{ t('consultant') }}:</span>
-                  <div class="gmail-people-tags">
-                    <span v-for="consultantId in selectedConsultant" :key="consultantId" class="gmail-person-tag">
-                      {{ getEmployeeName(consultantId) }}
-                      <i class="fas fa-times" @click.stop="removeConsultant(consultantId)"></i>
-                    </span>
-                  </div>
-                </div>
-
-                <!-- حالة فارغة -->
-                <div v-else-if="!showConsultantInput && selectedConsultant.length === 0" class="gmail-empty-field"
-                  @click="showConsultantInput = true">
-                  <span class="gmail-placeholder">{{ t('selectConsultant') }}</span>
-                </div>
-
-                <!-- حقل الإدخال (مخفي افتراضياً) -->
-                <div v-else class="gmail-input-field">
-                  <ArgonMultipleSelect v-model="selectedConsultant" :model-names="employeeNames"
-                    :options="employeeOptions" :placeholder="t('selectConsultant')" :searchable="true"
-                    :search-placeholder="t('searchConsultants')" class="gmail-people-input" />
+              <div v-show="showBccFields" class="gmail-people-row">
+                <div class="gmail-row-content w-100">
+                  <ArgonTagsInput v-model="selectedConsultant" :options="employeeOptions"
+                    :placeholder="t('selectConsultant')" class="gmail-people-input w-100" />
                 </div>
               </div>
             </div>
@@ -2443,6 +2351,15 @@ const translations = {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* إصلاح مشكلة ارتفاع collapse الزائد */
+#filterCollapse {
+  transition: height 0.35s ease !important;
+}
+
+#filterCollapse .card-body {
+  overflow: hidden;
 }
 
 /* الإعدادات المتقدمة */
@@ -3260,11 +3177,55 @@ const translations = {
   resize: vertical;
 }
 
-.gmail-people-section {
-  border: 1px solid #e9ecef;
-  border-radius: 6px;
-  padding: 10px;
-  background: #f8f9fa;
+/* .gmail-people-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0;
+  background: white;
+}*/
+
+.gmail-people-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 6px 10px;
+  border-bottom: 1px solid #f0f0f0;
+} 
+
+.gmail-people-row:last-child {
+  border-bottom: none;
+}
+
+.gmail-row-content {
+  flex: 1;
+  /* display: flex; */
+  align-items: center;
+}
+
+.gmail-row-content>.w-100 {
+  flex: 1;
+  min-width: 0;
+}
+
+.gmail-shortcuts {
+  display: flex;
+  gap: 8px;
+  margin-left: 8px;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+.gmail-shortcut-link {
+  color: #1a73e8;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.gmail-shortcut-link:hover {
+  color: #174ea6;
+  text-decoration: underline;
 }
 
 .gmail-people-field {
