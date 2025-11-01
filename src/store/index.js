@@ -9,7 +9,7 @@ import {
 import companyModule from "./modules/company.module.js";
 
 // دوال التشفير وفك التشفير
-const encryptData = (data) => {
+export const encryptData = (data) => {
   return btoa(encodeURIComponent(JSON.stringify(data)));
 };
 
