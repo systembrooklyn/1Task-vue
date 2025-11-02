@@ -3827,17 +3827,17 @@ onMounted(async () => {
 .quick-add-btn-top {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  border-radius: 50%;
+  border: 2px solid #A5C958;
+  background: white;
+  color: #A5C958;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.875rem;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(165, 201, 88, 0.2);
   position: relative;
   z-index: 10;
   flex-shrink: 0;
@@ -3845,21 +3845,18 @@ onMounted(async () => {
 
 .quick-add-btn-top:hover {
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 4px 16px rgba(165, 201, 88, 0.4);
+  background: #A5C958;
+  color: white;
 }
 
 .quick-add-btn-top:active {
   transform: translateY(0) scale(0.98);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(165, 201, 88, 0.3);
 }
 
 .quick-add-btn-top i {
   transition: transform 0.3s ease;
-}
-
-.quick-add-btn-top:hover i {
-  transform: rotate(90deg);
 }
 
 /* Backdrop */
