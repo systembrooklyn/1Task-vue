@@ -562,7 +562,7 @@ const props = defineProps({
 console.log("props.routineTasks:", props.routineTasks);
 
 const userData = computed(() => store.getters.user);
-// const isOwner = computed(() => store.getters.isOwner);
+const isOwner = computed(() => store.getters.isOwner);
 
 const reportTypeOptions = [
   { value: "done", label: "Done" },
