@@ -48,7 +48,7 @@
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("taskFound") }}
             </th>
-            <th v-if="permissions['report-dailytask']"
+            <th v-if="permissions['report-dailytask'] || isOwner"
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
               {{ t("report") }}
             </th>
@@ -138,7 +138,7 @@
                 : "No" }}
               </p>
             </td>
-            <td class="align-middle" v-if="permissions['report-dailytask']">
+            <td class="align-middle" v-if="permissions['report-dailytask'] || isOwner">
               <a href="javascript:;" class="font-weight-bold text-lg me-2" :class="{
                 'text-success': task.today_report_status === 'done',
                 'text-danger': task.today_report_status === 'not_done',
