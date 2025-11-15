@@ -953,4 +953,12 @@ export default {
       return response;
     });
   },
+
+  createTicket(ticketData) {
+    return apiClient.post("/tickets", ticketData);
+  },
+
+  getTicketCategories() {
+    return apiClient.get("/tickets/categories");
+  },
 };

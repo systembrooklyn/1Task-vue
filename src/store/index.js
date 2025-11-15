@@ -1703,6 +1703,16 @@ export default createStore({
       }
     },
 
+    async createTicket(context, ticketData) {
+      try {
+        const response = await apiClient.createTicket(ticketData);
+        return response;
+      } catch (error) {
+        console.error("Error creating ticket:", error);
+        throw error;
+      }
+    },
+
     async updateOneTimeTask({ commit }, task) {
       console.log("task", task);
       try {
