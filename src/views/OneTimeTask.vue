@@ -12,6 +12,7 @@ import {
 } from "vue";
 import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { useStore } from "vuex";
+import { useResponsive } from "@/composables/useResponsive";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
@@ -30,6 +31,9 @@ const refreshInterval = ref(null); // Will store our setInterval ID
 const refreshIntervalId = ref(null); // تغيير اسم المتغير ليكون أوضح
 
 const store = useStore();
+
+// Responsive Composables
+const { isMobile, isTablet, isDesktop } = useResponsive();
 const isOwner = computed(() => store.getters.isOwner);
 
 const userData = computed(() => store.getters.user);
@@ -727,7 +731,7 @@ const currentLanguage = computed(() => store.getters.currentLanguage);
 
 watch(
   () => store.getters.currentLanguage,
-  () => {},
+  () => { },
 );
 
 const t = (key) => {
@@ -1681,49 +1685,38 @@ const translations = {
                     ({{ oneTimeTasksCount }})
                   </small>
 
-                  <!-- إذا لديك صلاحية لإنشاء المهمة -->
-                  <argon-button
-                    v-if="isOwner || permissions['create-task']"
-                    @click="openPopup"
-                  >
+                  <!-- إذا لديك صلاحية لإنشاء المهمة - يظهر فقط على الديسكتوب -->
+                  <argon-button v-if="(isOwner || permissions['create-task']) && isDesktop" @click="openPopup">
                     <i class="fas fa-plus"></i>
                   </argon-button>
                 </div>
 
-                <!-- شريط البحث -->
+                <!-- القسم الأوسط: شريط البحث -->
                 <div class="col-12 col-md-4 my-2 my-md-0">
-                  <div class="input-group">
-                    <input
-                      type="text"
-                      class="form-control"
-                      :placeholder="t('searchPlaceholder')"
-                      v-model="searchQuery"
-                    />
+                  <div class="input-group search-filter-group">
+                    <input type="text" class="form-control" :placeholder="t('searchPlaceholder')"
+                      v-model="searchQuery" />
+                    <!-- أيقونة الفلتر على الموبايل والتابلت فقط -->
+                    <button v-if="isMobile || isTablet" class="btn btn-link filter-icon-btn" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false"
+                      aria-controls="filterCollapse">
+                      <i class="fas fa-filter"></i>
+                    </button>
                   </div>
                 </div>
 
-                <!-- زر الفلتر -->
-                <div
-                  class="col-12 col-md-4"
-                  :class="
-                    currentLanguage === 'ar' ? 'text-md-start' : 'text-md-end'
-                  "
-                >
-                  <button
-                    class="btn btn-link"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#filterCollapse"
-                    aria-expanded="false"
-                    aria-controls="filterCollapse"
-                  >
+                <!-- القسم الأيمن: زر الفلتر (للشاشات الكبيرة فقط) -->
+                <div v-if="isDesktop" class="col-12 col-md-4"
+                  :class="currentLanguage === 'ar' ? 'text-md-start' : 'text-md-end'">
+                  <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse"
+                    aria-expanded="false" aria-controls="filterCollapse">
                     <i class="fas fa-filter"></i>
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- لوحة الفلترة -->
+            <!-- Collapsible Filter Panel -->
             <div class="collapse" id="filterCollapse">
               <div class="card card-body">
                 <div class="row">
@@ -1797,18 +1790,10 @@ const translations = {
                   </div> -->
 
                   <!-- فلتر المشروع -->
-                  <div
-                    v-if="formattedProjects.length !== 0"
-                    class="col-md-4 mb-3"
-                  >
-                    <CheckboxMultiSelect
-                      :label="t('project')"
-                      :items="formattedProjects"
-                      v-model="selectedProjects"
-                      :placeholder="t('allProjects')"
-                      :count-label="t('projectsSelected')"
-                      :select-all-label="t('selectAll')"
-                    />
+                  <div v-if="formattedProjects.length !== 0" class="col-md-4 mb-3">
+                    <CheckboxMultiSelect :label="t('project')" :items="formattedProjects" v-model="selectedProjects"
+                      :placeholder="t('allProjects')" :count-label="t('projectsSelected')"
+                      :select-all-label="t('selectAll')" />
                   </div>
 
                   <!-- فلتر الحالة -->
@@ -1841,14 +1826,8 @@ const translations = {
                   <!-- فلترة الموظف -->
                   <div class="col-md-4 mb-3">
                     <label class="form-label">{{ t("employee") }}</label>
-                    <argon-select
-                      class="form-select"
-                      v-model="selectedEmployee"
-                      :options="employeeOptions"
-                      :placeholder="t('selectEmployee')"
-                      :searchable="true"
-                      :searchPlaceholder="t('searchEmployee')"
-                    />
+                    <argon-select class="form-select" v-model="selectedEmployee" :options="employeeOptions"
+                      :placeholder="t('selectEmployee')" :searchable="true" :searchPlaceholder="t('searchEmployee')" />
                   </div>
 
                   <!-- فلترة الموعد النهائي -->
@@ -1874,54 +1853,30 @@ const translations = {
 
           <div class="card-body">
             <form @submit.prevent>
-              <argon-alert
-                v-if="showAlert"
-                color="danger"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showAlert" color="danger" dismissible class="mt-3">
                 {{ errorMessage }}
               </argon-alert>
-              <argon-alert
-                v-if="showSuccess"
-                color="success"
-                dismissible
-                class="mt-3"
-              >
+              <argon-alert v-if="showSuccess" color="success" dismissible class="mt-3">
                 {{ successMessage }}
               </argon-alert>
             </form>
 
-            <div
-              v-if="isPageLoading"
-              class="d-flex justify-content-center py-5"
-            >
+            <div v-if="isPageLoading" class="d-flex justify-content-center py-5">
               <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
             </div>
 
-            <div
-              v-else-if="oneTimeTasks.length === 0"
-              class="d-flex justify-content-center py-5 flex-column align-items-center"
-            >
+            <div v-else-if="oneTimeTasks.length === 0"
+              class="d-flex justify-content-center py-5 flex-column align-items-center">
               <h5>{{ t("noRoutineTasks") }}</h5>
               <p>{{ t("createee") }}</p>
             </div>
 
-            <one-time-task-table
-              v-if="!isPageLoading"
-              :oneTimeTasks="filteredTasks"
-              :key="componentKey"
-              :active-tab="activeTab"
-              :active-query="activeQuery"
-              @update:active-tab="activeTab = $event"
-              @page-changed="handlePageChange"
-              :pagination="pagination"
-              @reload-tasks="refreshTasks"
-              @filtered-count-changed="handleFilteredCount"
-              @open-edit-popup="openEditPopupInParent"
-            />
+            <one-time-task-table v-if="!isPageLoading" :oneTimeTasks="filteredTasks" :key="componentKey"
+              :active-tab="activeTab" :active-query="activeQuery" @update:active-tab="activeTab = $event"
+              @page-changed="handlePageChange" :pagination="pagination" @reload-tasks="refreshTasks"
+              @filtered-count-changed="handleFilteredCount" @open-edit-popup="openEditPopupInParent" />
           </div>
         </div>
       </div>
@@ -1931,50 +1886,30 @@ const translations = {
   <!-- المودال لإنشاء مهمة واحدة -->
   <transition name="gmail-compose" appear>
     <div v-if="showPopup" class="gmail-compose-overlay">
-      <div
-        class="gmail-compose-container"
-        :class="{ maximized: isMaximized, minimized: isMinimized }"
-      >
+      <div class="gmail-compose-container" :class="{ maximized: isMaximized, minimized: isMinimized }">
         <div class="gmail-header">
           <div class="gmail-header-left">
             <span class="gmail-title">{{ t("createOneTimeTask") }}</span>
           </div>
           <div class="gmail-header-right">
-            <button
-              @click="toggleMinimize"
-              class="gmail-btn gmail-minimize"
-              :title="isMinimized ? 'Restore' : 'Minimize'"
-            >
-              <i
-                :class="
-                  isMinimized
-                    ? 'fas fa-window-restore'
-                    : 'fas fa-window-minimize'
-                "
-              ></i>
+            <button @click="toggleMinimize" class="gmail-btn gmail-minimize"
+              :title="isMinimized ? 'Restore' : 'Minimize'">
+              <i :class="isMinimized
+                ? 'fas fa-window-restore'
+                : 'fas fa-window-minimize'
+                "></i>
             </button>
-            <button
-              @click="toggleMaximize"
-              class="gmail-btn gmail-maximize"
-              :title="isMaximized ? 'Restore' : 'Maximize'"
-            >
+            <button @click="toggleMaximize" class="gmail-btn gmail-maximize"
+              :title="isMaximized ? 'Restore' : 'Maximize'">
               <i :class="isMaximized ? 'fas fa-compress' : 'fas fa-expand'"></i>
             </button>
-            <button
-              @click="closePopup"
-              class="gmail-btn gmail-close"
-              title="Close"
-            >
+            <button @click="closePopup" class="gmail-btn gmail-close" title="Close">
               <i class="fas fa-times"></i>
             </button>
           </div>
         </div>
 
-        <div
-          class="gmail-content"
-          v-show="!isMinimized"
-          @click="onContentClick"
-        >
+        <div class="gmail-content" v-show="!isMinimized" @click="onContentClick">
           <div class="modal-content-scroll">
             <!-- شريط الأشخاص المضغوط (مثل Gmail) -->
             <div class="gmail-compact-people-bar mb-2">
@@ -1984,81 +1919,43 @@ const translations = {
                   <!-- إذا كان هناك أشخاص مختارين، اعرضهم -->
                   <template v-if="hasSelectedPeople">
                     <!-- Assign To -->
-                    <span
-                      v-if="selectedAssignee.length > 0"
-                      class="gmail-compact-tag assignee"
-                    >
+                    <span v-if="selectedAssignee.length > 0" class="gmail-compact-tag assignee">
                       <i class="fas fa-user"></i>
                       :
                     </span>
-                    <span
-                      v-for="assigneeId in selectedAssignee"
-                      :key="assigneeId"
-                      class="gmail-compact-person-name"
-                    >
+                    <span v-for="assigneeId in selectedAssignee" :key="assigneeId" class="gmail-compact-person-name">
                       {{ getEmployeeName(assigneeId)
-                      }}<i
-                        class="fas fa-times mx-1"
-                        @click.stop="removeAssignee(assigneeId)"
-                      ></i>
+                      }}<i class="fas fa-times mx-1" @click.stop="removeAssignee(assigneeId)"></i>
                     </span>
                     <!-- Supervisor -->
-                    <span
-                      v-if="selectedSupervisor"
-                      class="gmail-compact-tag supervisor"
-                    >
+                    <span v-if="selectedSupervisor" class="gmail-compact-tag supervisor">
                       <i class="fas fa-user-tie"></i>
                       :
                     </span>
-                    <span
-                      v-if="selectedSupervisor"
-                      class="gmail-compact-person-name"
-                    >
+                    <span v-if="selectedSupervisor" class="gmail-compact-person-name">
                       {{ getEmployeeName(selectedSupervisor)
-                      }}<i
-                        class="fas fa-times mx-1"
-                        @click.stop="removeSupervisor()"
-                      ></i>
+                      }}<i class="fas fa-times mx-1" @click.stop="removeSupervisor()"></i>
                     </span>
 
                     <!-- Informer -->
-                    <span
-                      v-if="selectedInformer.length > 0"
-                      class="gmail-compact-tag informer"
-                    >
+                    <span v-if="selectedInformer.length > 0" class="gmail-compact-tag informer">
                       <i class="fas fa-bell"></i>
                       :
                     </span>
-                    <span
-                      v-for="informerId in selectedInformer"
-                      :key="informerId"
-                      class="gmail-compact-person-name"
-                    >
+                    <span v-for="informerId in selectedInformer" :key="informerId" class="gmail-compact-person-name">
                       {{ getEmployeeName(informerId)
-                      }}<i
-                        class="fas fa-times mx-1"
-                        @click.stop="removeInformer(informerId)"
-                      ></i>
+                      }}<i class="fas fa-times mx-1" @click.stop="removeInformer(informerId)"></i>
                     </span>
 
                     <!-- Consultant -->
-                    <span
-                      v-if="selectedConsultant.length > 0"
-                      class="gmail-compact-tag consultant"
-                    >
+                    <span v-if="selectedConsultant.length > 0" class="gmail-compact-tag consultant">
                       <i class="fas fa-user-graduate"></i>
                       :
                     </span>
-                    <span
-                      v-for="consultantId in selectedConsultant"
-                      :key="consultantId"
-                      class="gmail-compact-person-name"
-                    >
+                    <span v-for="consultantId in selectedConsultant" :key="consultantId"
+                      class="gmail-compact-person-name">
                       {{ getEmployeeName(consultantId)
-                      }}<i
-                        class="fas fa-times mx-1"
-                        @click.stop="removeConsultant(consultantId)"
-                      ></i>
+                      }}<i class="fas fa-times mx-1" @click.stop="removeConsultant(consultantId)"></i>
                     </span>
                   </template>
 
@@ -2075,35 +1972,19 @@ const translations = {
             </div>
 
             <!-- حقول إضافة الأشخاص (Gmail Style) -->
-            <div
-              v-show="showCompactPeople"
-              class="gmail-people-section mb-2"
-              @click.stop
-            >
+            <div v-show="showCompactPeople" class="gmail-people-section mb-2" @click.stop>
               <!-- Assignee -->
               <div class="gmail-people-row">
                 <div class="gmail-row-content w-100">
                   <div class="w-100">
-                    <ArgonTagsInput
-                      v-model="selectedAssignee"
-                      :options="employeeOptions"
-                      :placeholder="t('selectAssignee')"
-                      class="gmail-people-input"
-                    />
+                    <ArgonTagsInput v-model="selectedAssignee" :options="employeeOptions"
+                      :placeholder="t('selectAssignee')" class="gmail-people-input" />
                   </div>
                   <div class="gmail-shortcuts">
-                    <a
-                      href="#"
-                      @click.prevent="showCcFields = !showCcFields"
-                      class="gmail-shortcut-link"
-                    >
+                    <a href="#" @click.prevent="showCcFields = !showCcFields" class="gmail-shortcut-link">
                       {{ showCcFields ? "-" : "" }}SV
                     </a>
-                    <a
-                      href="#"
-                      @click.prevent="showBccFields = !showBccFields"
-                      class="gmail-shortcut-link"
-                    >
+                    <a href="#" @click.prevent="showBccFields = !showBccFields" class="gmail-shortcut-link">
                       {{ showBccFields ? "-" : "" }}IN/CN
                     </a>
                   </div>
@@ -2113,98 +1994,58 @@ const translations = {
               <!-- Supervisor -->
               <div v-show="showCcFields" class="gmail-people-row">
                 <div class="gmail-row-content w-100">
-                  <ArgonSelect
-                    v-model="selectedSupervisor"
-                    :options="employeeOptions"
-                    :placeholder="t('selectSupervisor')"
-                    class="gmail-people-input w-100"
-                    :searchable="true"
-                    :search-placeholder="t('searchEmployees')"
-                  />
+                  <ArgonSelect v-model="selectedSupervisor" :options="employeeOptions"
+                    :placeholder="t('selectSupervisor')" class="gmail-people-input w-100" :searchable="true"
+                    :search-placeholder="t('searchEmployees')" />
                 </div>
               </div>
 
               <!-- Informer -->
               <div v-show="showBccFields" class="gmail-people-row">
                 <div class="gmail-row-content w-100">
-                  <ArgonTagsInput
-                    v-model="selectedInformer"
-                    :options="employeeOptions"
-                    :placeholder="t('selectInformer')"
-                    class="gmail-people-input w-100"
-                  />
+                  <ArgonTagsInput v-model="selectedInformer" :options="employeeOptions"
+                    :placeholder="t('selectInformer')" class="gmail-people-input w-100" />
                 </div>
               </div>
 
               <!-- Consultant -->
               <div v-show="showBccFields" class="gmail-people-row">
                 <div class="gmail-row-content w-100">
-                  <ArgonTagsInput
-                    v-model="selectedConsultant"
-                    :options="employeeOptions"
-                    :placeholder="t('selectConsultant')"
-                    class="gmail-people-input w-100"
-                  />
+                  <ArgonTagsInput v-model="selectedConsultant" :options="employeeOptions"
+                    :placeholder="t('selectConsultant')" class="gmail-people-input w-100" />
                 </div>
               </div>
             </div>
 
             <!-- حقل اسم المهمة -->
             <div class="gmail-field mb-3">
-              <ArgonInput
-                v-model="oneTimeTaskName"
-                class="gmail-input gmail-title-input"
-                :placeholder="t('enterTaskName')"
-                dir="auto"
-                required
-                @focus="onFieldFocus"
-              />
+              <ArgonInput v-model="oneTimeTaskName" class="gmail-input gmail-title-input"
+                :placeholder="t('enterTaskName')" dir="auto" required @focus="onFieldFocus" />
             </div>
 
             <!-- حقل الوصف -->
             <div class="gmail-field mb-3">
-              <ArgonTextarea
-                v-model="oneTimeTaskDescription"
-                class=""
-                :placeholder="t('enterDescription')"
-                dir="auto"
-                required
-                @focus="onFieldFocus"
-              />
+              <ArgonTextarea v-model="oneTimeTaskDescription" class="" :placeholder="t('enterDescription')" dir="auto"
+                required @focus="onFieldFocus" />
             </div>
 
             <!-- شريط الأدوات مع الأيقونات -->
             <div class="gmail-toolbar mb-3">
               <!-- Project Icon -->
               <div class="gmail-toolbar-icon-group">
-                <div
-                  class="gmail-toolbar-icon"
-                  :class="{ 'has-value': projectId }"
-                  :title="getProjectTooltip()"
-                  @click="toggleProjectDropdown"
-                >
+                <div class="gmail-toolbar-icon" :class="{ 'has-value': projectId }" :title="getProjectTooltip()"
+                  @click="toggleProjectDropdown">
                   <i class="fas fa-project-diagram"></i>
-                  <span
-                    v-if="projectId"
-                    class="gmail-icon-indicator"
-                    @click.stop="clearProject"
-                    @mouseenter="showClearIcon = 'project'"
-                    @mouseleave="showClearIcon = null"
-                  >
-                    <span v-if="showClearIcon === 'project'" class="clear-icon"
-                      >✕</span
-                    >
+                  <span v-if="projectId" class="gmail-icon-indicator" @click.stop="clearProject"
+                    @mouseenter="showClearIcon = 'project'" @mouseleave="showClearIcon = null">
+                    <span v-if="showClearIcon === 'project'" class="clear-icon">✕</span>
                     <span v-else>✓</span>
                   </span>
                 </div>
                 <span class="gmail-icon-label">{{ t("project") }}</span>
 
                 <!-- Project Dropdown -->
-                <div
-                  v-show="showProjectDropdown"
-                  class="toolbar-dropdown"
-                  @click.stop
-                >
+                <div v-show="showProjectDropdown" class="toolbar-dropdown" @click.stop>
                   <!-- <div class="toolbar-dropdown-header">
                     <span class="toolbar-dropdown-title">{{ t("selectProject") }}</span>
                     <button @click="closeProjectDropdown" class="toolbar-dropdown-close">
@@ -2213,34 +2054,18 @@ const translations = {
                   </div> -->
                   <div class="toolbar-dropdown-content">
                     <div class="toolbar-search-container mb-3">
-                      <input
-                        v-model="projectSearchQuery"
-                        type="text"
-                        class="toolbar-search-input"
-                        :placeholder="t('searchProjects')"
-                        @input="filterProjects"
-                      />
+                      <input v-model="projectSearchQuery" type="text" class="toolbar-search-input"
+                        :placeholder="t('searchProjects')" @input="filterProjects" />
                     </div>
                     <div class="toolbar-options-container">
-                      <div
-                        v-for="project in filteredProjects"
-                        :key="project.value"
-                        class="toolbar-option-item"
-                        :class="{ selected: projectId === project.value }"
-                        @click="selectProject(project)"
-                      >
+                      <div v-for="project in filteredProjects" :key="project.value" class="toolbar-option-item"
+                        :class="{ selected: projectId === project.value }" @click="selectProject(project)">
                         <span class="toolbar-option-text">{{
                           project.label
                         }}</span>
-                        <i
-                          v-if="projectId === project.value"
-                          class="fas fa-check toolbar-option-check"
-                        ></i>
+                        <i v-if="projectId === project.value" class="fas fa-check toolbar-option-check"></i>
                       </div>
-                      <div
-                        v-if="filteredProjects.length === 0"
-                        class="toolbar-no-results"
-                      >
+                      <div v-if="filteredProjects.length === 0" class="toolbar-no-results">
                         {{ t("noResultsFound") }}
                       </div>
                     </div>
@@ -2250,34 +2075,19 @@ const translations = {
 
               <!-- Priority Icon -->
               <div class="gmail-toolbar-icon-group">
-                <div
-                  class="gmail-toolbar-icon"
-                  :class="{ 'has-value': priority }"
-                  :title="getPriorityTooltip()"
-                  @click="togglePriorityDropdown"
-                >
+                <div class="gmail-toolbar-icon" :class="{ 'has-value': priority }" :title="getPriorityTooltip()"
+                  @click="togglePriorityDropdown">
                   <i class="fas fa-flag"></i>
-                  <span
-                    v-if="priority"
-                    class="gmail-icon-indicator"
-                    @click.stop="clearPriority"
-                    @mouseenter="showClearIcon = 'priority'"
-                    @mouseleave="showClearIcon = null"
-                  >
-                    <span v-if="showClearIcon === 'priority'" class="clear-icon"
-                      >✕</span
-                    >
+                  <span v-if="priority" class="gmail-icon-indicator" @click.stop="clearPriority"
+                    @mouseenter="showClearIcon = 'priority'" @mouseleave="showClearIcon = null">
+                    <span v-if="showClearIcon === 'priority'" class="clear-icon">✕</span>
                     <span v-else>✓</span>
                   </span>
                 </div>
                 <span class="gmail-icon-label">{{ t("priority") }}</span>
 
                 <!-- Priority Dropdown -->
-                <div
-                  v-show="showPriorityDropdown"
-                  class="toolbar-dropdown"
-                  @click.stop
-                >
+                <div v-show="showPriorityDropdown" class="toolbar-dropdown" @click.stop>
                   <!-- <div class="toolbar-dropdown-header">
                     <span class="toolbar-dropdown-title">{{ t("selectPriority") }}</span>
                     <button @click="closePriorityDropdown" class="toolbar-dropdown-close">
@@ -2286,34 +2096,19 @@ const translations = {
                   </div> -->
                   <div class="toolbar-dropdown-content">
                     <div class="toolbar-search-container mb-3">
-                      <input
-                        v-model="prioritySearchQuery"
-                        type="text"
-                        class="toolbar-search-input"
-                        :placeholder="t('searchPriorities')"
-                        @input="filterPriorities"
-                      />
+                      <input v-model="prioritySearchQuery" type="text" class="toolbar-search-input"
+                        :placeholder="t('searchPriorities')" @input="filterPriorities" />
                     </div>
                     <div class="toolbar-options-container">
-                      <div
-                        v-for="priorityOption in filteredPriorities"
-                        :key="priorityOption.value"
-                        class="toolbar-option-item"
-                        :class="{ selected: priority === priorityOption.value }"
-                        @click="selectPriority(priorityOption)"
-                      >
+                      <div v-for="priorityOption in filteredPriorities" :key="priorityOption.value"
+                        class="toolbar-option-item" :class="{ selected: priority === priorityOption.value }"
+                        @click="selectPriority(priorityOption)">
                         <span class="toolbar-option-text">{{
                           priorityOption.label
                         }}</span>
-                        <i
-                          v-if="priority === priorityOption.value"
-                          class="fas fa-check toolbar-option-check"
-                        ></i>
+                        <i v-if="priority === priorityOption.value" class="fas fa-check toolbar-option-check"></i>
                       </div>
-                      <div
-                        v-if="filteredPriorities.length === 0"
-                        class="toolbar-no-results"
-                      >
+                      <div v-if="filteredPriorities.length === 0" class="toolbar-no-results">
                         {{ t("noResultsFound") }}
                       </div>
                     </div>
@@ -2323,36 +2118,19 @@ const translations = {
 
               <!-- Start Date Icon -->
               <div class="gmail-toolbar-icon-group">
-                <div
-                  class="gmail-toolbar-icon"
-                  :class="{ 'has-value': startDate }"
-                  :title="getStartDateTooltip()"
-                  @click="toggleStartDatePicker"
-                >
+                <div class="gmail-toolbar-icon" :class="{ 'has-value': startDate }" :title="getStartDateTooltip()"
+                  @click="toggleStartDatePicker">
                   <i class="fas fa-calendar-plus"></i>
-                  <span
-                    v-if="startDate"
-                    class="gmail-icon-indicator"
-                    @click.stop="clearStartDate"
-                    @mouseenter="showClearIcon = 'startDate'"
-                    @mouseleave="showClearIcon = null"
-                  >
-                    <span
-                      v-if="showClearIcon === 'startDate'"
-                      class="clear-icon"
-                      >✕</span
-                    >
+                  <span v-if="startDate" class="gmail-icon-indicator" @click.stop="clearStartDate"
+                    @mouseenter="showClearIcon = 'startDate'" @mouseleave="showClearIcon = null">
+                    <span v-if="showClearIcon === 'startDate'" class="clear-icon">✕</span>
                     <span v-else>✓</span>
                   </span>
                 </div>
                 <span class="gmail-icon-label">{{ t("startDate") }}*</span>
 
                 <!-- Start Date Picker -->
-                <div
-                  v-show="showStartDatePicker"
-                  class="toolbar-dropdown"
-                  @click.stop
-                >
+                <div v-show="showStartDatePicker" class="toolbar-dropdown" @click.stop>
                   <!-- <div class="toolbar-dropdown-header">
                     <span class="toolbar-dropdown-title">{{ t("selectStartDate") }}</span>
                     <button @click="closeStartDatePicker" class="toolbar-dropdown-close">
@@ -2360,46 +2138,26 @@ const translations = {
                     </button>
                   </div> -->
                   <div class="toolbar-dropdown-content">
-                    <ArgonInput
-                      type="date"
-                      v-model="startDate"
-                      :placeholder="t('enterStartDate')"
-                      required
-                    />
+                    <ArgonInput type="date" v-model="startDate" :placeholder="t('enterStartDate')" required />
                   </div>
                 </div>
               </div>
 
               <!-- End Date Icon -->
               <div class="gmail-toolbar-icon-group">
-                <div
-                  class="gmail-toolbar-icon"
-                  :class="{ 'has-value': endDate }"
-                  :title="getEndDateTooltip()"
-                  @click="toggleEndDatePicker"
-                >
+                <div class="gmail-toolbar-icon" :class="{ 'has-value': endDate }" :title="getEndDateTooltip()"
+                  @click="toggleEndDatePicker">
                   <i class="fas fa-calendar-check"></i>
-                  <span
-                    v-if="endDate"
-                    class="gmail-icon-indicator"
-                    @click.stop="clearEndDate"
-                    @mouseenter="showClearIcon = 'endDate'"
-                    @mouseleave="showClearIcon = null"
-                  >
-                    <span v-if="showClearIcon === 'endDate'" class="clear-icon"
-                      >✕</span
-                    >
+                  <span v-if="endDate" class="gmail-icon-indicator" @click.stop="clearEndDate"
+                    @mouseenter="showClearIcon = 'endDate'" @mouseleave="showClearIcon = null">
+                    <span v-if="showClearIcon === 'endDate'" class="clear-icon">✕</span>
                     <span v-else>✓</span>
                   </span>
                 </div>
                 <span class="gmail-icon-label">{{ t("endDate") }}</span>
 
                 <!-- End Date Picker -->
-                <div
-                  v-show="showEndDatePicker"
-                  class="toolbar-dropdown"
-                  @click.stop
-                >
+                <div v-show="showEndDatePicker" class="toolbar-dropdown" @click.stop>
                   <!-- <div class="toolbar-dropdown-header">
                     <span class="toolbar-dropdown-title">{{ t("selectEndDate") }}</span>
                     <button @click="closeEndDatePicker" class="toolbar-dropdown-close">
@@ -2407,11 +2165,7 @@ const translations = {
                     </button>
                   </div> -->
                   <div class="toolbar-dropdown-content">
-                    <ArgonInput
-                      type="date"
-                      v-model="endDate"
-                      :placeholder="t('enterEndDate')"
-                    />
+                    <ArgonInput type="date" v-model="endDate" :placeholder="t('enterEndDate')" />
                   </div>
                 </div>
               </div>
@@ -2425,17 +2179,8 @@ const translations = {
             {{ t("close") }}
           </argon-button>
           <!-- زر الحفظ -->
-          <argon-button
-            variant="success"
-            @click="createOneTimeTask"
-            :disabled="isSubmitting"
-          >
-            <span
-              v-if="isSubmitting"
-              class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
+          <argon-button variant="success" @click="createOneTimeTask" :disabled="isSubmitting">
+            <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{ isSubmitting ? t("saving") : t("create") }}
           </argon-button>
         </div>
@@ -2448,12 +2193,8 @@ const translations = {
   <!-- مودال تعديل OneTimeTask -->
   <transition name="modal-fade">
     <div v-if="showEditPopup" class="popup-overlay">
-      <ArgonModal
-        v-if="showEditPopup"
-        :title="t('editOneTimeTask')"
-        @close="closeEditPopup"
-        class="one-time-task-modal"
-      >
+      <ArgonModal v-if="showEditPopup" :title="t('editOneTimeTask')" @close="closeEditPopup"
+        class="one-time-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <!-- نستخدم row + col لتوزيع الحقول -->
@@ -2461,25 +2202,15 @@ const translations = {
               <!-- اسم المهمة بعرض كامل -->
               <div class="col-12 mb-3">
                 <label class="form-label">{{ t("taskName") }}:</label>
-                <input
-                  v-model="oneTimeTaskName"
-                  class="form-control"
-                  :placeholder="t('enterTaskName')"
-                  required
-                  @focus="onFieldFocus"
-                />
+                <input v-model="oneTimeTaskName" class="form-control" :placeholder="t('enterTaskName')" required
+                  @focus="onFieldFocus" />
               </div>
 
               <!-- الوصف بعرض كامل -->
               <div class="col-12 mb-3">
                 <label class="form-label">{{ t("description") }}:</label>
-                <textarea
-                  v-model="oneTimeTaskDescription"
-                  class="form-control"
-                  :placeholder="t('enterDescription')"
-                  required
-                  @focus="onFieldFocus"
-                ></textarea>
+                <textarea v-model="oneTimeTaskDescription" class="form-control" :placeholder="t('enterDescription')"
+                  required @focus="onFieldFocus"></textarea>
               </div>
 
               <!-- assignTo في نصف عرض -->
@@ -2497,28 +2228,16 @@ const translations = {
               </div> -->
 
               <label class="form-label">{{ t("assignTo") }}:</label>
-              <argon-multiple-select
-                v-model="selectedAssignee"
-                :model-names="selectedAssigneeNames"
-                :options="employeeOptions"
-                :placeholder="t('selectEmployee')"
-                :searchable="true"
-                :searchPlaceholder="t('searchEmployees')"
-                class="form-control mb-3"
-              />
+              <argon-multiple-select v-model="selectedAssignee" :model-names="selectedAssigneeNames"
+                :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
+                :searchPlaceholder="t('searchEmployees')" class="form-control mb-3" />
 
               <!-- supervisor في نصف عرض -->
               <div class="mb-3">
                 <label class="form-label">{{ t("supervisor") }}:</label>
-                <argon-select
-                  v-model="selectedSupervisor"
-                  :options="employeeOptions"
-                  :placeholder="t('selectSupervisor')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search supervisors..."
-                  required
-                />
+                <argon-select v-model="selectedSupervisor" :options="employeeOptions"
+                  :placeholder="t('selectSupervisor')" class="form-control" searchable
+                  searchPlaceholder="Search supervisors..." required />
               </div>
 
               <!-- informer في نصف عرض -->
@@ -2536,15 +2255,9 @@ const translations = {
               </div> -->
 
               <label class="form-label">{{ t("informer") }}:</label>
-              <argon-multiple-select
-                v-model="selectedInformer"
-                :model-names="selectedInformerNames"
-                :options="employeeOptions"
-                :placeholder="t('selectEmployee')"
-                :searchable="true"
-                :searchPlaceholder="t('searchInformers')"
-                class="form-control mb-3"
-              />
+              <argon-multiple-select v-model="selectedInformer" :model-names="selectedInformerNames"
+                :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
+                :searchPlaceholder="t('searchInformers')" class="form-control mb-3" />
 
               <!-- consultant في نصف عرض -->
               <!-- <div class="col-md-6 mb-3">
@@ -2561,67 +2274,36 @@ const translations = {
               </div> -->
 
               <label class="form-label">{{ t("consultant") }}:</label>
-              <argon-multiple-select
-                v-model="selectedConsultant"
-                :model-names="selectedConsultantNames"
-                :options="employeeOptions"
-                :placeholder="t('selectEmployee')"
-                :searchable="true"
-                :searchPlaceholder="t('searchConsultants')"
-                class="form-control mb-3"
-              />
+              <argon-multiple-select v-model="selectedConsultant" :model-names="selectedConsultantNames"
+                :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
+                :searchPlaceholder="t('searchConsultants')" class="form-control mb-3" />
 
               <!-- المشروع (project_id) في نصف عرض -->
               <!-- في القالب -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("project") }}:</label>
-                <argon-select
-                  v-model="projectId"
-                  :options="formattedProjects"
-                  :placeholder="t('selectProject')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search projects..."
-                  required
-                />
+                <argon-select v-model="projectId" :options="formattedProjects" :placeholder="t('selectProject')"
+                  class="form-control" searchable searchPlaceholder="Search projects..." required />
               </div>
 
               <!-- الأولوية (priority) في نصف عرض -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("priority") }}:</label>
-                <argon-select
-                  v-model="priority"
-                  :options="prioritiesOptions"
-                  :placeholder="t('selectPriority')"
-                  class="form-control"
-                  searchable
-                  searchPlaceholder="Search priorities..."
-                  required
-                />
+                <argon-select v-model="priority" :options="prioritiesOptions" :placeholder="t('selectPriority')"
+                  class="form-control" searchable searchPlaceholder="Search priorities..." required />
               </div>
 
               <!-- تاريخ البداية في نصف عرض -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("startDate") }}:</label>
-                <input
-                  type="date"
-                  v-model="startDate"
-                  class="form-control"
-                  :placeholder="t('enterStartDate')"
-                  required
-                />
+                <input type="date" v-model="startDate" class="form-control" :placeholder="t('enterStartDate')"
+                  required />
               </div>
 
               <!-- تاريخ النهاية في نصف عرض -->
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ t("endDate") }}:</label>
-                <input
-                  type="date"
-                  v-model="endDate"
-                  class="form-control"
-                  :placeholder="t('enterEndDate')"
-                  required
-                />
+                <input type="date" v-model="endDate" class="form-control" :placeholder="t('enterEndDate')" required />
               </div>
             </div>
           </div>
@@ -2631,23 +2313,20 @@ const translations = {
           <ArgonButton variant="secondary" @click="closeEditPopup">
             {{ t("close") }}
           </ArgonButton>
-          <ArgonButton
-            variant="success"
-            @click="updateOneTimeTask"
-            :disabled="isSubmitting"
-          >
-            <span
-              v-if="isSubmitting"
-              class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-            ></span>
+          <ArgonButton variant="success" @click="updateOneTimeTask" :disabled="isSubmitting">
+            <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             {{ isSubmitting ? t("saving") : t("update") }}
           </ArgonButton>
         </template>
       </ArgonModal>
     </div>
   </transition>
+
+  <!-- FAB Button - يظهر فقط على الموبايل والتابلت -->
+  <button v-if="(isOwner || permissions['create-task']) && (isMobile || isTablet)" class="fab-button" @click="openPopup"
+    :aria-label="t('createOneTimeTask')" :title="t('createOneTimeTask')">
+    <i class="fas fa-plus"></i>
+  </button>
 </template>
 
 <style>
@@ -2671,6 +2350,8 @@ const translations = {
   overflow: visible;
   position: relative;
 }
+
+/* Search Bar with Filter Icon Styles - فقط للشاشات الصغيرة */
 
 /* الإعدادات المتقدمة */
 .advanced-settings {
@@ -2716,7 +2397,7 @@ const translations = {
 }
 
 /* حل مشكلة العرض الزائد */
-.modal-content-scroll > .row {
+.modal-content-scroll>.row {
   max-width: 100%;
   margin: 0 auto;
 }
@@ -3181,8 +2862,7 @@ const translations = {
 }
 
 /* Animation للأيقونات المتوسطة */
-.gmail-toolbar-icon-group:nth-child(n + 3):nth-last-child(n + 3)
-  .toolbar-dropdown {
+.gmail-toolbar-icon-group:nth-child(n + 3):nth-last-child(n + 3) .toolbar-dropdown {
   animation: toolbarDropdownSlideUpCenter 0.2s ease;
 }
 
@@ -3512,7 +3192,7 @@ const translations = {
   align-items: center;
 }
 
-.gmail-row-content > .w-100 {
+.gmail-row-content>.w-100 {
   flex: 1;
   min-width: 0;
 }
@@ -3946,5 +3626,362 @@ const translations = {
 
 .gmail-input-field .gmail-people-input {
   width: 100%;
+}
+
+/* ====== Mobile & Tablet Responsive Styles ====== */
+/* Mobile: حتى 767px */
+@media (max-width: 767px) {
+
+  /* Header Section */
+  .card-header .container {
+    padding: 0.5rem;
+  }
+
+  .card-header .row {
+    gap: 0.75rem;
+  }
+
+  /* Title Section */
+  .col-12.col-md-4:first-child {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .col-12.col-md-4:first-child p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .col-12.col-md-4:first-child small {
+    font-size: 0.8rem;
+  }
+
+  /* Search Bar with Filter Icon - للشاشات الصغيرة فقط */
+  .search-filter-group {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  .search-filter-group .form-control {
+    flex: 1;
+    min-width: 0;
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 0.75rem;
+    border: none;
+    border-radius: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .search-filter-group .form-control:focus {
+    border: none;
+    box-shadow: none;
+    outline: none;
+  }
+
+  .search-filter-group:focus-within {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+
+  .filter-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.75rem;
+    height: calc(1.5em + 0.75rem + 2px);
+    border: none;
+    border-left: 1px solid #ced4da;
+    background: transparent;
+    flex-shrink: 0;
+    min-width: 45px;
+    margin-bottom: 0 !important;
+  }
+
+  .filter-icon-btn:hover {
+    background-color: transparent;
+  }
+
+  .filter-icon-btn i {
+    font-size: 1rem;
+  }
+
+  .filter-icon-btn.btn-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .filter-icon-btn.btn-link:hover {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* FAB Button - للشاشات الصغيرة فقط */
+  .fab-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #a9ca5c;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(169, 202, 92, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    transition: all 0.3s ease;
+  }
+
+  .fab-button:hover {
+    background-color: #8fb94a;
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(169, 202, 92, 0.5);
+  }
+
+  .fab-button:active {
+    transform: scale(0.95);
+  }
+
+  .fab-button i {
+    font-size: 1.5rem;
+  }
+
+  .card-body {
+    padding: 0.5rem !important;
+  }
+
+  /* Filter Panel */
+  #filterCollapse .card-body {
+    padding: 1rem 0.75rem;
+  }
+
+  #filterCollapse .row>div {
+    margin-bottom: 1rem;
+  }
+
+  #filterCollapse .form-label {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  #filterCollapse .form-select,
+  #filterCollapse .form-control {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+
+  #filterCollapse .d-flex.justify-content-end {
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  /* Gmail Modal - Mobile */
+  .gmail-compose-container {
+    right: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .gmail-compose-container.maximized {
+    top: 0;
+    bottom: 0;
+    border-radius: 0;
+  }
+
+  .gmail-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .gmail-title {
+    font-size: 0.9rem;
+  }
+
+  .gmail-content {
+    padding: 1rem;
+    max-height: calc(100vh - 200px);
+  }
+
+  /* Gmail Toolbar - Mobile */
+  .gmail-toolbar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  .gmail-toolbar-icon-group {
+    min-width: 50px;
+  }
+
+  .gmail-toolbar-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .gmail-icon-label {
+    font-size: 0.7rem;
+  }
+
+  /* Toolbar Dropdowns - Mobile */
+  .toolbar-dropdown {
+    width: calc(100vw - 2rem);
+    max-width: 300px;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
+  }
+
+  /* People Section - Mobile */
+  .gmail-compact-people-bar {
+    padding: 0.75rem;
+  }
+
+  .gmail-compact-tags {
+    gap: 0.5rem;
+  }
+
+  .gmail-compact-person-name {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .gmail-people-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .gmail-shortcuts {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* Footer - Mobile */
+  .gmail-footer {
+    padding: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .gmail-footer button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  /* Edit Modal - Mobile */
+  .one-time-task-modal {
+    max-width: 100vw;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .modal-content-scroll {
+    max-height: 60vh;
+    padding: 1rem 0.75rem;
+  }
+
+  .modal-content-scroll .row>div {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Tablet: 768px - 991px */
+@media (min-width: 768px) and (max-width: 991px) {
+
+  /* Header Section */
+  .card-header .container {
+    padding: 0.75rem;
+  }
+
+  /* Search Bar */
+  .col-12.col-md-4:nth-child(2) {
+    margin-top: 0.75rem;
+  }
+
+  /* Filter Panel */
+  #filterCollapse .row>div {
+    margin-bottom: 1rem;
+  }
+
+  /* Gmail Modal - Tablet */
+  .gmail-compose-container {
+    width: 90%;
+    max-width: 600px;
+    right: 5%;
+  }
+
+  .gmail-compose-container.maximized {
+    left: 5%;
+    right: 5%;
+  }
+
+  /* Gmail Toolbar - Tablet */
+  .gmail-toolbar {
+    gap: 1rem;
+  }
+
+  .toolbar-dropdown {
+    width: 280px;
+  }
+
+  /* FAB Button - Tablet */
+  .fab-button {
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+  }
+
+  .fab-button i {
+    font-size: 1.6rem;
+  }
+}
+
+/* Desktop: 992px فما فوق - إلغاء الستايلات المخصصة */
+@media (min-width: 992px) {
+
+  /* إرجاع الستايلات الأصلية للـ Bootstrap على الديسكتوب */
+  .search-filter-group {
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .search-filter-group .form-control {
+    border: 1px solid #ced4da !important;
+    border-radius: 0.375rem !important;
+    padding: 0.5rem 0.75rem !important;
+    height: auto !important;
+    font-size: 1rem !important;
+    flex: none !important;
+    min-width: auto !important;
+    width: 100% !important;
+  }
+
+  .search-filter-group .form-control:focus {
+    border: 1px solid #86b7fe !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    outline: 0 !important;
+  }
+
+  .search-filter-group:focus-within {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .filter-icon-btn {
+    display: none !important;
+  }
 }
 </style>

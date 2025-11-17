@@ -1,6 +1,6 @@
 <template>
-  <!-- الحاوية الرئيسية للمكوّن -->
-  <div class="routine-task-container" :key="componentKey">
+  <!-- Desktop Layout (يبقى كما هو) -->
+  <div v-if="!isSmallScreen" class="routine-task-container" :key="`desktop-${componentKey}`">
     <!-- الشريط الجانبي (الأزرار) -->
     <div class="sidebar">
       <button v-for="tab in [
@@ -441,6 +441,440 @@
       </div>
     </transition>
   </div>
+
+  <!-- Mobile/Tablet Layout (Card Design) -->
+  <div v-else class="routine-task-container-mobile" :key="`mobile-${componentKey}`">
+    <!-- Sidebar أفقي -->
+    <div class="sidebar-mobile">
+      <button v-for="tab in [
+        'Inbox',
+        'Own',
+        'Archive',
+        'Started',
+        'Review',
+        'Done',
+      ]" :key="tab" :class="{ active: activeTab === tab }" @click="activeTab = tab">
+        <span class="tab-name">{{ tab }}</span>
+        <span class="tab-count">{{ getTabCount(tab) }}</span>
+      </button>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content-mobile">
+      <!-- عندما لا توجد مهام -->
+      <div v-if="filteredTasks.length === 0" class="no-tasks-container-mobile">
+        <img src="https://ik.imagekit.io/ts7pphpbz3/man-despair-data-leak_11197-392.jpg?updatedAt=1742827650800"
+          alt="no-tasks" class="no-tasks-image-mobile" />
+        <p class="no-tasks-text-mobile">
+          {{ t("noTasksHere") }}
+        </p>
+      </div>
+
+      <!-- قائمة المهام - Card Design -->
+      <div v-else class="tasks-grid-mobile">
+        <div v-for="task in filteredTasks" :key="task.id" class="task-card-mobile"
+          :class="{ 'urgent-card': task.priority === 'urgent' }" @click="toggleTaskExpand(task)">
+
+          <!-- Header Section: Star + Name + Time -->
+          <div class="task-card-header">
+            <!-- Star Icon + Creator Name + Time (Top Left) -->
+            <div class="task-card-header-left">
+              <!-- Star Icon -->
+              <i class="bi" :class="task.loadingStar
+                ? 'bi-arrow-repeat spinner-icon'
+                : task.is_starred
+                  ? 'bi-star-fill star-icon'
+                  : 'bi-star star-icon'
+                " @click.stop="toggleStar(task)" title="Star/Unstar"></i>
+
+              <!-- Creator Name -->
+              <span v-if="(activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id"
+                class="creator-name-mobile"> {{ t('to') }}: {{ getDisplayName(task) }}</span>
+              <span v-else-if="(activeTab === 'Done' || activeTab === 'Review')" class="creator-name-mobile"> {{
+                t('from')
+              }}: {{ getDisplayName(task) }}</span>
+              <span v-else class="creator-name-mobile"> {{ getDisplayName(task) }}</span>
+
+              <!-- Time -->
+              <span class="task-card-time-header">
+                {{ formatDateWithTime(task.created_at) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Title Section -->
+          <div class="task-card-title-section">
+            <div class="task-card-title-wrapper">
+              <h3 class="task-card-title" dir="ltr" style="text-align: left;">
+                {{ task.title }}
+              </h3>
+
+              <!-- Priority Icon -->
+              <span class="task-priority-icon">
+                <i :class="task.priority == 'high'
+                  ? 'fa fa-angle-double-up text-danger'
+                  : task.priority == 'normal'
+                    ? 'fa fa-minus text-secondary'
+                    : task.priority == 'low'
+                      ? 'fa fa-angle-double-down text-info'
+                      : ''
+                  "></i>
+              </span>
+
+              <!-- Status Icons (Review & Done) -->
+              <span class="task-status-icon-title">
+                <i :class="{
+                  'bi bi-check2-circle text-success': task.status === 'done',
+                  'bi bi-alarm text-warning': task.status === 'review',
+                  '': !['done', 'review'].includes(task.status),
+                }">
+                </i>
+              </span>
+            </div>
+
+            <!-- Project Name (Under Title) -->
+            <div v-if="task.project" class="task-project-name-below">
+              {{ task.project?.name || t("project") }}
+            </div>
+          </div>
+
+          <!-- Footer Section: Toggle + Status Badge -->
+          <div v-if="
+            task.status !== 'done' && task.status !== 'review' &&
+            userData?.user?.id !== task.creator?.id &&
+            (userData?.user?.id === task.supervisor?.id ||
+              task.assignedUser?.map((user) => user.id).includes(userData?.user?.id) ||
+              task.status === 'review')
+          " class="task-card-footer">
+            <!-- Toggle Switch (Left) -->
+            <div v-if="
+              !['review', 'done'].includes(task.status) &&
+              userData?.user?.id !== task.creator?.id &&
+              !task.informer?.map((user) => user.id).includes(userData?.user?.id) &&
+              !task.consult?.map((user) => user.id).includes(userData?.user?.id)
+            " class="task-card-toggle" @click.stop>
+              <argon-switch :checked="task.status === 'inProgress'"
+                @update:checked="(newVal) => toggleSwitchStatus(task, newVal)"></argon-switch>
+            </div>
+
+            <!-- Status Badge (Only in Own tab and In Progress status) -->
+            <div v-if="activeTab === 'Own' && task.status === 'inProgress'" class="task-card-status-badge">
+              <span class="status-badge-mobile status-inprogress">
+                In Progress
+              </span>
+            </div>
+          </div>
+
+          <!-- Expanded Details (عند الضغط) -->
+          <transition name="slide-fade">
+            <div v-if="expandedTaskId === task.id" class="task-card-expanded">
+
+
+              <!-- Description -->
+              <div class="expanded-row" v-if="task.description">
+                <p class="task-description-mobile" dir="auto">
+                  <span class="expanded-label">{{ t("description") }}:</span>
+                  {{ task.description }}
+                </p>
+              </div>
+
+
+              <!-- Creator Info -->
+              <div class="expanded-row">
+                <span class="expanded-label">{{ t('createdBy') }}:</span>
+                <span class="expanded-value">
+                  {{ (activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id
+                    ? t('to') + ': ' + getDisplayName(task)
+                    : (activeTab === 'Done' || activeTab === 'Review')
+                      ? t('from') + ': ' + getDisplayName(task)
+                      : getDisplayName(task) }}
+                </span>
+              </div>
+
+
+
+
+              <!-- Assigned Users -->
+              <div class="expanded-row" v-if="task.assignedUser?.length > 0">
+                <span class="expanded-label">{{ t("assignedTo") }}:</span>
+                <span class="expanded-value">
+                  {{task.assignedUser.map((user) => userDisplayName(user)).join(", ")}}
+                </span>
+              </div>
+
+              <!-- Supervisor -->
+              <div class="expanded-row" v-if="task.supervisor">
+                <span class="expanded-label">{{ t("supervisor") }}:</span>
+                <span class="expanded-value">{{ userDisplayName(task.supervisor) }}</span>
+              </div>
+
+              <!-- Dates Badge -->
+              <div class="expanded-row" v-if="task.start_date || task.deadline">
+                <small class="badge-mobile-date" :class="{
+                  'badge-danger': isDeadlinePassed(task.deadline),
+                  'badge-warning': isDeadlineApproaching(task.deadline),
+                  'badge-grey': (!isDeadlinePassed(task.deadline) && !isDeadlineApproaching(task.deadline)) || !task.deadline,
+                }">
+                  {{ t("from") }}: {{ formatDate(task.start_date) }}
+                  <span v-if="task.deadline">
+                    - {{ t("to") }}: {{ formatDate(task.deadline) }}</span>
+                </small>
+              </div>
+
+
+              <!-- Action Buttons -->
+              <div class="expanded-actions">
+                <div class="action-buttons-row">
+                  <!-- Comments Button -->
+                  <button @click.stop="openDescriptionModal(task)" class="action-btn comments-btn"
+                    :class="{ loading: taskLoading[task.id] }">
+                    <template v-if="taskLoading[task.id]">
+                      <i class="fas fa-spinner fa-spin"></i>
+                    </template>
+                    <template v-else>
+                      <i class="fa fa-comments"></i>
+                      <span>{{ task.comments_count || 0 }}</span>
+                      <span v-if="!task.read_comments" class="red-dot-mobile"></span>
+                    </template>
+                  </button>
+
+                  <!-- Archive Button -->
+                  <button class="action-btn archive-btn" @click.stop="archiveTask(task)"
+                    :disabled="task.loadingArchive">
+                    <i :class="task.loadingArchive
+                      ? 'fa fa-spinner fa-spin'
+                      : task.is_archived
+                        ? 'fa fa-undo'
+                        : 'fa fa-archive'
+                      "></i>
+                  </button>
+                </div>
+
+
+                <!-- Review Button -->
+                <button v-if="
+                  task.status === 'inProgress' &&
+                  (task.assignedUser?.map((user) => user.id).includes(userData?.user?.id) ||
+                    userData?.user?.id === task.supervisor?.id)
+                " class="action-btn review-btn" @click.stop="updateTaskStatus(task, 'review')"
+                  :disabled="taskLoadingAction[task.id]">
+                  <i class="fa fa-eye"></i>
+                </button>
+
+                <!-- Done Button -->
+                <button v-if="
+                  userData?.user?.id === task.creator?.id && task.status !== 'review' && task.status !== 'done'
+                " class="action-btn done-btn" @click.stop="updateTaskStatus(task, 'done')"
+                  :disabled="taskLoadingAction[task.id]">
+                  <i class="fa fa-check"></i>
+                </button>
+
+                <!-- Done/Rework Buttons -->
+                <template v-if="task.status === 'review' && userData?.user?.id === task.creator?.id">
+                  <button class="action-btn done-btn" @click.stop="updateTaskStatus(task, 'done')"
+                    :disabled="taskLoadingAction[task.id]">
+                    <i class="fa fa-check"></i>
+                  </button>
+                  <button class="action-btn rework-btn" @click.stop="updateTaskStatus(task, 'inProgress')"
+                    :disabled="taskLoadingAction[task.id]">
+                    <i class="fa fa-redo"></i>
+                  </button>
+                </template>
+
+                <!-- Edit Button -->
+                <button v-if="task.creator.id === userData?.user?.id" class="action-btn edit-btn"
+                  @click.stop="openEditPopup(task)">
+                  <i class="fa fa-edit"></i>
+                </button>
+
+
+              </div>
+            </div>
+          </transition>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal للتعليقات -->
+    <transition name="fade">
+      <div v-if="showDescriptionModal" class="popup-overlay-mobile">
+        <ArgonModal :title="''" @close="closeDescriptionModal" class="comments-modal-mobile">
+          <template #title>
+            <div>
+              <h5 class="mb-1" dir="auto">{{ selectedTaskName }}</h5>
+              <small class="text-muted d-block modal-title-description-mobile" style="font-size: 0.85rem">
+                <template v-if="selectedDescription && selectedDescription.length > 100">
+                  <div>
+                    <p dir="auto" v-if="showFullDescription">{{ selectedDescription }}</p>
+                    <p dir="auto" v-else>
+                      {{ truncatedDescription }}
+                      <button @click="toggleDescription" class="btn btn-link p-0 ms-1" style="font-size: 0.85rem">
+                        {{ showFullDescription ? "see less" : "see more" }}
+                      </button>
+                    </p>
+                    <button v-if="showFullDescription" @click="toggleDescription" class="btn btn-link p-0 mt-1"
+                      style="font-size: 0.85rem">
+                      {{ showFullDescription ? "see less" : "see more" }}
+                    </button>
+                  </div>
+                </template>
+                <template v-else>
+                  <p class="task-description" dir="auto">{{ selectedDescription }}</p>
+                </template>
+              </small>
+            </div>
+          </template>
+
+          <template #default>
+            <div class="comments-scroll-container-mobile">
+              <transition name="fade" mode="out-in">
+                <div v-if="isLoadingComments" class="skeleton-loading">
+                  <div v-for="i in 3" :key="i" class="skeleton-comment">
+                    <div class="skeleton-avatar"></div>
+                    <div class="skeleton-content">
+                      <div class="skeleton-line short"></div>
+                      <div class="skeleton-line medium"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <ul v-else class="comment-list">
+                  <li v-for="comment in taskComments" :key="comment.id" class="comment-item">
+                    <div v-if="comment.comment_text" class="comment-header">
+                      <div class="user-info">
+                        <div>
+                          <span class="user-name">{{ comment.user.name }}</span>
+                          <span class="comment-time">{{ formatDateWithTime(comment.created_at) }}</span>
+                        </div>
+                      </div>
+                      <div class="comment-actions">
+                        <button class="btn btn-reply" @click="toggleReply(comment.id)">
+                          {{ t("reply") }}
+                        </button>
+                      </div>
+                    </div>
+                    <div dir="auto" class="comment-body" v-html="comment.comment_text"></div>
+
+                    <small v-if="comment.seen_by?.length" class="seen-by">
+                      <i class="fa fa-check text-success me-1"></i>
+                      <span v-for="(user, index) in comment.seen_by" :key="user.id">
+                        {{ user.name }}<span v-if="index !== comment.seen_by.length - 1">, </span>
+                      </span>
+                    </small>
+
+                    <div v-if="comment.replies?.length" class="replies">
+                      <button @click="toggleReplies(comment.id)" class="btn btn-link p-0 mb-2"
+                        :class="{ 'new-reply': hasUnseenReplies(comment) }">
+                        {{ showReplies[comment.id] ? "Hide" : "View" }}
+                        {{ comment.replies.length }} replies
+                        <span v-if="hasUnseenReplies(comment)" class="new-reply-dot"></span>
+                      </button>
+
+                      <transition name="fade">
+                        <div v-if="showReplies[comment.id]" class="replies-container">
+                          <div v-for="reply in comment.replies" :key="reply.id" class="reply-item"
+                            @click="markReplyAsSeen(reply.id)">
+                            <div class="comment-header">
+                              <div class="user-info">
+                                <div>
+                                  <span class="user-name">{{ reply.user?.name }}</span>
+                                  <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div dir="auto" class="comment-body" v-html="reply.reply_text"></div>
+                            <small v-if="reply.seen_by?.length" class="seen-by">
+                              <i class="fa fa-check text-success me-1"></i>
+                              <span v-for="(user, index) in reply.seen_by" :key="user.id">
+                                {{ user.name }}<span v-if="index !== reply.seen_by.length - 1">, </span>
+                              </span>
+                            </small>
+
+                            <span v-if="!reply.is_seen"
+                              class="new-reply-dot position-absolute top-0 start-100 translate-middle"></span>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
+
+                    <div v-if="isSubmittingReplyForComment[comment.id]" class="skeleton-comment">
+                      <div class="skeleton-line short"></div>
+                      <div class="skeleton-content">
+                        <div class="skeleton-line long"></div>
+                      </div>
+                    </div>
+
+                    <transition name="fade">
+                      <div v-if="activeReplyId === comment.id" class="reply-editor">
+                        <quill-editor v-if="activeReplyId === comment.id" :ref="(el) => setReplyRef(el, comment.id)"
+                          v-model:content="replyContent" :options="editorOptions"
+                          @update:content="(val) => (replyContent = val)" contentType="html" class="mb-2" dir="auto" />
+                        <div class="d-flex gap-2">
+                          <ArgonButton @click="submitReply(comment.id)" size="sm">
+                            {{ t("submit") }}
+                          </ArgonButton>
+                          <ArgonButton variant="outline" @click="cancelReply" size="sm">
+                            {{ t("cancel") }}
+                          </ArgonButton>
+                        </div>
+                      </div>
+                    </transition>
+                  </li>
+                </ul>
+              </transition>
+
+              <div v-if="isSubmitting" class="skeleton-comment">
+                <div class="skeleton-avatar"></div>
+                <div class="skeleton-content">
+                  <div class="skeleton-line long"></div>
+                </div>
+              </div>
+
+              <div class="new-comment-compact">
+                <div class="editor-wrapper">
+                  <quill-editor v-model:content="taskComment" :options="compactEditorOptions"
+                    @update:content="(val) => (taskComment = val)" ref="editorRef" contentType="html" dir="auto" />
+                </div>
+
+                <div class="comment-controls">
+                  <div class="file-upload-compact">
+                    <ArgonInput type="file" @change="handleFileUpload" accept="image/*, .pdf, .docx, .xlsx"
+                      :key="fileInputKey" size="sm" />
+                    <button v-if="fileToUpload" @click="removeFile" class="btn btn-sm btn-outline-danger"
+                      title="Remove file">
+                      ×
+                    </button>
+                  </div>
+
+                  <ArgonButton v-if="fileToUpload" @click="submitFile" :disabled="isUploading" size="sm">
+                    <i class="fas fa-paper-plane"></i>
+                    {{ isUploading ? t("submitting") : t("submit") }}
+                  </ArgonButton>
+
+                  <ArgonButton v-else @click="submitComment" :disabled="isCommentEmpty || isSubmitting" size="sm">
+                    <i class="fas fa-paper-plane"></i>
+                    {{ isSubmitting ? t("submitting") : t("submit") }}
+                  </ArgonButton>
+                </div>
+
+                <small v-if="fileToUpload" class="file-info">
+                  {{ t("maxFileSize", { size: "1.99MB" }) }}
+                </small>
+              </div>
+            </div>
+          </template>
+
+          <template #footer>
+            <div class="modal-footer-compact-mobile">
+              <ArgonButton variant="secondary" @click="closeDescriptionModal" size="sm">
+                {{ t("close") }}
+              </ArgonButton>
+            </div>
+          </template>
+        </ArgonModal>
+      </div>
+    </transition>
+  </div>
 </template>
 
 
@@ -457,6 +891,7 @@ import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 
 import { markTaskCommentsAsSeen } from "@/utils/commentCache";
+import { useResponsive } from "@/composables/useResponsive.js";
 
 import {
   savePermissionsToLocalStorage,
@@ -508,6 +943,10 @@ const props = defineProps({
 const store = useStore();
 const userData = computed(() => store.getters.user);
 const currentLanguage = computed(() => store.getters.currentLanguage);
+
+// إضافة useResponsive للشاشات الصغيرة
+const { isMobile, isTablet, isDesktop } = useResponsive();
+const isSmallScreen = computed(() => isMobile.value || isTablet.value);
 
 const permissions = ref(
   loadPermissionsFromLocalStorage(userData.value?.id) || {}
@@ -2470,5 +2909,687 @@ function getTabCount(tabName) {
 .text-muted.mt-0.pt-0 {
   margin-top: 0.25rem !important;
   padding-top: 0 !important;
+}
+
+/* ====== Mobile/Tablet Card Design ====== */
+.routine-task-container-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.75rem;
+  min-height: 80vh;
+}
+
+/* Sidebar أفقي */
+.sidebar-mobile {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.75rem;
+  gap: 0.5rem;
+  border-radius: 8px;
+  background: #f8f9fa;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.sidebar-mobile button {
+  min-width: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+  border: none;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.sidebar-mobile button:hover {
+  background-color: #e9ecef;
+}
+
+.sidebar-mobile button.active {
+  background-color: #a6c956;
+  color: #fff;
+}
+
+.sidebar-mobile .tab-name {
+  font-size: 0.85rem;
+}
+
+.sidebar-mobile .tab-count {
+  background: #e9ecef;
+  color: #6c757d;
+  border-radius: 12px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+.sidebar-mobile button.active .tab-count {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.main-content-mobile {
+  width: 100%;
+}
+
+/* Tasks Grid - Card Layout */
+.tasks-grid-mobile {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+@media (max-width: 480px) {
+  .tasks-grid-mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Task Card */
+.task-card-mobile {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.task-card-mobile:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.task-card-mobile.urgent-card {
+  border-left: 4px solid #ff4444;
+  background: #fff5f5;
+}
+
+/* Card Header: Star + Name + Time */
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
+.task-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: nowrap;
+  flex-direction: row;
+}
+
+.task-card-header-left .star-icon {
+  color: #ffbd44;
+  cursor: pointer;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.task-card-header-left .spinner-icon {
+  color: #6c757d;
+  cursor: pointer;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.creator-name-mobile {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: #6c757d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+  cursor: default;
+  flex-shrink: 1;
+}
+
+.task-card-time-header {
+  font-size: 0.7rem;
+  color: #6c757d;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.task-project-name-below {
+  font-size: 0.7rem;
+  color: #6c757d;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.25rem;
+  width: 100%;
+}
+
+/* Title Section - Mobile/Tablet Only */
+.task-card-title-section {
+  margin-bottom: 0.5rem;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.task-card-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.task-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3436;
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-priority-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.task-priority-icon i {
+  font-size: 1rem;
+}
+
+.task-status-icon-title {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.task-status-icon-title i {
+  font-size: 1.1rem;
+}
+
+/* Card Footer: Toggle + Status Badge */
+.task-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f0f0f0;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.task-card-status-badge {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.status-badge-mobile {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-todo {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-inprogress {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.status-review {
+  background-color: #fff9c4;
+  color: #f9a825;
+}
+
+.status-done {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.task-card-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.task-card-status {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.task-status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.task-status-icon i {
+  font-size: 1.1rem;
+}
+
+/* Expanded Details */
+.task-card-expanded {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 2px solid #f0f0f0;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.expanded-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.expanded-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+  /* min-width: 80px; */
+}
+
+.expanded-value {
+  font-size: 0.85rem;
+  color: #2d3436;
+  flex: 1;
+}
+
+.badge-mobile-date {
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.badge-mobile-date.badge-danger {
+  background-color: #ff4444;
+  color: #fff;
+}
+
+.badge-mobile-date.badge-warning {
+  background-color: #ffc107;
+  color: #fff;
+}
+
+.badge-mobile-date.badge-grey {
+  background-color: #676767;
+  color: #fff;
+}
+
+.task-description-mobile {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #2d3436;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.icons-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.task-priority-mobile i,
+.task-status-mobile i {
+  font-size: 1rem;
+}
+
+/* Action Buttons */
+.expanded-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.action-buttons-row {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.action-buttons-row .action-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 40px;
+}
+
+.action-btn:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.comments-btn {
+  border-color: #a6c956;
+  color: #a6c956;
+}
+
+.comments-btn:hover:not(:disabled) {
+  background-color: #a6c956;
+  color: #fff;
+}
+
+.review-btn {
+  border-color: #ffc107;
+  color: #f57c00;
+}
+
+.review-btn:hover:not(:disabled) {
+  background-color: #ffc107;
+  color: #fff;
+}
+
+.done-btn {
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.done-btn:hover:not(:disabled) {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.rework-btn {
+  border-color: #ff9800;
+  color: #ff9800;
+}
+
+.rework-btn:hover:not(:disabled) {
+  background-color: #ff9800;
+  color: #fff;
+}
+
+.edit-btn {
+  border-color: #17a2b8;
+  color: #17a2b8;
+}
+
+.edit-btn:hover:not(:disabled) {
+  background-color: #17a2b8;
+  color: #fff;
+}
+
+.archive-btn {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.archive-btn:hover:not(:disabled) {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.switch-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.red-dot-mobile {
+  width: 6px;
+  height: 6px;
+  background-color: #ff4444;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+/* No Tasks */
+.no-tasks-container-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.no-tasks-image-mobile {
+  max-width: 250px;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.no-tasks-text-mobile {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #555;
+  margin: 0;
+}
+
+/* Modal Mobile */
+.popup-overlay-mobile {
+  /* position: fixed; */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.comments-modal-mobile {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  border-radius: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.comments-modal-mobile .modal-content {
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.comments-scroll-container-mobile {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+}
+
+.modal-title-description-mobile {
+  max-height: 15vh;
+  overflow-y: auto;
+  font-size: 0.85rem;
+}
+
+.modal-footer-compact-mobile {
+  padding: 0.75rem;
+  flex-shrink: 0;
+  border-top: 1px solid #e9ecef;
+  background: #fff;
+}
+
+.comments-modal-mobile .modal-header {
+  flex-shrink: 0;
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.comments-modal-mobile .modal-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+/* Scrollbar للشاشات الصغيرة */
+.sidebar-mobile::-webkit-scrollbar {
+  height: 4px;
+}
+
+.sidebar-mobile::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.sidebar-mobile::-webkit-scrollbar-thumb {
+  background: #a6c956;
+  border-radius: 4px;
+}
+
+.sidebar-mobile::-webkit-scrollbar-thumb:hover {
+  background: #8fb94a;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) and (max-width: 991px) {
+  .tasks-grid-mobile {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+
+  .sidebar-mobile {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .routine-task-container-mobile {
+    padding: 0.5rem;
+  }
+
+  .task-card-mobile {
+    padding: 0.85rem;
+  }
+
+  .task-card-title {
+    font-size: 0.9rem;
+  }
+
+  .task-card-header-left {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .creator-name-mobile {
+    max-width: 100%;
+  }
+
+  .task-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .task-card-toggle {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .task-card-status {
+    width: 100%;
+  }
+
+  .expanded-actions {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    width: 100%;
+  }
 }
 </style>
