@@ -105,7 +105,7 @@
               {{ task.project?.name || t("project") }}
             </span>
 
-            <!-- Switch Status -->
+            <!-- Switch Status - Desktop -->
             <div v-if="
               !['review', 'done'].includes(task.status) &&
               userData?.user?.id !== task.creator?.id &&
@@ -117,8 +117,10 @@
                 .includes(userData?.user?.id)
             " class="mb-0">
               <div class="d-flex justify-content-center text-sm" @click.stop>
-                <argon-switch :checked="task.status === 'inProgress'"
-                  @update:checked="(newVal) => toggleSwitchStatus(task, newVal)"></argon-switch>
+                <argon-switch :id="`task-switch-${task.id}`" :name="`task-switch-${task.id}`"
+                  :checked="task.status === 'inProgress'"
+                  @update:checked="(newVal) => toggleSwitchStatus(task, newVal)">
+                </argon-switch>
               </div>
             </div>
 
@@ -305,6 +307,8 @@
                   <li v-for="comment in taskComments" :key="comment.id" class="comment-item">
                     <div v-if="comment.comment_text" class="comment-header">
                       <div class="user-info">
+                        <img v-if="comment.user?.ppUrl" :src="comment.user.ppUrl" :alt="comment.user.name"
+                          class="user-avatar" />
                         <div>
                           <span class="user-name">{{ comment.user.name }}</span>
                           <span class="comment-time">{{ formatDateWithTime(comment.created_at) }}</span>
@@ -339,6 +343,8 @@
                             @click="markReplyAsSeen(reply.id)">
                             <div class="comment-header">
                               <div class="user-info">
+                                <img v-if="reply.user?.ppUrl" :src="reply.user.ppUrl" :alt="reply.user?.name"
+                                  class="user-avatar" />
                                 <div>
                                   <span class="user-name">{{ reply.user?.name }}</span>
                                   <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
@@ -546,15 +552,16 @@
               task.assignedUser?.map((user) => user.id).includes(userData?.user?.id) ||
               task.status === 'review')
           " class="task-card-footer">
-            <!-- Toggle Switch (Left) -->
+            <!-- Toggle Switch (Left) - Mobile -->
             <div v-if="
               !['review', 'done'].includes(task.status) &&
               userData?.user?.id !== task.creator?.id &&
               !task.informer?.map((user) => user.id).includes(userData?.user?.id) &&
               !task.consult?.map((user) => user.id).includes(userData?.user?.id)
             " class="task-card-toggle" @click.stop>
-              <argon-switch :checked="task.status === 'inProgress'"
-                @update:checked="(newVal) => toggleSwitchStatus(task, newVal)"></argon-switch>
+              <argon-switch :id="`task-switch-mobile-${task.id}`" :name="`task-switch-mobile-${task.id}`"
+                :checked="task.status === 'inProgress'" @update:checked="(newVal) => toggleSwitchStatus(task, newVal)">
+              </argon-switch>
             </div>
 
             <!-- Status Badge (Only in Own tab and In Progress status) -->
@@ -742,6 +749,8 @@
                   <li v-for="comment in taskComments" :key="comment.id" class="comment-item">
                     <div v-if="comment.comment_text" class="comment-header">
                       <div class="user-info">
+                        <img v-if="comment.user?.ppUrl" :src="comment.user.ppUrl" :alt="comment.user.name"
+                          class="user-avatar" />
                         <div>
                           <span class="user-name">{{ comment.user.name }}</span>
                           <span class="comment-time">{{ formatDateWithTime(comment.created_at) }}</span>
@@ -776,6 +785,8 @@
                             @click="markReplyAsSeen(reply.id)">
                             <div class="comment-header">
                               <div class="user-info">
+                                <img v-if="reply.user?.ppUrl" :src="reply.user.ppUrl" :alt="reply.user?.name"
+                                  class="user-avatar" />
                                 <div>
                                   <span class="user-name">{{ reply.user?.name }}</span>
                                   <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
@@ -1261,6 +1272,7 @@ async function getOneTimeTaskComments(taskId) {
   try {
     taskLoading.value[taskId] = true;
     const response = await store.dispatch("getOneTimeTaskComments", taskId);
+    console.log("responseComments:", response);
     if (response.status === 200) {
       taskComments.value = response.data.comments;
     }
@@ -2282,6 +2294,14 @@ function getTabCount(tabName) {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .user-name {
