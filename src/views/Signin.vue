@@ -99,18 +99,45 @@ const signIn = async () => {
       const companyNameNormalized = companyName.replace(/\s+/g, "-"); // مثلاً
 
       console.log("companyNamEEEEEe:", companyName);
-      if (isOwner.value || permissions.value['view-dashboard']) {
+
+      // إعادة تحميل الصلاحيات بعد تسجيل الدخول الناجح
+      const userId = user.user.id;
+
+      // محاولة تحميل الصلاحيات من localStorage أولاً، ثم من store
+      let updatedPermissions = loadPermissionsFromLocalStorage(userId);
+      if (!updatedPermissions || Object.keys(updatedPermissions).length === 0) {
+        updatedPermissions = store.getters.permissions || {};
+      }
+
+      // تحديث permissions.value بالصلاحيات الجديدة
+      permissions.value = updatedPermissions;
+
+      console.log("Updated permissions after login:", updatedPermissions);
+      console.log("isOwner value:", isOwner.value);
+      console.log("has view-dashboard:", updatedPermissions['view-dashboard']);
+      console.log("has view-dashboard-owner:", updatedPermissions['view-dashboard-owner']);
+
+      // التحقق من ظهور tab الداشبورد (نفس الشرط المستخدم في SidenavList.vue)
+      // الشرط: isOwner أو view-dashboard أو view-dashboard-owner
+      const hasDashboardAccess =
+        isOwner.value ||
+        updatedPermissions['view-dashboard'] === true ||
+        updatedPermissions['view-dashboard-owner'] === true;
+
+      console.log("hasDashboardAccess:", hasDashboardAccess);
+
+      if (hasDashboardAccess) {
         router.push({
           name: "Dashboard",
           params: {
-            companyName: companyNameNormalized, // أو companyNameNormalized
+            companyName: companyNameNormalized,
           },
         });
       } else {
         router.push({
           name: "routine task",
           params: {
-            companyName: companyNameNormalized, // أو companyNameNormalized
+            companyName: companyNameNormalized,
           },
         });
       }
@@ -195,12 +222,8 @@ const t = (key) => {
   <div class="container top-0 position-sticky z-index-sticky">
     <div class="row">
       <div class="col-12">
-        <navbar
-          isBlur="blur  border-radius-lg my-3 py-2 start-0 end-0 mx-4 shadow"
-          :darkMode="true"
-          isBtn="bg-gradient-success"
-          style="display: none"
-        />
+        <navbar isBlur="blur  border-radius-lg my-3 py-2 start-0 end-0 mx-4 shadow" :darkMode="true"
+          isBtn="bg-gradient-success" style="display: none" />
       </div>
     </div>
   </div>
@@ -210,10 +233,8 @@ const t = (key) => {
         <div class="container">
           <div class="row">
             <!-- قسم النموذج -->
-            <div
-              class="col-lg-6 col-md-7 d-flex flex-column mx-lg-0 mx-auto"
-              :class="currentLanguage === 'ar' ? 'order-2' : ''"
-            >
+            <div class="col-lg-6 col-md-7 d-flex flex-column mx-lg-0 mx-auto"
+              :class="currentLanguage === 'ar' ? 'order-2' : ''">
               <div class="card card-plain">
                 <div class="pb-0 text-center">
                   <h4 class="font-weight-bolder">{{ t("signIn") }}</h4>
@@ -222,34 +243,17 @@ const t = (key) => {
                 <div class="card-body">
                   <form role="form" @submit.prevent="signIn">
                     <div class="mb-3">
-                      <argon-input
-                        v-model="email"
-                        id="email"
-                        type="email"
-                        :placeholder="t('email')"
-                        name="email"
-                        size="lg"
-                      />
+                      <argon-input v-model="email" id="email" type="email" :placeholder="t('email')" name="email"
+                        size="lg" />
                     </div>
                     <div class="mb-3 position-relative">
                       <div class="position-relative">
-                        <argon-input
-                          v-model="password"
-                          id="password"
-                          :type="showPassword ? 'text' : 'password'"
-                          :placeholder="t('password')"
-                          name="password"
-                          size="lg"
-                        />
-                        <span
-                          @click="showPassword = !showPassword"
-                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"
-                        >
-                          <i
-                            :class="
-                              showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'
-                            "
-                          ></i>
+                        <argon-input v-model="password" id="password" :type="showPassword ? 'text' : 'password'"
+                          :placeholder="t('password')" name="password" size="lg" />
+                        <span @click="showPassword = !showPassword"
+                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
+                          <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'
+                            "></i>
                         </span>
                       </div>
                       <p v-if="passwordValid" class="text-success mt-2">
@@ -260,11 +264,8 @@ const t = (key) => {
                       </p>
                     </div>
                     <p class="mx-auto mb-4 text-sm">
-                      <a
-                        href="javascript:;"
-                        @click="showForgotPasswordForm"
-                        class="text-success text-gradient font-weight-bold"
-                      >
+                      <a href="javascript:;" @click="showForgotPasswordForm"
+                        class="text-success text-gradient font-weight-bold">
                         {{ t("forgotPassword") }}
                       </a>
                     </p>
@@ -272,21 +273,11 @@ const t = (key) => {
                       {{ errorMessage }}
                     </argon-alert>
                     <div class="text-center">
-                      <argon-button
-                        class="mt-4 d-flex justify-content-center"
-                        variant="gradient"
-                        color="success"
-                        fullWidth
-                        size="lg"
-                        :disabled="!passwordValid"
-                      >
+                      <argon-button class="mt-4 d-flex justify-content-center" variant="gradient" color="success"
+                        fullWidth size="lg" :disabled="!passwordValid">
                         <span class="me-2 mx-2">{{ t("signIn") }}</span>
                         <div v-if="isLoading" class="text-center">
-                          <span
-                            class="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
+                          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
                       </argon-button>
                     </div>
@@ -295,11 +286,7 @@ const t = (key) => {
                 <div class="px-1 pt-0 text-center card-footer px-lg-2">
                   <p class="mx-auto mb-4 text-sm">
                     {{ t("dontHaveAccount") }}
-                    <a
-                      href="/"
-                      class="text-success text-gradient font-weight-bold"
-                      >{{ t("signUp") }}</a
-                    >
+                    <a href="/" class="text-success text-gradient font-weight-bold">{{ t("signUp") }}</a>
                   </p>
                 </div>
               </div>
@@ -334,12 +321,8 @@ const t = (key) => {
 
             <div class="col-lg-6 order-lg-2">
               <div class="hero-image-wrapper">
-                <img
-                  src="https://ik.imagekit.io/ts7pphpbz3/Copy%20of%201task%20(8).gif"
-                  alt="Task Management Interface"
-                  class="hero-img rounded-3"
-                  loading="lazy"
-                />
+                <img src="https://ik.imagekit.io/ts7pphpbz3/Copy%20of%201task%20(8).gif" alt="Task Management Interface"
+                  class="hero-img rounded-3" loading="lazy" />
               </div>
             </div>
             <!-- نهاية قسم الصورة والنص -->
@@ -349,15 +332,17 @@ const t = (key) => {
     </section>
   </main>
 
- 
+
 
   <AppFooter />
 </template>
 
 <style scoped>
 .form-container {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* ظل أعمق وأكثر وضوحًا */
-  border: 2px solid rgba(255, 255, 255, 0.5); /* حدود أكثر سمكًا وشفافية */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  /* ظل أعمق وأكثر وضوحًا */
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  /* حدود أكثر سمكًا وشفافية */
   border-radius: 10px;
   padding: 20px;
 }
@@ -376,6 +361,7 @@ const t = (key) => {
   border-radius: 1rem;
   transform: rotate(2deg);
 }
+
 .hero-image-wrapper::before {
   content: "";
   position: absolute;
@@ -472,6 +458,7 @@ const t = (key) => {
   .hero-img {
     height: 400px;
   }
+
   .hero-image-wrapper {
     display: none;
   }
