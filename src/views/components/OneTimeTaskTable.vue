@@ -309,6 +309,10 @@
                       <div class="user-info">
                         <img v-if="comment.user?.ppUrl" :src="comment.user.ppUrl" :alt="comment.user.name"
                           class="user-avatar" />
+                        <div v-else class="user-avatar user-avatar-fallback"
+                          :style="{ backgroundColor: avatarColor(comment.user) }">
+                          {{ avatarInitial(comment.user) }}
+                        </div>
                         <div>
                           <span class="user-name">{{ comment.user.name }}</span>
                           <span class="comment-time">{{ formatDateWithTime(comment.created_at) }}</span>
@@ -345,6 +349,10 @@
                               <div class="user-info">
                                 <img v-if="reply.user?.ppUrl" :src="reply.user.ppUrl" :alt="reply.user?.name"
                                   class="user-avatar" />
+                                <div v-else class="user-avatar user-avatar-fallback"
+                                  :style="{ backgroundColor: avatarColor(reply.user) }">
+                                  {{ avatarInitial(reply.user) }}
+                                </div>
                                 <div>
                                   <span class="user-name">{{ reply.user?.name }}</span>
                                   <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
@@ -751,6 +759,10 @@
                       <div class="user-info">
                         <img v-if="comment.user?.ppUrl" :src="comment.user.ppUrl" :alt="comment.user.name"
                           class="user-avatar" />
+                        <div v-else class="user-avatar user-avatar-fallback"
+                          :style="{ backgroundColor: avatarColor(comment.user) }">
+                          {{ avatarInitial(comment.user) }}
+                        </div>
                         <div>
                           <span class="user-name">{{ comment.user.name }}</span>
                           <span class="comment-time">{{ formatDateWithTime(comment.created_at) }}</span>
@@ -787,6 +799,10 @@
                               <div class="user-info">
                                 <img v-if="reply.user?.ppUrl" :src="reply.user.ppUrl" :alt="reply.user?.name"
                                   class="user-avatar" />
+                                <div v-else class="user-avatar user-avatar-fallback"
+                                  :style="{ backgroundColor: avatarColor(reply.user) }">
+                                  {{ avatarInitial(reply.user) }}
+                                </div>
                                 <div>
                                   <span class="user-name">{{ reply.user?.name }}</span>
                                   <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
@@ -1023,6 +1039,30 @@ function userDisplayName(u) {
   if (!u) return 'Unknown';
   const full = `${u.first_name ?? u.name ?? ''} ${u.last_name ?? ''}`.trim();
   return full || (u.name ?? 'Unknown');
+}
+
+// Avatar Fallback Functions
+function avatarInitial(user) {
+  if (!user) return '?';
+  const name = user.name || user.first_name || user.email || '?';
+  return String(name).charAt(0).toUpperCase();
+}
+
+const AVATAR_COLORS = [
+  '#5b8def', '#00b894', '#e17055', '#6c5ce7', '#fdcb6e',
+  '#0984e3', '#e84393', '#2d3436', '#00cec9', '#ff7675'
+];
+
+function avatarColor(user) {
+  if (!user) return AVATAR_COLORS[0];
+  const key = String(user?.id ?? user?.email ?? user?.name ?? '');
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = ((hash << 5) - hash) + key.charCodeAt(i);
+    hash |= 0;
+  }
+  const idx = Math.abs(hash) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[idx];
 }
 
 // هيلبر لاستخراج الأسماء الأولى لعدد محدود
@@ -2304,6 +2344,19 @@ function getTabCount(tabName) {
   flex-shrink: 0;
 }
 
+.user-avatar-fallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
 .user-name {
   font-weight: 600;
   color: #333;
@@ -2347,7 +2400,7 @@ function getTabCount(tabName) {
 .replies {
   margin-top: 1rem;
   border-left: 3px solid #ddd;
-  padding-left: 1rem;
+  padding-left: 0.5rem;
 }
 
 .reply-item {
@@ -2392,6 +2445,7 @@ function getTabCount(tabName) {
   /* border-top: 1px solid #e9ecef; */
   border-radius: 0 0 8px 8px;
 }
+
 
 .editor-wrapper {
   margin-bottom: 0.5rem;
@@ -2860,8 +2914,8 @@ function getTabCount(tabName) {
 
 .replies-container {
   margin-top: 0.75rem;
-  padding-left: 1rem;
-  border-left: 2px solid #e9ecef;
+  /* padding-left: 1rem;
+  border-left: 2px solid #e9ecef; */
 }
 
 .new-reply-dot {
@@ -3500,11 +3554,263 @@ function getTabCount(tabName) {
 .comments-scroll-container-mobile {
   flex: 1;
   overflow-y: auto;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   min-height: 0;
+  position: relative;
+}
+
+/* Mobile Comments - Timeline Style (Compact Design) - Mobile Only */
+@media (max-width: 991px) {
+
+  /* Timeline Line للكومنتات الرئيسية */
+  .comments-scroll-container-mobile .comment-list {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .comments-scroll-container-mobile .comment-list::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0e0;
+    z-index: 0;
+  }
+
+  /* Comment Item - بدون background */
+  .comments-scroll-container-mobile .comment-item {
+    background: transparent;
+    border: none;
+    border-left: none;
+    padding: 0.4rem 0;
+    margin-bottom: 0.6rem;
+    box-shadow: none;
+    position: relative;
+  }
+
+  /* Avatar - محاذي للخط */
+  .comments-scroll-container-mobile .user-avatar,
+  .comments-scroll-container-mobile .user-avatar-fallback {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    left: -1.5rem;
+    top: 0;
+    z-index: 1;
+  }
+
+  .comments-scroll-container-mobile .user-avatar-fallback {
+    font-size: 0.8rem;
+  }
+
+  /* Header - الاسم والتاريخ في نفس السطر */
+  .comments-scroll-container-mobile .comment-header {
+    margin-bottom: 0.2rem;
+    padding-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .comments-scroll-container-mobile .user-info {
+    gap: 0.4rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* الاسم والتاريخ في نفس السطر */
+  .comments-scroll-container-mobile .user-info>div:last-child {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .comments-scroll-container-mobile .user-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .comments-scroll-container-mobile .comment-time {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-left: 0;
+  }
+
+  /* Comment Body */
+  .comments-scroll-container-mobile .comment-body {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 0.2rem;
+    padding: 0;
+    color: #333;
+  }
+
+  /* Reply Button */
+  .comments-scroll-container-mobile .btn-reply {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Seen By - Compact */
+  .comments-scroll-container-mobile .seen-by {
+    font-size: 0.7rem;
+    margin-top: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .comments-scroll-container-mobile .seen-by i {
+    font-size: 0.7rem;
+  }
+
+  /* Replies Container - Timeline Style مع indentation */
+  .comments-scroll-container-mobile .replies {
+    margin-top: 0.4rem;
+    position: relative;
+  }
+
+  /* خط عمودي للـ Replies */
+  .comments-scroll-container-mobile .replies::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0e0;
+  }
+
+  /* Reply Item - مع indentation واضح */
+  .comments-scroll-container-mobile .reply-item {
+    padding: 0.3rem 0 0.3rem 1rem;
+    margin-bottom: 0.4rem;
+    position: relative;
+  }
+
+  /* Avatar للـ Reply - أصغر */
+  .comments-scroll-container-mobile .reply-item .user-avatar,
+  .comments-scroll-container-mobile .reply-item .user-avatar-fallback {
+    width: 24px;
+    height: 24px;
+    left: -0.5rem;
+    top: 0;
+  }
+
+  .comments-scroll-container-mobile .reply-item .user-avatar-fallback {
+    font-size: 0.7rem;
+  }
+
+  /* Reply Header */
+  .comments-scroll-container-mobile .reply-item .comment-header {
+    margin-bottom: 0.15rem;
+  }
+
+  /* Reply Body */
+  .comments-scroll-container-mobile .reply-item .comment-body {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 0.15rem;
+  }
+
+  /* Reply Seen By */
+  .comments-scroll-container-mobile .reply-item .seen-by {
+    font-size: 0.65rem;
+    margin-top: 0.15rem;
+  }
+
+  /* Quill Editor - Compact */
+  .comments-scroll-container-mobile .ql-editor {
+    min-height: 45px !important;
+    font-size: 0.85rem;
+    padding: 0.4rem !important;
+  }
+
+  .comments-scroll-container-mobile .editor-wrapper .ql-editor {
+    min-height: 40px !important;
+  }
+
+  /* New Comment - Compact - تطبيق مباشر على الموبايل */
+  .comments-scroll-container-mobile .new-comment-compact,
+  div.comments-scroll-container-mobile>div.new-comment-compact {
+    background: #ffffff !important;
+    padding: 1rem !important;
+    border-radius: 8px !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Editor Wrapper داخل New Comment */
+  .comments-scroll-container-mobile .new-comment-compact .editor-wrapper {
+    margin-bottom: 0 !important;
+  }
+
+  .comments-scroll-container-mobile .new-comment-compact .editor-wrapper .ql-editor {
+    min-height: 40px !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0.5rem !important;
+  }
+
+  /* Comment Controls */
+  .comments-scroll-container-mobile .new-comment-compact .comment-controls {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    margin-top: 0 !important;
+  }
+
+  /* Reply Editor - Compact */
+  .comments-scroll-container-mobile .reply-editor {
+    background: #ffffff !important;
+    padding: 1rem !important;
+    border-radius: 8px !important;
+    margin-top: 0.75rem !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  .comments-scroll-container-mobile .reply-editor .ql-editor {
+    min-height: 40px !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0.5rem !important;
+  }
+
+  .comments-scroll-container-mobile .reply-editor .d-flex.gap-2 {
+    margin-top: 0 !important;
+  }
+
+  /* Skeleton Loading - Compact */
+  .comments-scroll-container-mobile .skeleton-comment {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .comments-scroll-container-mobile .skeleton-avatar {
+    width: 28px;
+    height: 28px;
+  }
 }
 
 .modal-title-description-mobile {
