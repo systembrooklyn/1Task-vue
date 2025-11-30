@@ -47,14 +47,14 @@
             <span v-if="(activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id"
               class="creator-name-simple"> {{ t('to') }}: {{ getDisplayName(task) }}</span>
             <span v-else-if="(activeTab === 'Done' || activeTab === 'Review')" class="creator-name-simple"> {{ t('from')
-            }}: {{ getDisplayName(task) }}</span>
+              }}: {{ getDisplayName(task) }}</span>
             <span v-else class="creator-name-simple"> {{ getDisplayName(task) }}</span>
 
             <!-- عنوان المهمة + تاريخ -->
             <span class="task-title" :class="{ 'text-white': task.is_urgent }">
               <span dir="rtl">{{ task.title }}</span>
               <small class="task-date" :class="{ 'text-white': task.is_urgent }">{{ formatDateWithTime(task.created_at)
-              }}</small>
+                }}</small>
 
               <!-- deadline -->
               <small v-if="
@@ -229,24 +229,24 @@
                 <small v-if="task.assignedUser.length > 0" class="badge badge-grey">
                   {{ t("assignedTo") }}:
                   {{
-                    task.assignedUser.map((user) => userDisplayName(user)).join(", ") ||
-                    "Unknown"
+                  task.assignedUser.map((user) => userDisplayName(user)).join(", ") ||
+                  "Unknown"
                   }}
                 </small>
 
                 <small v-if="task.consult.length > 0" class="badge badge-grey">
                   {{ t("consult") }}:
                   {{
-                    task.consult.map((user) => userDisplayName(user)).join(", ") ||
-                    "Unknown"
+                  task.consult.map((user) => userDisplayName(user)).join(", ") ||
+                  "Unknown"
                   }}
                 </small>
 
                 <small v-if="task.informer.length > 0" class="badge badge-grey">
                   {{ t("informer") }}:
                   {{
-                    task.informer.map((user) => userDisplayName(user)).join(", ") ||
-                    "Unknown"
+                  task.informer.map((user) => userDisplayName(user)).join(", ") ||
+                  "Unknown"
                   }}
                 </small>
               </div>
@@ -407,47 +407,47 @@
                 </div>
               </div>
 
-              <div class="new-comment-compact">
+            </div>
+          </template>
+
+          <template #footer>
+            <div class="modal-footer-compact">
+              <div class="footer-editor-wrapper">
+
                 <div class="editor-wrapper">
                   <quill-editor v-model:content="taskComment" :options="compactEditorOptions"
                     @update:content="(val) => (taskComment = val)" ref="editorRef" contentType="html" dir="auto" />
                 </div>
+                <div class="footer-action-buttons">
+                  <!-- Hidden file input -->
+                  <input ref="fileInputRef" type="file" accept="image/*, .pdf, .docx, .xlsx" @change="handleFileUpload"
+                    class="d-none" />
 
-                <div class="comment-controls">
-                  <div class="file-upload-compact">
-                    <ArgonInput type="file" @change="handleFileUpload" accept="image/*, .pdf, .docx, .xlsx"
-                      :key="fileInputKey" size="sm" />
-                    <button v-if="fileToUpload" @click="removeFile" class="btn btn-sm btn-outline-danger"
-                      title="Remove file">
-                      ×
-                    </button>
-                  </div>
+                  <!-- Circular buttons -->
+                  <button @click="triggerFileInput" class="circular-btn circular-btn-attach"
+                    title="Attach File or Image">
+                    <i class="fas fa-paperclip"></i>
+                  </button>
 
-                  <ArgonButton v-if="fileToUpload" @click="submitFile" :disabled="isUploading" size="sm">
+                  <button @click="fileToUpload ? submitFile() : submitComment()"
+                    :disabled="(fileToUpload ? isUploading : isCommentEmpty || isSubmitting)"
+                    class="circular-btn circular-btn-submit" :title="fileToUpload ? t('submit') : t('submit')">
                     <i class="fas fa-paper-plane"></i>
-                    {{ isUploading ? t("submitting") : t("submit") }}
-                  </ArgonButton>
+                  </button>
 
-                  <ArgonButton v-else @click="submitComment" :disabled="isCommentEmpty || isSubmitting" size="sm">
-                    <i class="fas fa-paper-plane"></i>
-                    {{ isSubmitting ? t("submitting") : t("submit") }}
-                  </ArgonButton>
                 </div>
 
-                <small v-if="fileToUpload" class="file-info">
-                  {{ t("maxFileSize", { size: "1.99MB" }) }}
-                </small>
+
+
               </div>
-            </div>
-          </template>
+              <small class="file-hint-text">
+                {{ t("maxFileSize", { size: "1.99MB" }) }}
+              </small>
 
-
-
-          <template #footer>
-            <div class="modal-footer-compact">
-              <ArgonButton variant="secondary" @click="closeDescriptionModal" size="sm">
-                {{ t("close") }}
-              </ArgonButton>
+              <small v-if="fileToUpload" class="file-info-footer">
+                {{ fileToUpload.name }}
+                <button @click="removeFile" class="btn-remove-file" title="Remove file">×</button>
+              </small>
             </div>
           </template>
 
@@ -506,7 +506,7 @@
                 class="creator-name-mobile"> {{ t('to') }}: {{ getDisplayName(task) }}</span>
               <span v-else-if="(activeTab === 'Done' || activeTab === 'Review')" class="creator-name-mobile"> {{
                 t('from')
-              }}: {{ getDisplayName(task) }}</span>
+                }}: {{ getDisplayName(task) }}</span>
               <span v-else class="creator-name-mobile"> {{ getDisplayName(task) }}</span>
 
               <!-- Time -->
@@ -599,10 +599,10 @@
                 <span class="expanded-label">{{ t('createdBy') }}:</span>
                 <span class="expanded-value">
                   {{ (activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id
-                    ? t('to') + ': ' + getDisplayName(task)
-                    : (activeTab === 'Done' || activeTab === 'Review')
-                      ? t('from') + ': ' + getDisplayName(task)
-                      : getDisplayName(task) }}
+                  ? t('to') + ': ' + getDisplayName(task)
+                  : (activeTab === 'Done' || activeTab === 'Review')
+                  ? t('from') + ': ' + getDisplayName(task)
+                  : getDisplayName(task) }}
                 </span>
               </div>
 
@@ -857,45 +857,48 @@
                 </div>
               </div>
 
-              <div class="new-comment-compact">
-                <div class="editor-wrapper">
-                  <quill-editor v-model:content="taskComment" :options="compactEditorOptions"
-                    @update:content="(val) => (taskComment = val)" ref="editorRef" contentType="html" dir="auto" />
-                </div>
-
-                <div class="comment-controls">
-                  <div class="file-upload-compact">
-                    <ArgonInput type="file" @change="handleFileUpload" accept="image/*, .pdf, .docx, .xlsx"
-                      :key="fileInputKey" size="sm" />
-                    <button v-if="fileToUpload" @click="removeFile" class="btn btn-sm btn-outline-danger"
-                      title="Remove file">
-                      ×
-                    </button>
-                  </div>
-
-                  <ArgonButton v-if="fileToUpload" @click="submitFile" :disabled="isUploading" size="sm">
-                    <i class="fas fa-paper-plane"></i>
-                    {{ isUploading ? t("submitting") : t("submit") }}
-                  </ArgonButton>
-
-                  <ArgonButton v-else @click="submitComment" :disabled="isCommentEmpty || isSubmitting" size="sm">
-                    <i class="fas fa-paper-plane"></i>
-                    {{ isSubmitting ? t("submitting") : t("submit") }}
-                  </ArgonButton>
-                </div>
-
-                <small v-if="fileToUpload" class="file-info">
-                  {{ t("maxFileSize", { size: "1.99MB" }) }}
-                </small>
-              </div>
             </div>
           </template>
 
           <template #footer>
             <div class="modal-footer-compact-mobile">
-              <ArgonButton variant="secondary" @click="closeDescriptionModal" size="sm">
-                {{ t("close") }}
-              </ArgonButton>
+              <div class="footer-editor-wrapper">
+
+                <div class="editor-wrapper">
+                  <quill-editor v-model:content="taskComment" :options="compactEditorOptions"
+                    @update:content="(val) => (taskComment = val)" ref="editorRef" contentType="html" dir="auto" />
+                </div>
+                
+                <div class="footer-action-buttons">
+                  <!-- Hidden file input -->
+                  <input ref="fileInputRefMobile" type="file" accept="image/*, .pdf, .docx, .xlsx"
+                    @change="handleFileUpload" class="d-none" />
+
+                  <!-- Circular buttons -->
+                  <button @click="triggerFileInputMobile" class="circular-btn circular-btn-attach"
+                    title="Attach File or Image">
+                    <i class="fas fa-paperclip"></i>
+                  </button>
+
+                  <button @click="fileToUpload ? submitFile() : submitComment()"
+                    :disabled="(fileToUpload ? isUploading : isCommentEmpty || isSubmitting)"
+                    class="circular-btn circular-btn-submit" :title="fileToUpload ? t('submit') : t('submit')">
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+
+                </div>
+
+
+
+              </div>
+              <small class="file-hint-text">
+                {{ t("maxFileSize", { size: "1.99MB" }) }}
+              </small>
+
+              <small v-if="fileToUpload" class="file-info-footer">
+                {{ fileToUpload.name }}
+                <button @click="removeFile" class="btn-remove-file" title="Remove file">×</button>
+              </small>
             </div>
           </template>
         </ArgonModal>
@@ -1752,6 +1755,8 @@ function toggleReplies(commentId) {
 
 const fileToUpload = ref(null);
 const fileInputKey = ref(0);
+const fileInputRef = ref(null);
+const fileInputRefMobile = ref(null);
 
 fileToUpload.value = null;
 fileInputKey.value++;
@@ -1775,6 +1780,14 @@ function handleFileUpload(event) {
   }
 
   fileToUpload.value = file;
+}
+
+function triggerFileInput() {
+  fileInputRef.value?.click();
+}
+
+function triggerFileInputMobile() {
+  fileInputRefMobile.value?.click();
 }
 
 const submitFile = async () => {
@@ -2959,9 +2972,106 @@ function getTabCount(tabName) {
 
 /* Improve modal footer */
 .modal-footer {
-  padding: 0.75rem 1rem;
   border-top: 1px solid #e9ecef;
   background: #f8f9fa;
+}
+
+.modal-footer-compact {
+  flex-shrink: 0;
+  background: #fff;
+  width: -webkit-fill-available;
+}
+
+.footer-editor-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.footer-action-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.footer-editor-wrapper .editor-wrapper {
+  flex: 1;
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.footer-editor-wrapper .editor-wrapper .ql-editor {
+  min-height: 60px !important;
+  padding: 0.5rem !important;
+  font-size: 0.9rem !important;
+  line-height: 1.4 !important;
+}
+
+.file-hint-text {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+
+.circular-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #A9CA5C;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.circular-btn:hover:not(:disabled) {
+  background: #8fb94a;
+  transform: scale(1.05);
+}
+
+.circular-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.circular-btn i {
+  font-size: 1rem;
+}
+
+.file-info-footer {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-remove-file {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-remove-file:hover {
+  color: #c82333;
 }
 
 /* Better comment spacing */
@@ -3675,28 +3785,29 @@ function getTabCount(tabName) {
     font-size: 0.7rem;
   }
 
-  /* Replies Container - Timeline Style مع indentation */
+  /* Replies Container */
   .comments-scroll-container-mobile .replies {
     margin-top: 0.4rem;
-    position: relative;
   }
 
-  /* خط عمودي للـ Replies */
-  .comments-scroll-container-mobile .replies::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e0e0e0;
+  /* Replies Container - White Box */
+  .comments-scroll-container-mobile .replies-container {
+    background: #ffffff !important;
+    padding: 1rem !important;
+    border-radius: 8px !important;
+    margin-top: 0.5rem !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
   }
 
-  /* Reply Item - مع indentation واضح */
+  /* Reply Item - بدون indentation */
   .comments-scroll-container-mobile .reply-item {
-    padding: 0.3rem 0 0.3rem 1rem;
-    margin-bottom: 0.4rem;
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
     position: relative;
+  }
+
+  .comments-scroll-container-mobile .reply-item:last-child {
+    margin-bottom: 0;
   }
 
   /* Avatar للـ Reply - أصغر */
@@ -3704,7 +3815,8 @@ function getTabCount(tabName) {
   .comments-scroll-container-mobile .reply-item .user-avatar-fallback {
     width: 24px;
     height: 24px;
-    left: -0.5rem;
+    position: relative;
+    left: 0;
     top: 0;
   }
 
@@ -3820,10 +3932,101 @@ function getTabCount(tabName) {
 }
 
 .modal-footer-compact-mobile {
-  padding: 0.75rem;
   flex-shrink: 0;
-  border-top: 1px solid #e9ecef;
   background: #fff;
+  width: -webkit-fill-available;
+}
+
+.modal-footer-compact-mobile .footer-editor-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.modal-footer-compact-mobile .footer-action-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.modal-footer-compact-mobile .footer-editor-wrapper .editor-wrapper {
+  flex: 1;
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.modal-footer-compact-mobile .footer-editor-wrapper .editor-wrapper .ql-editor {
+  min-height: 50px !important;
+  padding: 0.5rem !important;
+  font-size: 0.85rem !important;
+  line-height: 1.4 !important;
+}
+
+.modal-footer-compact-mobile .file-hint-text {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+
+.modal-footer-compact-mobile .circular-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #a6c956;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.modal-footer-compact-mobile .circular-btn:hover:not(:disabled) {
+  background: #a6c956;
+  transform: scale(1.05);
+}
+
+.modal-footer-compact-mobile .circular-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-footer-compact-mobile .circular-btn i {
+  font-size: 1rem;
+}
+
+.modal-footer-compact-mobile .file-info-footer {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-footer-compact-mobile .btn-remove-file {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-footer-compact-mobile .btn-remove-file:hover {
+  color: #c82333;
 }
 
 .comments-modal-mobile .modal-header {
