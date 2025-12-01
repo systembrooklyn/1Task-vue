@@ -1923,6 +1923,7 @@ function getTabCount(tabName) {
   display: flex;
   gap: 1rem;
   min-height: 80vh;
+  /* margin-top: 1rem; */
 }
 
 /* الشريط الجانبي */

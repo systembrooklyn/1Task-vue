@@ -1214,4 +1214,66 @@ const searchMatch = (task) => {
   flex: 1;
   /* السماح للمحتوى بالتمدد */
 }
+
+/* Filter Panel Styles */
+#filterCollapse {
+  margin-bottom: 1.5rem;
+}
+
+#filterCollapse .card-body {
+  padding: 1rem 0.75rem;
+}
+
+#filterCollapse .row>div {
+  margin-bottom: 1rem;
+}
+
+#filterCollapse .form-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+#filterCollapse .form-select,
+#filterCollapse .form-control {
+  font-size: 0.9rem;
+  padding: 0.5rem;
+}
+
+#filterCollapse .d-flex.justify-content-end {
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* مسافة بين الفلاتر والتاسكات */
+.card>.card-body {
+  margin-top: 1rem;
+}
+
+/* Tablet: 768px - 991px */
+@media (min-width: 768px) and (max-width: 991px) {
+  /* Filter Panel - Tablet */
+  #filterCollapse {
+    margin-bottom: 1.25rem;
+  }
+
+  #filterCollapse .row>div {
+    margin-bottom: 1rem;
+  }
+
+  .card>.card-body {
+    margin-top: 0.75rem;
+  }
+}
+
+/* Desktop: 992px فما فوق */
+@media (min-width: 992px) {
+  /* مسافة بين الفلاتر والتاسكات - Desktop */
+  #filterCollapse {
+    margin-bottom: 1rem;
+  }
+
+  .card>.card-body {
+    margin-top: 0.5rem;
+  }
+}
 </style>

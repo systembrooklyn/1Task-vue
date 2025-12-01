@@ -1,6 +1,39 @@
 .dark-version {
   background-color: $dark-version-bg-color !important;
 
+  // Global Scrollbar Styles for Dark Mode
+  // Webkit browsers (Chrome, Safari, Edge)
+  * {
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    &::-webkit-scrollbar-corner {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  // Firefox scrollbar
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+  }
+
   > div[class*="bg-"] {
     background-color: $dark-version-bg-color !important;
   }
@@ -243,6 +276,89 @@
   label {
     color: $dark-version-body-color !important;
   }
+
+  // Input Group (Date Range Selector)
+  .input-group-text {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .input-group .form-control {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(144, 177, 64, 0.6) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      box-shadow: 0 1px 3px rgba(144, 177, 64, 0.2) !important;
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+
+  // Chart Report Page Styles
+  .no-tasks-container {
+    .no-tasks-text {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+  }
+
+  // Doughnut Chart Styles
+  .card {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+
+    .card-header {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      border-bottom-color: $dark-version-border-color !important;
+      padding: 0.5rem 1rem !important;
+
+      h6 {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .text-sm {
+        color: rgba(255, 255, 255, 0.7) !important;
+      }
+    }
+
+    .card-body {
+      background-color: transparent !important;
+    }
+  }
+
+  // Chart Legend Styles
+  .legend-item {
+    border-bottom-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    .label {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .percentage {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .center-text {
+    h4 {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    small {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+
 
   .list-group-item,
   .multisteps-form__panel {
@@ -1064,6 +1180,1143 @@
       background-color: rgba(144, 177, 64, 0.2) !important;
       border-color: rgba(144, 177, 64, 0.5) !important;
       color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // OneTimeTask Page
+  .routine-task-container {
+    background-color: transparent !important;
+  }
+
+  // Sidebar
+  .sidebar {
+    background-color: transparent !important;
+  }
+
+  .sidebar button {
+    background-color: $dark-version-card-bg-color !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid $dark-version-border-color !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.15) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+
+    &.active {
+      background-color: rgba(144, 177, 64, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+      border-color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  .tab-count {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .sidebar button.active .tab-count {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  // Task Items
+  .task-item {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+  }
+
+  .task-header {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.1) !important;
+    }
+
+    &.expanded {
+      background-color: rgba(144, 177, 64, 0.15) !important;
+    }
+  }
+
+  .task-title {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .task-date {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .creator-name-simple {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .task-label {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  // Urgent Tasks - dark background with red text and red border
+  .urgent-task,
+  .task-header.urgent-task {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    background: rgba(255, 255, 255, 0.03) !important; // Override #fff5f5
+    border-left: 3px solid rgba(239, 68, 68, 0.8) !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.1) !important;
+      background: rgba(144, 177, 64, 0.1) !important;
+    }
+
+    &.expanded {
+      background-color: rgba(144, 177, 64, 0.15) !important;
+      background: rgba(144, 177, 64, 0.15) !important;
+    }
+
+    .task-title {
+      color: rgba(239, 68, 68, 1) !important;
+    }
+
+    .task-title span {
+      color: rgba(239, 68, 68, 1) !important;
+    }
+
+    .task-date {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .creator-name-simple {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+
+  // Badges
+  .badge-danger {
+    background-color: rgba(239, 68, 68, 0.9) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  .badge-warning {
+    background-color: rgba(255, 193, 7, 0.9) !important;
+    color: rgba(0, 0, 0, 0.9) !important;
+  }
+
+  .badge-grey {
+    background-color: rgba(103, 103, 103, 0.9) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  .badge-success {
+    background-color: rgba(144, 177, 64, 0.9) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  // Task Details
+  .task-details {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    p {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  // No Tasks Container
+  .no-tasks-container,
+  .no-tasks-container-mobile {
+    .no-tasks-text,
+    .no-tasks-text-mobile {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+  }
+
+  // ====== Mobile/Tablet Styles ======
+  .routine-task-container-mobile {
+    background-color: transparent !important;
+  }
+
+  // Mobile Sidebar
+  .sidebar-mobile {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+
+    button {
+      background-color: $dark-version-card-bg-color !important;
+      background: $dark-version-card-bg-color !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      border-color: $dark-version-border-color !important;
+
+      &:hover {
+        background-color: rgba(144, 177, 64, 0.1) !important;
+        background: rgba(144, 177, 64, 0.1) !important;
+        color: rgba(144, 177, 64, 1) !important;
+      }
+
+      &.active {
+        background-color: rgba(144, 177, 64, 0.9) !important;
+        background: rgba(144, 177, 64, 0.9) !important;
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      .tab-count {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+      }
+
+      &.active .tab-count {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        color: rgba(255, 255, 255, 1) !important;
+      }
+    }
+  }
+
+  // Mobile Task Cards
+  .task-card-mobile {
+    background-color: $dark-version-card-bg-color !important;
+    background: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+    }
+
+    &.urgent-card {
+      background-color: rgba(255, 255, 255, 0.03) !important;
+      background: rgba(255, 255, 255, 0.03) !important;
+      border-left: 4px solid rgba(239, 68, 68, 0.8) !important;
+    }
+  }
+
+  // Mobile Card Header
+  .task-card-header {
+    background-color: transparent !important;
+  }
+
+  .task-card-header-left {
+    .star-icon {
+      color: #ffbd44 !important; // Keep same color
+    }
+
+    .spinner-icon {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+  }
+
+  .creator-name-mobile {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .task-card-time-header {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .task-project-name-below {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  // Mobile Card Title
+  .task-card-title {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .task-card-mobile.urgent-card .task-card-title {
+    color: rgba(239, 68, 68, 1) !important;
+  }
+
+  // Mobile Card Footer
+  .task-card-footer {
+    border-top-color: $dark-version-border-color !important;
+  }
+
+  // Mobile Status Badges
+  .status-badge-mobile {
+    &.status-todo {
+      background-color: rgba(25, 118, 210, 0.2) !important;
+      color: rgba(144, 202, 249, 1) !important;
+    }
+
+    &.status-inprogress {
+      background-color: rgba(245, 124, 0, 0.2) !important;
+      color: rgba(255, 183, 77, 1) !important;
+    }
+
+    &.status-review {
+      background-color: rgba(249, 168, 37, 0.2) !important;
+      color: rgba(255, 224, 130, 1) !important;
+    }
+
+    &.status-done {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // Mobile Modal
+  .popup-overlay-mobile {
+    background: rgba(0, 0, 0, 0.7) !important;
+  }
+
+  .comments-modal-mobile {
+    .modal-content {
+      background-color: $dark-version-card-bg-color !important;
+      border-color: $dark-version-border-color !important;
+    }
+  }
+
+  .comments-scroll-container-mobile {
+    background-color: transparent !important;
+
+    .comment-list::before {
+      background: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .comment-item {
+      background: transparent !important;
+    }
+
+    .user-avatar,
+    .user-avatar-fallback {
+      border-color: $dark-version-card-bg-color !important;
+    }
+
+    .user-name {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .comment-time {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .comment-body {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .replies-container {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: $dark-version-border-color !important;
+    }
+  }
+
+  .modal-title-description-mobile {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .modal-footer-compact-mobile {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-top-color: $dark-version-border-color !important;
+  }
+
+  // Filter Inputs (form-select, form-label) - Same colors as ArgonSelect (Employee)
+  .form-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .form-select {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(144, 177, 64, 0.6) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      box-shadow: 0 1px 3px rgba(144, 177, 64, 0.2) !important;
+    }
+
+    &:hover {
+      border-color: rgba(144, 177, 64, 0.5) !important;
+    }
+
+    option {
+      background-color: $dark-version-card-bg-color !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    &:disabled {
+      background-color: rgba(255, 255, 255, 0.03) !important;
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 0.6;
+    }
+  }
+
+  // CheckboxMultiSelect Component (Project Filter) - Same colors as ArgonSelect
+  .checkbox-multi-select {
+    .form-label {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .dropdown-toggle {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: $dark-version-border-color !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      &:hover {
+        border-color: rgba(144, 177, 64, 0.5) !important;
+      }
+
+      &:focus {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(144, 177, 64, 0.6) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        box-shadow: 0 1px 3px rgba(144, 177, 64, 0.2) !important;
+      }
+    }
+
+    .dropdown-menu {
+      background-color: $dark-version-card-bg-color !important;
+      border-color: $dark-version-border-color !important;
+
+      .dropdown-item {
+        color: rgba(255, 255, 255, 0.9) !important;
+
+        &:hover {
+          background-color: rgba(144, 177, 64, 0.2) !important;
+          color: rgba(144, 177, 64, 1) !important;
+        }
+
+        &.active {
+          background-color: rgba(144, 177, 64, 0.3) !important;
+          color: rgba(144, 177, 64, 1) !important;
+        }
+      }
+
+      .form-check-input {
+        background-color: $dark-version-card-bg-color !important;
+        border-color: $dark-version-border-color !important;
+
+        &:checked {
+          background-color: rgba(144, 177, 64, 0.9) !important;
+          border-color: rgba(144, 177, 64, 1) !important;
+        }
+      }
+
+      .form-check-label {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+    }
+  }
+
+  // Mobile Action Buttons - Same colors as desktop
+  .action-btn {
+    background-color: $dark-version-card-bg-color !important;
+    background: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  // Comments Button - Green
+  .comments-btn {
+    border-color: rgba(144, 177, 64, 0.8) !important;
+    color: rgba(144, 177, 64, 1) !important;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(144, 177, 64, 0.9) !important;
+      background: rgba(144, 177, 64, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  // Review Button - Orange/Yellow
+  .review-btn {
+    border-color: rgba(255, 193, 7, 0.8) !important;
+    color: rgba(255, 193, 7, 1) !important;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 193, 7, 0.9) !important;
+      background: rgba(255, 193, 7, 0.9) !important;
+      color: rgba(0, 0, 0, 0.9) !important;
+    }
+  }
+
+  // Done Button - Green
+  .done-btn {
+    border-color: rgba(144, 177, 64, 0.8) !important;
+    color: rgba(144, 177, 64, 1) !important;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(144, 177, 64, 0.9) !important;
+      background: rgba(144, 177, 64, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  // Rework Button - Orange
+  .rework-btn {
+    border-color: rgba(255, 152, 0, 0.8) !important;
+    color: rgba(255, 152, 0, 1) !important;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 152, 0, 0.9) !important;
+      background: rgba(255, 152, 0, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  // Edit Button - Cyan/Blue
+  .edit-btn {
+    border-color: rgba(23, 162, 184, 0.8) !important;
+    color: rgba(23, 162, 184, 1) !important;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(23, 162, 184, 0.9) !important;
+      background: rgba(23, 162, 184, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  // Archive Button - Gray
+  .archive-btn {
+    border-color: rgba(108, 117, 125, 0.8) !important;
+    color: rgba(108, 117, 125, 1) !important;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(108, 117, 125, 0.9) !important;
+      background: rgba(108, 117, 125, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  // Pagination
+  .pagination-container {
+    .page-link {
+      background-color: $dark-version-card-bg-color !important;
+      border-color: $dark-version-border-color !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+
+      &:hover:not(.disabled):not(.active) {
+        background-color: rgba(144, 177, 64, 0.2) !important;
+        border-color: rgba(144, 177, 64, 0.5) !important;
+        color: rgba(144, 177, 64, 1) !important;
+      }
+    }
+
+    .page-item.active .page-link {
+      background-color: rgba(144, 177, 64, 0.9) !important;
+      border-color: rgba(144, 177, 64, 1) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+
+    .page-item.disabled .page-link {
+      color: rgba(255, 255, 255, 0.4) !important;
+      opacity: 0.5;
+    }
+  }
+
+  // Expand Arrow
+  .expand-arrow {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  // Delete Icon
+  .delete-icon {
+    color: rgba(239, 68, 68, 0.8) !important;
+
+    &:hover {
+      color: rgba(239, 68, 68, 1) !important;
+    }
+  }
+
+  // Star Icon
+  .star-icon {
+    color: #ffbd44 !important; // Keep same color as light mode
+  }
+
+  // Review Buttons
+  .review-buttons .btn {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // Mobile Badges
+  .badge-mobile-date {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &.badge-danger {
+      background-color: rgba(239, 68, 68, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+
+    &.badge-warning {
+      background-color: rgba(255, 193, 7, 0.9) !important;
+      color: rgba(0, 0, 0, 0.9) !important;
+    }
+
+    &.badge-grey {
+      background-color: rgba(103, 103, 103, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  // Gmail Compose Style Components
+  .gmail-compose-container {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+  }
+
+  .gmail-header {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-bottom-color: $dark-version-border-color !important;
+
+    .gmail-title {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .gmail-btn {
+    color: rgba(255, 255, 255, 0.7) !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .gmail-search-input {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    &:focus {
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      box-shadow: 0 0 0 0.2rem rgba(144, 177, 64, 0.25) !important;
+    }
+  }
+
+  .gmail-options-container {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+  }
+
+  .gmail-option-item {
+    background-color: transparent !important;
+    border-bottom-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.1) !important;
+    }
+
+    &.selected {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      border-left-color: rgba(144, 177, 64, 0.6) !important;
+    }
+  }
+
+  .gmail-option-text {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .gmail-option-check {
+    color: rgba(144, 177, 64, 1) !important;
+  }
+
+  .gmail-no-results {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .gmail-toolbar-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .gmail-toolbar-select,
+  .gmail-toolbar-input {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:focus {
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      box-shadow: 0 0 0 0.2rem rgba(144, 177, 64, 0.25) !important;
+    }
+  }
+
+  .gmail-field-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .gmail-input,
+  .gmail-textarea,
+  .gmail-select {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:focus {
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      box-shadow: 0 0 0 0.2rem rgba(144, 177, 64, 0.25) !important;
+    }
+  }
+
+  .gmail-compact-tag {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .gmail-compact-person-name {
+    background-color: rgba(144, 177, 64, 0.2) !important;
+    background: rgba(144, 177, 64, 0.2) !important;
+    color: rgba(144, 177, 64, 1) !important;
+    border-color: rgba(144, 177, 64, 0.4) !important;
+
+    i {
+      color: rgba(239, 68, 68, 0.8) !important;
+
+      &:hover {
+        color: rgba(239, 68, 68, 1) !important;
+      }
+    }
+  }
+
+  // Gmail Compact Tags (Assignee, Supervisor, Informer, Consultant)
+  .gmail-compact-tag {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &.assignee {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      background: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+
+    &.supervisor {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      background: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+
+    &.informer {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      background: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+
+    &.consultant {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      background: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // Gmail Person Tag (in expanded section)
+  .gmail-person-tag {
+    background-color: rgba(144, 177, 64, 0.2) !important;
+    background: rgba(144, 177, 64, 0.2) !important;
+    color: rgba(144, 177, 64, 1) !important;
+    border: 1px solid rgba(144, 177, 64, 0.4) !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.3) !important;
+      background: rgba(144, 177, 64, 0.3) !important;
+    }
+
+    i {
+      color: rgba(239, 68, 68, 0.8) !important;
+
+      &:hover {
+        color: rgba(239, 68, 68, 1) !important;
+      }
+    }
+  }
+
+  // Gmail Selected People Section
+  .gmail-selected-people {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+    }
+  }
+
+  .gmail-field-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  // Gmail Compact People Bar (Click to add Employees)
+  .gmail-compact-people-bar {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+    }
+
+    .gmail-compact-content {
+      background-color: transparent !important;
+      background: transparent !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .gmail-compact-placeholder {
+      color: rgba(255, 255, 255, 0.6) !important;
+
+      i {
+        color: rgba(255, 255, 255, 0.6) !important;
+      }
+    }
+
+    .gmail-compact-hint {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+
+  // Gmail Compose Container (Create One Time Task Modal)
+  .gmail-compose-container {
+    background-color: $dark-version-card-bg-color !important;
+    background: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+  }
+
+  .gmail-header {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-bottom-color: $dark-version-border-color !important;
+
+    .gmail-title {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .gmail-btn {
+    color: rgba(255, 255, 255, 0.7) !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    &.gmail-close:hover {
+      background-color: rgba(239, 68, 68, 0.8) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  .gmail-content {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .gmail-footer {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-top-color: $dark-version-border-color !important;
+  }
+
+  // Gmail Toolbar
+  .gmail-toolbar-icon {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+
+    &:hover {
+      border-color: rgba(144, 177, 64, 0.6) !important;
+      box-shadow: 0 4px 12px rgba(144, 177, 64, 0.3) !important;
+    }
+
+    &.has-value {
+      border-color: rgba(144, 177, 64, 0.8) !important;
+      background-color: rgba(144, 177, 64, 0.15) !important;
+      background: rgba(144, 177, 64, 0.15) !important;
+    }
+
+    i {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    &.has-value i {
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  .gmail-icon-indicator {
+    background-color: rgba(144, 177, 64, 0.9) !important;
+    color: rgba(255, 255, 255, 1) !important;
+
+    &:hover {
+      background-color: rgba(239, 68, 68, 0.9) !important;
+    }
+  }
+
+  // Gmail Toolbar Label
+  .gmail-toolbar-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  // ArgonTagsInput Component (Select Assignee, Supervisor, etc.)
+  .argon-tags-input {
+    .tags-container {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: $dark-version-border-color !important;
+
+      &:focus-within {
+        border-color: rgba(144, 177, 64, 0.6) !important;
+        box-shadow: 0 1px 3px rgba(144, 177, 64, 0.2) !important;
+      }
+    }
+
+    .tag-input {
+      background-color: transparent !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+      }
+    }
+
+    .tag-pill {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+      border-color: rgba(144, 177, 64, 0.4) !important;
+
+      &:hover {
+        background-color: rgba(144, 177, 64, 0.3) !important;
+      }
+
+      .remove-btn {
+        color: rgba(144, 177, 64, 1) !important;
+
+        &:hover {
+          color: rgba(239, 68, 68, 1) !important;
+        }
+      }
+    }
+
+    .options-dropdown {
+      background-color: $dark-version-card-bg-color !important;
+      border-color: $dark-version-border-color !important;
+    }
+
+    .option-item {
+      color: rgba(255, 255, 255, 0.9) !important;
+      border-bottom-color: $dark-version-border-color !important;
+
+      &:hover {
+        background-color: rgba(144, 177, 64, 0.1) !important;
+      }
+
+      &.selected {
+        background-color: rgba(144, 177, 64, 0.2) !important;
+        color: rgba(144, 177, 64, 1) !important;
+      }
+    }
+
+    .no-results {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+  }
+
+  // Gmail People Input
+  .gmail-people-input {
+    .tags-container {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+
+  // Gmail People Row
+  .gmail-people-row {
+    .gmail-row-content {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  // Toolbar Dropdowns (Project, Priority, Date Pickers)
+  .toolbar-dropdown {
+    background-color: $dark-version-card-bg-color !important;
+    background: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .toolbar-dropdown-content {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .toolbar-search-container {
+    .toolbar-search-input {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      border-color: $dark-version-border-color !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+      }
+
+      &:focus {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(144, 177, 64, 0.5) !important;
+        box-shadow: 0 0 0 0.2rem rgba(144, 177, 64, 0.25) !important;
+      }
+    }
+  }
+
+  .toolbar-options-container {
+    background-color: transparent !important;
+  }
+
+  .toolbar-option-item {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-bottom-color: $dark-version-border-color !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.1) !important;
+    }
+
+    &.selected {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+
+    .toolbar-option-text {
+      color: inherit !important;
+    }
+
+    .toolbar-option-check {
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  .toolbar-no-results {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  // ArgonSelect Component (used in dropdowns)
+  .vs__dropdown-toggle {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+  }
+
+  .vs__selected {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .vs__search {
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+
+  .vs__dropdown-menu {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+  }
+
+  .vs__dropdown-option {
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.1) !important;
+    }
+
+    &--highlight {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // ArgonMultipleSelect Component
+  .custom-select-dropdown {
+    background-color: $dark-version-card-bg-color !important;
+    background: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .custom-select-dropdown .form-control-sm {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      box-shadow: 0 0 0 0.2rem rgba(144, 177, 64, 0.25) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .custom-select-dropdown .custom-select-option {
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover,
+    &:focus {
+      background-color: rgba(144, 177, 64, 0.1) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  // Selected Options (tags)
+  .selected-options {
+    .selected-option {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+      border: 1px solid rgba(144, 177, 64, 0.4) !important;
+    }
+
+    .btn-remove {
+      color: rgba(239, 68, 68, 0.8) !important;
+
+      &:hover {
+        color: rgba(239, 68, 68, 1) !important;
+      }
+    }
+  }
+
+  // Mobile Urgent Card
+  .urgent-card {
+    border-left: 4px solid rgba(239, 68, 68, 0.8) !important;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    background: rgba(255, 255, 255, 0.03) !important; // Override #fff5f5
+
+    .task-title,
+    .task-title span {
+      color: rgba(239, 68, 68, 1) !important;
     }
   }
 }

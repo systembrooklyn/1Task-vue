@@ -39,9 +39,22 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue", "toggle-all"]);
 
 const uniqueId = `cms-${Math.random().toString(36).slice(2, 10)}`;
+const componentId = ref(`checkbox-multi-select-${Math.random().toString(36).slice(2, 10)}`);
 const isOpen = ref(false);
 const selectedItems = ref([...props.modelValue]);
 const root = ref(null);
+
+// =========== GLOBAL DROPDOWN MANAGEMENT ===========
+// Global state to track which dropdown is currently open
+if (!window.__checkboxMultiSelectOpenDropdown) {
+  window.__checkboxMultiSelectOpenDropdown = null;
+}
+if (!window.__argonSelectOpenDropdown) {
+  window.__argonSelectOpenDropdown = null;
+}
+if (!window.__argonMultiSelectOpenDropdown) {
+  window.__argonMultiSelectOpenDropdown = null;
+}
 
 const selectedIds = computed(() => {
   return new Set(
@@ -97,22 +110,92 @@ watch(
 const closeOnOutsideClick = (event) => {
   if (!root.value) return;
   if (!root.value.contains(event.target)) {
-    isOpen.value = false;
+    closeDropdown();
   }
 };
 
+// Handle global close events from other dropdowns
+function handleGlobalClose(event) {
+  if (event.detail && event.detail.excludeId === componentId.value) {
+    return; // Don't close if this is the one opening
+  }
+  closeDropdown();
+}
+
+function handleArgonSelectClose(event) {
+  if (event.detail && event.detail.excludeId === componentId.value) {
+    return;
+  }
+  closeDropdown();
+}
+
+function handleArgonMultiSelectClose(event) {
+  if (event.detail && event.detail.excludeId === componentId.value) {
+    return;
+  }
+  closeDropdown();
+}
+
+function closeDropdown() {
+  if (isOpen.value) {
+    isOpen.value = false;
+    if (window.__checkboxMultiSelectOpenDropdown === componentId.value) {
+      window.__checkboxMultiSelectOpenDropdown = null;
+    }
+  }
+}
+
+function openDropdown() {
+  // Close other CheckboxMultiSelect dropdowns
+  if (window.__checkboxMultiSelectOpenDropdown && window.__checkboxMultiSelectOpenDropdown !== componentId.value) {
+    window.dispatchEvent(new CustomEvent('checkbox-multi-select-close-others', {
+      detail: { excludeId: componentId.value }
+    }));
+  }
+
+  // Close ArgonSelect dropdowns
+  if (window.__argonSelectOpenDropdown) {
+    window.dispatchEvent(new CustomEvent('argon-select-close-others', {
+      detail: { excludeId: componentId.value }
+    }));
+  }
+
+  // Close ArgonMultipleSelect dropdowns
+  if (window.__argonMultiSelectOpenDropdown) {
+    window.dispatchEvent(new CustomEvent('argon-multi-select-close-others', {
+      detail: { excludeId: componentId.value }
+    }));
+  }
+
+  isOpen.value = true;
+  window.__checkboxMultiSelectOpenDropdown = componentId.value;
+}
+
 onMounted(() => {
   document.addEventListener("click", closeOnOutsideClick);
+  window.addEventListener('checkbox-multi-select-close-others', handleGlobalClose);
+  window.addEventListener('argon-select-close-others', handleArgonSelectClose);
+  window.addEventListener('argon-multi-select-close-others', handleArgonMultiSelectClose);
   syncFromModel();
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener("click", closeOnOutsideClick);
+  window.removeEventListener('checkbox-multi-select-close-others', handleGlobalClose);
+  window.removeEventListener('argon-select-close-others', handleArgonSelectClose);
+  window.removeEventListener('argon-multi-select-close-others', handleArgonMultiSelectClose);
+  if (window.__checkboxMultiSelectOpenDropdown === componentId.value) {
+    window.__checkboxMultiSelectOpenDropdown = null;
+  }
 });
 
 const toggleDropdown = () => {
   if (props.disabled) return;
-  isOpen.value = !isOpen.value;
+  if (isOpen.value) {
+    closeDropdown();
+  } else {
+    openDropdown();
+  }
 };
 
 const updateModel = (next) => {
@@ -151,25 +234,15 @@ const toggleAll = () => {
   <div class="checkbox-multi-select" ref="root">
     <label v-if="label" class="form-label">{{ label }}</label>
     <div class="dropdown">
-      <button
-        class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
-        type="button"
-        :class="{ show: isOpen }"
-        :disabled="disabled"
-        @click.stop="toggleDropdown"
-      >
+      <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" :class="{ show: isOpen }"
+        :disabled="disabled" @click.stop="toggleDropdown">
         {{ buttonLabel }}
       </button>
       <ul class="dropdown-menu w-100" :class="{ show: isOpen }">
         <li v-if="showSelectAll" class="px-2">
           <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              :id="`${uniqueId}-all`"
-              :checked="isAllSelected"
-              @change.prevent="toggleAll"
-            />
+            <input class="form-check-input" type="checkbox" :id="`${uniqueId}-all`" :checked="isAllSelected"
+              @change.prevent="toggleAll" />
             <label class="form-check-label" :for="`${uniqueId}-all`">
               {{ selectAllLabel }}
             </label>
@@ -178,19 +251,10 @@ const toggleAll = () => {
         <li v-if="showSelectAll">
           <hr class="dropdown-divider" />
         </li>
-        <li
-          v-for="item in items"
-          :key="item.value"
-          class="px-2 checkbox-multi-select-item"
-        >
+        <li v-for="item in items" :key="item.value" class="px-2 checkbox-multi-select-item">
           <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              :id="`${uniqueId}-${item.value}`"
-              :checked="selectedIds.has(item.value)"
-              @change.prevent="toggleItem(item)"
-            />
+            <input class="form-check-input" type="checkbox" :id="`${uniqueId}-${item.value}`"
+              :checked="selectedIds.has(item.value)" @change.prevent="toggleItem(item)" />
             <label class="form-check-label" :for="`${uniqueId}-${item.value}`">
               {{ item.label }}
             </label>
@@ -214,7 +278,7 @@ const toggleAll = () => {
   overflow-y: auto;
 }
 
-.checkbox-multi-select-item + .checkbox-multi-select-item {
+.checkbox-multi-select-item+.checkbox-multi-select-item {
   margin-top: 4px;
 }
 

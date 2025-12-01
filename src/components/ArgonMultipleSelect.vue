@@ -243,6 +243,13 @@ function openDropdown() {
     }));
   }
 
+  // Also close any open CheckboxMultiSelect dropdowns
+  if (window.__checkboxMultiSelectOpenDropdown) {
+    window.dispatchEvent(new CustomEvent('checkbox-multi-select-close-others', {
+      detail: { excludeId: componentId.value }
+    }));
+  }
+
   // Calculate dropdown direction
   calculateDropdownDirection();
 
@@ -321,6 +328,13 @@ function handleArgonSelectClose() {
   }
 }
 
+// Handle close events from CheckboxMultiSelect dropdowns
+function handleCheckboxMultiSelectClose() {
+  if (isDropdownOpen.value) {
+    closeDropdown();
+  }
+}
+
 // Handle escape key to close dropdown
 function handleEscapeKey(event) {
   if (event.key === 'Escape' && isDropdownOpen.value) {
@@ -336,6 +350,8 @@ onMounted(() => {
   window.addEventListener('argon-multi-select-close-others', handleGlobalClose);
   // Add close listener for ArgonSelect dropdowns
   window.addEventListener('argon-select-close-others', handleArgonSelectClose);
+  // Add close listener for CheckboxMultiSelect dropdowns
+  window.addEventListener('checkbox-multi-select-close-others', handleCheckboxMultiSelectClose);
   // Add escape key listener
   document.addEventListener('keydown', handleEscapeKey);
 });
@@ -345,6 +361,7 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
   window.removeEventListener('argon-multi-select-close-others', handleGlobalClose);
   window.removeEventListener('argon-select-close-others', handleArgonSelectClose);
+  window.removeEventListener('checkbox-multi-select-close-others', handleCheckboxMultiSelectClose);
   document.removeEventListener('keydown', handleEscapeKey);
   window.removeEventListener('resize', positionDropdown);
   window.removeEventListener('scroll', positionDropdown, true);

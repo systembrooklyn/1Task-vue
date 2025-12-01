@@ -490,7 +490,7 @@ const toggleDarkMode = () => {
           <ul class="navbar-nav justify-content-end">
             <li class="nav-item d-flex align-items-center">
               <!-- Dark Mode Toggle Button for Desktop -->
-              <button class="dark-mode-toggle-btn-desktop me-3" @click="toggleDarkMode"
+              <button class="dark-mode-toggle-btn-desktop me-3 " @click="toggleDarkMode"
                 :title="isRTL ? (isDarkMode ? 'الوضع الفاتح' : 'الوضع الداكن') : (isDarkMode ? 'Light Mode' : 'Dark Mode')">
                 <span class="material-symbols-rounded">
                   {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
@@ -498,7 +498,7 @@ const toggleDarkMode = () => {
               </button>
 
               <div class="nav-item dropdown" v-if="userName">
-                <button class="btn btn-link nav-link text-body p-0 dropdown-toggle d-flex align-items-center"
+                <button class="btn btn-link nav-link text-body p-0 dropdown-toggle d-flex align-items-center user-info-btn"
                   type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
                   :class="darkMode ? 'text-white' : 'text-dark'">
                   <!-- <i class="fa fa-user me-sm-2"></i> -->
@@ -981,6 +981,9 @@ button {
   transform: translateY(0) rotate(0);
 }
 
+.user-info-btn {
+  margin-bottom: 0 !important;
+}
 /* ===== Responsive Adjustments ===== */
 @media (max-width: 767px) {
   .navbar-main {

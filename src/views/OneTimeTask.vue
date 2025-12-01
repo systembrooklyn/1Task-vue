@@ -1493,6 +1493,7 @@ const translations = {
     allPriorities: "All Priorities",
     allEmployees: "All Employees",
     allDeadLines: "All DeadLines",
+    deadLine: "DeadLine",
     high: "High",
     normal: "Normal",
     low: "Low",
@@ -1634,6 +1635,7 @@ const translations = {
     selectConsultant: "اختر الاسشاري",
     selectInformer: "اختر المعلوم",
     selectDeadline: "اختر الموعد",
+    deadLine: "الموعد",
     selectTask: "اختر المهمة",
     selectPriority: "اختر الأولوية",
     undo: "تراجع",
@@ -1673,7 +1675,7 @@ const translations = {
     <div class="row">
       <div class="col-md-12">
         <div class="card">
-          <div class="card-header pb-0">
+          <div class="card-header pb-0 ">
             <div class="container">
               <div class="row align-items-center">
                 <!-- القسم الأيسر: العنوان والعدد -->
@@ -3759,6 +3761,10 @@ const translations = {
   }
 
   /* Filter Panel */
+  #filterCollapse {
+    margin-bottom: 1.5rem;
+  }
+
   #filterCollapse .card-body {
     padding: 1rem 0.75rem;
   }
@@ -3780,6 +3786,11 @@ const translations = {
 
   #filterCollapse .d-flex.justify-content-end {
     justify-content: center;
+    margin-top: 1rem;
+  }
+
+  /* مسافة بين الفلاتر والتاسكات */
+  .card>.card-body {
     margin-top: 1rem;
   }
 
@@ -3908,9 +3919,17 @@ const translations = {
     margin-top: 0.75rem;
   }
 
-  /* Filter Panel */
+  /* Filter Panel - Tablet */
+  #filterCollapse {
+    margin-bottom: 1.25rem;
+  }
+
   #filterCollapse .row>div {
     margin-bottom: 1rem;
+  }
+
+  .card>.card-body {
+    margin-top: 0.75rem;
   }
 
   /* Gmail Modal - Tablet */
@@ -3982,6 +4001,15 @@ const translations = {
 
   .filter-icon-btn {
     display: none !important;
+  }
+
+  /* مسافة بين الفلاتر والتاسكات - Desktop */
+  #filterCollapse {
+    margin-bottom: 1rem;
+  }
+
+  .card>.card-body {
+    margin-top: 0.5rem;
   }
 }
 </style>
