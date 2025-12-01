@@ -153,9 +153,91 @@
     }
   }
 
-  .table > :not(caption) > * > * {
-    border-color: $dark-version-border-color !important;
+  .table {
+    background-color: $dark-version-card-bg-color !important;
     color: $dark-version-table-color !important;
+
+    thead {
+      th {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        border-bottom-color: $dark-version-border-color !important;
+        font-weight: 600;
+      }
+    }
+
+    tbody {
+      tr {
+        background-color: transparent !important;
+        color: $dark-version-table-color !important;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: rgba(144, 177, 64, 0.1) !important;
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        &:nth-of-type(even) {
+          background-color: rgba(255, 255, 255, 0.02) !important;
+        }
+      }
+
+      td {
+        border-color: $dark-version-border-color !important;
+        color: $dark-version-table-color !important;
+      }
+    }
+
+    tfoot {
+      th,
+      td {
+        border-top-color: $dark-version-border-color !important;
+        color: $dark-version-table-color !important;
+      }
+    }
+
+    > :not(caption) > * > * {
+      border-color: $dark-version-border-color !important;
+      color: $dark-version-table-color !important;
+    }
+
+    // Striped table variant
+    &.table-striped {
+      tbody tr:nth-of-type(odd) {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+      }
+      tbody tr:nth-of-type(even) {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+      }
+    }
+
+    // Hoverable table variant
+    &.table-hover {
+      tbody tr:hover {
+        background-color: rgba(144, 177, 64, 0.15) !important;
+        color: rgba(255, 255, 255, 0.95) !important;
+      }
+    }
+
+    // Links and buttons inside tables
+    a:not(.btn):not(.dropdown-item) {
+      color: rgba(144, 177, 64, 0.9) !important;
+      &:hover {
+        color: rgba(144, 177, 64, 1) !important;
+      }
+    }
+
+    // Badges and tags inside tables
+    .badge,
+    .tag {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    // Icons inside tables
+    i,
+    .material-symbols-rounded {
+      color: inherit;
+    }
   }
 
   label {
@@ -244,13 +326,23 @@
         .nav-link {
           color: $white;
           opacity: 0.8;
+          transition: all 0.2s ease;
 
           &[data-bs-toggle="collapse"]:after {
             color: $white;
           }
 
+          &:hover {
+            background-color: rgba(144, 177, 64, 0.2) !important;
+            color: rgba(144, 177, 64, 1) !important;
+            opacity: 1;
+          }
+
           &.active {
-            box-shadow: $dark-nav-link-active-shadow;
+            background-color: rgba(144, 177, 64, 0.25) !important;
+            color: rgba(144, 177, 64, 1) !important;
+            opacity: 1;
+            box-shadow: 0 0 10px rgba(144, 177, 64, 0.3);
           }
         }
         .collapse,
@@ -260,8 +352,17 @@
               .nav-link {
                 color: $white;
                 opacity: 0.6;
+                transition: all 0.2s ease;
+
+                &:hover {
+                  background-color: rgba(144, 177, 64, 0.2) !important;
+                  color: rgba(144, 177, 64, 1) !important;
+                  opacity: 1;
+                }
 
                 &.active {
+                  background-color: rgba(144, 177, 64, 0.25) !important;
+                  color: rgba(144, 177, 64, 1) !important;
                   opacity: 1;
                 }
               }
@@ -269,6 +370,419 @@
           }
         }
       }
+    }
+  }
+
+  // Dashboard Custom Components
+  .stats-card-v2 {
+    background: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    color: $dark-version-body-color !important;
+
+    .card-title-text {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .main-metric {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    .metric-subtitle {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .metric-divider {
+      background: $dark-version-border-color !important;
+    }
+
+    .card-footer-v2 {
+      border-top-color: $dark-version-border-color !important;
+    }
+
+    .card-link {
+      color: rgba(144, 177, 64, 0.9) !important;
+      &:hover {
+        color: rgba(144, 177, 64, 1) !important;
+      }
+    }
+  }
+
+  .chart-card {
+    background: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+
+    .chart-title-inline {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    .chart-subtitle-inline {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .legend-item-inline {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .chart-inline-header {
+      border-bottom-color: $dark-version-border-color !important;
+    }
+  }
+
+  .stats-card {
+    background: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+
+    .stats-number {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    .stats-title {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+
+  .dashboard-container {
+    background: $dark-version-bg-color !important;
+    background-image: none !important;
+  }
+
+  .dashboard-header {
+    background: linear-gradient(135deg, rgba(144, 177, 64, 0.2) 0%, rgba(144, 177, 64, 0.1) 100%) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  .dashboard-title {
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  .dashboard-subtitle {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .dashboard-controls {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .btn-refresh {
+    background: rgba(144, 177, 64, 0.2) !important;
+    border-color: rgba(144, 177, 64, 0.4) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover {
+      background: rgba(144, 177, 64, 0.3) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  .last-update {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .dashboard-content {
+    background-color: transparent !important;
+  }
+
+  .loading-container {
+    background-color: transparent !important;
+    color: $dark-version-body-color !important;
+  }
+
+  .loading-content {
+    color: $dark-version-body-color !important;
+  }
+
+  .loading-title,
+  .loading-subtitle {
+    color: $dark-version-body-color !important;
+  }
+
+  .section-title {
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  .section-subtitle {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .stats-row-container {
+    background-color: transparent !important;
+  }
+
+  .data-table-card {
+    background: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+
+    .data-table-header {
+      border-bottom-color: $dark-version-border-color !important;
+    }
+
+    .table-title {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+  }
+
+  .mobile-scroll-hint {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  // Container fluid in dashboard
+  .container-fluid {
+    background-color: transparent !important;
+  }
+
+  // Alert styles
+  .alert {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    color: $dark-version-body-color !important;
+
+    .alert-heading {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    &.alert-danger {
+      background-color: rgba(239, 68, 68, 0.15) !important;
+      border-color: rgba(239, 68, 68, 0.3) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  // Section headers
+  .section-header {
+    background-color: transparent !important;
+  }
+
+  // Trend badges
+  .trend-badge {
+    &.trend-up {
+      background: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+
+    &.trend-down {
+      background: rgba(239, 68, 68, 0.2) !important;
+      color: rgba(239, 68, 68, 1) !important;
+    }
+
+    &.trend-neutral {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+
+  // Status pills
+  .status-pill {
+    &.pill-success {
+      background: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+
+    &.pill-danger {
+      background: rgba(239, 68, 68, 0.2) !important;
+      color: rgba(239, 68, 68, 1) !important;
+    }
+
+    &.pill-warning {
+      background: rgba(245, 158, 11, 0.2) !important;
+      color: rgba(245, 158, 11, 1) !important;
+    }
+
+    &.pill-secondary {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+
+  // Dashboard Buttons
+  .quick-add-btn-top {
+    border-color: rgba(144, 177, 64, 0.6) !important;
+    background: rgba(144, 177, 64, 0.1) !important;
+    color: rgba(144, 177, 64, 1) !important;
+    box-shadow: 0 2px 8px rgba(144, 177, 64, 0.2) !important;
+
+    &:hover {
+      background: rgba(144, 177, 64, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+      box-shadow: 0 4px 16px rgba(144, 177, 64, 0.4) !important;
+    }
+
+    &:active {
+      box-shadow: 0 2px 8px rgba(144, 177, 64, 0.3) !important;
+    }
+
+    i {
+      color: inherit !important;
+    }
+  }
+
+  .btn-refresh-table {
+    background: linear-gradient(135deg, rgba(144, 177, 64, 0.8) 0%, rgba(144, 177, 64, 0.6) 100%) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(144, 177, 64, 1) 0%, rgba(144, 177, 64, 0.8) 100%) !important;
+      box-shadow: 0 5px 15px rgba(144, 177, 64, 0.4) !important;
+    }
+  }
+
+  .btn-outline-danger {
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    color: rgba(239, 68, 68, 0.9) !important;
+    background: transparent !important;
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.2) !important;
+      border-color: rgba(239, 68, 68, 0.7) !important;
+      color: rgba(239, 68, 68, 1) !important;
+    }
+  }
+
+  .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    background: transparent !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      border-color: rgba(255, 255, 255, 0.5) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  .btn-light {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2) !important;
+      border-color: rgba(255, 255, 255, 0.3) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2) !important;
+      border-color: rgba(255, 255, 255, 0.3) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, rgba(144, 177, 64, 0.9) 0%, rgba(144, 177, 64, 0.7) 100%) !important;
+    border-color: rgba(144, 177, 64, 0.8) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(144, 177, 64, 1) 0%, rgba(144, 177, 64, 0.9) 100%) !important;
+      border-color: rgba(144, 177, 64, 1) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+
+    &:disabled {
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  .btn-close {
+    filter: brightness(0) invert(1) !important;
+    opacity: 0.8 !important;
+
+    &:hover {
+      opacity: 1 !important;
+    }
+  }
+
+  .btn-close-white {
+    filter: brightness(0) invert(1) !important;
+  }
+
+  // ArgonButton Component (Get Support button)
+  .btn.btn-secondary,
+  button.btn.btn-secondary,
+  button.btn.mb-0.btn-secondary {
+    background-color: rgba(144, 177, 64, 0.15) !important;
+    color: rgba(144, 177, 64, 1) !important;
+    border-color: rgba(144, 177, 64, 0.5) !important;
+    outline-color: rgba(144, 177, 64, 0.5) !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: rgba(144, 177, 64, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+      border-color: rgba(144, 177, 64, 1) !important;
+      outline-color: rgba(144, 177, 64, 1) !important;
+    }
+
+    .material-symbols-rounded,
+    span {
+      color: inherit !important;
+    }
+  }
+
+  // Override ArgonButton scoped styles
+  button.btn.mb-0 {
+    background-color: rgba(144, 177, 64, 0.15) !important;
+    color: rgba(144, 177, 64, 1) !important;
+    outline-color: rgba(144, 177, 64, 0.5) !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: rgba(144, 177, 64, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+      outline-color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // Ticketing buttons
+  .ticketing-btn-small {
+    background: rgba(144, 177, 64, 0.1) !important;
+    color: rgba(144, 177, 64, 1) !important;
+    border: 1px solid rgba(144, 177, 64, 0.3) !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+
+    .material-symbols-rounded {
+      color: inherit !important;
+    }
+  }
+
+  .ticketing-btn-desktop {
+    background: rgba(144, 177, 64, 0.1) !important;
+    color: rgba(144, 177, 64, 1) !important;
+    border-color: rgba(144, 177, 64, 0.6) !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      border-color: rgba(144, 177, 64, 0.8) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // Success button variant
+  .btn-success,
+  .bg-gradient-success {
+    background: linear-gradient(135deg, rgba(144, 177, 64, 0.9) 0%, rgba(144, 177, 64, 0.7) 100%) !important;
+    border-color: rgba(144, 177, 64, 0.8) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(144, 177, 64, 1) 0%, rgba(144, 177, 64, 0.9) 100%) !important;
+      border-color: rgba(144, 177, 64, 1) !important;
+      color: rgba(255, 255, 255, 1) !important;
     }
   }
 }

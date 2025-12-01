@@ -68,9 +68,36 @@ const getClasses = (variant, color, size, fullWidth, active) => {
   color: #fff;
 }
 
-
 .btn:hover {
   background-color: #a9ca5c;
   color: #fff;
+}
+</style>
+
+<style>
+/* Dark mode support for ArgonButton */
+.dark-version button.btn.mb-0.btn-secondary,
+.dark-version button.btn.mb-0 {
+  background-color: rgba(144, 177, 64, 0.15) !important;
+  color: rgba(144, 177, 64, 1) !important;
+  outline-color: rgba(144, 177, 64, 0.5) !important;
+  border-color: rgba(144, 177, 64, 0.5) !important;
+}
+
+.dark-version button.btn.mb-0.btn-secondary:hover,
+.dark-version button.btn.mb-0.btn-secondary:focus,
+.dark-version button.btn.mb-0.btn-secondary:active,
+.dark-version button.btn.mb-0:hover,
+.dark-version button.btn.mb-0:focus,
+.dark-version button.btn.mb-0:active {
+  background-color: rgba(144, 177, 64, 0.9) !important;
+  color: rgba(255, 255, 255, 1) !important;
+  outline-color: rgba(144, 177, 64, 1) !important;
+  border-color: rgba(144, 177, 64, 1) !important;
+}
+
+.dark-version button.btn.mb-0.btn-secondary .material-symbols-rounded,
+.dark-version button.btn.mb-0.btn-secondary span {
+  color: inherit !important;
 }
 </style>

@@ -5,6 +5,7 @@ import { useRoute } from "vue-router";
 import Sidenav from "./examples/Sidenav";
 import Configurator from "@/examples/Configurator.vue";
 import Navbar from "@/examples/Navbars/Navbar.vue";
+import { activateDarkMode, deactivateDarkMode } from "@/assets/js/dark-mode";
 // import AppFooter from "@/examples/Footer.vue";
 
 const store = useStore();
@@ -81,6 +82,16 @@ onBeforeMount(async () => {
   const language = localStorage.getItem("language");
   if (language) {
     store.commit("setLanguage", language);
+  }
+  
+  // تحميل حالة dark mode من localStorage
+  const savedDarkMode = localStorage.getItem("darkMode");
+  if (savedDarkMode === "true") {
+    store.state.darkMode = true;
+    activateDarkMode();
+  } else {
+    store.state.darkMode = false;
+    deactivateDarkMode();
   }
 });
 

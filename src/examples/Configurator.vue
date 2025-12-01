@@ -23,11 +23,13 @@ const darkMode = () => {
     store.state.darkMode = false;
     setSidebarType("bg-white");
     deactivateDarkMode();
+    localStorage.setItem('darkMode', 'false');
     return;
   } else {
     store.state.darkMode = true;
     setSidebarType("bg-default");
     activateDarkMode();
+    localStorage.setItem('darkMode', 'true');
   }
 };
 </script>

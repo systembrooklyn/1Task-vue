@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { useStore } from "vuex";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import ProfileCard from "../../views/components/ProfileCard.vue";
 import defaultImg from "@/assets/img/userProfile.png";
 import { useResponsive } from "@/composables/useResponsive";
@@ -13,14 +13,16 @@ import ArgonTextarea from "@/components/ArgonTextarea.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import Swal from "sweetalert2";
-import Breadcrumbs from "../Breadcrumbs.vue";
+// import Breadcrumbs from "../Breadcrumbs.vue";
 import apiClient from "@/services/apiService";
+import { activateDarkMode, deactivateDarkMode } from "@/assets/js/dark-mode";
 // import LanguageSwitcher from "../../views/components/LanguageSwitcher.vue";
 
 // const showMenu = ref(false);
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
 const darkMode = computed(() => store.state.darkMode);
+const isDarkMode = computed(() => store.state.darkMode);
 const isOwner = computed(() => store.getters.isOwner);
 // const profileData = computed(() => store.getters.profileData);
 
@@ -41,7 +43,7 @@ const t = (key) => {
   return translations[currentLanguage.value][key];
 };
 
-const route = useRoute();
+// const route = useRoute();
 const router = useRouter();
 
 const planInfo = computed(() => store.getters.planInfo);
@@ -68,13 +70,13 @@ const isUnlimitedPlan = computed(() => {
   return name === "unlimited" || name === "unlimited plan";
 });
 
-const currentRouteName = computed(() => {
-  return route.name;
-});
-const currentDirectory = computed(() => {
-  let dir = route.path.split("/")[1];
-  return dir.charAt(0).toUpperCase() + dir.slice(1);
-});
+// const currentRouteName = computed(() => {
+//   return route.name;
+// });
+// const currentDirectory = computed(() => {
+//   let dir = route.path.split("/")[1];
+//   return dir.charAt(0).toUpperCase() + dir.slice(1);
+// });
 
 const currentCompanyName = computed(
   () => store.getters.companyName || "DefaultCompany"
@@ -343,6 +345,19 @@ const logout = () => {
     });
 };
 
+// Toggle Dark Mode
+const toggleDarkMode = () => {
+  if (store.state.darkMode) {
+    store.state.darkMode = false;
+    deactivateDarkMode();
+    localStorage.setItem('darkMode', 'false');
+  } else {
+    store.state.darkMode = true;
+    activateDarkMode();
+    localStorage.setItem('darkMode', 'true');
+  }
+};
+
 // const uploadProfileImage = async (file) => {
 //   // هنا تضيف كود رفع الصورة على الخادم
 //   try {
@@ -395,6 +410,14 @@ const logout = () => {
 
         <!-- User Info Compact (Right Side) -->
         <div class="navbar-user-compact d-flex align-items-center gap-2">
+          <!-- Dark Mode Toggle Button for Small Screen -->
+          <button class="dark-mode-toggle-btn-small" @click="toggleDarkMode"
+            :title="isRTL ? (isDarkMode ? 'الوضع الفاتح' : 'الوضع الداكن') : (isDarkMode ? 'Light Mode' : 'Dark Mode')">
+            <span class="material-symbols-rounded">
+              {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
+            </span>
+          </button>
+
           <!-- Avatar Only on Mobile -->
           <div class="nav-item dropdown navbar-avatar-container" v-if="userName">
             <button class="btn btn-link nav-link text-body p-0 d-flex align-items-center navbar-avatar-btn"
@@ -448,7 +471,7 @@ const logout = () => {
           </ArgonButton>
 
           <!-- Breadcrumbs -->
-          <breadcrumbs :current-page="currentRouteName" :current-directory="currentDirectory" />
+          <!-- <breadcrumbs :current-page="currentRouteName" :current-directory="currentDirectory" /> -->
         </div>
         <div class="mt-2 collapse navbar-collapse mt-sm-0 me-md-0 me-sm-4" :class="isRTL ? 'px-0' : 'me-sm-4'"
           id="navbar">
@@ -466,6 +489,14 @@ const logout = () => {
           </div>
           <ul class="navbar-nav justify-content-end">
             <li class="nav-item d-flex align-items-center">
+              <!-- Dark Mode Toggle Button for Desktop -->
+              <button class="dark-mode-toggle-btn-desktop me-3" @click="toggleDarkMode"
+                :title="isRTL ? (isDarkMode ? 'الوضع الفاتح' : 'الوضع الداكن') : (isDarkMode ? 'Light Mode' : 'Dark Mode')">
+                <span class="material-symbols-rounded">
+                  {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
+                </span>
+              </button>
+
               <div class="nav-item dropdown" v-if="userName">
                 <button class="btn btn-link nav-link text-body p-0 dropdown-toggle d-flex align-items-center"
                   type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
@@ -1054,17 +1085,24 @@ button {
   transition: all 0.3s ease;
   font-size: 18px;
   flex-shrink: 0;
-  background: transparent;
-  border: none;
+  background: rgba(144, 177, 64, 0.1);
+  border: 1px solid rgba(144, 177, 64, 0.3);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: rgba(144, 177, 64, 1);
 }
 
 .ticketing-btn-small:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(144, 177, 64, 0.2);
+  border-color: rgba(144, 177, 64, 0.5);
   transform: scale(1.05);
+  color: rgba(144, 177, 64, 1);
+}
+
+.ticketing-btn-small .material-symbols-rounded {
+  color: inherit;
 }
 
 .ticketing-btn-desktop {
@@ -1086,12 +1124,24 @@ button {
 }
 
 /* Dark mode adjustments */
-.dark-mode .ticketing-btn-small:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.dark-version .ticketing-btn-small {
+  background: rgba(144, 177, 64, 0.15) !important;
+  border-color: rgba(144, 177, 64, 0.4) !important;
+  color: rgba(144, 177, 64, 1) !important;
 }
 
-.dark-mode .ticketing-btn-desktop:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.dark-version .ticketing-btn-small:hover {
+  background-color: rgba(144, 177, 64, 0.25) !important;
+  border-color: rgba(144, 177, 64, 0.6) !important;
+  color: rgba(144, 177, 64, 1) !important;
+}
+
+.dark-version .ticketing-btn-small .material-symbols-rounded {
+  color: inherit !important;
+}
+
+.dark-version .ticketing-btn-desktop:hover {
+  background-color: rgba(144, 177, 64, 0.15) !important;
 }
 
 /* RTL Support */
@@ -1105,6 +1155,61 @@ button {
     width: 36px;
     height: 36px;
     font-size: 16px;
+  }
+}
+
+/* Dark Mode Toggle Button Styles */
+.dark-mode-toggle-btn-small,
+.dark-mode-toggle-btn-desktop {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.dark-mode-toggle-btn-small:hover,
+.dark-mode-toggle-btn-desktop:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+
+.dark-mode-toggle-btn-small .material-symbols-rounded,
+.dark-mode-toggle-btn-desktop .material-symbols-rounded {
+  font-size: 24px;
+  color: inherit;
+}
+
+.dark-version .dark-mode-toggle-btn-small:hover,
+.dark-version .dark-mode-toggle-btn-desktop:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-version .dark-mode-toggle-btn-small,
+.dark-version .dark-mode-toggle-btn-desktop {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark-version .dark-mode-toggle-btn-small:hover,
+.dark-version .dark-mode-toggle-btn-desktop:hover {
+  color: rgba(144, 177, 64, 1);
+}
+
+/* Responsive adjustments for dark mode toggle */
+@media (max-width: 767px) {
+  .dark-mode-toggle-btn-small {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dark-mode-toggle-btn-small .material-symbols-rounded {
+    font-size: 20px;
   }
 }
 </style>

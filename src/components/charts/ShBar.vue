@@ -1,9 +1,24 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import BarChart from './BarChart.vue'
 import { useResponsive } from '@/composables/useResponsive'
 
 const { isMobile } = useResponsive()
+
+// Reactive dark mode state
+const isDarkMode = ref(document.body.classList.contains('dark-version'))
+
+// Watch for dark mode changes
+onMounted(() => {
+    const observer = new MutationObserver(() => {
+        isDarkMode.value = document.body.classList.contains('dark-version')
+    })
+
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class']
+    })
+})
 
 const props = defineProps({
     data: {
@@ -89,6 +104,7 @@ const needsHorizontalScroll = computed(() => {
 // Chart options
 const chartOptions = computed(() => {
     const mobileMode = isMobile.value;
+    const darkMode = isDarkMode.value;
 
     return {
         indexAxis: 'x', // Always vertical bars (same as desktop)
@@ -104,12 +120,13 @@ const chartOptions = computed(() => {
                     font: {
                         size: mobileMode ? 10 : 12,
                         weight: '500'
-                    }
+                    },
+                    color: darkMode ? '#ffffff' : '#1a202c'
                 }
             },
             tooltip: {
                 enabled: props.showTooltip,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(0, 0, 0, 0.8)',
                 padding: mobileMode ? 10 : 12,
                 borderRadius: 8,
                 titleFont: {
@@ -119,6 +136,8 @@ const chartOptions = computed(() => {
                 bodyFont: {
                     size: mobileMode ? 11 : 13
                 },
+                titleColor: darkMode ? '#ffffff' : '#1a202c',
+                bodyColor: darkMode ? '#ffffff' : '#1a202c',
                 callbacks: {
                     label: function (context) {
                         let label = context.dataset.label || '';
@@ -139,7 +158,7 @@ const chartOptions = computed(() => {
                     size: mobileMode ? 9 : 10,
                     weight: 'bold'
                 },
-                color: '#1a202c',
+                color: darkMode ? '#ffffff' : '#1a202c',
                 formatter: function (value, context) {
                     // Get the value from dataset.data array (most reliable)
                     let dataValue = null;
@@ -194,6 +213,7 @@ const chartOptions = computed(() => {
                     },
                     maxRotation: mobileMode ? 90 : 45,
                     minRotation: mobileMode ? 45 : 0,
+                    color: darkMode ? '#ffffff' : '#1a202c',
                     callback: function (value) {
                         const label = this.getLabelForValue(value);
                         if (mobileMode && label && label.length > 12) {
@@ -211,7 +231,7 @@ const chartOptions = computed(() => {
                 beginAtZero: true,
                 grid: {
                     display: props.showGridLine,
-                    color: 'rgba(0, 0, 0, 0.05)',
+                    color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
                     drawBorder: false
                 },
                 ticks: {
@@ -219,6 +239,7 @@ const chartOptions = computed(() => {
                         size: mobileMode ? 10 : 11
                     },
                     padding: mobileMode ? 5 : 10,
+                    color: darkMode ? '#ffffff' : '#1a202c',
                     callback: function (value) {
                         return props.yFormatter(value);
                     }
