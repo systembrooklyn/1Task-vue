@@ -7,7 +7,7 @@
             <h5 v-if="title" class="modal-title">{{ title }}</h5>
             <slot name="title"></slot>
           </div>
-          <button v-if="showCloseBtn" type="button" class="btn-close" @click="emitClose">×</button>
+          <button v-if="showCloseBtn" type="button" class="btn-close" @click="emitClose" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <slot></slot>

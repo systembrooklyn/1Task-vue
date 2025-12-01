@@ -785,6 +785,287 @@
       color: rgba(255, 255, 255, 1) !important;
     }
   }
+
+  // Routine Tasks Page
+  .table-responsive {
+    background-color: $dark-version-card-bg-color !important;
+  }
+
+  .thead-light {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    
+    th {
+      color: rgba(255, 255, 255, 0.9) !important;
+      border-bottom-color: $dark-version-border-color !important;
+    }
+  }
+
+  .critical-routine-task {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    border-left: 3px solid rgba(239, 68, 68, 0.6) !important;
+    
+    &:hover {
+      background-color: rgba(239, 68, 68, 0.25) !important;
+    }
+    
+    td {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+  }
+
+  .circle-critical-routine-task {
+    background-color: #9B393F !important;
+    border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  }
+
+  // Critical Routine Tasks label text - make it stand out with red/pink color
+  .circle-critical-routine-task + small {
+    color: #FCE4E4 !important;
+    font-weight: 600 !important;
+  }
+
+  // Also target the small text when it's in a flex container with the circle
+  .d-flex.align-items-center small {
+    color: #FCE4E4 !important;
+    font-weight: 600 !important;
+  }
+
+  // Report icons - keep same colors as light mode
+  .fa-check-circle.text-success,
+  a.text-success .fa-check-circle {
+    color: #28a745 !important;
+  }
+
+  .fa-times-circle.text-danger,
+  a.text-danger .fa-times-circle {
+    color: #dc3545 !important;
+  }
+
+  .fa-circle.text-secondary,
+  a.text-secondary .fa-circle {
+    color: #6c757d !important;
+  }
+
+  .hover-effect {
+    color: rgba(255, 255, 255, 0.8) !important;
+    
+    &:hover {
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // Pagination
+  .pagination {
+    .page-link {
+      background-color: $dark-version-card-bg-color !important;
+      border-color: $dark-version-border-color !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+
+      &:hover:not(.disabled):not(.active) {
+        background-color: rgba(144, 177, 64, 0.2) !important;
+        border-color: rgba(144, 177, 64, 0.5) !important;
+        color: rgba(144, 177, 64, 1) !important;
+      }
+    }
+
+    .page-item.active .page-link {
+      background-color: rgba(144, 177, 64, 0.9) !important;
+      border-color: rgba(144, 177, 64, 1) !important;
+      color: rgba(255, 255, 255, 1) !important;
+    }
+
+    .page-item.disabled .page-link {
+      color: rgba(255, 255, 255, 0.4) !important;
+      opacity: 0.5;
+    }
+  }
+
+  // Custom Tabs
+  .custom-tabs {
+    .nav-link {
+      color: rgba(255, 255, 255, 0.7) !important;
+
+      &.active {
+        background-color: rgba(144, 177, 64, 0.9) !important;
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      &:hover {
+        background-color: rgba(144, 177, 64, 0.2) !important;
+        color: rgba(144, 177, 64, 1) !important;
+      }
+    }
+  }
+
+  .tab-content {
+    background-color: $dark-version-card-bg-color !important;
+  }
+
+  .modal-body {
+    background-color: $dark-version-card-bg-color !important;
+  }
+
+  // ArgonModal component
+  .modal-overlay {
+    background: rgba(0, 0, 0, 0.7) !important;
+  }
+
+  .modal-content {
+    background-color: $dark-version-card-bg-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .modal-header {
+    background-color: $dark-version-card-bg-color !important;
+    border-bottom-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    .modal-title {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .btn-close {
+      filter: brightness(0) invert(1) !important;
+    }
+  }
+
+  .modal-footer {
+    background-color: $dark-version-card-bg-color !important;
+    border-top-color: $dark-version-border-color !important;
+  }
+
+  // Modal content scroll
+  .modal-content-scroll {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  // Info tab content (dl, dt, dd)
+  .modal-body dl.row {
+    dt {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    dd {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  // Info items inside modal
+  .modal-body .info-item {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-left-color: rgba(144, 177, 64, 0.5) !important;
+  }
+
+  .modal-body .rtl-mode .info-item {
+    border-right-color: rgba(144, 177, 64, 0.5) !important;
+  }
+
+  // Header content wrapper
+  .header-content-wrapper {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  // Log list items
+  .log-list .log-item {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  // Task Info
+  .info-item {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border-left-color: rgba(144, 177, 64, 0.5) !important;
+  }
+
+  .rtl-mode .info-item {
+    border-right-color: rgba(144, 177, 64, 0.5) !important;
+  }
+
+  // Log items
+  .log-item {
+    color: rgba(255, 255, 255, 0.8) !important;
+
+    strong {
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // Dropdown menus in filters
+  .dropdown-menu {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+
+    .form-check-label {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .dropdown-divider {
+      border-top-color: $dark-version-border-color !important;
+    }
+  }
+
+  // Filter collapse card
+  .collapse .card {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+  }
+
+  // Empty state
+  .d-flex.justify-content-center h5,
+  .d-flex.justify-content-center p {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  // Card header text
+  .card-header {
+    p, small {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  // Form labels in filters
+  .form-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  // Input fields
+  .form-control {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  // Filter button
+  .btn-link {
+    color: rgba(255, 255, 255, 0.7) !important;
+
+    &:hover {
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  // Dropdown toggle buttons
+  .btn-outline-secondary {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.2) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
 }
 
 body.dark-version {
