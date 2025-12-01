@@ -498,7 +498,8 @@ const toggleDarkMode = () => {
               </button>
 
               <div class="nav-item dropdown" v-if="userName">
-                <button class="btn btn-link nav-link text-body p-0 dropdown-toggle d-flex align-items-center user-info-btn"
+                <button
+                  class="btn btn-link nav-link text-body p-0 dropdown-toggle d-flex align-items-center user-info-btn"
                   type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"
                   :class="darkMode ? 'text-white' : 'text-dark'">
                   <!-- <i class="fa fa-user me-sm-2"></i> -->
@@ -984,6 +985,7 @@ button {
 .user-info-btn {
   margin-bottom: 0 !important;
 }
+
 /* ===== Responsive Adjustments ===== */
 @media (max-width: 767px) {
   .navbar-main {
@@ -991,9 +993,14 @@ button {
     padding: 0 !important;
   }
 
+  .navbar-small-screen .navbar-container-fluid {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
   .navbar-small-header {
-    padding: 0 8px;
-    gap: 8px;
+    padding: 0 4px;
+    gap: 6px;
   }
 
   .navbar-logo-section {
@@ -1043,9 +1050,19 @@ button {
 
 /* Tablet specific (768px - 1365px) */
 @media (min-width: 768px) and (max-width: 1365px) {
+  .navbar-main {
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+
+  .navbar-small-screen .navbar-container-fluid {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
   .navbar-small-header {
-    padding: 0 12px;
-    gap: 16px;
+    padding: 0 8px;
+    gap: 12px;
   }
 
   .company-logo-small {

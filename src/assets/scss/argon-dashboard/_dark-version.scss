@@ -2319,6 +2319,557 @@
       color: rgba(239, 68, 68, 1) !important;
     }
   }
+
+  // Comments Section Dark Mode Styles
+  .comment-list {
+    background-color: transparent !important;
+  }
+
+  .comment-item {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-left-color: rgba(144, 177, 64, 0.6) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .comment-header {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .user-name {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .comment-time {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .comment-body {
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    // System log messages
+    .system-log,
+    [class*="system-log"],
+    [style*="color: #"] {
+      color: rgba(239, 68, 68, 0.8) !important;
+    }
+  }
+
+  .btn-reply {
+    color: rgba(144, 177, 64, 1) !important;
+    border-color: rgba(144, 177, 64, 0.6) !important;
+    background-color: transparent !important;
+
+    &:hover {
+      color: rgba(255, 255, 255, 1) !important;
+      background-color: rgba(144, 177, 64, 0.9) !important;
+      border-color: rgba(144, 177, 64, 0.9) !important;
+    }
+  }
+
+  .replies {
+    border-left-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .reply-item {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-left-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .reply-editor {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .seen-by {
+    color: rgba(255, 255, 255, 0.6) !important;
+
+    i {
+      color: rgba(16, 185, 129, 0.8) !important;
+    }
+  }
+
+  .skeleton-comment {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .skeleton-avatar {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .skeleton-line {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  // Comment Input Section (Modal Footer)
+  .modal-footer-compact {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-top-color: $dark-version-border-color !important;
+    border-radius: 10px !important;
+  }
+
+  .footer-editor-wrapper {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    border: 1px solid $dark-version-border-color !important;
+  }
+
+  // Quill Editor Dark Mode
+  .ql-editor {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-color: $dark-version-border-color !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 1) !important;
+    }
+
+    &::before {
+      color: rgba(255, 255, 255, 1) !important;
+    }
+
+    p,
+    div,
+    span {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    // Placeholder text when empty
+    &.ql-blank::before {
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  .ql-container {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+  }
+
+  .ql-toolbar {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+
+    .ql-stroke {
+      stroke: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .ql-fill {
+      fill: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .ql-picker-label {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    button:hover,
+    button.ql-active {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+
+      .ql-stroke {
+        stroke: rgba(144, 177, 64, 1) !important;
+      }
+
+      .ql-fill {
+        fill: rgba(144, 177, 64, 1) !important;
+      }
+    }
+  }
+
+  .editor-wrapper {
+    background-color: transparent !important;
+
+    .ql-editor {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      &::before {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      &.ql-blank::before {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+    }
+  }
+
+  .footer-editor-wrapper .editor-wrapper {
+    .ql-editor {
+      &::placeholder {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      &::before {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      &.ql-blank::before {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+    }
+  }
+
+  // Circular Buttons (Attach & Submit)
+  .circular-btn {
+    background-color: rgba(144, 177, 64, 0.9) !important;
+    background: rgba(144, 177, 64, 0.9) !important;
+    color: rgba(255, 255, 255, 1) !important;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(144, 177, 64, 1) !important;
+      background: rgba(144, 177, 64, 1) !important;
+    }
+
+    &:disabled {
+      opacity: 0.5 !important;
+    }
+
+    i {
+      color: rgba(255, 255, 255, 1) !important;
+    }
+  }
+
+  .file-hint-text {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .file-info-footer {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500 !important;
+  }
+
+  .file-info-footer span {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .btn-remove-file {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: rgba(239, 68, 68, 1) !important;
+    border: none !important;
+
+    &:hover {
+      background-color: rgba(239, 68, 68, 0.9) !important;
+      background: rgba(239, 68, 68, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+      transform: scale(1.1) !important;
+    }
+  }
+
+  // Mobile Comments Styles
+  .comments-scroll-container-mobile {
+    .comment-item {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .ql-editor {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      &::before {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      &.ql-blank::before {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+    }
+
+    .reply-item {
+      background-color: rgba(255, 255, 255, 0.03) !important;
+      background: rgba(255, 255, 255, 0.03) !important;
+      border-left-color: rgba(255, 255, 255, 0.15) !important;
+
+      .comment-header {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .user-name {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .comment-time {
+        color: rgba(255, 255, 255, 0.6) !important;
+      }
+
+      .comment-body {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .seen-by {
+        color: rgba(255, 255, 255, 0.6) !important;
+
+        i {
+          color: rgba(16, 185, 129, 0.8) !important;
+        }
+      }
+    }
+
+    .reply-editor,
+    .comments-scroll-container-mobile .reply-editor {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+      border: 1px solid $dark-version-border-color !important;
+
+      .ql-editor {
+        background-color: transparent !important;
+        background: transparent !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 1) !important;
+        }
+
+        &::before {
+          color: rgba(255, 255, 255, 1) !important;
+        }
+
+        &.ql-blank::before {
+          color: rgba(255, 255, 255, 1) !important;
+        }
+      }
+
+      .ql-container {
+        background-color: transparent !important;
+        border-color: $dark-version-border-color !important;
+      }
+
+      .ql-toolbar {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: $dark-version-border-color !important;
+
+        .ql-stroke {
+          stroke: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .ql-fill {
+          fill: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .ql-picker-label {
+          color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        button:hover,
+        button.ql-active {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+
+          .ql-stroke {
+            stroke: rgba(144, 177, 64, 1) !important;
+          }
+
+          .ql-fill {
+            fill: rgba(144, 177, 64, 1) !important;
+          }
+        }
+      }
+    }
+
+    // Additional specific selectors for mobile reply editor (higher specificity)
+    .comments-scroll-container-mobile .reply-editor,
+    .dark-version .comments-scroll-container-mobile .reply-editor {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+      border: 1px solid $dark-version-border-color !important;
+
+      .ql-editor {
+        background-color: transparent !important;
+        background: transparent !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 1) !important;
+        }
+
+        &::before {
+          color: rgba(255, 255, 255, 1) !important;
+        }
+
+        &.ql-blank::before {
+          color: rgba(255, 255, 255, 1) !important;
+        }
+      }
+
+      .ql-container {
+        background-color: transparent !important;
+        border-color: $dark-version-border-color !important;
+      }
+
+      .ql-toolbar {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: $dark-version-border-color !important;
+
+        .ql-stroke {
+          stroke: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .ql-fill {
+          fill: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .ql-picker-label {
+          color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        button:hover,
+        button.ql-active {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+
+          .ql-stroke {
+            stroke: rgba(144, 177, 64, 1) !important;
+          }
+
+          .ql-fill {
+            fill: rgba(144, 177, 64, 1) !important;
+          }
+        }
+      }
+    }
+
+    .new-comment-compact,
+    .comments-scroll-container-mobile .new-comment-compact,
+    div.comments-scroll-container-mobile > div.new-comment-compact,
+    .dark-version .comments-scroll-container-mobile .new-comment-compact,
+    .dark-version div.comments-scroll-container-mobile > div.new-comment-compact {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+      border: 1px solid $dark-version-border-color !important;
+
+      .ql-editor,
+      .comments-scroll-container-mobile .new-comment-compact .ql-editor,
+      div.comments-scroll-container-mobile > div.new-comment-compact .ql-editor {
+        background-color: transparent !important;
+        background: transparent !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 1) !important;
+        }
+
+        &::before {
+          color: rgba(255, 255, 255, 1) !important;
+        }
+
+        &.ql-blank::before {
+          color: rgba(255, 255, 255, 1) !important;
+        }
+      }
+
+      .ql-container,
+      .comments-scroll-container-mobile .new-comment-compact .ql-container,
+      div.comments-scroll-container-mobile > div.new-comment-compact .ql-container {
+        background-color: transparent !important;
+        border-color: $dark-version-border-color !important;
+      }
+
+      .ql-toolbar,
+      .comments-scroll-container-mobile .new-comment-compact .ql-toolbar,
+      div.comments-scroll-container-mobile > div.new-comment-compact .ql-toolbar {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: $dark-version-border-color !important;
+
+        .ql-stroke {
+          stroke: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .ql-fill {
+          fill: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .ql-picker-label {
+          color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        button:hover,
+        button.ql-active {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+
+          .ql-stroke {
+            stroke: rgba(144, 177, 64, 1) !important;
+          }
+
+          .ql-fill {
+            fill: rgba(144, 177, 64, 1) !important;
+          }
+        }
+      }
+    }
+
+  }
+
+  .modal-footer-compact-mobile {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-top-color: $dark-version-border-color !important;
+
+    .footer-editor-wrapper {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-radius: 8px !important;
+      border: 1px solid $dark-version-border-color !important;
+    }
+
+    .ql-editor {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      &::before {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+
+      &.ql-blank::before {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+    }
+
+    .circular-btn {
+      background-color: rgba(144, 177, 64, 0.9) !important;
+      background: rgba(144, 177, 64, 0.9) !important;
+      color: rgba(255, 255, 255, 1) !important;
+
+      &:hover:not(:disabled) {
+        background-color: rgba(144, 177, 64, 1) !important;
+        background: rgba(144, 177, 64, 1) !important;
+      }
+    }
+
+    .file-hint-text {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+  }
 }
 
 body.dark-version {

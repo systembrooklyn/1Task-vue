@@ -47,14 +47,14 @@
             <span v-if="(activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id"
               class="creator-name-simple"> {{ t('to') }}: {{ getDisplayName(task) }}</span>
             <span v-else-if="(activeTab === 'Done' || activeTab === 'Review')" class="creator-name-simple"> {{ t('from')
-              }}: {{ getDisplayName(task) }}</span>
+            }}: {{ getDisplayName(task) }}</span>
             <span v-else class="creator-name-simple"> {{ getDisplayName(task) }}</span>
 
             <!-- عنوان المهمة + تاريخ -->
             <span class="task-title" :class="{ 'text-white': task.is_urgent }">
               <span dir="rtl">{{ task.title }}</span>
               <small class="task-date" :class="{ 'text-white': task.is_urgent }">{{ formatDateWithTime(task.created_at)
-                }}</small>
+              }}</small>
 
               <!-- deadline -->
               <small v-if="
@@ -229,24 +229,24 @@
                 <small v-if="task.assignedUser.length > 0" class="badge badge-grey">
                   {{ t("assignedTo") }}:
                   {{
-                  task.assignedUser.map((user) => userDisplayName(user)).join(", ") ||
-                  "Unknown"
+                    task.assignedUser.map((user) => userDisplayName(user)).join(", ") ||
+                    "Unknown"
                   }}
                 </small>
 
                 <small v-if="task.consult.length > 0" class="badge badge-grey">
                   {{ t("consult") }}:
                   {{
-                  task.consult.map((user) => userDisplayName(user)).join(", ") ||
-                  "Unknown"
+                    task.consult.map((user) => userDisplayName(user)).join(", ") ||
+                    "Unknown"
                   }}
                 </small>
 
                 <small v-if="task.informer.length > 0" class="badge badge-grey">
                   {{ t("informer") }}:
                   {{
-                  task.informer.map((user) => userDisplayName(user)).join(", ") ||
-                  "Unknown"
+                    task.informer.map((user) => userDisplayName(user)).join(", ") ||
+                    "Unknown"
                   }}
                 </small>
               </div>
@@ -445,7 +445,7 @@
               </small>
 
               <small v-if="fileToUpload" class="file-info-footer">
-                {{ fileToUpload.name }}
+                <span>{{ fileToUpload.name }}</span>
                 <button @click="removeFile" class="btn-remove-file" title="Remove file">×</button>
               </small>
             </div>
@@ -506,7 +506,7 @@
                 class="creator-name-mobile"> {{ t('to') }}: {{ getDisplayName(task) }}</span>
               <span v-else-if="(activeTab === 'Done' || activeTab === 'Review')" class="creator-name-mobile"> {{
                 t('from')
-                }}: {{ getDisplayName(task) }}</span>
+              }}: {{ getDisplayName(task) }}</span>
               <span v-else class="creator-name-mobile"> {{ getDisplayName(task) }}</span>
 
               <!-- Time -->
@@ -599,10 +599,10 @@
                 <span class="expanded-label">{{ t('createdBy') }}:</span>
                 <span class="expanded-value">
                   {{ (activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id
-                  ? t('to') + ': ' + getDisplayName(task)
-                  : (activeTab === 'Done' || activeTab === 'Review')
-                  ? t('from') + ': ' + getDisplayName(task)
-                  : getDisplayName(task) }}
+                    ? t('to') + ': ' + getDisplayName(task)
+                    : (activeTab === 'Done' || activeTab === 'Review')
+                      ? t('from') + ': ' + getDisplayName(task)
+                      : getDisplayName(task) }}
                 </span>
               </div>
 
@@ -868,7 +868,7 @@
                   <quill-editor v-model:content="taskComment" :options="compactEditorOptions"
                     @update:content="(val) => (taskComment = val)" ref="editorRef" contentType="html" dir="auto" />
                 </div>
-                
+
                 <div class="footer-action-buttons">
                   <!-- Hidden file input -->
                   <input ref="fileInputRefMobile" type="file" accept="image/*, .pdf, .docx, .xlsx"
@@ -896,7 +896,7 @@
               </small>
 
               <small v-if="fileToUpload" class="file-info-footer">
-                {{ fileToUpload.name }}
+                <span>{{ fileToUpload.name }}</span>
                 <button @click="removeFile" class="btn-remove-file" title="Remove file">×</button>
               </small>
             </div>
@@ -2264,6 +2264,19 @@ function getTabCount(tabName) {
   gap: 0.5rem;
 }
 
+/* تقليل المساحة الجانبية على الموبايل والتابلت */
+@media (max-width: 991px) {
+  .comments-scroll-container {
+    padding: 0.5rem 0.5rem !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .comments-scroll-container {
+    padding: 0.5rem 0.25rem !important;
+  }
+}
+
 /* تعليقات */
 .comment-list {
   list-style: none;
@@ -3052,27 +3065,53 @@ function getTabCount(tabName) {
 }
 
 .file-info-footer {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  color: #6c757d;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: #e9ecef;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #495057;
+  font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-info-footer span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
 }
 
 .btn-remove-file {
-  background: none;
+  background: rgba(220, 53, 69, 0.1);
   border: none;
   color: #dc3545;
   cursor: pointer;
-  font-size: 1.2rem;
-  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
   line-height: 1;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .btn-remove-file:hover {
-  color: #c82333;
+  background: #dc3545;
+  color: #fff;
+  transform: scale(1.1);
 }
 
 /* Better comment spacing */
@@ -3653,6 +3692,19 @@ function getTabCount(tabName) {
   flex-direction: column;
 }
 
+/* تقليل المساحة الجانبية في Modal Header على الموبايل والتابلت */
+@media (max-width: 991px) {
+  .comments-modal-mobile .modal-header {
+    padding: 0.75rem 0.5rem !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .comments-modal-mobile .modal-header {
+    padding: 0.75rem 0.25rem !important;
+  }
+}
+
 .comments-modal-mobile .modal-content {
   height: 100vh;
   max-height: 100vh;
@@ -3673,8 +3725,43 @@ function getTabCount(tabName) {
   position: relative;
 }
 
+/* تقليل المساحة الجانبية على الموبايل والتابلت */
+@media (max-width: 991px) {
+  .comments-scroll-container-mobile {
+    padding: 0.5rem 0.5rem !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .comments-scroll-container-mobile {
+    padding: 0.5rem 0.25rem !important;
+  }
+
+  /* تقليل المساحة الجانبية في Replies Container على الموبايل */
+  .comments-scroll-container-mobile .replies-container {
+    padding: 0.75rem 0.25rem !important;
+  }
+
+  /* تقليل المساحة الجانبية في New Comment على الموبايل */
+  .comments-scroll-container-mobile .new-comment-compact,
+  div.comments-scroll-container-mobile>div.new-comment-compact {
+    padding: 0.75rem 0.25rem !important;
+  }
+
+  /* تقليل المساحة الجانبية في Reply Editor على الموبايل */
+  .comments-scroll-container-mobile .reply-editor {
+    padding: 0.75rem 0.25rem !important;
+  }
+}
+
 /* Mobile Comments - Timeline Style (Compact Design) - Mobile Only */
 @media (max-width: 991px) {
+
+  /* تقليل المساحة الجانبية في جميع أقسام التعليقات */
+  .comments-scroll-container-mobile {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
 
   /* Timeline Line للكومنتات الرئيسية */
   .comments-scroll-container-mobile .comment-list {
@@ -3794,7 +3881,7 @@ function getTabCount(tabName) {
   /* Replies Container - White Box */
   .comments-scroll-container-mobile .replies-container {
     background: #ffffff !important;
-    padding: 1rem !important;
+    padding: 0.75rem 0.5rem !important;
     border-radius: 8px !important;
     margin-top: 0.5rem !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
@@ -3857,17 +3944,18 @@ function getTabCount(tabName) {
   /* New Comment - Compact - تطبيق مباشر على الموبايل */
   .comments-scroll-container-mobile .new-comment-compact,
   div.comments-scroll-container-mobile>div.new-comment-compact {
-    background: #ffffff !important;
-    padding: 1rem !important;
-    border-radius: 8px !important;
-    margin-top: 0.75rem !important;
-    margin-bottom: 0.5rem !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.75rem !important;
-    flex-shrink: 0 !important;
+    background: #ffffff;
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex-shrink: 0;
   }
+
 
   /* Editor Wrapper داخل New Comment */
   .comments-scroll-container-mobile .new-comment-compact .editor-wrapper {
@@ -3893,22 +3981,23 @@ function getTabCount(tabName) {
 
   /* Reply Editor - Compact */
   .comments-scroll-container-mobile .reply-editor {
-    background: #ffffff !important;
-    padding: 1rem !important;
-    border-radius: 8px !important;
-    margin-top: 0.75rem !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.75rem !important;
+    background: #ffffff;
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+    margin-top: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
   .comments-scroll-container-mobile .reply-editor .ql-editor {
-    min-height: 40px !important;
-    background: transparent !important;
-    border-radius: 0 !important;
-    padding: 0.5rem !important;
+    min-height: 40px;
+    background: transparent;
+    border-radius: 0;
+    padding: 0.5rem;
   }
+
 
   .comments-scroll-container-mobile .reply-editor .d-flex.gap-2 {
     margin-top: 0 !important;
@@ -4007,13 +4096,12 @@ function getTabCount(tabName) {
 }
 
 .modal-footer-compact-mobile .file-info-footer {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-top: 0.5rem;
   font-size: 0.75rem;
   color: #6c757d;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .modal-footer-compact-mobile .btn-remove-file {
@@ -4034,6 +4122,19 @@ function getTabCount(tabName) {
   flex-shrink: 0;
   padding: 1rem;
   border-bottom: 1px solid #e9ecef;
+}
+
+/* تقليل المساحة الجانبية في Modal Footer على الموبايل والتابلت */
+@media (max-width: 991px) {
+  .modal-footer-compact-mobile {
+    padding: 0.75rem 0.5rem !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .modal-footer-compact-mobile {
+    padding: 0.75rem 0.25rem !important;
+  }
 }
 
 .comments-modal-mobile .modal-body {

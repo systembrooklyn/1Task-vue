@@ -83,7 +83,7 @@ onBeforeMount(async () => {
   if (language) {
     store.commit("setLanguage", language);
   }
-  
+
   // تحميل حالة dark mode من localStorage
   const savedDarkMode = localStorage.getItem("darkMode");
   if (savedDarkMode === "true") {
@@ -197,6 +197,78 @@ body,
   .main-content-expanded,
   .main-content-collapsed {
     margin-left: 0 !important;
+  }
+}
+
+/* ===== Mobile & Tablet: Reduce Side Padding for Better Space Utilization ===== */
+@media (max-width: 991px) {
+  /* Reduce container padding on mobile and tablet */
+  .container-fluid {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* Reduce card margins on mobile and tablet */
+  .card {
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+  }
+
+  /* Reduce general page padding */
+  .mx-4 {
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+
+  .px-3 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+}
+
+/* Mobile specific (max-width: 767px) */
+@media (max-width: 767px) {
+  .container-fluid {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+
+  .card {
+    margin-left: 0.125rem;
+    margin-right: 0.125rem;
+  }
+
+  .mx-4 {
+    margin-left: 0.25rem !important;
+    margin-right: 0.25rem !important;
+  }
+
+  .px-3 {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+}
+
+/* Tablet specific (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .container-fluid {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  .card {
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+  }
+
+  .mx-4 {
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+
+  .px-3 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
   }
 }
 </style>
