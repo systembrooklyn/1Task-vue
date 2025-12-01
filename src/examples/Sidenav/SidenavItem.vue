@@ -25,10 +25,14 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  active: {
+    type: Boolean,
+    default: false,
+  },
 });
 </script>
 <template>
-  <router-link :to="to" class="nav-link d-flex align-items-center" @click="minimizeSidebar"
+  <router-link :to="to" class="nav-link d-flex align-items-center" :class="{ active: active }" @click="minimizeSidebar"
     :title="collapsed ? navText : ''">
     <div class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
       <slot name="icon"></slot>
@@ -55,15 +59,27 @@ defineProps({
 }
 
 .nav-link:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(144, 177, 64, 0.15);
+  color: #1a1a1a;
 }
 
+.nav-link.router-link-active,
+.nav-link.router-link-exact-active,
 .nav-link.active {
-  background-color: #5e72e4;
-  color: white;
+  background-color: rgba(144, 177, 64, 0.15) !important;
+  color: #1a1a1a !important;
+  font-weight: 500;
 }
 
-.nav-link.active .sidebar-icon i {
-  color: white !important;
+.nav-link.router-link-active .sidebar-icon i,
+.nav-link.router-link-active .sidebar-icon span,
+.nav-link.router-link-active .material-symbols-rounded,
+.nav-link.router-link-exact-active .sidebar-icon i,
+.nav-link.router-link-exact-active .sidebar-icon span,
+.nav-link.router-link-exact-active .material-symbols-rounded,
+.nav-link.active .sidebar-icon i,
+.nav-link.active .sidebar-icon span,
+.nav-link.active .material-symbols-rounded {
+  color: inherit !important;
 }
 </style>

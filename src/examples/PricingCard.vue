@@ -1,5 +1,5 @@
 <template>
-  <div class="row g-4 justify-content-center">
+  <div class="row g-4 justify-content-center" :class="{ 'limited-plans': plansCount === 2 || plansCount === 3 }">
     <div v-for="plan in props.plans.data" :key="plan.id" class="col-md-6 col-lg-3">
       <div class="card pricing-card h-100 border-0 shadow-sm position-relative" :class="{
         'border-popular': plan.isPopular,
@@ -105,6 +105,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["select"]);
+
+// حساب عدد البطاقات
+const plansCount = computed(() => props.plans?.data?.length || 0);
 
 // Check if current plan is expired
 const isPlanExpired = computed(() => store.state.planExpired);
@@ -446,17 +449,21 @@ function selectPlan(plan) {
 
 .pricing-card .btn-outline-primary,
 .pricing-card .btn-outline-primary:visited {
-  color: var(--brand) !important;
+  color: #1a1a1a !important;
   border-color: var(--brand) !important;
-  background-color: #fff !important;
+  background: linear-gradient(45deg, var(--brand), var(--brand-600)) !important;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(144, 177, 64, 0.3);
+  transition: all 0.3s ease;
 }
 
 .pricing-card .btn-outline-primary:hover,
 .pricing-card .btn-outline-primary:focus {
-  background-color: var(--brand) !important;
-  color: #000000 !important;
-  border-color: var(--brand) !important;
-  box-shadow: 0 0 0 0.25rem rgba(144, 177, 64, 0.25);
+  background: linear-gradient(45deg, var(--brand-600), var(--brand)) !important;
+  color: #1a1a1a !important;
+  border-color: var(--brand-600) !important;
+  box-shadow: 0 6px 20px rgba(144, 177, 64, 0.4);
+  transform: translateY(-2px);
 }
 
 .pricing-card .btn-current-active {
@@ -502,22 +509,27 @@ function selectPlan(plan) {
 /* Plan name badge */
 .plan-name-badge {
   display: inline-block;
-  padding: 0.35rem 0.9rem;
+  padding: 0.5rem 1.2rem;
   border: 2px solid var(--brand);
-  color: var(--brand);
-  background: #fff;
+  color: #1a1a1a;
+  background: linear-gradient(45deg, var(--brand), var(--brand-600));
   border-radius: 9999px;
   line-height: 1;
-  box-shadow: 0 4px 10px rgba(144, 177, 64, 0.15);
+  box-shadow: 0 4px 12px rgba(144, 177, 64, 0.3);
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 .border-popular .plan-name-badge {
-  background: linear-gradient(45deg, #fff, #f9fff0);
+  background: linear-gradient(45deg, var(--brand), var(--brand-600));
+  color: #1a1a1a;
+  box-shadow: 0 4px 15px rgba(144, 177, 64, 0.4);
 }
 
 .expired-plan .plan-name-badge {
   border-color: #dc3545;
-  color: #dc3545;
+  color: #fff;
+  background: linear-gradient(45deg, #dc3545, #c82333);
   box-shadow: 0 4px 10px rgba(220, 53, 69, 0.15);
 }
 
@@ -525,5 +537,34 @@ function selectPlan(plan) {
   border-color: var(--brand-600);
   color: var(--brand-600);
   background: #fff;
+  box-shadow: 0 4px 10px rgba(144, 177, 64, 0.15);
+}
+
+/* تحديد عرض الصف عندما يكون هناك 2 أو 3 بطاقات */
+.row.limited-plans {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* تحسين عرض البطاقات عندما تكون 2 أو 3 */
+.row.limited-plans .col-lg-3 {
+  flex: 0 0 auto;
+  width: calc(33.333% - 1rem);
+  max-width: 380px;
+}
+
+@media (max-width: 991.98px) {
+  .row.limited-plans .col-md-6 {
+    width: calc(50% - 1rem);
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .row.limited-plans .col-md-6 {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 </style>

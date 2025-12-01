@@ -128,7 +128,7 @@ const toggleSection = (section) => {
           permissions['view-dashboard'] ||
           permissions['view-dashboard-owner'] ||
           isOwner
-        " :class="getRoute() === 'dashboard-default' ? 'active' : ''" :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
+        " :active="getRoute() === 'dashboard-default'" :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
             <span class="material-symbols-rounded text-primary">dashboard</span>
@@ -140,8 +140,8 @@ const toggleSection = (section) => {
         <sidenav-item :to="{
           name: 'routine task',
           params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'routine-task' ? 'active' : ''"
-          :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'" :collapsed="props.collapsed">
+        }" :active="getRoute() === 'routine-task'" :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'"
+          :collapsed="props.collapsed">
           <template v-slot:icon>
             <span class="material-symbols-rounded text-success">checklist</span>
           </template>
@@ -153,8 +153,8 @@ const toggleSection = (section) => {
         <sidenav-item :to="{
           name: 'one time task',
           params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'one-time-task' ? 'active' : ''"
-          :navText="isRTL ? 'المهام الاحتياطية' : 'One Time Tasks'" :collapsed="props.collapsed">
+        }" :active="getRoute() === 'one-time-task'" :navText="isRTL ? 'المهام الاحتياطية' : 'One Time Tasks'"
+          :collapsed="props.collapsed">
           <template v-slot:icon>
             <span class="material-symbols-rounded text-warning">schedule</span>
           </template>
@@ -187,7 +187,7 @@ const toggleSection = (section) => {
               <sidenav-item :to="{
                 name: 'manage routine task',
                 params: { companyName: companyNameNormalized },
-              }" :class="getRoute() === 'manage-routine-task' ? 'active' : ''"
+              }" :active="getRoute() === 'manage-routine-task'"
                 :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Tasks'" :collapsed="props.collapsed">
                 <template v-slot:icon>
                   <span class="material-symbols-rounded text-info">settings</span>
@@ -238,8 +238,8 @@ const toggleSection = (section) => {
               <sidenav-item :to="{
                 name: 'reported tasks',
                 params: { companyName: companyNameNormalized },
-              }" :class="getRoute() === 'reported-tasks' ? 'active' : ''"
-                :navText="isRTL ? ' تقرير المهام' : ' Task Reports'" :collapsed="props.collapsed">
+              }" :active="getRoute() === 'reported-tasks'" :navText="isRTL ? ' تقرير المهام' : ' Task Reports'"
+                :collapsed="props.collapsed">
                 <template v-slot:icon>
                   <span class="material-symbols-rounded text-primary">assignment_turned_in</span>
                 </template>
@@ -249,8 +249,8 @@ const toggleSection = (section) => {
               <sidenav-item :to="{
                 name: 'chart reported',
                 params: { companyName: companyNameNormalized },
-              }" :class="getRoute() === 'chart reported' ? 'active' : ''"
-                :navText="isRTL ? ' تقرير المهام' : ' Chart Reports'" :collapsed="props.collapsed">
+              }" :active="getRoute() === 'chart reported'" :navText="isRTL ? ' تقرير المهام' : ' Chart Reports'"
+                :collapsed="props.collapsed">
                 <template v-slot:icon>
                   <span class="material-symbols-rounded text-warning">pie_chart</span>
                 </template>
@@ -293,7 +293,7 @@ const toggleSection = (section) => {
               <sidenav-item :to="{
                 name: 'add user',
                 params: { companyName: companyNameNormalized },
-              }" v-if="permissions['invite-user'] || isOwner" :class="getRoute() === 'addUser' ? 'active' : ''"
+              }" v-if="permissions['invite-user'] || isOwner" :active="getRoute() === 'addUser'"
                 :navText="isRTL ? 'اضافة موظفين' : 'Add Employees'" :collapsed="props.collapsed">
                 <template v-slot:icon>
                   <span class="material-symbols-rounded text-primary">person_add</span>
@@ -304,7 +304,7 @@ const toggleSection = (section) => {
               <sidenav-item :to="{
                 name: 'team',
                 params: { companyName: companyNameNormalized },
-              }" v-if="permissions['view-user'] || isOwner" :class="getRoute() === 'team' ? 'active' : ''"
+              }" v-if="permissions['view-user'] || isOwner" :active="getRoute() === 'team'"
                 :navText="isRTL ? 'فريق' : 'Team'" :collapsed="props.collapsed">
                 <template v-slot:icon>
                   <span class="material-symbols-rounded text-primary">groups</span>
@@ -315,7 +315,7 @@ const toggleSection = (section) => {
               <sidenav-item :to="{
                 name: 'roles & permissions',
                 params: { companyName: companyNameNormalized },
-              }" v-if="permissions['view-role'] || isOwner" :class="getRoute() === 'addRole' ? 'active' : ''"
+              }" v-if="permissions['view-role'] || isOwner" :active="getRoute() === 'addRole'"
                 :navText="isRTL ? 'أدوار وصلاحيات' : 'Roles & Permissions'" :collapsed="props.collapsed">
                 <template v-slot:icon>
                   <span class="material-symbols-rounded text-info">admin_panel_settings</span>
@@ -331,7 +331,7 @@ const toggleSection = (section) => {
         <sidenav-item :to="{
           name: 'department',
           params: { companyName: companyNameNormalized },
-        }" v-if="permissions['view-department'] || isOwner" :class="getRoute() === 'department' ? 'active' : ''"
+        }" v-if="permissions['view-department'] || isOwner" :active="getRoute() === 'department'"
           :navText="isRTL ? 'الاقسام' : 'Departments'" :collapsed="props.collapsed">
           <template v-slot:icon>
             <span class="material-symbols-rounded text-primary">apartment</span>
@@ -347,8 +347,7 @@ const toggleSection = (section) => {
         <sidenav-item :to="{
           name: 'project',
           params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'project' ? 'active' : ''" :navText="isRTL ? 'المشاريع' : 'Projects'"
-          :collapsed="props.collapsed">
+        }" :active="getRoute() === 'project'" :navText="isRTL ? 'المشاريع' : 'Projects'" :collapsed="props.collapsed">
           <template v-slot:icon>
             <span class="material-symbols-rounded text-success">folder_open</span>
           </template>
@@ -360,8 +359,7 @@ const toggleSection = (section) => {
         <sidenav-item :to="{
           name: 'goals',
           params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'goals' ? 'active' : ''" :navText="isRTL ? 'الأهداف' : 'Goals'"
-          :collapsed="props.collapsed">
+        }" :active="getRoute() === 'goals'" :navText="isRTL ? 'الأهداف' : 'Goals'" :collapsed="props.collapsed">
           <template v-slot:icon>
             <span class="material-symbols-rounded text-warning">flag_circle</span>
           </template>
@@ -373,7 +371,7 @@ const toggleSection = (section) => {
         <sidenav-item :to="{
           name: 'meetings',
           params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'meetings' ? 'active' : ''" :navText="isRTL ? 'الاجتماعات' : 'Meetings'"
+        }" :active="getRoute() === 'meetings'" :navText="isRTL ? 'الاجتماعات' : 'Meetings'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
             <span class="material-symbols-rounded text-info">handshake</span>
@@ -386,7 +384,7 @@ const toggleSection = (section) => {
         <sidenav-item :to="{
           name: 'automation',
           params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'automation' ? 'active' : ''" :navText="isRTL ? 'الأتمتة' : 'Automation'"
+        }" :active="getRoute() === 'automation'" :navText="isRTL ? 'الأتمتة' : 'Automation'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
             <span class="material-symbols-rounded text-primary">smart_toy</span>
@@ -399,65 +397,14 @@ const toggleSection = (section) => {
         <sidenav-item :to="{
           name: 'apps',
           params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'apps' ? 'active' : ''" :navText="isRTL ? 'التطبيقات' : 'Apps'"
-          :collapsed="props.collapsed">
+        }" :active="getRoute() === 'apps'" :navText="isRTL ? 'التطبيقات' : 'Apps'" :collapsed="props.collapsed">
           <template v-slot:icon>
             <span class="material-symbols-rounded text-success">extension</span>
           </template>
         </sidenav-item>
       </li>
 
-      <!-- Goals Section -->
-      <li class="nav-item" v-if="isOwner || permissions['view-goals']">
-        <sidenav-item :to="{
-          name: 'goals',
-          params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'goals' ? 'active' : ''" :navText="isRTL ? 'الأهداف' : 'Goals'"
-          :collapsed="props.collapsed">
-          <template v-slot:icon>
-            <i class="fas fa-bullseye text-warning text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
 
-      <!-- Meetings Section -->
-      <li class="nav-item" v-if="isOwner || permissions['view-meetings']">
-        <sidenav-item :to="{
-          name: 'meetings',
-          params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'meetings' ? 'active' : ''" :navText="isRTL ? 'الاجتماعات' : 'Meetings'"
-          :collapsed="props.collapsed">
-          <template v-slot:icon>
-            <i class="fas fa-handshake text-info text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-
-      <!-- Automation Section -->
-      <li class="nav-item" v-if="isOwner || permissions['view-automation']">
-        <sidenav-item :to="{
-          name: 'automation',
-          params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'automation' ? 'active' : ''" :navText="isRTL ? 'الأتمتة' : 'Automation'"
-          :collapsed="props.collapsed">
-          <template v-slot:icon>
-            <i class="fas fa-robot text-primary text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-
-      <!-- Apps Section -->
-      <li class="nav-item" v-if="isOwner || permissions['view-apps']">
-        <sidenav-item :to="{
-          name: 'apps',
-          params: { companyName: companyNameNormalized },
-        }" :class="getRoute() === 'apps' ? 'active' : ''" :navText="isRTL ? 'التطبيقات' : 'Apps'"
-          :collapsed="props.collapsed">
-          <template v-slot:icon>
-            <i class="fas fa-plug text-success text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
 
       <!-- Account Pages Section -->
       <!-- <li class="nav-item">
@@ -562,7 +509,8 @@ const toggleSection = (section) => {
 }
 
 .cursor-pointer:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(144, 177, 64, 0.15);
+  color: #1a1a1a;
 }
 
 .transition-transform {
@@ -619,6 +567,7 @@ const toggleSection = (section) => {
 }
 
 .nav-link:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(144, 177, 64, 0.15);
+  color: #1a1a1a;
 }
 </style>
