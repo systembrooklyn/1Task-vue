@@ -14,7 +14,7 @@
         </div>
 
         <!-- Current Plan Badge -->
-        <div v-if="plan.id === currentPlanId && !isPlanExpired" class="position-absolute top-0 start-0 m-3"
+        <div v-if="plan.id === currentPlanId && !isPlanExpired" class="position-absolute top-0 end-0 m-3"
           style="z-index: 11">
           <span class="badge rounded-pill px-4 py-2 current-plan-badge">
             <i class="fas fa-crown me-2"></i> Current Plan
@@ -22,7 +22,7 @@
         </div>
 
         <!-- Expired Plan Badge -->
-        <div v-if="plan.id === currentPlanId && isPlanExpired" class="position-absolute top-0 start-0 m-3"
+        <div v-if="plan.id === currentPlanId && isPlanExpired" class="position-absolute top-0 end-0 m-3"
           style="z-index: 11">
           <span class="badge bg-expired rounded-pill px-4 py-2 expired-plan-badge">
             <i class="fas fa-exclamation-triangle me-2"></i> Expired
@@ -30,7 +30,8 @@
         </div>
 
         <!-- Card Header -->
-        <div class="card-header bg-transparent border-0 pt-5">
+        <div class="card-header bg-transparent border-0 pt-5"
+          :class="{ 'pt-5-mt': plan.id === currentPlanId && !isPlanExpired }">
           <div class="text-center">
             <h5 class="mt-2 fw-bold">
               <span class="plan-name-badge">{{ plan.name }}</span>
@@ -429,6 +430,10 @@ function selectPlan(plan) {
 /* Misc */
 .card {
   border-radius: 1rem;
+}
+
+.card-header.pt-5-mt {
+  padding-top: 5rem !important;
 }
 
 .card-footer {

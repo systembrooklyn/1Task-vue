@@ -850,7 +850,7 @@ const filteredEvaluatedTasks = computed(() => {
                   <!-- Report Status (Owner only) -->
                   <div class="col-md-6 mb-3" v-if="isOwner">
                     <label class="form-label">{{ t("status") }}</label>
-                    <select class="form-control" v-model="activeQuery.reportStatus">
+                    <select class="form-select" v-model="activeQuery.reportStatus">
                       <option value="">{{ t("allStatuses") }}</option>
                       <option value="reported">{{ t("reported") }}</option>
                       <option value="not_reported">{{ t("not_reported") }}</option>
@@ -870,11 +870,11 @@ const filteredEvaluatedTasks = computed(() => {
                             : `${selectedDepartments.length} Departments Selected`
                           ">
                         {{
-                          selectedDepartments.length === 0
-                            ? t("allDepartments")
-                            : selectedDepartments.length === 1
-                              ? selectedDepartments[0].name
-                              : `${selectedDepartments.length} ${t("departmentsSelected")}`
+                        selectedDepartments.length === 0
+                        ? t("allDepartments")
+                        : selectedDepartments.length === 1
+                        ? selectedDepartments[0].name
+                        : `${selectedDepartments.length} ${t("departmentsSelected")}`
                         }}
                       </button>
                       <ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
