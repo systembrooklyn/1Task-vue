@@ -892,6 +892,15 @@ export default {
     };
     return apiClient.post("/companies/subscribe", payload, config);
   },
+  checkPromoDiscount(payload) {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return apiClient.post("/companies/promoDiscount", payload, config);
+  },
   fetchCompanyData() {
     return apiClient.get("/company-data");
   },

@@ -733,6 +733,264 @@
     }
   }
 
+  // Quick Add Modals Dark Mode Styles
+  .quick-add-backdrop {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(5px) !important;
+  }
+
+  .quick-add-dropdown {
+    background: rgba(31, 41, 55, 0.98) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .gmail-quick-header {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .gmail-quick-title {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .gmail-quick-btn {
+    color: rgba(255, 255, 255, 0.7) !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .gmail-quick-close:hover {
+    background: rgba(234, 67, 53, 0.8) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  .gmail-quick-content {
+    background: rgba(31, 41, 55, 0.98) !important;
+  }
+
+  .gmail-quick-scroll {
+    background: rgba(31, 41, 55, 0.98) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .gmail-compact-people-bar {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+
+  .gmail-compact-content {
+    background: rgba(255, 255, 255, 0.03) !important;
+  }
+
+  .gmail-compact-tag {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .gmail-compact-placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .gmail-compact-hint {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .gmail-people-section {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(31, 41, 55, 0.98) !important;
+  }
+
+  .gmail-people-row {
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .gmail-row-label {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .gmail-field {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .gmail-input,
+  .gmail-title-input,
+  .gmail-textarea {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    &:focus {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      box-shadow: 0 0 0 3px rgba(144, 177, 64, 0.2) !important;
+    }
+  }
+
+  .gmail-toolbar {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .gmail-toolbar-icon {
+    color: rgba(255, 255, 255, 0.7) !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(144, 177, 64, 1) !important;
+    }
+  }
+
+  .gmail-icon-indicator {
+    background: rgba(144, 177, 64, 0.2) !important;
+    color: rgba(144, 177, 64, 1) !important;
+  }
+
+  .gmail-icon-label {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .toolbar-dropdown {
+    background: rgba(31, 41, 55, 0.98) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .toolbar-dropdown-content {
+    background: rgba(31, 41, 55, 0.98) !important;
+  }
+
+  .toolbar-search-container {
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .toolbar-search-input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+
+  .toolbar-options-container {
+    background: rgba(31, 41, 55, 0.98) !important;
+  }
+
+  .toolbar-option-item {
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+    }
+  }
+
+  .toolbar-no-results {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .gmail-quick-footer {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .quick-add-body {
+    background: rgba(31, 41, 55, 0.98) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .quick-add-body .form-label {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .quick-add-body .form-control,
+  .quick-add-body .form-select {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    &:focus {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      box-shadow: 0 0 0 3px rgba(144, 177, 64, 0.2) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    option {
+      background: rgba(31, 41, 55, 1) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .quick-add-footer {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  // ArgonSelect and ArgonTagsInput inside Quick Add modals
+  .quick-add-dropdown .vs__dropdown-toggle,
+  .quick-add-dropdown .vs__selected-options,
+  .quick-add-dropdown .vs__selected,
+  .quick-add-dropdown .vs__clear,
+  .quick-add-dropdown .vs__dropdown-menu,
+  .quick-add-dropdown .vs__search,
+  .quick-add-dropdown .vs__open-indicator {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .quick-add-dropdown .vs__search::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .quick-add-dropdown .vs__option--highlight {
+    background: rgba(144, 177, 64, 0.2) !important;
+    color: rgba(144, 177, 64, 1) !important;
+  }
+
+  .quick-add-dropdown .vs__option--selected {
+    background: rgba(144, 177, 64, 0.3) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  .quick-add-dropdown .argon-tags-input .tags-container,
+  .quick-add-dropdown .argon-tags-input .tag-input,
+  .quick-add-dropdown .argon-tags-input .tag-pill,
+  .quick-add-dropdown .argon-tags-input .remove-btn,
+  .quick-add-dropdown .argon-tags-input .options-dropdown,
+  .quick-add-dropdown .argon-tags-input .option-item,
+  .quick-add-dropdown .argon-tags-input .no-results {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .quick-add-dropdown .argon-tags-input .tag-pill {
+    background: rgba(144, 177, 64, 0.2) !important;
+    color: rgba(144, 177, 64, 1) !important;
+  }
+
   .btn-refresh-table {
     background: linear-gradient(135deg, rgba(144, 177, 64, 0.8) 0%, rgba(144, 177, 64, 0.6) 100%) !important;
     color: rgba(255, 255, 255, 0.95) !important;
@@ -2868,6 +3126,271 @@
 
     .file-hint-text {
       color: rgba(255, 255, 255, 0.6) !important;
+    }
+  }
+
+  // Navbar Profile Item Styles
+  .navbar-profile-item {
+    background-color: transparent !important;
+
+    &:hover {
+      background-color: rgba(144, 177, 64, 0.15) !important;
+      transform: translateX(4px);
+    }
+  }
+
+  .navbar-profile-image {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .navbar-profile-details {
+    h6 {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+  }
+
+  // Navbar Dropdown Menu Styles
+  .nav-item.dropdown .dropdown-menu {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+
+    .dropdown-divider {
+      border-top-color: $dark-version-border-color !important;
+      opacity: 0.3 !important;
+    }
+
+    .dropdown-item {
+      color: rgba(255, 255, 255, 0.9) !important;
+      transition: all 0.2s ease !important;
+
+      &:hover {
+        background-color: rgba(144, 177, 64, 0.15) !important;
+        color: rgba(144, 177, 64, 1) !important;
+      }
+
+      &.text-danger {
+        color: rgba(239, 68, 68, 0.9) !important;
+
+        &:hover {
+          background-color: rgba(239, 68, 68, 0.15) !important;
+          color: rgba(239, 68, 68, 1) !important;
+        }
+
+        i {
+          color: inherit !important;
+        }
+      }
+    }
+
+    // Upgrade Plan Button
+    .btn.bg-gradient-success {
+      background: linear-gradient(135deg, rgba(144, 177, 64, 0.9) 0%, rgba(143, 182, 64, 0.9) 100%) !important;
+      color: rgba(255, 255, 255, 1) !important;
+      border: none !important;
+
+      &:hover {
+        background: linear-gradient(135deg, rgba(144, 177, 64, 1) 0%, rgba(143, 182, 64, 1) 100%) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(144, 177, 64, 0.3) !important;
+      }
+
+      i {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+    }
+  }
+
+  // Pricing Cards Dark Mode Styles
+  .pricing-card {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &:hover {
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    // Decorative shapes in dark mode
+    &::before {
+      background: rgba(144, 177, 64, 0.15) !important;
+    }
+
+    &::after {
+      background: rgba(144, 177, 64, 0.2) !important;
+    }
+  }
+
+  // Card Header
+  .pricing-card .card-header {
+    background-color: transparent !important;
+    border-color: transparent !important;
+
+    h5 {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    // زيادة المسافة العلوية لفصل البادجين
+    &.pt-5-mt {
+      padding-top: 5rem !important;
+    }
+  }
+
+  // Card Body
+  .pricing-card .card-body {
+    .price-display {
+      color: rgba(255, 255, 255, 0.95) !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .list-group-item {
+      background-color: transparent !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      span {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .fw-bold {
+        color: rgba(255, 255, 255, 0.95) !important;
+      }
+    }
+  }
+
+  // Plan Name Badge
+  .plan-name-badge {
+    color: rgba(255, 255, 255, 0.95) !important;
+    background: linear-gradient(45deg, rgba(144, 177, 64, 0.9), rgba(122, 154, 51, 0.9)) !important;
+    border-color: rgba(144, 177, 64, 0.8) !important;
+    box-shadow: 0 4px 12px rgba(144, 177, 64, 0.3) !important;
+  }
+
+  .border-popular .plan-name-badge {
+    background: linear-gradient(45deg, rgba(144, 177, 64, 1), rgba(122, 154, 51, 1)) !important;
+    color: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 15px rgba(144, 177, 64, 0.5) !important;
+  }
+
+  // Current Plan Styles
+  .current-plan {
+    background: rgba(144, 177, 64, 0.1) !important;
+    border-color: rgba(144, 177, 64, 0.8) !important;
+    box-shadow:
+      0 0 0 8px rgba(144, 177, 64, 0.15),
+      0 12px 40px rgba(144, 177, 64, 0.3),
+      inset 0 0 0 2px rgba(144, 177, 64, 0.3) !important;
+
+    &::before {
+      background: linear-gradient(135deg, rgba(144, 177, 64, 0.2), rgba(144, 177, 64, 0.1)) !important;
+    }
+
+    &::after {
+      background: linear-gradient(225deg, rgba(144, 177, 64, 0.3), rgba(144, 177, 64, 0.15)) !important;
+    }
+
+    .card-header h5,
+    .card-body .price-display,
+    .card-body .text-muted,
+    .list-group-item,
+    .list-group-item span {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    .plan-name-badge {
+      background: rgba(255, 255, 255, 0.15) !important;
+      color: rgba(144, 177, 64, 1) !important;
+      border-color: rgba(144, 177, 64, 0.8) !important;
+    }
+  }
+
+  .current-plan-badge {
+    background: linear-gradient(45deg, rgba(144, 177, 64, 0.95), rgba(122, 154, 51, 0.95)) !important;
+    color: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(144, 177, 64, 0.5) !important;
+  }
+
+  // Expired Plan Styles
+  .expired-plan {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    border-color: rgba(220, 53, 69, 0.6) !important;
+    box-shadow:
+      0 0 0 6px rgba(220, 53, 69, 0.1),
+      0 8px 32px rgba(220, 53, 69, 0.3) !important;
+
+    &::before {
+      background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.1)) !important;
+    }
+
+    &::after {
+      background: linear-gradient(225deg, rgba(220, 53, 69, 0.3), rgba(220, 53, 69, 0.15)) !important;
+    }
+
+    .plan-name-badge {
+      background: linear-gradient(45deg, rgba(220, 53, 69, 0.9), rgba(200, 35, 51, 0.9)) !important;
+      color: rgba(255, 255, 255, 1) !important;
+      border-color: rgba(220, 53, 69, 0.8) !important;
+    }
+  }
+
+  .expired-plan-badge {
+    background: rgba(220, 53, 69, 0.95) !important;
+    color: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5) !important;
+  }
+
+  // Most Popular Badge
+  .bg-gradient-primary {
+    background: linear-gradient(45deg, rgba(144, 177, 64, 0.95), rgba(122, 154, 51, 0.95)) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  // Buttons
+  .pricing-card .btn-outline-primary {
+    background: linear-gradient(45deg, rgba(144, 177, 64, 0.9), rgba(122, 154, 51, 0.9)) !important;
+    color: rgba(255, 255, 255, 1) !important;
+    border-color: rgba(144, 177, 64, 0.8) !important;
+    box-shadow: 0 4px 12px rgba(144, 177, 64, 0.3) !important;
+
+    &:hover {
+      background: linear-gradient(45deg, rgba(144, 177, 64, 1), rgba(122, 154, 51, 1)) !important;
+      color: rgba(255, 255, 255, 1) !important;
+      box-shadow: 0 6px 20px rgba(144, 177, 64, 0.5) !important;
+    }
+  }
+
+  .pricing-card .btn-current-active {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(144, 177, 64, 1) !important;
+    border-color: rgba(144, 177, 64, 0.8) !important;
+    box-shadow: 0 0 0 3px rgba(144, 177, 64, 0.2) !important;
+  }
+
+  .pricing-card .btn-current-active:disabled {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(144, 177, 64, 0.8) !important;
+  }
+
+  .pricing-card .btn-expired {
+    background-color: rgba(220, 53, 69, 0.9) !important;
+    border-color: rgba(220, 53, 69, 0.8) !important;
+    color: rgba(255, 255, 255, 1) !important;
+
+    &:hover {
+      background-color: rgba(220, 53, 69, 1) !important;
+      border-color: rgba(220, 53, 69, 1) !important;
     }
   }
 }

@@ -1870,6 +1870,17 @@ export default createStore({
         throw error;
       }
     },
+    async checkPromoDiscount(context, payload) {
+      console.log("checkPromoDiscount payload:", payload);
+      try {
+        const response = await apiClient.checkPromoDiscount(payload);
+        console.log("checkPromoDiscount response:", response);
+        return response.data; // إرجاع response.data فقط مثل subscribeToPlan
+      } catch (error) {
+        console.error("Error checking promo discount in store:", error);
+        throw error; // إعادة رمي الخطأ ليتم التعامل معه في الكومبوننت
+      }
+    },
     async fetchPlanInfo({ commit }) {
       // Action لجلب بيانات الباقة من الـ API
       try {

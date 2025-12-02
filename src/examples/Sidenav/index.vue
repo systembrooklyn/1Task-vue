@@ -7,11 +7,20 @@ import SidenavList from "./SidenavList.vue";
 
 // const logo1Task = 'https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1).png?updatedAt=1730567034766'
 
+// Logo URLs
+const lightModeLogo = "https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?ik-obj-version=9sTuepUtU27Iw3.FfIbdKOdc7MYL4WM0&updatedAt=1737223784202";
+const darkModeLogo = "https://ik.imagekit.io/ts7pphpbz3/Gemini_Generated_Image_d9o2p5d9o2p5d9o2-removebg-preview.png";
+
+// Computed logo based on dark mode
+const logoUrl = computed(() => {
+  return isDarkMode.value ? darkModeLogo : lightModeLogo;
+});
+
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
 const layout = computed(() => store.state.layout);
+const isDarkMode = computed(() => store.state.darkMode);
 // const sidebarType = computed(() => store.state.sidebarType);
-// const darkMode = computed(() => store.state.darkMode);
 
 // Sidebar collapse state (for desktop)
 const collapsed = ref(false);
@@ -120,9 +129,7 @@ const handleBackdropClick = () => {
       ${checkMobile() ? (isMobileOpen ? 'mobile-sidebar-open' : 'mobile-sidebar-closed') : ''}`" id="sidenav-main">
     <div class="sidenav-header d-flex align-items-center justify-content-between px-3">
       <router-link class="navbar-brand m-0" to="#" v-if="!collapsed">
-        <img
-          src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?ik-obj-version=9sTuepUtU27Iw3.FfIbdKOdc7MYL4WM0&updatedAt=1737223784202"
-          class="navbar-brand-img h-100" alt="main_logo" style="max-height: 40px;" />
+        <img :src="logoUrl" class="navbar-brand-img h-100" alt="main_logo" style="max-height: 40px;" />
       </router-link>
       <button class="sidebar-toggle-btn desktop-hamburger" @click="toggleSidebar"
         :title="collapsed ? (isRTL ? 'توسيع الشريط الجانبي' : 'Expand Sidebar') : (isRTL ? 'طي الشريط الجانبي' : 'Collapse Sidebar')">
