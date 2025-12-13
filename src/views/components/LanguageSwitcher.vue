@@ -1,78 +1,98 @@
 <template>
-  <div class=" language-dropdown">
-    <button
-      class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
-      type="button"
-      id="languageDropdown"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-      <i class="fas fa-globe mx-2"></i>
-      <span>{{ currentLanguage === 'ar' ? 'العربية' : 'English' }}</span>
-    </button>
-
-    <!-- Dropdown menu with dynamic alignment -->
-    <ul
-      class="dropdown-menu"
-      :class="dropdownAlignment"
-      aria-labelledby="languageDropdown"
-    >
-      <li>
-        <a
-          class="dropdown-item d-flex align-items-center"
-          href="#"
-          @click.prevent="setLanguage('en')"
-        >
-          <i class="fas fa-check me-2" v-if="currentLanguage === 'en'"></i>
-          English
-        </a>
-      </li>
-      <li>
-        <a
-          class="dropdown-item d-flex align-items-center"
-          href="#"
-          @click.prevent="setLanguage('ar')"
-        >
-          <i class="fas fa-check" v-if="currentLanguage === 'ar'" style="margin-left: 7px;"></i>
-          العربية
-        </a>
-      </li>
-    </ul>
-  </div>
+  <button class="language-toggle-btn" type="button" @click="toggleLanguage"
+    :title="currentLanguage === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'">
+    <i class="fas fa-globe me-2"></i>
+    <span>{{ currentLanguage === 'ar' ? 'English' : 'العربية' }}</span>
+  </button>
 </template>
 
 <script>
 import { computed } from "vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
+import { setLocale } from "@/i18n";
 
 export default {
   name: "LanguageDropdown",
   setup() {
     const store = useStore();
+    const { locale } = useI18n();
 
-    const currentLanguage = computed(() => store.getters.currentLanguage);
+    // استخدام i18n locale كأولوية، مع fallback إلى store
+    const currentLanguage = computed(() => locale.value || store.getters.currentLanguage);
 
-    const setLanguage = (language) => {
-      store.dispatch("changeLanguage", language);
-
-      // Update text direction and language
-      const isRTL = language === "ar";
-      document.documentElement.setAttribute("lang", language);
-      document.documentElement.setAttribute("dir", isRTL ? "rtl" : "ltr");
-      document.querySelector("#app").classList.toggle("rtl", isRTL);
+    const toggleLanguage = () => {
+      const newLanguage = currentLanguage.value === 'ar' ? 'en' : 'ar';
+      // setLocale يحدث كل شيء (i18n, store, RTL)
+      setLocale(newLanguage);
     };
-
-    // Compute dropdown alignment dynamically
-    const dropdownAlignment = computed(() =>
-      currentLanguage.value === "ar" ? "dropdown-menu-end" : ""
-    );
 
     return {
       currentLanguage,
-      setLanguage,
-      dropdownAlignment,
+      toggleLanguage,
     };
   },
 };
 </script>
 
+<style scoped>
+.language-toggle-btn {
+  width: auto;
+  min-width: 100px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: inherit;
+}
+
+.language-toggle-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.02);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.language-toggle-btn i {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+.language-toggle-btn span {
+  white-space: nowrap;
+}
+
+/* Dark mode support */
+.dark-version .language-toggle-btn {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark-version .language-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(144, 177, 64, 1);
+}
+
+/* Small screen adjustments */
+@media (max-width: 767px) {
+  .language-toggle-btn {
+    min-width: 80px;
+    height: 36px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .language-toggle-btn i {
+    font-size: 14px;
+    margin-right: 4px;
+  }
+}
+</style>

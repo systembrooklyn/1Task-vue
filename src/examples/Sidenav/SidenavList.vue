@@ -131,7 +131,7 @@ const toggleSection = (section) => {
         " :active="getRoute() === 'dashboard-default'" :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <span class="material-symbols-rounded text-primary">dashboard</span>
+            <span class="material-symbols-rounded text-primary" :class="isRTL ? 'me-3' : 'ms-3'">dashboard</span>
           </template>
         </sidenav-item>
       </li>
@@ -143,7 +143,7 @@ const toggleSection = (section) => {
         }" :active="getRoute() === 'routine-task'" :navText="isRTL ? ' المهام اليومية' : ' Routine Tasks'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <span class="material-symbols-rounded text-success">checklist</span>
+            <span class="material-symbols-rounded text-success" :class="isRTL ? 'me-3' : 'ms-3'">checklist</span>
           </template>
         </sidenav-item>
       </li>
@@ -153,10 +153,10 @@ const toggleSection = (section) => {
         <sidenav-item :to="{
           name: 'one time task',
           params: { companyName: companyNameNormalized },
-        }" :active="getRoute() === 'one-time-task'" :navText="isRTL ? 'المهام الاحتياطية' : 'One Time Tasks'"
+        }" :active="getRoute() === 'one-time-task'" :navText="isRTL ? 'مهام المره الواحده' : 'One Time Tasks'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <span class="material-symbols-rounded text-warning">schedule</span>
+            <span class="material-symbols-rounded text-warning" :class="isRTL ? 'me-3' : 'ms-3'">schedule</span>
           </template>
         </sidenav-item>
       </li>
@@ -167,7 +167,7 @@ const toggleSection = (section) => {
           :title="isRTL ? 'إعدادات المهام' : 'Tasks Settings'">
           <div
             class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
-            <span class="material-symbols-rounded text-success">tune</span>
+            <span class="material-symbols-rounded text-success" :class="isRTL ? 'me-3' : 'ms-3'">tune</span>
           </div>
         </div>
 
@@ -175,7 +175,7 @@ const toggleSection = (section) => {
         <div v-else class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('tasks')">
           <div class="d-flex align-items-center">
-            <span class="material-symbols-rounded text-success me-2">tune</span>
+            <span class="material-symbols-rounded text-success" :class="isRTL ? 'me-3' : 'ms-3'">tune</span>
             <span>{{ isRTL ? "إعدادات المهام" : "Tasks Settings" }}</span>
           </div>
           <i class="fas fa-chevron-right transition-transform" :class="{ 'rotate-180': collapsibleSections.tasks }"></i>
@@ -190,7 +190,7 @@ const toggleSection = (section) => {
               }" :active="getRoute() === 'manage-routine-task'"
                 :navText="isRTL ? 'ادارة المهام اليومية' : 'Manage Routine Tasks'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <span class="material-symbols-rounded text-info">settings</span>
+                  <span class="material-symbols-rounded text-info" :class="isRTL ? 'me-3' : 'ms-3'">settings</span>
                 </template>
               </sidenav-item>
             </li>
@@ -217,7 +217,7 @@ const toggleSection = (section) => {
           :title="isRTL ? 'تقارير' : 'Reports'">
           <div
             class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
-            <span class="material-symbols-rounded text-success">insights</span>
+            <span class="material-symbols-rounded text-success" :class="isRTL ? 'me-3' : 'ms-3'">insights</span>
           </div>
         </div>
 
@@ -225,7 +225,7 @@ const toggleSection = (section) => {
         <div v-else class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('reports')">
           <div class="d-flex align-items-center">
-            <span class="material-symbols-rounded text-success me-2">insights</span>
+            <span class="material-symbols-rounded text-success" :class="isRTL ? 'me-3' : 'ms-3'">insights</span>
             <span>{{ isRTL ? "تقارير" : "Reports" }}</span>
           </div>
           <i class="fas fa-chevron-right transition-transform"
@@ -241,7 +241,8 @@ const toggleSection = (section) => {
               }" :active="getRoute() === 'reported-tasks'" :navText="isRTL ? ' تقرير المهام' : ' Task Reports'"
                 :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <span class="material-symbols-rounded text-primary">assignment_turned_in</span>
+                  <span class="material-symbols-rounded text-primary"
+                    :class="isRTL ? 'me-3' : 'ms-3'">assignment_turned_in</span>
                 </template>
               </sidenav-item>
             </li>
@@ -252,7 +253,7 @@ const toggleSection = (section) => {
               }" :active="getRoute() === 'chart reported'" :navText="isRTL ? ' تقرير المهام' : ' Chart Reports'"
                 :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <span class="material-symbols-rounded text-warning">pie_chart</span>
+                  <span class="material-symbols-rounded text-warning" :class="isRTL ? 'me-3' : 'ms-3'">pie_chart</span>
                 </template>
               </sidenav-item>
             </li>
@@ -272,7 +273,7 @@ const toggleSection = (section) => {
           :title="isRTL ? 'فريق العمل' : 'Work Force'">
           <div
             class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
-            <span class="material-symbols-rounded text-primary">group</span>
+            <span class="material-symbols-rounded text-primary" :class="isRTL ? 'me-3' : 'ms-3'">group</span>
           </div>
         </div>
 
@@ -280,7 +281,7 @@ const toggleSection = (section) => {
         <div v-else class="nav-link d-flex justify-content-between align-items-center cursor-pointer"
           @click="toggleSection('workForce')">
           <div class="d-flex align-items-center">
-            <span class="material-symbols-rounded text-primary me-2">group</span>
+            <span class="material-symbols-rounded text-primary" :class="isRTL ? 'me-3' : 'ms-3'">group</span>
             <span>{{ isRTL ? "فريق العمل" : "Work Force" }}</span>
           </div>
           <i class="fas fa-chevron-right transition-transform"
@@ -296,7 +297,7 @@ const toggleSection = (section) => {
               }" v-if="permissions['invite-user'] || isOwner" :active="getRoute() === 'addUser'"
                 :navText="isRTL ? 'اضافة موظفين' : 'Add Employees'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <span class="material-symbols-rounded text-primary">person_add</span>
+                  <span class="material-symbols-rounded text-primary" :class="isRTL ? 'me-3' : 'ms-3'">person_add</span>
                 </template>
               </sidenav-item>
             </li>
@@ -307,7 +308,7 @@ const toggleSection = (section) => {
               }" v-if="permissions['view-user'] || isOwner" :active="getRoute() === 'team'"
                 :navText="isRTL ? 'فريق' : 'Team'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <span class="material-symbols-rounded text-primary">groups</span>
+                  <span class="material-symbols-rounded text-primary" :class="isRTL ? 'me-3' : 'ms-3'">groups</span>
                 </template>
               </sidenav-item>
             </li>
@@ -318,7 +319,8 @@ const toggleSection = (section) => {
               }" v-if="permissions['view-role'] || isOwner" :active="getRoute() === 'addRole'"
                 :navText="isRTL ? 'أدوار وصلاحيات' : 'Roles & Permissions'" :collapsed="props.collapsed">
                 <template v-slot:icon>
-                  <span class="material-symbols-rounded text-info">admin_panel_settings</span>
+                  <span class="material-symbols-rounded text-info"
+                    :class="isRTL ? 'me-3' : 'ms-3'">admin_panel_settings</span>
                 </template>
               </sidenav-item>
             </li>
@@ -334,7 +336,7 @@ const toggleSection = (section) => {
         }" v-if="permissions['view-department'] || isOwner" :active="getRoute() === 'department'"
           :navText="isRTL ? 'الاقسام' : 'Departments'" :collapsed="props.collapsed">
           <template v-slot:icon>
-            <span class="material-symbols-rounded text-primary">apartment</span>
+            <span class="material-symbols-rounded text-primary" :class="isRTL ? 'me-3' : 'ms-3'">apartment</span>
           </template>
         </sidenav-item>
       </li>
@@ -349,7 +351,7 @@ const toggleSection = (section) => {
           params: { companyName: companyNameNormalized },
         }" :active="getRoute() === 'project'" :navText="isRTL ? 'المشاريع' : 'Projects'" :collapsed="props.collapsed">
           <template v-slot:icon>
-            <span class="material-symbols-rounded text-success">folder_open</span>
+            <span class="material-symbols-rounded text-success" :class="isRTL ? 'me-3' : 'ms-3'">folder_open</span>
           </template>
         </sidenav-item>
       </li>
@@ -361,7 +363,7 @@ const toggleSection = (section) => {
           params: { companyName: companyNameNormalized },
         }" :active="getRoute() === 'goals'" :navText="isRTL ? 'الأهداف' : 'Goals'" :collapsed="props.collapsed">
           <template v-slot:icon>
-            <span class="material-symbols-rounded text-warning">flag_circle</span>
+            <span class="material-symbols-rounded text-warning" :class="isRTL ? 'me-3' : 'ms-3'">flag_circle</span>
           </template>
         </sidenav-item>
       </li>
@@ -374,7 +376,7 @@ const toggleSection = (section) => {
         }" :active="getRoute() === 'meetings'" :navText="isRTL ? 'الاجتماعات' : 'Meetings'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <span class="material-symbols-rounded text-info">handshake</span>
+            <span class="material-symbols-rounded text-info" :class="isRTL ? 'me-3' : 'ms-3'">handshake</span>
           </template>
         </sidenav-item>
       </li>
@@ -387,7 +389,7 @@ const toggleSection = (section) => {
         }" :active="getRoute() === 'automation'" :navText="isRTL ? 'الأتمتة' : 'Automation'"
           :collapsed="props.collapsed">
           <template v-slot:icon>
-            <span class="material-symbols-rounded text-primary">smart_toy</span>
+            <span class="material-symbols-rounded text-primary" :class="isRTL ? 'me-3' : 'ms-3'">smart_toy</span>
           </template>
         </sidenav-item>
       </li>
@@ -399,7 +401,7 @@ const toggleSection = (section) => {
           params: { companyName: companyNameNormalized },
         }" :active="getRoute() === 'apps'" :navText="isRTL ? 'التطبيقات' : 'Apps'" :collapsed="props.collapsed">
           <template v-slot:icon>
-            <span class="material-symbols-rounded text-success">extension</span>
+            <span class="material-symbols-rounded text-success" :class="isRTL ? 'me-3' : 'ms-3'">extension</span>
           </template>
         </sidenav-item>
       </li>
@@ -569,5 +571,15 @@ const toggleSection = (section) => {
 .nav-link:hover {
   background-color: rgba(144, 177, 64, 0.15);
   color: #1a1a1a;
+}
+
+/* RTL Support - عكس اتجاه الأسهم */
+[dir="rtl"] .fa-chevron-right {
+  transform: scaleX(-1);
+}
+
+/* عند الفتح في RTL: السهم يشير لأسفل */
+[dir="rtl"] .fa-chevron-right.rotate-180 {
+  transform: scaleX(-1) rotate(90deg);
 }
 </style>

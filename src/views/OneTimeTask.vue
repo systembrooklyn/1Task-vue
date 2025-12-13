@@ -13,6 +13,7 @@ import {
 import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { useStore } from "vuex";
 import { useResponsive } from "@/composables/useResponsive";
+import { useI18n } from "vue-i18n";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
@@ -419,9 +420,9 @@ const getProjectTooltip = () => {
     const project = formattedProjects.value.find(
       (p) => p.value === projectId.value,
     );
-    return project ? `${t("project")}: ${project.label}` : t("project");
+    return project ? `${t("oneTimeTasks.project")}: ${project.label}` : t("oneTimeTasks.project");
   }
-  return t("selectProject");
+  return t("oneTimeTasks.selectProject");
 };
 
 const getPriorityTooltip = () => {
@@ -430,24 +431,24 @@ const getPriorityTooltip = () => {
       (p) => p.value === priority.value,
     );
     return priorityOption
-      ? `${t("priority")}: ${priorityOption.label}`
-      : t("priority");
+      ? `${t("oneTimeTasks.priority")}: ${priorityOption.label}`
+      : t("oneTimeTasks.priority");
   }
-  return t("selectPriority");
+  return t("oneTimeTasks.selectPriority");
 };
 
 const getStartDateTooltip = () => {
   if (startDate.value) {
-    return `${t("startDate")}: ${startDate.value}`;
+    return `${t("oneTimeTasks.startDate")}: ${startDate.value}`;
   }
-  return t("enterStartDate");
+  return t("oneTimeTasks.enterStartDate");
 };
 
 const getEndDateTooltip = () => {
   if (endDate.value) {
-    return `${t("endDate")}: ${endDate.value}`;
+    return `${t("oneTimeTasks.endDate")}: ${endDate.value}`;
   }
-  return t("enterEndDate");
+  return t("oneTimeTasks.enterEndDate");
 };
 
 // دوال البحث والفلترة
@@ -727,16 +728,13 @@ const pagination = ref({
   last_page: 1,
 });
 
+const { t } = useI18n();
 const currentLanguage = computed(() => store.getters.currentLanguage);
 
 watch(
   () => store.getters.currentLanguage,
   () => { },
 );
-
-const t = (key) => {
-  return translations[currentLanguage.value][key];
-};
 
 // في المكان الذي تُحدد فيه الخيارات (مثل projects أو departments)
 const formattedProjects = computed(() => {
@@ -1108,7 +1106,7 @@ async function createOneTimeTask() {
       console.error("Error creating oneTimeTask:", error);
       Swal.fire({
         icon: "error",
-        title: t("errorOccurred"),
+        title: t("oneTimeTasks.errorOccurred"),
         html: error,
         showConfirmButton: true,
         backdrop: "rgba(0,0,0,0.5)",
@@ -1402,7 +1400,7 @@ const updateOneTimeTask = async () => {
     console.error("Error creating oneTimeTask:", error);
     Swal.fire({
       icon: "error",
-      title: t("errorOccurred"),
+      title: t("oneTimeTasks.errorOccurred"),
       html: error,
       showConfirmButton: true,
       backdrop: "rgba(0,0,0,0.5)",
@@ -1414,248 +1412,6 @@ const updateOneTimeTask = async () => {
   } finally {
     isSubmitting.value = false;
   }
-};
-
-const translations = {
-  en: {
-    addMember: "Add Member",
-    email: "Email",
-    emailExistsError:
-      "This email is already registered. Please use another email.",
-    generalError: "An error occurred while submitting. Please try again later.",
-    invalidCompanyIdOrUserId: "Invalid Company ID or User ID.",
-    /* ==== تغيرت routineTask... إلى oneTimeTask... ==== */
-    oneTimeTaskDeleted: "One Time Task deleted successfully.",
-    oneTimeTaskAdded: "One Time Task added successfully.",
-    deleteConfirmationTitle: "Delete One Time Task",
-    deleteConfirmationText:
-      "Are you sure you want to delete this One Time Task?",
-    delete: "Delete",
-    addRoutineTask: "Add One Time Task",
-    taskName: "Task Name*",
-    description: "Description",
-    assignTo: "Assign To*",
-    supervisor: "Supervisor",
-    informer: "Informer",
-    consultant: "Consultant",
-    editOneTimeTask: "Edit One Time Task",
-    update: "Update",
-    close: "Close",
-    create: "Create",
-    oneTimeTasks: "One Time Tasks",
-    TaskNameRequired: "Please enter the task name.",
-    TaskAddedError:
-      "An error occurred while adding the task. Please try again later.",
-    from: "From",
-    to: "To",
-    TaskManager: "Task Manager",
-    assignManager: "Assign Manager",
-    enterDescription: "Enter Description",
-    selectProject: "Select Project",
-    selectDepartment: "Select Department",
-    enterTaskName: "Enter Task Name",
-    createOneTimeTask: "Create One Time Task",
-    saving: "Saving...",
-    noRoutineTasks: "No one-time tasks found.",
-    createee: "Create your one-time tasks",
-    inactive: "Inactive",
-    active: "Active",
-    advancedSettings: "Advanced Settings",
-    taskNumber: "Task Number",
-    sunday: "Sunday",
-    monday: "Monday",
-    tuesday: "Tuesday",
-    wednesday: "Wednesday",
-    thursday: "Thursday",
-    friday: "Friday",
-    saturday: "Saturday",
-    enterStartDate: "Enter start date",
-    startDate: "Start Date*",
-    endDate: "End Date",
-    taskType: "Task Type",
-    status: "Status",
-    department: "Department",
-    allTypes: "All Types",
-    allStatuses: "All Status",
-    allDepartments: "All Departments",
-    weekly: "Weekly",
-    monthly: "Monthly",
-    daily: "Daily",
-    applyFilters: "Apply Filters",
-    resetFilters: "Reset Filters",
-    selectAll: "Select All",
-    departmentsSelected: "Departments Selected",
-    done: "Done",
-    not_done: "Not Done",
-    inProgress: "In Progress",
-    pending: "Pending",
-    review: "Review",
-    allPriorities: "All Priorities",
-    allEmployees: "All Employees",
-    allDeadLines: "All DeadLines",
-    deadLine: "DeadLine",
-    high: "High",
-    normal: "Normal",
-    low: "Low",
-    urgent: "Urgent",
-    overDue: "Overdue",
-    soon: "Soon within 2 days",
-    noDueDate: "No Due Date",
-    hasNewUpdate: "Has New Update",
-    not_reported: "Not Reported",
-    LatedTasks: "Lated Tasks",
-    allProjects: "All Projects",
-    project: "Project",
-    isUrgent: "Is Urgent",
-    priority: "Priority",
-    employee: "Employee",
-    searchPlaceholder: "Search tasks by Task Name, Employee ...",
-    selectEmployee: "Select Employee",
-    selectSupervisor: "Select Supervisor",
-    selectAssignee: "Select Assignee",
-    selectConsultant: "Select Consultant",
-    selectInformer: "Select Informer",
-    searchEmployees: "Search Employees",
-    searchInformers: "Search Informers",
-    searchConsultants: "Search Consultants",
-    searchProjects: "Search Projects",
-    searchPriorities: "Search Priorities",
-    selectStartDate: "Select Start Date",
-    selectEndDate: "Select End Date",
-    selectPriority: "Select Priority",
-    noResultsFound: "No results found",
-    clickToAddPeople: "Click to add Employees",
-    undo: "Undo",
-    redo: "Redo",
-    bold: "Bold",
-    italic: "Italic",
-    underline: "Underline",
-    alignLeft: "Align Left",
-    alignCenter: "Align Center",
-    alignRight: "Align Right",
-    bulletList: "Bullet List",
-    numberedList: "Numbered List",
-    link: "Insert Link",
-    image: "Insert Image",
-    moreOptions: "More Options",
-  },
-  ar: {
-    addMember: "اضافة عضو",
-    email: "البريد الالكتروني",
-    emailExistsError:
-      "هذا البريد الالكتروني مسجل بالفعل. يرجى استخدام بريد الكتروني اخر.",
-    generalError: "حدث خطأ في التقديم. يرجى المحاولة مرة اخرى في وقت لاحق.",
-    invalidCompanyIdOrUserId: "معرف الشركة أو معرف المستخدم غير صحيح.",
-    oneTimeTaskDeleted: "تم حذف المهمة الواحدة بنجاح.",
-    oneTimeTaskAdded: "تم إضافة المهمة الواحدة بنجاح.",
-    deleteConfirmationTitle: "حذف المهمة الواحدة",
-    deleteConfirmationText: "هل تريد حذف هذه المهمة الواحدة؟",
-    delete: "حذف",
-    addRoutineTask: "إضافة مهمة واحدة",
-    taskName: "*اسم المهمة",
-    description: "وصف المهمة",
-    assignTo: "*تعيين",
-    selectSupervisor: "اختر المشرف",
-    supervisor: "المشرف",
-    informer: "المعلوم",
-    consultant: "الاستشارات",
-    close: "اغلاق",
-    create: "اضافة",
-    editOneTimeTask: "تعديل المهمة الواحدة",
-    update: "تحديث",
-    oneTimeTasks: "المهام الواحدة",
-    TaskNameRequired: "يرجى ادخال اسم المهمة.",
-    TaskAddedError: "حدث خطأ في إضافة المهمة. يرجى المحاولة لاحقاً.",
-    from: "من",
-    to: "إلى",
-    TaskManager: "مدير المهمة",
-    assignManager: "تعيين المدير",
-    enterDescription: "ادخال الوصف",
-
-    enterTaskName: "ادخل اسم المهمة",
-    createOneTimeTask: "إنشاء مهمة واحدة",
-    saving: "يتم الحفظ...",
-    noRoutineTasks: "لا توجد مهام واحدة.",
-    createee: "أنشئ مهامك الواحدة",
-    inactive: "غير نشط",
-    active: "نشط",
-    advancedSettings: "الإعدادات المتقدمة",
-    taskNumber: "رقم المهمة",
-    taskType: "نوع المهمة",
-    selectTaskType: "اختر نوع المهمة",
-    recurrentDays: "أيام التكرار",
-    enterRecurrentDays: "ادخل عدد أيام التكرار",
-    dayOfMonth: "يوم الشهر",
-    enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,... 31",
-    department: "القسم",
-    selectDepartment: "اختر القسم",
-    sunday: "الاحد",
-    monday: "الاثنين",
-    tuesday: "الثلاثاء",
-    wednesday: "الاربعاء",
-    thursday: "الخميس",
-    friday: "الجمعة",
-    saturday: "السبت",
-    enterStartDate: "ادخل تاريخ البدء",
-    startDate: "تاريخ البدء",
-    endDate: "تاريخ الانتهاء",
-    allProjects: "جميع المشاريع",
-    weekly: "اسبوعي",
-    monthly: "شهري",
-    daily: "يومي",
-    applyFilters: "تطبيق التصفيات",
-    resetFilters: "اعادة تعيين التصفيات",
-    selectAll: "اختر الكل",
-    departmentsSelected: "اقسام محددة",
-    done: "تم",
-    not_done: "لم يتم",
-    inProgress: "قيد التنفيذ",
-    pending: "قيد الانتظار",
-    review: "قيد المراجعة",
-    allPriorities: "جميع الأولويات",
-    allEmployees: "جميع الموظفين",
-    allDeadLines: "جميع المواعيد",
-    high: "عالية",
-    normal: "عادية",
-    low: "منخفضة",
-    urgent: "عاجلة",
-    overDue: "متأخر",
-    soon: "قريب خلال 2 يوم",
-    noDueDate: "غير محدد",
-    hasNewUpdate: "يوجد تحديث جديد",
-    not_reported: "لم يتم التقرير",
-    LatedTasks: "مهام متاخرة",
-    project: "المشروع",
-    isUrgent: "هامة جدا",
-    priority: "الاولوية",
-    employee: "الموظف",
-    selectProject: "اختر المشروع",
-    searchPlaceholder: "ابحث عن طريق اسم المهمة, الموظف ...",
-    selectEmployee: "اختر الموظفين",
-    selectConsultant: "اختر الاسشاري",
-    selectInformer: "اختر المعلوم",
-    selectDeadline: "اختر الموعد",
-    deadLine: "الموعد",
-    selectTask: "اختر المهمة",
-    selectPriority: "اختر الأولوية",
-    undo: "تراجع",
-    redo: "إعادة",
-    bold: "عريض",
-    italic: "مائل",
-    underline: "تسطير",
-    alignLeft: "محاذاة لليسار",
-    alignCenter: "محاذاة للمنتصف",
-    alignRight: "محاذاة لليمين",
-    bulletList: "قائمة نقطية",
-    numberedList: "قائمة مرقمة",
-    link: "إدراج رابط",
-    image: "إدراج صورة",
-    moreOptions: "خيارات إضافية",
-    selectStartDate: "اختر تاريخ البدء",
-    selectEndDate: "اختر تاريخ الانتهاء",
-    noResultsFound: "لا توجد نتائج",
-    clickToAddPeople: "انقر لإضافة أشخاص",
-  },
 };
 
 // const employees = computed(() => store.getters.dataFromApi);
@@ -1681,7 +1437,7 @@ const translations = {
                 <!-- القسم الأيسر: العنوان والعدد -->
                 <div class="col-12 col-md-4 d-flex align-items-center">
                   <p class="mb-0 font-weight-bold me-2">
-                    {{ t("oneTimeTasks") }}
+                    {{ t("oneTimeTasks.oneTimeTasks") }}
                   </p>
                   <small class="mb-0 font-weight-bold me-2">
                     ({{ oneTimeTasksCount }})
@@ -1696,7 +1452,7 @@ const translations = {
                 <!-- القسم الأوسط: شريط البحث -->
                 <div class="col-12 col-md-4 my-2 my-md-0">
                   <div class="input-group search-filter-group">
-                    <input type="text" class="form-control" :placeholder="t('searchPlaceholder')"
+                    <input type="text" class="form-control" :placeholder="t('oneTimeTasks.searchPlaceholder')"
                       v-model="searchQuery" />
                     <!-- أيقونة الفلتر على الموبايل والتابلت فقط -->
                     <button v-if="isMobile || isTablet" class="btn btn-link filter-icon-btn" type="button"
@@ -1724,7 +1480,7 @@ const translations = {
                 <div class="row">
                   <!-- مثلاً فلتر الأقسام -->
                   <!-- <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("department") }}</label>
+                    <label class="form-label">{{ t("oneTimeTasks.department") }}</label>
                     <div class="dropdown">
                       <button
                         class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
@@ -1735,10 +1491,10 @@ const translations = {
                       >
                         {{
                           selectedDepartments.length === 0
-                            ? t("allDepartments")
+                            ? t("oneTimeTasks.allDepartments")
                             : selectedDepartments.length === 1
                               ? selectedDepartments[0].name
-                              : `${selectedDepartments.length} ${t("departmentsSelected")}`
+                              : `${selectedDepartments.length} ${t("oneTimeTasks.departmentsSelected")}`
                         }}
                       </button>
                       <ul
@@ -1761,7 +1517,7 @@ const translations = {
                               class="form-check-label"
                               for="selectAllDepartments"
                             >
-                              {{ t("selectAll") }}
+                              {{ t("oneTimeTasks.selectAll") }}
                             </label>
                           </div>
                         </li>
@@ -1793,60 +1549,62 @@ const translations = {
 
                   <!-- فلتر المشروع -->
                   <div v-if="formattedProjects.length !== 0" class="col-md-4 mb-3">
-                    <CheckboxMultiSelect :label="t('project')" :items="formattedProjects" v-model="selectedProjects"
-                      :placeholder="t('allProjects')" :count-label="t('projectsSelected')"
-                      :select-all-label="t('selectAll')" />
+                    <CheckboxMultiSelect :label="t('oneTimeTasks.project')" :items="formattedProjects"
+                      v-model="selectedProjects" :placeholder="t('oneTimeTasks.allProjects')"
+                      :count-label="t('oneTimeTasks.projectsSelected')"
+                      :select-all-label="t('oneTimeTasks.selectAll')" />
                   </div>
 
                   <!-- فلتر الحالة -->
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("status") }}</label>
+                    <label class="form-label">{{ t("oneTimeTasks.status") }}</label>
                     <select class="form-select" v-model="selectedStatus">
-                      <option value="">{{ t("allStatuses") }}</option>
-                      <option value="inProgress">{{ t("inProgress") }}</option>
-                      <option value="review">{{ t("review") }}</option>
-                      <option value="pending">{{ t("pending") }}</option>
+                      <option value="">{{ t("oneTimeTasks.allStatuses") }}</option>
+                      <option value="inProgress">{{ t("oneTimeTasks.inProgress") }}</option>
+                      <option value="review">{{ t("oneTimeTasks.review") }}</option>
+                      <option value="pending">{{ t("oneTimeTasks.pending") }}</option>
                       <option value="hasNewUpdate">
-                        {{ t("hasNewUpdate") }}
+                        {{ t("oneTimeTasks.hasNewUpdate") }}
                       </option>
-                      <!-- <option value="lated">{{ t("LatedTasks") }}</option> -->
+                      <!-- <option value="lated">{{ t("oneTimeTasks.LatedTasks") }}</option> -->
                     </select>
                   </div>
 
                   <!-- فلتر الأولوية -->
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("priority") }}</label>
+                    <label class="form-label">{{ t("oneTimeTasks.priority") }}</label>
                     <select class="form-select" v-model="selectedPriority">
-                      <option value="">{{ t("allPriorities") }}</option>
-                      <option value="high">{{ t("high") }}</option>
-                      <option value="normal">{{ t("normal") }}</option>
-                      <option value="low">{{ t("low") }}</option>
-                      <option value="urgent">{{ t("urgent") }}</option>
+                      <option value="">{{ t("oneTimeTasks.allPriorities") }}</option>
+                      <option value="high">{{ t("oneTimeTasks.high") }}</option>
+                      <option value="normal">{{ t("oneTimeTasks.normal") }}</option>
+                      <option value="low">{{ t("oneTimeTasks.low") }}</option>
+                      <option value="urgent">{{ t("oneTimeTasks.urgent") }}</option>
                     </select>
                   </div>
 
                   <!-- فلترة الموظف -->
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("employee") }}</label>
+                    <label class="form-label">{{ t("oneTimeTasks.employee") }}</label>
                     <argon-select class="form-select" v-model="selectedEmployee" :options="employeeOptions"
-                      :placeholder="t('selectEmployee')" :searchable="true" :searchPlaceholder="t('searchEmployee')" />
+                      :placeholder="t('oneTimeTasks.selectEmployee')" :searchable="true"
+                      :searchPlaceholder="t('oneTimeTasks.searchEmployee')" />
                   </div>
 
                   <!-- فلترة الموعد النهائي -->
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("deadLine") }}</label>
+                    <label class="form-label">{{ t("oneTimeTasks.deadLine") }}</label>
                     <select class="form-select" v-model="selectedDeadLine">
-                      <option value="">{{ t("allDeadLines") }}</option>
-                      <option value="soon">{{ t("soon") }}</option>
-                      <option value="overdue">{{ t("overDue") }}</option>
-                      <option value="noDueDate">{{ t("noDueDate") }}</option>
+                      <option value="">{{ t("oneTimeTasks.allDeadLines") }}</option>
+                      <option value="soon">{{ t("oneTimeTasks.soon") }}</option>
+                      <option value="overdue">{{ t("oneTimeTasks.overDue") }}</option>
+                      <option value="noDueDate">{{ t("oneTimeTasks.noDueDate") }}</option>
                     </select>
                   </div>
                 </div>
 
                 <div class="d-flex justify-content-end">
                   <button class="btn btn-secondary" @click="resetFilters">
-                    {{ t("resetFilters") }}
+                    {{ t("oneTimeTasks.resetFilters") }}
                   </button>
                 </div>
               </div>
@@ -1871,8 +1629,8 @@ const translations = {
 
             <div v-else-if="oneTimeTasks.length === 0"
               class="d-flex justify-content-center py-5 flex-column align-items-center">
-              <h5>{{ t("noRoutineTasks") }}</h5>
-              <p>{{ t("createee") }}</p>
+              <h5>{{ t("oneTimeTasks.noRoutineTasks") }}</h5>
+              <p>{{ t("oneTimeTasks.createee") }}</p>
             </div>
 
             <one-time-task-table v-if="!isPageLoading" :oneTimeTasks="filteredTasks" :key="componentKey"
@@ -1891,7 +1649,7 @@ const translations = {
       <div class="gmail-compose-container" :class="{ maximized: isMaximized, minimized: isMinimized }">
         <div class="gmail-header">
           <div class="gmail-header-left">
-            <span class="gmail-title">{{ t("createOneTimeTask") }}</span>
+            <span class="gmail-title">{{ t("oneTimeTasks.createOneTimeTask") }}</span>
           </div>
           <div class="gmail-header-right">
             <button @click="toggleMinimize" class="gmail-btn gmail-minimize"
@@ -1965,11 +1723,11 @@ const translations = {
                   <template v-else>
                     <span class="gmail-compact-placeholder">
                       <i class="fas fa-users"></i>
-                      {{ t("clickToAddPeople") }}
+                      {{ t("oneTimeTasks.clickToAddPeople") }}
                     </span>
                   </template>
                 </div>
-                <span class="gmail-compact-hint">{{ t("clickToEdit") }}</span>
+                <span class="gmail-compact-hint">{{ t("oneTimeTasks.clickToEdit") }}</span>
               </div>
             </div>
 
@@ -1980,7 +1738,7 @@ const translations = {
                 <div class="gmail-row-content w-100">
                   <div class="w-100">
                     <ArgonTagsInput v-model="selectedAssignee" :options="employeeOptions"
-                      :placeholder="t('selectAssignee')" class="gmail-people-input" />
+                      :placeholder="t('oneTimeTasks.selectAssignee')" class="gmail-people-input" />
                   </div>
                   <div class="gmail-shortcuts">
                     <a href="#" @click.prevent="showCcFields = !showCcFields" class="gmail-shortcut-link">
@@ -1997,8 +1755,8 @@ const translations = {
               <div v-show="showCcFields" class="gmail-people-row">
                 <div class="gmail-row-content w-100">
                   <ArgonSelect v-model="selectedSupervisor" :options="employeeOptions"
-                    :placeholder="t('selectSupervisor')" class="gmail-people-input w-100" :searchable="true"
-                    :search-placeholder="t('searchEmployees')" />
+                    :placeholder="t('oneTimeTasks.selectSupervisor')" class="gmail-people-input w-100"
+                    :searchable="true" :search-placeholder="t('oneTimeTasks.searchEmployees')" />
                 </div>
               </div>
 
@@ -2006,7 +1764,7 @@ const translations = {
               <div v-show="showBccFields" class="gmail-people-row">
                 <div class="gmail-row-content w-100">
                   <ArgonTagsInput v-model="selectedInformer" :options="employeeOptions"
-                    :placeholder="t('selectInformer')" class="gmail-people-input w-100" />
+                    :placeholder="t('oneTimeTasks.selectInformer')" class="gmail-people-input w-100" />
                 </div>
               </div>
 
@@ -2014,7 +1772,7 @@ const translations = {
               <div v-show="showBccFields" class="gmail-people-row">
                 <div class="gmail-row-content w-100">
                   <ArgonTagsInput v-model="selectedConsultant" :options="employeeOptions"
-                    :placeholder="t('selectConsultant')" class="gmail-people-input w-100" />
+                    :placeholder="t('oneTimeTasks.selectConsultant')" class="gmail-people-input w-100" />
                 </div>
               </div>
             </div>
@@ -2022,13 +1780,13 @@ const translations = {
             <!-- حقل اسم المهمة -->
             <div class="gmail-field mb-3">
               <ArgonInput v-model="oneTimeTaskName" class="gmail-input gmail-title-input"
-                :placeholder="t('enterTaskName')" dir="auto" required @focus="onFieldFocus" />
+                :placeholder="t('oneTimeTasks.enterTaskName')" dir="auto" required @focus="onFieldFocus" />
             </div>
 
             <!-- حقل الوصف -->
             <div class="gmail-field mb-3">
-              <ArgonTextarea v-model="oneTimeTaskDescription" class="" :placeholder="t('enterDescription')" dir="auto"
-                required @focus="onFieldFocus" />
+              <ArgonTextarea v-model="oneTimeTaskDescription" class="" :placeholder="t('oneTimeTasks.enterDescription')"
+                dir="auto" required @focus="onFieldFocus" />
             </div>
 
             <!-- شريط الأدوات مع الأيقونات -->
@@ -2044,12 +1802,12 @@ const translations = {
                     <span v-else>✓</span>
                   </span>
                 </div>
-                <span class="gmail-icon-label">{{ t("project") }}</span>
+                <span class="gmail-icon-label">{{ t("oneTimeTasks.project") }}</span>
 
                 <!-- Project Dropdown -->
                 <div v-show="showProjectDropdown" class="toolbar-dropdown" @click.stop>
                   <!-- <div class="toolbar-dropdown-header">
-                    <span class="toolbar-dropdown-title">{{ t("selectProject") }}</span>
+                    <span class="toolbar-dropdown-title">{{ t("oneTimeTasks.selectProject") }}</span>
                     <button @click="closeProjectDropdown" class="toolbar-dropdown-close">
                       <i class="fas fa-times"></i>
                     </button>
@@ -2057,7 +1815,7 @@ const translations = {
                   <div class="toolbar-dropdown-content">
                     <div class="toolbar-search-container mb-3">
                       <input v-model="projectSearchQuery" type="text" class="toolbar-search-input"
-                        :placeholder="t('searchProjects')" @input="filterProjects" />
+                        :placeholder="t('oneTimeTasks.searchProjects')" @input="filterProjects" />
                     </div>
                     <div class="toolbar-options-container">
                       <div v-for="project in filteredProjects" :key="project.value" class="toolbar-option-item"
@@ -2068,7 +1826,7 @@ const translations = {
                         <i v-if="projectId === project.value" class="fas fa-check toolbar-option-check"></i>
                       </div>
                       <div v-if="filteredProjects.length === 0" class="toolbar-no-results">
-                        {{ t("noResultsFound") }}
+                        {{ t("oneTimeTasks.noResultsFound") }}
                       </div>
                     </div>
                   </div>
@@ -2086,12 +1844,12 @@ const translations = {
                     <span v-else>✓</span>
                   </span>
                 </div>
-                <span class="gmail-icon-label">{{ t("priority") }}</span>
+                <span class="gmail-icon-label">{{ t("oneTimeTasks.priority") }}</span>
 
                 <!-- Priority Dropdown -->
                 <div v-show="showPriorityDropdown" class="toolbar-dropdown" @click.stop>
                   <!-- <div class="toolbar-dropdown-header">
-                    <span class="toolbar-dropdown-title">{{ t("selectPriority") }}</span>
+                    <span class="toolbar-dropdown-title">{{ t("oneTimeTasks.selectPriority") }}</span>
                     <button @click="closePriorityDropdown" class="toolbar-dropdown-close">
                       <i class="fas fa-times"></i>
                     </button>
@@ -2099,7 +1857,7 @@ const translations = {
                   <div class="toolbar-dropdown-content">
                     <div class="toolbar-search-container mb-3">
                       <input v-model="prioritySearchQuery" type="text" class="toolbar-search-input"
-                        :placeholder="t('searchPriorities')" @input="filterPriorities" />
+                        :placeholder="t('oneTimeTasks.searchPriorities')" @input="filterPriorities" />
                     </div>
                     <div class="toolbar-options-container">
                       <div v-for="priorityOption in filteredPriorities" :key="priorityOption.value"
@@ -2111,7 +1869,7 @@ const translations = {
                         <i v-if="priority === priorityOption.value" class="fas fa-check toolbar-option-check"></i>
                       </div>
                       <div v-if="filteredPriorities.length === 0" class="toolbar-no-results">
-                        {{ t("noResultsFound") }}
+                        {{ t("oneTimeTasks.noResultsFound") }}
                       </div>
                     </div>
                   </div>
@@ -2129,18 +1887,19 @@ const translations = {
                     <span v-else>✓</span>
                   </span>
                 </div>
-                <span class="gmail-icon-label">{{ t("startDate") }}*</span>
+                <span class="gmail-icon-label">{{ t("oneTimeTasks.startDate") }}*</span>
 
                 <!-- Start Date Picker -->
                 <div v-show="showStartDatePicker" class="toolbar-dropdown" @click.stop>
                   <!-- <div class="toolbar-dropdown-header">
-                    <span class="toolbar-dropdown-title">{{ t("selectStartDate") }}</span>
+                    <span class="toolbar-dropdown-title">{{ t("oneTimeTasks.selectStartDate") }}</span>
                     <button @click="closeStartDatePicker" class="toolbar-dropdown-close">
                       <i class="fas fa-times"></i>
                     </button>
                   </div> -->
                   <div class="toolbar-dropdown-content">
-                    <ArgonInput type="date" v-model="startDate" :placeholder="t('enterStartDate')" required />
+                    <ArgonInput type="date" v-model="startDate" :placeholder="t('oneTimeTasks.enterStartDate')"
+                      required />
                   </div>
                 </div>
               </div>
@@ -2156,18 +1915,18 @@ const translations = {
                     <span v-else>✓</span>
                   </span>
                 </div>
-                <span class="gmail-icon-label">{{ t("endDate") }}</span>
+                <span class="gmail-icon-label">{{ t("oneTimeTasks.endDate") }}</span>
 
                 <!-- End Date Picker -->
                 <div v-show="showEndDatePicker" class="toolbar-dropdown" @click.stop>
                   <!-- <div class="toolbar-dropdown-header">
-                    <span class="toolbar-dropdown-title">{{ t("selectEndDate") }}</span>
+                    <span class="toolbar-dropdown-title">{{ t("oneTimeTasks.selectEndDate") }}</span>
                     <button @click="closeEndDatePicker" class="toolbar-dropdown-close">
                       <i class="fas fa-times"></i>
                     </button>
                   </div> -->
                   <div class="toolbar-dropdown-content">
-                    <ArgonInput type="date" v-model="endDate" :placeholder="t('enterEndDate')" />
+                    <ArgonInput type="date" v-model="endDate" :placeholder="t('oneTimeTasks.enterEndDate')" />
                   </div>
                 </div>
               </div>
@@ -2178,12 +1937,12 @@ const translations = {
         <div class="gmail-footer" v-show="!isMinimized">
           <!-- زر الإغلاق -->
           <argon-button variant="secondary" @click="closePopup" class="me-2">
-            {{ t("close") }}
+            {{ t("oneTimeTasks.close") }}
           </argon-button>
           <!-- زر الحفظ -->
           <argon-button variant="success" @click="createOneTimeTask" :disabled="isSubmitting">
             <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            {{ isSubmitting ? t("saving") : t("create") }}
+            {{ isSubmitting ? t("oneTimeTasks.saving") : t("oneTimeTasks.create") }}
           </argon-button>
         </div>
       </div>
@@ -2195,7 +1954,7 @@ const translations = {
   <!-- مودال تعديل OneTimeTask -->
   <transition name="modal-fade">
     <div v-if="showEditPopup" class="popup-overlay">
-      <ArgonModal v-if="showEditPopup" :title="t('editOneTimeTask')" @close="closeEditPopup"
+      <ArgonModal v-if="showEditPopup" :title="t('oneTimeTasks.editOneTimeTask')" @close="closeEditPopup"
         class="one-time-task-modal">
         <template #default>
           <div class="modal-content-scroll">
@@ -2203,25 +1962,25 @@ const translations = {
             <div class="row">
               <!-- اسم المهمة بعرض كامل -->
               <div class="col-12 mb-3">
-                <label class="form-label">{{ t("taskName") }}:</label>
-                <input v-model="oneTimeTaskName" class="form-control" :placeholder="t('enterTaskName')" required
-                  @focus="onFieldFocus" />
+                <label class="form-label">{{ t("oneTimeTasks.taskName") }}:</label>
+                <input v-model="oneTimeTaskName" class="form-control" :placeholder="t('oneTimeTasks.enterTaskName')"
+                  required @focus="onFieldFocus" />
               </div>
 
               <!-- الوصف بعرض كامل -->
               <div class="col-12 mb-3">
-                <label class="form-label">{{ t("description") }}:</label>
-                <textarea v-model="oneTimeTaskDescription" class="form-control" :placeholder="t('enterDescription')"
-                  required @focus="onFieldFocus"></textarea>
+                <label class="form-label">{{ t("oneTimeTasks.description") }}:</label>
+                <textarea v-model="oneTimeTaskDescription" class="form-control"
+                  :placeholder="t('oneTimeTasks.enterDescription')" required @focus="onFieldFocus"></textarea>
               </div>
 
               <!-- assignTo في نصف عرض -->
               <!-- <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("assignTo") }}:</label>
+                <label class="form-label">{{ t("oneTimeTasks.assignTo") }}:</label>
                 <argon-select
                   v-model="selectedEmployee"
                   :options="employeeOptions"
-                  :placeholder="t('selectEmployee')"
+                  :placeholder="t('oneTimeTasks.selectEmployee')"
                   class="form-control"
                   searchable
                   searchPlaceholder="Search employees..."
@@ -2229,26 +1988,26 @@ const translations = {
                 />
               </div> -->
 
-              <label class="form-label">{{ t("assignTo") }}:</label>
+              <label class="form-label">{{ t("oneTimeTasks.assignTo") }}:</label>
               <argon-multiple-select v-model="selectedAssignee" :model-names="selectedAssigneeNames"
-                :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
-                :searchPlaceholder="t('searchEmployees')" class="form-control mb-3" />
+                :options="employeeOptions" :placeholder="t('oneTimeTasks.selectEmployee')" :searchable="true"
+                :searchPlaceholder="t('oneTimeTasks.searchEmployees')" class="form-control mb-3" />
 
               <!-- supervisor في نصف عرض -->
               <div class="mb-3">
-                <label class="form-label">{{ t("supervisor") }}:</label>
+                <label class="form-label">{{ t("oneTimeTasks.supervisor") }}:</label>
                 <argon-select v-model="selectedSupervisor" :options="employeeOptions"
-                  :placeholder="t('selectSupervisor')" class="form-control" searchable
+                  :placeholder="t('oneTimeTasks.selectSupervisor')" class="form-control" searchable
                   searchPlaceholder="Search supervisors..." required />
               </div>
 
               <!-- informer في نصف عرض -->
               <!-- <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("informer") }}:</label>
+                <label class="form-label">{{ t("oneTimeTasks.informer") }}:</label>
                 <argon-select
                   v-model="selectedInformer"
                   :options="employeeOptions"
-                  :placeholder="t('selectInformer')"
+                  :placeholder="t('oneTimeTasks.selectInformer')"
                   class="form-control"
                   searchable
                   searchPlaceholder="Search informers..."
@@ -2256,18 +2015,18 @@ const translations = {
                 />
               </div> -->
 
-              <label class="form-label">{{ t("informer") }}:</label>
+              <label class="form-label">{{ t("oneTimeTasks.informer") }}:</label>
               <argon-multiple-select v-model="selectedInformer" :model-names="selectedInformerNames"
-                :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
-                :searchPlaceholder="t('searchInformers')" class="form-control mb-3" />
+                :options="employeeOptions" :placeholder="t('oneTimeTasks.selectEmployee')" :searchable="true"
+                :searchPlaceholder="t('oneTimeTasks.searchInformers')" class="form-control mb-3" />
 
               <!-- consultant في نصف عرض -->
               <!-- <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("consultant") }}:</label>
+                <label class="form-label">{{ t("oneTimeTasks.consultant") }}:</label>
                 <argon-select
                   v-model="selectedConsultant"
                   :options="employeeOptions"
-                  :placeholder="t('selectConsultant')"
+                  :placeholder="t('oneTimeTasks.selectConsultant')"
                   class="form-control"
                   searchable
                   searchPlaceholder="Search consultants..."
@@ -2275,37 +2034,40 @@ const translations = {
                 />
               </div> -->
 
-              <label class="form-label">{{ t("consultant") }}:</label>
+              <label class="form-label">{{ t("oneTimeTasks.consultant") }}:</label>
               <argon-multiple-select v-model="selectedConsultant" :model-names="selectedConsultantNames"
-                :options="employeeOptions" :placeholder="t('selectEmployee')" :searchable="true"
-                :searchPlaceholder="t('searchConsultants')" class="form-control mb-3" />
+                :options="employeeOptions" :placeholder="t('oneTimeTasks.selectEmployee')" :searchable="true"
+                :searchPlaceholder="t('oneTimeTasks.searchConsultants')" class="form-control mb-3" />
 
               <!-- المشروع (project_id) في نصف عرض -->
               <!-- في القالب -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("project") }}:</label>
-                <argon-select v-model="projectId" :options="formattedProjects" :placeholder="t('selectProject')"
-                  class="form-control" searchable searchPlaceholder="Search projects..." required />
+                <label class="form-label">{{ t("oneTimeTasks.project") }}:</label>
+                <argon-select v-model="projectId" :options="formattedProjects"
+                  :placeholder="t('oneTimeTasks.selectProject')" class="form-control" searchable
+                  searchPlaceholder="Search projects..." required />
               </div>
 
               <!-- الأولوية (priority) في نصف عرض -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("priority") }}:</label>
-                <argon-select v-model="priority" :options="prioritiesOptions" :placeholder="t('selectPriority')"
-                  class="form-control" searchable searchPlaceholder="Search priorities..." required />
+                <label class="form-label">{{ t("oneTimeTasks.priority") }}:</label>
+                <argon-select v-model="priority" :options="prioritiesOptions"
+                  :placeholder="t('oneTimeTasks.selectPriority')" class="form-control" searchable
+                  searchPlaceholder="Search priorities..." required />
               </div>
 
               <!-- تاريخ البداية في نصف عرض -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("startDate") }}:</label>
-                <input type="date" v-model="startDate" class="form-control" :placeholder="t('enterStartDate')"
-                  required />
+                <label class="form-label">{{ t("oneTimeTasks.startDate") }}:</label>
+                <input type="date" v-model="startDate" class="form-control"
+                  :placeholder="t('oneTimeTasks.enterStartDate')" required />
               </div>
 
               <!-- تاريخ النهاية في نصف عرض -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">{{ t("endDate") }}:</label>
-                <input type="date" v-model="endDate" class="form-control" :placeholder="t('enterEndDate')" required />
+                <label class="form-label">{{ t("oneTimeTasks.endDate") }}:</label>
+                <input type="date" v-model="endDate" class="form-control" :placeholder="t('oneTimeTasks.enterEndDate')"
+                  required />
               </div>
             </div>
           </div>
@@ -2313,11 +2075,11 @@ const translations = {
 
         <template #footer>
           <ArgonButton variant="secondary" @click="closeEditPopup">
-            {{ t("close") }}
+            {{ t("oneTimeTasks.close") }}
           </ArgonButton>
           <ArgonButton variant="success" @click="updateOneTimeTask" :disabled="isSubmitting">
             <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            {{ isSubmitting ? t("saving") : t("update") }}
+            {{ isSubmitting ? t("oneTimeTasks.saving") : t("oneTimeTasks.update") }}
           </ArgonButton>
         </template>
       </ArgonModal>
@@ -2326,7 +2088,7 @@ const translations = {
 
   <!-- FAB Button - يظهر فقط على الموبايل والتابلت -->
   <button v-if="(isOwner || permissions['create-task']) && (isMobile || isTablet)" class="fab-button" @click="openPopup"
-    :aria-label="t('createOneTimeTask')" :title="t('createOneTimeTask')">
+    :aria-label="t('oneTimeTasks.createOneTimeTask')" :title="t('oneTimeTasks.createOneTimeTask')">
     <i class="fas fa-plus"></i>
   </button>
 </template>

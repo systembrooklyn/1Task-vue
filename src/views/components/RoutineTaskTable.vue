@@ -12,11 +12,11 @@
               {{ t("status") }}
             </th> -->
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("taskName") }}
+              {{ t("routineTasks.taskName") }}
             </th>
 
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("department") }}
+              {{ t("routineTasks.department") }}
             </th>
             <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
@@ -24,10 +24,10 @@
               {{ t("taskType") }}
             </th> -->
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("from") }}
+              {{ t("routineTasks.from") }}
             </th>
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("to") }}
+              {{ t("routineTasks.to") }}
             </th>
             <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
@@ -35,22 +35,22 @@
               {{ t("taskCreatedBy") }}
             </th> -->
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("project") }}
+              {{ t("routineTasks.project") }}
             </th>
 
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("notes") }}
+              {{ t("routineTasks.notes") }}
             </th>
 
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("employeeName") }}
+              {{ t("routineTasks.employeeName") }}
             </th>
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("taskFound") }}
+              {{ t("routineTasks.taskFound") }}
             </th>
             <th v-if="permissions['report-dailytask'] || isOwner"
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("report") }}
+              {{ t("routineTasks.report") }}
             </th>
           </tr>
         </thead>
@@ -135,7 +135,7 @@
             <td>
               <p class="text-xs font-weight-bold mb-0">
                 {{ task.today_report_status === null ? "Not Report" : "" || task.today_report?.task_found === 1 ? "yes"
-                : "No" }}
+                  : "No" }}
               </p>
             </td>
             <td class="align-middle" v-if="permissions['report-dailytask'] || isOwner">
@@ -146,7 +146,7 @@
                   task.today_report_status
                 ),
               }" :aria-disabled="['done', 'not_done'].includes(task.today_report_status)
-                  " :style="{
+                " :style="{
                   pointerEvents: ['done', 'not_done'].includes(
                     task.today_report_status
                   )
@@ -176,7 +176,7 @@
                 class="text-danger font-weight-bold text-xs"
                 @click="confirmDelete(task)"
               >
-                {{ t("delete") }}
+                {{ t("routineTasks.delete") }}
               </a> -->
             </td>
           </tr>
@@ -185,7 +185,7 @@
     </div>
     <div class="d-flex align-items-center">
       <span class="circle-critical-routine-task me-2"></span>
-      <small>{{ t("criticalRoutineTasks") }}</small>
+      <small>{{ t("routineTasks.criticalRoutineTasks") }}</small>
     </div>
 
     <!-- Pagination Controls -->
@@ -301,22 +301,23 @@
                 />
               </div> -->
 
-              <label class="form-label">{{ t("reportTaskType") }}:</label>
+              <label class="form-label">{{ t("routineTasks.reportTaskType") }}:</label>
               <argon-select required v-model="taskStatus" :options="reportTypeOptions" class="form-control mb-3"
-                :placeholder="t('selectReportTaskType')" />
+                :placeholder="t('routineTasks.selectReportTaskType')" />
 
-              <label class="form-label">{{ t("taskFound") }}</label>
+              <label class="form-label">{{ t("routineTasks.taskFound") }}</label>
               <argon-select v-model="taskFound" :options="taskFoundOptions" class="form-control mb-3"
-                :placeholder="t('selectTaskFound')" />
+                :placeholder="t('routineTasks.selectTaskFound')" />
 
-              <label class="form-label">{{ t("notes") }}:</label>
-              <textarea v-model="taskNotes" class="form-control mb-3" :placeholder="t('enterNotes')"></textarea>
+              <label class="form-label">{{ t("routineTasks.notes") }}:</label>
+              <textarea v-model="taskNotes" class="form-control mb-3"
+                :placeholder="t('routineTasks.enterNotes')"></textarea>
 
               <!-- <div
               v-show="selectedTask.task_type === 'weekly'"
               class="form-group mb-3"
               >
-              <label class="form-label">{{ t("recurrentDays") }}:</label>
+              <label class="form-label">{{ t("routineTasks.recurrentDays") }}:</label>
               <div class="d-flex flex-wrap">
                 <div
                   v-for="day in daysOfWeek"
@@ -339,12 +340,12 @@
                 v-show="selectedTask.task_type === 'monthly'"
                 class="form-group mb-3"
               >
-                <label class="form-label">{{ t("dayOfMonth") }}:</label>
+                <label class="form-label">{{ t("routineTasks.dayOfMonth") }}:</label>
                 <input
                   type="number"
                   v-model="selectedTask.day_of_month"
                   class="form-control"
-                  :placeholder="t('enterDayOfMonth')"
+                  :placeholder="t('routineTasks.enterDayOfMonth')"
                   min="1"
                   max="31"
                 />
@@ -386,7 +387,7 @@
                 v-model:checked="selectedTask.status"
               >
                 {{
-                  selectedTask.status === "done" ? t("active") : t("inactive")
+                  selectedTask.status === "done" ? t("routineTasks.active") : t("routineTasks.inactive")
                 }}
               </argon-switch> -->
             </div>
@@ -396,16 +397,16 @@
             <argon-button variant="success" @click="reportTask" :disabled="isLoading">
               <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
                 aria-hidden="true"></span>
-              {{ isLoading ? t("saving") : t("report") }}
+              {{ isLoading ? t("routineTasks.saving") : t("routineTasks.report") }}
             </argon-button>
             <argon-button variant="secondary" @click="closeEditPopup">
-              {{ t("close") }}
+              {{ t("routineTasks.close") }}
             </argon-button>
           </template>
 
           <template #title>
             <i class="fas fa-user-edit me-2"></i>
-            {{ t("editTask") }}
+            {{ t("routineTasks.editTask") }}
           </template>
         </ArgonModal>
       </transition>
@@ -420,12 +421,12 @@
             <ul class="nav nav-tabs custom-tabs" role="tablist">
               <li class="nav-item">
                 <argon-button class="nav-link" :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">
-                  {{ t("info") }}
+                  {{ t("routineTasks.info") }}
                 </argon-button>
               </li>
               <li class="nav-item">
                 <argon-button class="nav-link" :class="{ active: activeTab === 'log' }" @click="activeTab = 'log'">
-                  {{ t("log") }}
+                  {{ t("routineTasks.log") }}
                 </argon-button>
               </li>
             </ul>
@@ -433,17 +434,17 @@
               <div v-if="activeTab === 'info'">
                 <dl class="task-info" :class="{ 'rtl-mode': currentLanguage === 'ar' }">
                   <div class="info-item">
-                    <dt>{{ t("taskNumber") }}:</dt>
+                    <dt>{{ t("routineTasks.taskNumber") }}:</dt>
                     <dd>{{ selectedTaskNumber }}</dd>
                   </div>
 
                   <div v-if="selectedDescription" class="info-item">
-                    <dt>{{ t("description") }}:</dt>
+                    <dt>{{ t("routineTasks.description") }}:</dt>
                     <dd>{{ selectedDescription }}</dd>
                   </div>
 
                   <div class="info-item">
-                    <dt>{{ t("department") }}:</dt>
+                    <dt>{{ t("routineTasks.department") }}:</dt>
                     <dd>{{ selectedTaskDepartment }}</dd>
                   </div>
 
@@ -451,7 +452,7 @@
                     selectedTaskRecurrentDays &&
                     selectedTaskRecurrentDays.length
                   " class="info-item">
-                    <dt>{{ t("recurrentDays") }}:</dt>
+                    <dt>{{ t("routineTasks.recurrentDays") }}:</dt>
                     <dd>
                       {{
                         selectedTaskRecurrentDays
@@ -467,17 +468,17 @@
                   </div>
 
                   <div v-if="selectedTaskDayOfMonth" class="info-item">
-                    <dt>{{ t("dayOfMonth") }}:</dt>
+                    <dt>{{ t("routineTasks.dayOfMonth") }}:</dt>
                     <dd>{{ selectedTaskDayOfMonth }}</dd>
                   </div>
 
                   <div v-if="selectedTaskCreationDate" class="info-item">
-                    <dt>{{ t("createdAt") }}:</dt>
+                    <dt>{{ t("routineTasks.createdAt") }}:</dt>
                     <dd>{{ formatDate(selectedTaskCreationDate) }}</dd>
                   </div>
 
                   <div v-if="selectedTaskStartDate" class="info-item">
-                    <dt>{{ t("startDate") }}:</dt>
+                    <dt>{{ t("routineTasks.startDate") }}:</dt>
                     <dd>{{ formatDate(selectedTaskStartDate) }}</dd>
                   </div>
                 </dl>
@@ -486,20 +487,20 @@
                 <div v-if="taskLogs.length > 0">
                   <ul class="log-list">
                     <li v-for="log in taskLogs" :key="log.id" class="log-item">
-                      {{ t("onDate") }}
+                      {{ t("routineTasks.onDate") }}
                       <strong>{{ formatDate(log.created_at) }}</strong>,
                       <strong>{{ log.user.name || "N/A" }}</strong>
-                      {{ t("changedTheField") }}
+                      {{ t("routineTasks.changedTheField") }}
                       "<strong>{{ log.field_name }}</strong>"
-                      {{ t("from") }}
+                      {{ t("routineTasks.from") }}
                       "<strong>{{ log.old_value }}</strong>"
-                      {{ t("to") }}
+                      {{ t("routineTasks.to") }}
                       "<strong>{{ log.new_value }}</strong>".
                     </li>
                   </ul>
                 </div>
                 <div v-else>
-                  <p>{{ t("noLogsAvailable") }}</p>
+                  <p>{{ t("routineTasks.noLogsAvailable") }}</p>
                 </div>
               </div>
             </div>
@@ -508,7 +509,7 @@
 
         <template #footer>
           <argon-button variant="secondary" @click="closeDescriptionModal">
-            {{ t("close") }}
+            {{ t("routineTasks.close") }}
           </argon-button>
         </template>
       </ArgonModal>
@@ -519,6 +520,7 @@
 <script setup>
 import { computed, ref, onBeforeMount, watch } from "vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
 import Swal from "sweetalert2";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
@@ -533,6 +535,7 @@ import {
 } from "@/utils/permissions.js";
 
 const store = useStore();
+const { t } = useI18n();
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
 
@@ -673,8 +676,8 @@ const selectedManager = ref(null);
 
 const selectedTask = ref(null); // لتخزين المهمة المحددة للتعديل
 
+// Translation now handled by useI18n
 const currentLanguage = computed(() => store.getters.currentLanguage);
-const t = (key) => translations[currentLanguage.value][key];
 
 // const dataFromApi = computed(() => store.getters.dataFromApi);
 
@@ -740,7 +743,7 @@ const reportTask = async () => {
     if (result.status === 201) {
       Swal.fire({
         icon: "success",
-        title: t("taskReportedSuccessfully"),
+        title: t("routineTasks.taskReportedSuccessfully"),
         showConfirmButton: false,
         timer: 1500,
         timerProgressBar: true,
@@ -758,7 +761,7 @@ const reportTask = async () => {
     console.error("Error updating task:", error);
     Swal.fire({
       icon: "error",
-      title: t("errorUpdatingTask"),
+      title: t("routineTasks.errorUpdatingTask"),
       text: error.message,
     });
   } finally {
@@ -895,167 +898,17 @@ const formatTime = (time) => {
   return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
 };
 
-// الترجمات المحدثة
-const translations = {
-  en: {
-    tasksTable: "Tasks Table",
-    taskName: "Task Name",
-    edit: "Edit",
-    delete: "Delete",
-    deleteConfirmationTitle: "Delete Task",
-    deleteConfirmationText: "Are you sure you want to delete this task?",
-    deleteConfirmationSuccess: "Task deleted successfully.",
-    close: "Close",
-    saving: "Saving...",
-    update: "Update",
-    assignManager: "Assigned Manager",
-    taskUpdatedSuccessfully: "Task updated successfully",
-    taskDeletedSuccessfully: "Task deleted successfully",
-    taskReportedSuccessfully: "Task reported successfully",
-    status: "Status",
-    taskCreatedBy: "Created By",
-    description: "Description",
-    taskDetails: "Task Details",
-    createdAt: "Created At",
-    deadline: "Deadline",
-    startDate: "Start Date",
-    active: "Active",
-    inactive: "Inactive",
-    log: "Log",
-    info: "Info",
-    statusUpdatedSuccessfully: "Status updated successfully",
-    errorUpdatingStatus: "Error updating status",
-    errorUpdatingTask: "Error updating task",
-    errorDeletingTask: "Error deleting task",
-    noLogsAvailable: "No logs available",
-    changedTheField: "changed the field",
-    from: "from",
-    to: "to",
-    onDate: "On",
-    editTask: "Edit Task",
-    noTasks: "No tasks found.", // إضافة ترجمة جديدة
-    createee: "Create your task using the button above", // تعديل الترجمة
-    taskNumber: "Task Code",
-    taskStartDate: "Task Start Date",
-    taskDeadline: "Task Deadline",
-    reportTaskType: "Report Task Type",
-    dayOfWeek: "Day of Week",
-    dayOfMonth: "Day of Month",
-    fromTime: "From Time",
-    sunday: "Sunday",
-    monday: "Monday",
-    tuesday: "Tuesday",
-    wednesday: "Wednesday",
-    thursday: "Thursday",
-    friday: "Friday",
-    saturday: "Saturday",
-    taskCreatedSuccessfully: "Task created successfully",
-    taskCreatedSuccessfullyMessage: "Task created successfully",
-    taskCreationError: "Error creating task",
-    recurrentDays: "Recurrent Days",
-    enterDayOfMonth: "Enter day of the month ex: 1, 2,....31",
-    report: "Report",
-    reportTask: "Report Task",
-    selectReportTaskType: "Select Report Task Type",
-    notes: "Notes",
-    enterNotes: "Enter notes",
-    employeeName: "Employee Name",
-    department: "Department",
-    taskFound: "There is task",
-    selectTaskFound: "Select Task Found",
-    project: "Project",
-    criticalRoutineTasks: "Critical Routine Tasks",
-  },
-  ar: {
-    tasksTable: "جدول المهام",
-    taskName: "اسم المهمة",
-    edit: "تعديل",
-    delete: "حذف",
-    deleteConfirmationTitle: "حذف المهمة",
-    deleteConfirmationText: "هل تريد حذف هذه المهمة؟",
-    deleteConfirmationSuccess: "تم حذف المهمة بنجاح.",
-    close: "إغلاق",
-    saving: "يتم الحفظ...",
-    update: "تحديث",
-    assignManager: "المدير المعين",
-    taskUpdatedSuccessfully: "تم تحديث المهمة بنجاح",
-    taskDeletedSuccessfully: "تم حذف المهمة بنجاح",
-    taskReportedSuccessfully: "تم تقرير المهمة بنجاح",
-    status: "حالة المهمة",
-    taskCreatedBy: "تم الإنشاء بواسطة",
-    description: "وصف المهمة",
-    taskDetails: "تفاصيل المهمة",
-    createdAt: "تاريخ الإنشاء",
-    deadline: "المهلة النهائية",
-    startDate: "تاريخ البدء",
-    active: "نشط",
-    inactive: "غير نشط",
-    log: "سجل",
-    info: "معلومات",
-    statusUpdatedSuccessfully: "تم تحديث الحالة بنجاح",
-    errorUpdatingStatus: "حدث خطأ في تحديث الحالة",
-    errorUpdatingTask: "حدث خطأ في تحديث المهمة",
-    errorDeletingTask: "حدث خطأ في حذف المهمة",
-    noLogsAvailable: "لا يوجد سجلات متاحة",
-    changedTheField: "قام بتغيير الحقل",
-    from: "من",
-    to: "إلى",
-    onDate: "في تاريخ",
-    editTask: "تعديل المهمة",
-    noTasks: "لا يوجد مهام.", // إضافة ترجمة جديدة
-    createee: "انشئ مهمتك من الزر المتواجد بالاعلي", // تعديل الترجمة
-    taskNumber: "كود المهمة",
-    taskStartDate: "تاريخ بدء المهمة",
-    taskDeadline: "تاريخ انتهاء المهمة",
-    reportTaskType: "تقرير المهمة",
-    dayOfWeek: "يوم الاسبوع",
-    dayOfMonth: "يوم الشهر",
-    fromTime: "من الوقت",
-    sunday: "الاحد",
-    monday: "الاثنين",
-    tuesday: "الثلاثاء",
-    wednesday: "الاربعاء",
-    thursday: "الخميس",
-    friday: "الجمعة",
-    saturday: "السبت",
-    taskCreatedSuccessfully: "تم انشاء المهمة بنجاح",
-    taskCreatedSuccessfullyMessage: "تم انشاء المهمة بنجاح",
-    taskCreationError: "حدث خطاء في انشاء المهمة",
-    recurrentDays: "ايام التكرار",
-    enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,....31",
-    report: "تقرير",
-    reportTask: "تقرير المهمة",
-    selectReportTaskType: "حدد نوع المهمة",
-    notes: "ملاحظات",
-    enterNotes: "ادخل ملاحظات",
-    employeeName: "اسم الموظف",
-    department: "القسم",
-    taskFound: "هل يوجد مهمة",
-    selectTaskFound: "حدد المهمة موجودة",
-    project: "المشروع",
-    criticalRoutineTasks: "المهام الحرجة",
-  },
-};
+// Translations moved to i18n/locales/routineTasks.js
 const daysOfWeek = computed(() => {
-  return currentLanguage.value === "ar"
-    ? [
-      { label: "الأحد", value: 0 },
-      { label: "الإثنين", value: 1 },
-      { label: "الثلاثاء", value: 2 },
-      { label: "الأربعاء", value: 3 },
-      { label: "الخميس", value: 4 },
-      { label: "الجمعة", value: 5 },
-      { label: "السبت", value: 6 },
-    ]
-    : [
-      { label: "Sunday", value: 0 },
-      { label: "Monday", value: 1 },
-      { label: "Tuesday", value: 2 },
-      { label: "Wednesday", value: 3 },
-      { label: "Thursday", value: 4 },
-      { label: "Friday", value: 5 },
-      { label: "Saturday", value: 6 },
-    ];
+  return [
+    { label: t("routineTasks.sunday"), value: 0 },
+    { label: t("routineTasks.monday"), value: 1 },
+    { label: t("routineTasks.tuesday"), value: 2 },
+    { label: t("routineTasks.wednesday"), value: 3 },
+    { label: t("routineTasks.thursday"), value: 4 },
+    { label: t("routineTasks.friday"), value: 5 },
+    { label: t("routineTasks.saturday"), value: 6 },
+  ];
 });
 
 

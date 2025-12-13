@@ -1,0 +1,33 @@
+export default {
+  menu: {
+    dashboard: "Dashboard",
+    home: "Home",
+    tasks: "Tasks",
+    projects: "Projects",
+    users: "Users",
+    team: "Team",
+    departments: "Departments",
+    roles: "Roles",
+    profile: "Profile",
+    settings: "Settings",
+    billing: "Billing",
+    subscription: "Subscription",
+    pricing: "Pricing",
+    reports: "Reports",
+    analytics: "Analytics",
+    help: "Help",
+    support: "Support",
+    logout: "Logout",
+    signin: "Sign In",
+    signup: "Sign Up",
+  },
+  breadcrumbs: {
+    home: "Home",
+    dashboard: "Dashboard",
+    currentPage: "Current Page",
+  },
+  sidebar: {
+    collapse: "Collapse Sidebar",
+    expand: "Expand Sidebar",
+  },
+};

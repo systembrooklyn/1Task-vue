@@ -1,0 +1,33 @@
+export default {
+  menu: {
+    dashboard: "لوحة التحكم",
+    home: "الرئيسية",
+    tasks: "المهام",
+    projects: "المشاريع",
+    users: "المستخدمين",
+    team: "الفريق",
+    departments: "الأقسام",
+    roles: "الأدوار",
+    profile: "الملف الشخصي",
+    settings: "الإعدادات",
+    billing: "الفواتير",
+    subscription: "الاشتراك",
+    pricing: "الأسعار",
+    reports: "التقارير",
+    analytics: "التحليلات",
+    help: "المساعدة",
+    support: "الدعم",
+    logout: "تسجيل الخروج",
+    signin: "تسجيل الدخول",
+    signup: "إنشاء حساب",
+  },
+  breadcrumbs: {
+    home: "الرئيسية",
+    dashboard: "لوحة التحكم",
+    currentPage: "الصفحة الحالية",
+  },
+  sidebar: {
+    collapse: "طي الشريط الجانبي",
+    expand: "توسيع الشريط الجانبي",
+  },
+};

@@ -2,21 +2,9 @@
 import { ref, computed, onBeforeMount, watch } from "vue";
 import DoughnutChart from "@/examples/Charts/DoughnutChart.vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
 
-const t = (key) => {
-  return translations[currentLanguage.value][key];
-};
-console.log("t", t);
-
-const translations = {
-  en: {
-    noDataHere: "No Data Here in this range",
-  },
-  ar: {
-    noDataHere: "لا يوجد بيانات هنا في هذه الفترة",
-  },
-};
-const currentLanguage = computed(() => store.getters.currentLanguage);
+const { t } = useI18n();
 
 
 
@@ -81,23 +69,23 @@ onBeforeMount(async () => {
     <div class="date-range-selector">
       <!-- From Date -->
       <div class="input-group mb-3 date-input-wrapper">
-        <span class="input-group-text">From :</span>
-        <input type="date" v-model="fromDate" class="form-control" placeholder="From Date" :max="toDate || undefined" />
+        <span class="input-group-text">{{ t("charts.from") }} :</span>
+        <input type="date" v-model="fromDate" class="form-control" :placeholder="t('charts.fromDate')" :max="toDate || undefined" />
       </div>
 
       <!-- To Date -->
       <div class="input-group mb-3 date-input-wrapper">
-        <span class="input-group-text">To :</span>
-        <input type="date" v-model="toDate" class="form-control" placeholder="To Date" :min="fromDate || undefined" />
+        <span class="input-group-text">{{ t("charts.to") }} :</span>
+        <input type="date" v-model="toDate" class="form-control" :placeholder="t('charts.toDate')" :min="fromDate || undefined" />
       </div>
 
-      <button class="btn btn-primary get-data-btn" @click="getChartData">Get Data</button>
+      <button class="btn btn-primary get-data-btn" @click="getChartData">{{ t("charts.getData") }}</button>
     </div>
 
     <!-- حالة التحميل -->
     <div v-if="isLoading" class="text-center">
       <div class="spinner-border mx-auto" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">{{ t("charts.loading") }}</span>
       </div>
     </div>
 
@@ -105,8 +93,8 @@ onBeforeMount(async () => {
     <div v-else-if="!chartData?.data?.dept_performance || chartData.data.dept_performance.length === 0">
       <div class="no-tasks-container">
         <img src="https://ik.imagekit.io/ts7pphpbz3/9318688.jpg" alt="no-tasks" class="no-tasks-image" />
-        <p class="no-tasks-text">{{ t("noDataHere") }} {{ chartData.range?.from }} <span
-            v-if="chartData.range?.to">to</span> {{
+        <p class="no-tasks-text">{{ t("charts.noDataHere") }} {{ chartData.range?.from }} <span
+            v-if="chartData.range?.to">{{ t("charts.to") }}</span> {{
               chartData.range?.to }}</p>
       </div>
     </div>
@@ -114,7 +102,7 @@ onBeforeMount(async () => {
     <!-- حالة وجود بيانات -->
     <div v-else class="chart-wrapper">
       <DoughnutChart :id="'deptPerformanceChart'"
-        :title="`Department Performance (${chartData.data?.range?.from} to ${chartData.data?.range?.to})`" :chart="{
+        :title="`${t('charts.departmentPerformance')} (${chartData.data?.range?.from} ${t('charts.to')} ${chartData.data?.range?.to})`" :chart="{
           labels: chartData.data?.dept_performance?.map((d) => d.department_name) ?? [],
           datasets: [
             {

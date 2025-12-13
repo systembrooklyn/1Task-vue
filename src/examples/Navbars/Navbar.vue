@@ -16,7 +16,7 @@ import Swal from "sweetalert2";
 // import Breadcrumbs from "../Breadcrumbs.vue";
 import apiClient from "@/services/apiService";
 import { activateDarkMode, deactivateDarkMode } from "@/assets/js/dark-mode";
-// import LanguageSwitcher from "../../views/components/LanguageSwitcher.vue";
+import LanguageSwitcher from "@/views/components/LanguageSwitcher.vue";
 
 // const showMenu = ref(false);
 const store = useStore();
@@ -418,6 +418,11 @@ const toggleDarkMode = () => {
             </span>
           </button>
 
+          <!-- Language Switcher for Small Screen -->
+          <div class="language-switcher-small">
+            <LanguageSwitcher />
+          </div>
+
           <!-- Avatar Only on Mobile -->
           <div class="nav-item dropdown navbar-avatar-container" v-if="userName">
             <button class="btn btn-link nav-link text-body p-0 d-flex align-items-center navbar-avatar-btn"
@@ -496,6 +501,11 @@ const toggleDarkMode = () => {
                   {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
                 </span>
               </button>
+
+              <!-- Language Switcher for Desktop -->
+              <div class="language-switcher-desktop me-3">
+                <LanguageSwitcher />
+              </div>
 
               <div class="nav-item dropdown" v-if="userName">
                 <button
@@ -1231,5 +1241,12 @@ button {
   .dark-mode-toggle-btn-small .material-symbols-rounded {
     font-size: 20px;
   }
+}
+
+/* Language Switcher Styles */
+.language-switcher-small,
+.language-switcher-desktop {
+  display: flex;
+  align-items: center;
 }
 </style>

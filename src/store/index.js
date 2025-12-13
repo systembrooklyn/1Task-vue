@@ -585,7 +585,13 @@ export default createStore({
       commit("sidebarType", payload);
     },
     changeLanguage({ commit }, language) {
-      commit("SET_LANGUAGE", language);
+      // setLocale يحدث store.state.isRTL تلقائياً، لذا نستخدمه فقط
+      if (typeof window !== 'undefined' && window.setLocale) {
+        window.setLocale(language);
+      } else {
+        // Fallback: تحديث store مباشرة إذا لم يكن setLocale متاحاً
+        commit("SET_LANGUAGE", language);
+      }
     },
 
     async checkEmailExists({ commit }, email) {

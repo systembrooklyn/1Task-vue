@@ -3,16 +3,10 @@
   <div v-if="!isSmallScreen" class="routine-task-container" :key="`desktop-${componentKey}`">
     <!-- الشريط الجانبي (الأزرار) -->
     <div class="sidebar">
-      <button v-for="tab in [
-        'Inbox',
-        'Own',
-        'Archive',
-        'Started',
-        'Review',
-        'Done',
-      ]" :key="tab" :class="{ active: activeTab === tab }" @click="activeTab = tab">
-        <span class="tab-name">{{ tab }}</span>
-        <span class="tab-count">{{ getTabCount(tab) }}</span>
+      <button v-for="tab in tabs" :key="tab.value" :class="{ active: activeTab === tab.value }"
+        @click="activeTab = tab.value">
+        <span class="tab-name">{{ tab.label }}</span>
+        <span class="tab-count">{{ getTabCount(tab.value) }}</span>
       </button>
     </div>
 
@@ -23,7 +17,7 @@
         <img src="https://ik.imagekit.io/ts7pphpbz3/man-despair-data-leak_11197-392.jpg?updatedAt=1742827650800"
           alt="no-tasks" class="no-tasks-image" />
         <p class="no-tasks-text">
-          {{ t("noTasksHere") }}
+          {{ t("oneTimeTasks.noTasksHere") }}
         </p>
       </div>
 
@@ -45,8 +39,9 @@
 
             <!-- اسم المنشئ (Gmail Style) -->
             <span v-if="(activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id"
-              class="creator-name-simple"> {{ t('to') }}: {{ getDisplayName(task) }}</span>
-            <span v-else-if="(activeTab === 'Done' || activeTab === 'Review')" class="creator-name-simple"> {{ t('from')
+              class="creator-name-simple"> {{ t('oneTimeTasks.to') }}: {{ getDisplayName(task) }}</span>
+            <span v-else-if="(activeTab === 'Done' || activeTab === 'Review')" class="creator-name-simple"> {{
+              t('oneTimeTasks.from')
             }}: {{ getDisplayName(task) }}</span>
             <span v-else class="creator-name-simple"> {{ getDisplayName(task) }}</span>
 
@@ -102,7 +97,7 @@
 
             <!-- اسم القسم/المشروع -->
             <span v-if="task.project" class="task-label">
-              {{ task.project?.name || t("project") }}
+              {{ task.project?.name || t("oneTimeTasks.project") }}
             </span>
 
             <!-- Switch Status - Desktop -->
@@ -137,7 +132,8 @@
               </template>
               <template v-else>
                 <button class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
-                  @click.stop="updateTaskStatus(task, 'review')" data-bs-toggle="tooltip" :title="t('review')">
+                  @click.stop="updateTaskStatus(task, 'review')" data-bs-toggle="tooltip"
+                  :title="t('oneTimeTasks.review')">
                   <i class="fa fa-eye"></i>
                 </button>
               </template>
@@ -152,7 +148,7 @@
               </template>
               <template v-else>
                 <button class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
-                  @click.stop="updateTaskStatus(task, 'done')" data-bs-toggle="tooltip" :title="t('done')">
+                  @click.stop="updateTaskStatus(task, 'done')" data-bs-toggle="tooltip" :title="t('oneTimeTasks.done')">
                   <i class="fa fa-check"></i>
                 </button>
               </template>
@@ -168,11 +164,12 @@
               </template>
               <template v-else>
                 <button class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
-                  @click.stop="updateTaskStatus(task, 'done')" data-bs-toggle="tooltip" :title="t('done')">
+                  @click.stop="updateTaskStatus(task, 'done')" data-bs-toggle="tooltip" :title="t('oneTimeTasks.done')">
                   <i class="fa fa-check"></i>
                 </button>
                 <button class="border rounded px-2 py-1 d-flex align-items-center gap-1 text-dark"
-                  @click.stop="updateTaskStatus(task, 'inProgress')" data-bs-toggle="tooltip" :title="t('rework')">
+                  @click.stop="updateTaskStatus(task, 'inProgress')" data-bs-toggle="tooltip"
+                  :title="t('oneTimeTasks.rework')">
                   <i class="fa fa-redo"></i>
                 </button>
               </template>
@@ -184,7 +181,7 @@
 
             <!-- أيقونة التعديل -->
             <i v-if="task.creator.id === userData?.user?.id" class="fa fa-edit edit-icon ms-1 text-success"
-              @click.stop="openEditPopup(task)" data-bs-toggle="tooltip" :title="t('edit')"></i>
+              @click.stop="openEditPopup(task)" data-bs-toggle="tooltip" :title="t('oneTimeTasks.edit')"></i>
 
             <!-- زر الأرشفة -->
             <i class="fa" :class="task.loadingArchive
@@ -193,7 +190,7 @@
                 ? 'fa-undo restore-icon'
                 : 'fa-archive archive-icon'
               " @click.stop="archiveTask(task)" data-bs-toggle="tooltip"
-              :title="task.is_archived ? t('restore') : t('archive')"></i>
+              :title="task.is_archived ? t('oneTimeTasks.restore') : t('oneTimeTasks.archive')"></i>
           </div>
 
           <!-- التفاصيل (عند التوسيع) -->
@@ -218,16 +215,16 @@
                 </small>
 
                 <small v-if="task.creator" class="badge badge-grey">
-                  {{ t("createdBy") }}: {{ userDisplayName(task.creator) }}
+                  {{ t("oneTimeTasks.createdBy") }}: {{ userDisplayName(task.creator) }}
                 </small>
 
                 <small v-if="task.supervisor" class="badge badge-grey">
-                  {{ t("supervisor") }}:
+                  {{ t("oneTimeTasks.supervisorAccountable") }}:
                   {{ userDisplayName(task.supervisor) }}
                 </small>
 
                 <small v-if="task.assignedUser.length > 0" class="badge badge-grey">
-                  {{ t("assignedTo") }}:
+                  {{ t("oneTimeTasks.assignedTo") }}:
                   {{
                     task.assignedUser.map((user) => userDisplayName(user)).join(", ") ||
                     "Unknown"
@@ -235,7 +232,7 @@
                 </small>
 
                 <small v-if="task.consult.length > 0" class="badge badge-grey">
-                  {{ t("consult") }}:
+                  {{ t("oneTimeTasks.consult") }}:
                   {{
                     task.consult.map((user) => userDisplayName(user)).join(", ") ||
                     "Unknown"
@@ -243,7 +240,7 @@
                 </small>
 
                 <small v-if="task.informer.length > 0" class="badge badge-grey">
-                  {{ t("informer") }}:
+                  {{ t("oneTimeTasks.informer") }}:
                   {{
                     task.informer.map((user) => userDisplayName(user)).join(", ") ||
                     "Unknown"
@@ -315,12 +312,12 @@
                         </div>
                         <div>
                           <span class="user-name">{{ comment.user.name }}</span>
-                          <span class="comment-time">{{ formatDateWithTime(comment.created_at) }}</span>
+                          <span class="comment-time" dir="auto">{{ formatDateWithTime(comment.created_at) }}</span>
                         </div>
                       </div>
                       <div class="comment-actions">
                         <button class="btn btn-reply" @click="toggleReply(comment.id)">
-                          {{ t("reply") }}
+                          {{ t("oneTimeTasks.reply") }}
                         </button>
                       </div>
                     </div>
@@ -355,7 +352,8 @@
                                 </div>
                                 <div>
                                   <span class="user-name">{{ reply.user?.name }}</span>
-                                  <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
+                                  <span class="comment-time" dir="auto">{{ formatDateWithTime(reply.created_at)
+                                  }}</span>
                                 </div>
                               </div>
                             </div>
@@ -388,10 +386,10 @@
                           @update:content="(val) => (replyContent = val)" contentType="html" class="mb-2" dir="auto" />
                         <div class="d-flex gap-2">
                           <ArgonButton @click="submitReply(comment.id)" size="sm">
-                            {{ t("submit") }}
+                            {{ t("oneTimeTasks.submit") }}
                           </ArgonButton>
                           <ArgonButton variant="outline" @click="cancelReply" size="sm">
-                            {{ t("cancel") }}
+                            {{ t("oneTimeTasks.cancel") }}
                           </ArgonButton>
                         </div>
                       </div>
@@ -441,7 +439,7 @@
 
               </div>
               <small class="file-hint-text">
-                {{ t("maxFileSize", { size: "1.99MB" }) }}
+                {{ t("oneTimeTasks.maxFileSize", { size: "1.99MB" }) }}
               </small>
 
               <small v-if="fileToUpload" class="file-info-footer">
@@ -460,16 +458,10 @@
   <div v-else class="routine-task-container-mobile" :key="`mobile-${componentKey}`">
     <!-- Sidebar أفقي -->
     <div class="sidebar-mobile">
-      <button v-for="tab in [
-        'Inbox',
-        'Own',
-        'Archive',
-        'Started',
-        'Review',
-        'Done',
-      ]" :key="tab" :class="{ active: activeTab === tab }" @click="activeTab = tab">
-        <span class="tab-name">{{ tab }}</span>
-        <span class="tab-count">{{ getTabCount(tab) }}</span>
+      <button v-for="tab in tabs" :key="tab.value" :class="{ active: activeTab === tab.value }"
+        @click="activeTab = tab.value">
+        <span class="tab-name">{{ tab.label }}</span>
+        <span class="tab-count">{{ getTabCount(tab.value) }}</span>
       </button>
     </div>
 
@@ -480,7 +472,7 @@
         <img src="https://ik.imagekit.io/ts7pphpbz3/man-despair-data-leak_11197-392.jpg?updatedAt=1742827650800"
           alt="no-tasks" class="no-tasks-image-mobile" />
         <p class="no-tasks-text-mobile">
-          {{ t("noTasksHere") }}
+          {{ t("oneTimeTasks.noTasksHere") }}
         </p>
       </div>
 
@@ -503,9 +495,9 @@
 
               <!-- Creator Name -->
               <span v-if="(activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id"
-                class="creator-name-mobile"> {{ t('to') }}: {{ getDisplayName(task) }}</span>
+                class="creator-name-mobile"> {{ t('oneTimeTasks.to') }}: {{ getDisplayName(task) }}</span>
               <span v-else-if="(activeTab === 'Done' || activeTab === 'Review')" class="creator-name-mobile"> {{
-                t('from')
+                t('oneTimeTasks.from')
               }}: {{ getDisplayName(task) }}</span>
               <span v-else class="creator-name-mobile"> {{ getDisplayName(task) }}</span>
 
@@ -548,7 +540,7 @@
 
             <!-- Project Name (Under Title) -->
             <div v-if="task.project" class="task-project-name-below">
-              {{ task.project?.name || t("project") }}
+              {{ task.project?.name || t("oneTimeTasks.project") }}
             </div>
           </div>
 
@@ -588,7 +580,7 @@
               <!-- Description -->
               <div class="expanded-row" v-if="task.description">
                 <p class="task-description-mobile" dir="auto">
-                  <span class="expanded-label">{{ t("description") }}:</span>
+                  <span class="expanded-label">{{ t("oneTimeTasks.description") }}:</span>
                   {{ task.description }}
                 </p>
               </div>
@@ -599,9 +591,9 @@
                 <span class="expanded-label">{{ t('createdBy') }}:</span>
                 <span class="expanded-value">
                   {{ (activeTab === 'Done' || activeTab === 'Review') && task.creator?.id === userData?.user?.id
-                    ? t('to') + ': ' + getDisplayName(task)
+                    ? t('oneTimeTasks.to') + ': ' + getDisplayName(task)
                     : (activeTab === 'Done' || activeTab === 'Review')
-                      ? t('from') + ': ' + getDisplayName(task)
+                      ? t('oneTimeTasks.from') + ': ' + getDisplayName(task)
                       : getDisplayName(task) }}
                 </span>
               </div>
@@ -611,7 +603,7 @@
 
               <!-- Assigned Users -->
               <div class="expanded-row" v-if="task.assignedUser?.length > 0">
-                <span class="expanded-label">{{ t("assignedTo") }}:</span>
+                <span class="expanded-label">{{ t("oneTimeTasks.assignedTo") }}:</span>
                 <span class="expanded-value">
                   {{task.assignedUser.map((user) => userDisplayName(user)).join(", ")}}
                 </span>
@@ -619,7 +611,7 @@
 
               <!-- Supervisor -->
               <div class="expanded-row" v-if="task.supervisor">
-                <span class="expanded-label">{{ t("supervisor") }}:</span>
+                <span class="expanded-label">{{ t("oneTimeTasks.supervisorAccountable") }}:</span>
                 <span class="expanded-value">{{ userDisplayName(task.supervisor) }}</span>
               </div>
 
@@ -765,12 +757,12 @@
                         </div>
                         <div>
                           <span class="user-name">{{ comment.user.name }}</span>
-                          <span class="comment-time">{{ formatDateWithTime(comment.created_at) }}</span>
+                          <span class="comment-time" dir="auto">{{ formatDateWithTime(comment.created_at) }}</span>
                         </div>
                       </div>
                       <div class="comment-actions">
                         <button class="btn btn-reply" @click="toggleReply(comment.id)">
-                          {{ t("reply") }}
+                          {{ t("oneTimeTasks.reply") }}
                         </button>
                       </div>
                     </div>
@@ -805,7 +797,8 @@
                                 </div>
                                 <div>
                                   <span class="user-name">{{ reply.user?.name }}</span>
-                                  <span class="comment-time">{{ formatDateWithTime(reply.created_at) }}</span>
+                                  <span class="comment-time" dir="auto">{{ formatDateWithTime(reply.created_at)
+                                  }}</span>
                                 </div>
                               </div>
                             </div>
@@ -838,10 +831,10 @@
                           @update:content="(val) => (replyContent = val)" contentType="html" class="mb-2" dir="auto" />
                         <div class="d-flex gap-2">
                           <ArgonButton @click="submitReply(comment.id)" size="sm">
-                            {{ t("submit") }}
+                            {{ t("oneTimeTasks.submit") }}
                           </ArgonButton>
                           <ArgonButton variant="outline" @click="cancelReply" size="sm">
-                            {{ t("cancel") }}
+                            {{ t("oneTimeTasks.cancel") }}
                           </ArgonButton>
                         </div>
                       </div>
@@ -892,7 +885,7 @@
 
               </div>
               <small class="file-hint-text">
-                {{ t("maxFileSize", { size: "1.99MB" }) }}
+                {{ t("oneTimeTasks.maxFileSize", { size: "1.99MB" }) }}
               </small>
 
               <small v-if="fileToUpload" class="file-info-footer">
@@ -912,6 +905,7 @@
 /* eslint-disable no-unused-vars */
 import { computed, ref, reactive, onBeforeMount, watch, nextTick } from "vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
 import Swal from "sweetalert2";
 
 import ArgonModal from "@/components/ArgonModal.vue";
@@ -1027,16 +1021,17 @@ const taskFound = ref(null);
 const taskNotes = ref("");
 const isLoading = ref(false);
 
-const t = (key, params = {}) => {
-  const lang = store.getters.currentLanguage;
-  let translation = translations[lang][key] || key;
+const { t } = useI18n();
 
-  Object.entries(params).forEach(([placeholder, value]) => {
-    translation = translation.replace(`{${placeholder}}`, value);
-  });
-
-  return translation;
-};
+// Translated tabs
+const tabs = computed(() => [
+  { value: 'Inbox', label: t('oneTimeTasks.inbox') },
+  { value: 'Own', label: t('oneTimeTasks.own') },
+  { value: 'Archive', label: t('oneTimeTasks.archive') },
+  { value: 'Started', label: t('oneTimeTasks.started') },
+  { value: 'Review', label: t('oneTimeTasks.review') },
+  { value: 'Done', label: t('oneTimeTasks.done') },
+]);
 
 function userDisplayName(u) {
   if (!u) return 'Unknown';
@@ -1164,7 +1159,7 @@ const compactEditorOptions = computed(() => ({
     ],
   },
   theme: "snow",
-  placeholder: translations[currentLanguage.value]?.writeComment || "Write your comment here...",
+  placeholder: t('oneTimeTasks.writeComment'),
 }));
 
 const expandedTaskId = ref(null);
@@ -1225,7 +1220,7 @@ async function reportTask() {
     if (result.status === 201) {
       Swal.fire({
         icon: "success",
-        title: t("taskReportedSuccessfully"),
+        title: t("oneTimeTasks.taskReportedSuccessfully"),
         showConfirmButton: false,
         timer: 1500,
         timerProgressBar: true,
@@ -1239,7 +1234,7 @@ async function reportTask() {
   } catch (error) {
     Swal.fire({
       icon: "error",
-      title: t("errorUpdatingTask"),
+      title: t("oneTimeTasks.errorUpdatingTask"),
       text: error.message,
     });
   } finally {
@@ -1372,7 +1367,7 @@ async function submitComment() {
   } catch (error) {
     Swal.fire({
       icon: "error",
-      title: t("errorUpdatingTask"),
+      title: t("oneTimeTasks.errorUpdatingTask"),
       text: error.message,
     });
   } finally {
@@ -1407,7 +1402,7 @@ async function submitReply(commentId) {
     console.error("Error submitting reply:", error);
     Swal.fire({
       icon: "error",
-      title: t("errorUpdatingTask"),
+      title: t("oneTimeTasks.errorUpdatingTask"),
       text: error.message,
     });
   } finally {
@@ -1418,151 +1413,6 @@ async function submitReply(commentId) {
 function openEditPopup(task) {
   emit("open-edit-popup", task);
 }
-
-const translations = {
-  en: {
-    tasksTable: "Tasks Table",
-    noTasksHere: "No tasks found here.",
-    from: "from",
-    to: "to",
-    comment: "comment",
-    reply: "Reply",
-    cancel: "Cancel",
-    submit: "Submit",
-    log: "Log",
-    info: "Info",
-    project: "Project",
-    assignedTo: "Assigned To",
-    createdBy: "Created By",
-    supervisor: "ِAccountable",
-    noLogsAvailable: "No logs available",
-    deleteConfirmationTitle: "Delete Task",
-    deleteConfirmationText: "Are you sure you want to delete this task?",
-    deleteConfirmationSuccess: "Task deleted successfully.",
-    close: "Close",
-    saving: "Saving...",
-    reportTaskType: "Report Task Type",
-    selectReportTaskType: "Select Report Task Type",
-    taskFound: "There is task?",
-    selectTaskFound: "Select Task Found",
-    errorUpdatingTask: "Error updating task",
-    taskReportedSuccessfully: "Task reported successfully",
-    editTask: "Edit Task",
-    comment_text: "Comment",
-    write_comment: "Write a comment",
-    writeComment: "Write your comment here...",
-    upload: "Upload",
-    submitting: "Submitting...",
-    uploading: "Uploading...",
-    taskNumber: "Task Code",
-    description: "Description",
-    changedTheField: "changed the field",
-    onDate: "On",
-    noTasks: "No tasks found",
-    createdAt: "Created At",
-    assignedUser: "Assigned User",
-    taskName: "Task Name",
-    fromTime: "From Time",
-    dayOfMonth: "Day of Month",
-    dayOfWeek: "Day of Week",
-    tasks: "Tasks",
-    taskReportedSuccessfullyMessage: "Task reported successfully",
-    isUrgent: "Is Urgent",
-    yes: "Yes",
-    no: "No",
-    priority: "Priority",
-    startDate: "Start Date",
-    deadline: "Deadline",
-    department: "Department",
-    done: "Done",
-    rework: "Rework",
-    review: "Review",
-    taskStatusUpdated: "Task status updated",
-    success: "Success",
-    archive: "Archive",
-    restore: "Restore",
-    taskArchivedSuccessfully: "Task archived successfully",
-    taskRestoredSuccessfully: "Task restored successfully",
-    delete: "Delete",
-    edit: "Edit",
-    uploadError: "Upload Error",
-    fileSizeExceedsLimit: "The file size exceeds the allowed limit of {size}.",
-    maxFileSize: "Max file size: {size}",
-    informer: "Informer",
-    consult: "Consult",
-  },
-  ar: {
-    tasksTable: "عدد المهام",
-    noTasksHere: "لا توجد مهام هنا.",
-    from: "من",
-    to: "إلى",
-    comment: "تعليق",
-    reply: "رد",
-    cancel: "إلغاء",
-    submit: "إرسال",
-    log: "السجلات",
-    info: "معلومات",
-    project: "المشروع",
-    assignedTo: "إلى",
-    createdBy: "أنشئت بواسطة",
-    supervisor: "المسؤول",
-    noLogsAvailable: "لا توجد سجلات",
-    deleteConfirmationTitle: "حذف المهمة",
-    deleteConfirmationText: "هل تريد حذف هذه المهمة؟",
-    deleteConfirmationSuccess: "تم حذف المهمة بنجاح",
-    close: "إغلاق",
-    saving: "جاري الحفظ...",
-    reportTaskType: "تقرير نوع المهمة",
-    selectReportTaskType: "اختر نوع التقرير",
-    taskFound: "هل المهمة موجودة؟",
-    selectTaskFound: "اختر المهمة موجودة",
-    errorUpdatingTask: "خطأ في تحديث المهمة",
-    taskReportedSuccessfully: "تمت العملية بنجاح",
-    editTask: "تعديل مهمة",
-    comment_text: "التعليق",
-    write_comment: "اكتب تعليقًا",
-    writeComment: "اكتب تعليقك هنا...",
-    submitting: "جاري الإرسال...",
-    upload: "رفع الملف",
-    uploading: "جاري رفع الملف...",
-    taskNumber: "رقم المهمة",
-    description: "وصف المهمة",
-    changedTheField: "غير الحقل",
-    onDate: "في تاريخ",
-    noTasks: "لا توجد مهام",
-    createdAt: "تاريخ الإنشاء",
-    assignedUser: "المسؤول",
-    taskName: "اسم المهمة",
-    fromTime: "من الوقت",
-    dayOfMonth: "يوم الشهر",
-    dayOfWeek: "يوم الأسبوع",
-    tasks: "مهام",
-    taskReportedSuccessfullyMessage: "تم الإبلاغ عن المهمة بنجاح",
-    isUrgent: "طوارئ",
-    yes: "نعم",
-    no: "لا",
-    priority: "الأولوية",
-    startDate: "تاريخ البدء",
-    deadline: "الموعد النهائي",
-    department: "القسم",
-    review: "مراجعة",
-    done: "تم",
-    rework: "إعادة العمل",
-    success: "نجاح",
-    taskStatusUpdated: "تم تحديث حالة المهمة",
-    archive: "أرشيف",
-    restore: "استرجاع",
-    delete: "حذف",
-    taskArchivedSuccessfully: "تم أرشفة المهمة بنجاح",
-    taskRestoredSuccessfully: "تم استرجاع المهمة بنجاح",
-    edit: "تعديل",
-    uploadError: "خطأ في الرفع",
-    fileSizeExceedsLimit: "حجم الملف يتجاوز الحد المسموح به وهو {size}.",
-    maxFileSize: "الحجم الأقصى للملف: {size}",
-    informer: "تم إخبار",
-    consult: "مُستشار",
-  },
-};
 
 const filteredTasks = computed(() => {
   if (!props.oneTimeTasks) return [];
@@ -1636,7 +1486,7 @@ async function toggleSwitchStatus(task, isChecked) {
     console.error("Error updating task status:", error);
     Swal.fire({
       icon: "error",
-      title: t("errorUpdatingStatus"),
+      title: t("oneTimeTasks.errorUpdatingStatus"),
       text: error.message,
     });
   }
@@ -1678,8 +1528,8 @@ const updateTaskStatus = async (task, status) => {
     if (response.status === 200) {
       await Swal.fire({
         icon: "success",
-        title: t("success"),
-        text: t("taskStatusUpdated"),
+        title: t("oneTimeTasks.success"),
+        text: t("oneTimeTasks.taskStatusUpdated"),
         timer: 1500,
         showConfirmButton: false,
       });
@@ -1691,8 +1541,8 @@ const updateTaskStatus = async (task, status) => {
     console.error("Error updating task status:", error);
     await Swal.fire({
       icon: "error",
-      title: t("error"),
-      text: t("taskUpdateFailed"),
+      title: t("oneTimeTasks.errorOccurred"),
+      text: t("oneTimeTasks.errorUpdatingTask"),
     });
   } finally {
     taskLoadingAction.value[task.id] = false;
@@ -1770,8 +1620,8 @@ function handleFileUpload(event) {
   if (file.size > maxSizeInBytes) {
     Swal.fire({
       icon: "error",
-      title: t("uploadError"),
-      text: t("fileSizeExceedsLimit", { size: "1.99MB" }),
+      title: t("oneTimeTasks.uploadError"),
+      text: t("oneTimeTasks.fileSizeExceedsLimit", { size: "1.99MB" }),
     });
 
     fileToUpload.value = null;
@@ -2363,6 +2213,13 @@ function getTabCount(tabName) {
   gap: 0.5rem;
 }
 
+.user-info>div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .user-avatar {
   width: 32px;
   height: 32px;
@@ -2393,7 +2250,13 @@ function getTabCount(tabName) {
 .comment-time {
   color: #6c757d;
   font-size: 0.8rem;
-  margin-left: 0.5rem;
+  margin-left: 0;
+}
+
+/* دعم RTL للغة العربية */
+[dir="rtl"] .comment-time {
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .comment-body {
@@ -3841,6 +3704,13 @@ function getTabCount(tabName) {
     font-size: 0.75rem;
     color: #6c757d;
     margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* دعم RTL للغة العربية في الموبايل */
+  [dir="rtl"] .comments-scroll-container-mobile .comment-time {
+    margin-left: 0;
+    margin-right: 0;
   }
 
   /* Comment Body */

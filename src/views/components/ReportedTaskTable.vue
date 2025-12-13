@@ -1,7 +1,7 @@
 // src/views/components/RoutineTaskTable.vue
 
 <template>
-  <span class="fa fa-bolt text-warning mb-0"></span> : random task
+  <span class="fa fa-bolt text-warning mb-0"></span> : {{ t("reportedTasks.randomTask") }}
   <div class="card-body px-0 pt-0 pb-2" :key="componentKey">
     <!-- <div class="d-flex justify-content-end mb-3">
       <button
@@ -37,7 +37,7 @@
           :class="{ active: reportActiveTab === 'reported' }"
           @click="setActiveTab('reported')"
         >
-          {{ t("reported") }}
+          {{ t("reportedTasks.reported") }}
         </argon-button>
       </li>
       <li class="nav-item">
@@ -46,7 +46,7 @@
           :class="{ active: reportActiveTab === 'not_reported' }"
           @click="setActiveTab('not_reported')"
         >
-          {{ t("not_reported") }}
+          {{ t("reportedTasks.not_reported") }}
         </argon-button>
       </li>
     </ul> -->
@@ -55,7 +55,7 @@
       v-if="reportActiveTab === 'not_reported'"
       class="d-flex align-items-center mb-3"
     >
-      <label class="me-2">{{ t("selectDate") }}:</label>
+      <label class="me-2">{{ t("reportedTasks.selectDate") }}:</label>
       <input
         type="date"
         v-model="localSelectedDate"
@@ -81,53 +81,53 @@
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("status") }}
+              {{ t("reportedTasks.status") }}
             </th> -->
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("taskName") }}
+                  {{ t("reportedTasks.taskName") }}
                 </th>
 
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("department") }}
+                  {{ t("reportedTasks.department") }}
                 </th>
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("taskType") }}
+              {{ t("reportedTasks.taskType") }}
             </th> -->
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("from") }}
+                  {{ t("reportedTasks.from") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("to") }}
+                  {{ t("reportedTasks.to") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("priority") }}
+                  {{ t("reportedTasks.priority") }}
                 </th>
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("taskCreatedBy") }}
+              {{ t("reportedTasks.taskCreatedBy") }}
             </th> -->
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("lateTime") }}
+                  {{ t("reportedTasks.lateTime") }}
                 </th>
 
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("notes") }}
+              {{ t("reportedTasks.notes") }}
             </th> -->
 
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("employeeName") }}
+                  {{ t("reportedTasks.employeeName") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("report") }}
+                  {{ t("reportedTasks.report") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                   v-if="isOwner || permissions['create-dailytaskevaluation']">
-                  {{ t("evaluate") }}
+                  {{ t("reportedTasks.evaluate") }}
                 </th>
               </tr>
             </thead>
@@ -265,7 +265,7 @@
                 class="text-danger font-weight-bold text-xs"
                 @click="confirmDelete(task)"
               >
-                {{ t("delete") }}
+                {{ t("reportedTasks.delete") }}
               </a> -->
                 </td>
 
@@ -308,7 +308,7 @@
                     props.rundomTask?.data?.dailytask_ids?.includes(
                       task.daily_task_id
                     ) && props.rundomTask?.data?.date == formatDateWithoutTime(task?.created_at)
-                  " :title="t('randomTask')"></i>
+                  " :title="t('reportedTasks.randomTask')"></i>
                 </td>
               </tr>
             </tbody>
@@ -330,60 +330,60 @@
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("status") }}
+              {{ t("reportedTasks.status") }}
             </th> -->
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("taskName") }}
+                  {{ t("reportedTasks.taskName") }}
                 </th>
 
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("department") }}
+                  {{ t("reportedTasks.department") }}
                 </th>
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("taskType") }}
+              {{ t("reportedTasks.taskType") }}
             </th> -->
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("from") }}
+                  {{ t("reportedTasks.from") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("to") }}
+                  {{ t("reportedTasks.to") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("priority") }}
+                  {{ t("reportedTasks.priority") }}
                 </th>
                 <!-- <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
-                  {{ t("reporttime") }}
+                  {{ t("reportedTasks.reporttime") }}
                 </th> -->
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("taskCreatedBy") }}
+              {{ t("reportedTasks.taskCreatedBy") }}
             </th> -->
                 <!-- <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
-                  {{ t("lateTime") }}
+                  {{ t("reportedTasks.lateTime") }}
                 </th> -->
 
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("notes") }}
+              {{ t("reportedTasks.notes") }}
             </th> -->
 
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("employeeName") }}
+                  {{ t("reportedTasks.employeeName") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("report") }}
+                  {{ t("reportedTasks.report") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                   v-if="isOwner || permissions['create-dailytaskevaluation']">
-                  {{ t("evaluate") }}
+                  {{ t("reportedTasks.evaluate") }}
                 </th>
               </tr>
             </thead>
@@ -529,7 +529,7 @@
                 class="text-danger font-weight-bold text-xs"
                 @click="confirmDelete(task)"
               >
-                {{ t("delete") }}
+                {{ t("reportedTasks.delete") }}
               </a> -->
                 </td>
 
@@ -573,7 +573,7 @@
                 class="text-danger font-weight-bold text-xs"
                 @click="confirmDelete(task)"
               >
-                {{ t("delete") }}
+                {{ t("reportedTasks.delete") }}
               </a> -->
                 </td>
               </tr>
@@ -599,59 +599,59 @@
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("status") }}
+              {{ t("reportedTasks.status") }}
             </th> -->
                 <!-- <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
-                  {{ t("taskNumber") }}
+                  {{ t("reportedTasks.taskNumber") }}
                 </th> -->
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("taskName") }}
+                  {{ t("reportedTasks.taskName") }}
                 </th>
 
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("department") }}
+                  {{ t("reportedTasks.department") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("priority") }}
+                  {{ t("reportedTasks.priority") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("reportedBy") }}
+                  {{ t("reportedTasks.reportedBy") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("evaluatedAt") }}
+                  {{ t("reportedTasks.evaluatedAt") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("evaluatedBy") }}
+                  {{ t("reportedTasks.evaluatedBy") }}
                 </th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("comment") }}
+                  {{ t("reportedTasks.comment") }}
                 </th>
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("taskCreatedBy") }}
+              {{ t("reportedTasks.taskCreatedBy") }}
             </th> -->
                 <!-- <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
-                  {{ t("lateTime") }}
+                  {{ t("reportedTasks.lateTime") }}
                 </th> -->
 
                 <!-- <th
               class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
             >
-              {{ t("notes") }}
+              {{ t("reportedTasks.notes") }}
             </th> -->
 
                 <!-- <th
                   class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                 >
-                  {{ t("employeeName") }}
+                  {{ t("reportedTasks.employeeName") }}
                 </th> -->
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                  {{ t("rating") }}
+                  {{ t("reportedTasks.rating") }}
                 </th>
               </tr>
             </thead>
@@ -843,7 +843,7 @@
               class="text-danger font-weight-bold text-xs"
               @click="confirmDelete(task)"
             >
-              {{ t("delete") }}
+              {{ t("reportedTasks.delete") }}
             </a> -->
               </tr>
             </tbody>
@@ -957,12 +957,13 @@
                 :placeholder="t('selectReportTaskType')"
               /> -->
 
-              <label class="form-label">{{ t("rating") }}:</label>
+              <label class="form-label">{{ t("reportedTasks.rating") }}:</label>
               <ArgonInput v-model="taskRate" type="number" min="0" max="10" class="form-control mb-3"
-                :placeholder="t('rating')"></ArgonInput>
+                :placeholder="t('reportedTasks.rating')"></ArgonInput>
 
-              <label class="form-label">{{ t("comment") }}:</label>
-              <textarea v-model="taskComment" class="form-control mb-3" :placeholder="t('comment')"></textarea>
+              <label class="form-label">{{ t("reportedTasks.comment") }}:</label>
+              <textarea v-model="taskComment" class="form-control mb-3"
+                :placeholder="t('reportedTasks.comment')"></textarea>
 
               <!-- <div
               v-show="selectedTask.task_type === 'weekly'"
@@ -1046,19 +1047,19 @@
 
           <template #footer>
             <argon-button variant="secondary" @click="closeEditPopup">
-              {{ t("close") }}
+              {{ t("reportedTasks.close") }}
             </argon-button>
 
             <argon-button variant="success" @click="evaluateTask" :disabled="isLoading">
               <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
                 aria-hidden="true"></span>
-              {{ isLoading ? t("saving") : t("evaluate") }}
+              {{ isLoading ? t("reportedTasks.saving") : t("reportedTasks.evaluate") }}
             </argon-button>
           </template>
 
           <template #title>
             <i class="fas fa-user-edit me-2"></i>
-            {{ t("editTask") }}
+            {{ t("reportedTasks.editTask") }}
           </template>
         </ArgonModal>
       </transition>
@@ -1073,40 +1074,40 @@
             <ul class="nav nav-tabs custom-tabs" role="tablist">
               <li class="nav-item">
                 <argon-button class="nav-link" :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">
-                  {{ t("info") }}
+                  {{ t("reportedTasks.info") }}
                 </argon-button>
               </li>
               <li class="nav-item">
                 <argon-button class="nav-link" :class="{ active: activeTab === 'evaluation' }"
                   @click="activeTab = 'evaluation'">
-                  {{ t("evaluation") }}
+                  {{ t("reportedTasks.evaluation") }}
                 </argon-button>
               </li>
             </ul>
             <div class="tab-content">
               <div v-if="activeTab === 'info'">
                 <dl class="row">
-                  <dt class="col-sm-3">{{ t("taskNumber") }}:</dt>
+                  <dt class="col-sm-3">{{ t("reportedTasks.taskNumber") }}:</dt>
                   <dd class="col-sm-9">{{ selectedTaskNumber }}</dd>
 
                   <dt v-show="selectedDescription" class="col-sm-3">
-                    {{ t("description") }}:
+                    {{ t("reportedTasks.description") }}:
                   </dt>
                   <dd v-show="selectedDescription" class="col-sm-9">
                     {{ selectedDescription }}
                   </dd>
 
                   <dt v-if="props.reportActiveTab === 'evaluated_Task'" class="col-sm-3">
-                    {{ t("taskStatus") }}:
+                    {{ t("reportedTasks.taskStatus") }}:
                   </dt>
                   <dd v-if="selectedTaskStatus" class="col-sm-9">
                     {{ selectedTaskStatus }}
                   </dd>
                   <dd v-else-if="props.reportActiveTab === 'evaluated_Task'" class="col-sm-9">
-                    {{ t("notReported") }}
+                    {{ t("reportedTasks.notReported") }}
                   </dd>
 
-                  <dt class="col-sm-3">{{ t("notes") }}:</dt>
+                  <dt class="col-sm-3">{{ t("reportedTasks.notes") }}:</dt>
                   <dd class="col-sm-9">
                     {{ selectedTaskNotes || "No Notes" }}
                   </dd>
@@ -1115,7 +1116,7 @@
                     selectedTaskFound !== null &&
                     reportActiveTab === 'reported'
                   " class="col-sm-3">
-                    {{ t("found") }}:
+                    {{ t("reportedTasks.found") }}:
                   </dt>
                   <dd v-if="
                     selectedTaskFound !== null &&
@@ -1133,7 +1134,7 @@
                     selectedTaskRecurrentDays &&
                     selectedTaskRecurrentDays.length
                   " class="col-sm-3">
-                    {{ t("recurrentDays") }}:
+                    {{ t("reportedTasks.recurrentDays") }}:
                   </dt>
                   <dd v-if="
                     selectedTaskRecurrentDays &&
@@ -1152,26 +1153,26 @@
                   </dd>
 
                   <dt v-if="selectedTaskDayOfMonth" class="col-sm-3">
-                    {{ t("dayOfMonth") }}:
+                    {{ t("reportedTasks.dayOfMonth") }}:
                   </dt>
                   <dd v-if="selectedTaskDayOfMonth" class="col-sm-9">
                     {{ selectedTaskDayOfMonth }}
                   </dd>
                   <dt v-if="selectedTaskReportedTime" class="col-sm-3">
-                    {{ t("reporttime") }}:
+                    {{ t("reportedTasks.reporttime") }}:
                   </dt>
                   <dd v-if="selectedTaskReportedTime" class="col-sm-9">
                     {{ formatDate(selectedTaskReportedTime) }}
                   </dd>
                   <dt v-if="selectedTaskCreationDate" class="col-sm-3">
-                    {{ t("createdAt") }}:
+                    {{ t("reportedTasks.createdAt") }}:
                   </dt>
                   <dd v-if="selectedTaskCreationDate" class="col-sm-9">
                     {{ formatDate(selectedTaskCreationDate) }}
                   </dd>
 
                   <dt v-if="selectedTaskStartDate" class="col-sm-3">
-                    {{ t("startDate") }}:
+                    {{ t("reportedTasks.startDate") }}:
                   </dt>
                   <dd v-if="selectedTaskStartDate" class="col-sm-9">
                     {{ formatDate(selectedTaskStartDate) }}
@@ -1217,7 +1218,7 @@
                   </ul>
                 </div>
                 <div v-else>
-                  <p>{{ t("noLogsAvailable") }}</p>
+                  <p>{{ t("reportedTasks.noLogsAvailable") }}</p>
                 </div>
               </div>
             </div>
@@ -1226,7 +1227,7 @@
 
         <template #footer>
           <argon-button variant="secondary" @click="closeDescriptionModal">
-            {{ t("close") }}
+            {{ t("reportedTasks.close") }}
           </argon-button>
         </template>
       </ArgonModal>
@@ -1244,6 +1245,7 @@ import {
   defineProps,
 } from "vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
 import Swal from "sweetalert2";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
@@ -1492,8 +1494,8 @@ const currentEditingTaskId = ref(null);
 
 const selectedTask = ref(null); // لتخزين المهمة المحددة للتعديل
 
+const { t } = useI18n();
 const currentLanguage = computed(() => store.getters.currentLanguage);
-const t = (key) => translations[currentLanguage.value][key];
 
 function matchesReportStatus(task) {
   // Tabs control reported/not_reported. When active tab is one of them, ignore activeQuery for that part.
@@ -1553,7 +1555,7 @@ const openEvaluationModal = (taskId) => {
     console.error("Task not found");
     Swal.fire({
       title: "Error",
-      text: t("elvatedAllready"),
+      text: t("reportedTasks.elvatedAllready"),
       icon: "error",
       className: "custom-swal fw-bold text-center",
     });
@@ -1604,7 +1606,7 @@ const evaluateTask = async () => {
       // تحديث بيانات الموظفين
       Swal.fire({
         icon: "success",
-        title: t("taskReportedSuccessfully"),
+        title: t("reportedTasks.taskReportedSuccessfully"),
         showConfirmButton: false,
         timer: 1500,
         timerProgressBar: true,
@@ -1625,7 +1627,7 @@ const evaluateTask = async () => {
     console.error("Error updating task:", error);
     Swal.fire({
       icon: "error",
-      title: t("errorUpdatingTask"),
+      title: t("reportedTasks.errorUpdatingTask"),
       text: error.message,
     });
   } finally {
@@ -1823,202 +1825,15 @@ const formatDateWithoutTime = (dateString) => {
   return date.toISOString().split("T")[0]; // مثل: "2025-05-13"
 };
 
-// الترجمات المحدثة
-const translations = {
-  en: {
-    tasksTable: "Tasks Table",
-    taskName: "Task Name",
-    edit: "Edit",
-    delete: "Delete",
-    deleteConfirmationTitle: "Delete Task",
-    deleteConfirmationText: "Are you sure you want to delete this task?",
-    deleteConfirmationSuccess: "Task deleted successfully.",
-    close: "Close",
-    saving: "Saving...",
-    update: "Update",
-    assignManager: "Assigned Manager",
-    taskUpdatedSuccessfully: "Task updated successfully",
-    taskDeletedSuccessfully: "Task deleted successfully",
-    taskReportedSuccessfully: "Task reported successfully",
-    status: "Status",
-    taskCreatedBy: "Created By",
-    description: "Description",
-    taskDetails: "Task Details",
-    createdAt: "Task Created At",
-    deadline: "Deadline",
-    startDate: "Start Date",
-    active: "Active",
-    inactive: "Inactive",
-    log: "Log",
-    info: "Info",
-    statusUpdatedSuccessfully: "Status updated successfully",
-    errorUpdatingStatus: "Error updating status",
-    errorUpdatingTask: "Error updating task",
-    errorDeletingTask: "Error deleting task",
-    noLogsAvailable: "No logs available",
-    changedTheField: "changed the field",
-    from: "from",
-    to: "to",
-    onDate: "On",
-    editTask: "Edit Task",
-    noTasks: "No tasks found.", // إضافة ترجمة جديدة
-    createee: "Create your task using the button above", // تعديل الترجمة
-    taskNumber: "Task Number",
-    taskStartDate: "Task Start Date",
-    taskDeadline: "Task Deadline",
-    reportTaskType: "Report Task Type",
-    dayOfWeek: "Day of Week",
-    dayOfMonth: "Day of Month",
-    fromTime: "From Time",
-    sunday: "Sunday",
-    monday: "Monday",
-    tuesday: "Tuesday",
-    wednesday: "Wednesday",
-    thursday: "Thursday",
-    friday: "Friday",
-    saturday: "Saturday",
-    taskCreatedSuccessfully: "Task created successfully",
-    taskCreatedSuccessfullyMessage: "Task created successfully",
-    taskCreationError: "Error creating task",
-    recurrentDays: "Recurrent Days",
-    enterDayOfMonth: "Enter day of the month ex: 1, 2,....31",
-    report: "Report",
-    reportTask: "Report Task",
-    selectReportTaskType: "Select Report Task Type",
-    notes: "Notes",
-    taskStatus: "Task Status",
-
-    notReported: "Not Reported",
-    enterNotes: "Enter notes",
-    employeeName: "Employee Name",
-    department: "Department",
-    at: "at",
-    reporttime: "Report Time",
-    lateTime: "Late Time",
-    fromDate: "From Date",
-    toDate: "To Date",
-    applyFilter: "Apply Filter",
-    found: "Task Found",
-    reported: "Reported",
-    not_reported: "Not Reported",
-    evaluation: "Evaluation",
-    evaluate: "Evaluate",
-    evaluatedAt: "Evaluated At",
-    evaluatedBy: "Evaluated By",
-    reportedBy: "Reported By",
-    evaluated: "Evaluated",
-    taskFound: "There is task ?",
-    selectTaskFound: "Select Task Found",
-    project: "Project",
-    projectNotFound: "No project found",
-    rating: "Rating",
-    comment: "Comment",
-    elvatedAllready: "this task is evaluated already",
-    priority: "Priority",
-    randomTask: "random task to evaluate",
-  },
-  ar: {
-    tasksTable: "جدول المهام",
-    taskName: "اسم المهمة",
-    edit: "تعديل",
-    delete: "حذف",
-    deleteConfirmationTitle: "حذف المهمة",
-    deleteConfirmationText: "هل تريد حذف هذه المهمة؟",
-    deleteConfirmationSuccess: "تم حذف المهمة بنجاح.",
-    close: "إغلاق",
-    saving: "يتم الحفظ...",
-    update: "تحديث",
-    assignManager: "المدير المعين",
-    taskUpdatedSuccessfully: "تم تحديث المهمة بنجاح",
-    taskDeletedSuccessfully: "تم حذف المهمة بنجاح",
-    taskReportedSuccessfully: "تم تقرير المهمة بنجاح",
-    status: "حالة المهمة",
-    taskCreatedBy: "تم الإنشاء بواسطة",
-    description: "وصف المهمة",
-    taskDetails: "تفاصيل المهمة",
-    createdAt: "تاريخ إنشاء المهمة",
-    deadline: "المهلة النهائية",
-    startDate: "تاريخ البدء",
-    active: "نشط",
-    inactive: "غير نشط",
-    log: "سجل",
-    info: "معلومات",
-    statusUpdatedSuccessfully: "تم تحديث الحالة بنجاح",
-    errorUpdatingStatus: "حدث خطأ في تحديث الحالة",
-    errorUpdatingTask: "حدث خطأ في تحديث المهمة",
-    errorDeletingTask: "حدث خطأ في حذف المهمة",
-    noLogsAvailable: "لا يوجد سجلات متاحة",
-    changedTheField: "قام بتغيير الحقل",
-    from: "من",
-    to: "إلى",
-    onDate: "في تاريخ",
-    editTask: "تعديل المهمة",
-    noTasks: "لا يوجد مهام.", // إضافة ترجمة جديدة
-    createee: "انشئ مهمتك من الزر المتواجد بالاعلي", // تعديل الترجمة
-    taskNumber: "رقم المهمة",
-    taskStartDate: "تاريخ بدء المهمة",
-    taskDeadline: "تاريخ انتهاء المهمة",
-    reportTaskType: "تقرير المهمة",
-    dayOfWeek: "يوم الاسبوع",
-    dayOfMonth: "يوم الشهر",
-    fromTime: "من الوقت",
-    sunday: "الاحد",
-    monday: "الاثنين",
-    tuesday: "الثلاثاء",
-    wednesday: "الاربعاء",
-    thursday: "الخميس",
-    friday: "الجمعة",
-    saturday: "السبت",
-    taskCreatedSuccessfully: "تم انشاء المهمة بنجاح",
-    taskCreatedSuccessfullyMessage: "تم انشاء المهمة بنجاح",
-    taskCreationError: "حدث خطاء في انشاء المهمة",
-    recurrentDays: "ايام التكرار",
-    enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,....31",
-    report: "تقرير",
-    reportTask: "تقرير المهمة",
-    selectReportTaskType: "حدد نوع المهمة",
-    notes: "ملاحظات",
-    taskStatus: "حالة المهمة",
-    notReported: "لم يتم التقرير عن المهمة",
-    enterNotes: "ادخل ملاحظات",
-    employeeName: "اسم الموظف",
-    department: "القسم",
-    at: "في",
-    reporttime: "وقت التقرير",
-    lateTime: "التأخير",
-    fromDate: "من تاريخ",
-    toDate: "إلى تاريخ",
-    applyFilter: "تطبيق الفلتر",
-    found: "تم العثور على المهمة",
-    reported: "تم التقرير عن المهمة",
-    not_reported: "لم يتم التقرير عن المهمة",
-    evaluation: "تقييم",
-    evaluate: "تقييم",
-    evaluatedAt: "تم التقييم في",
-    evaluatedBy: "تم التقييم بواسطة",
-    reportedBy: "تم التقرير بواسطة",
-    evaluated: "تم التقييم",
-    taskFound: "هناك مهمة؟",
-    selectTaskFound: "حدد المهمة الموجودة",
-    project: "المشروع",
-    projectNotFound: "لا يوجد مشروع",
-    rating: "التقييم",
-    comment: "التعليق",
-    elvatedAllready: "هذه المهمة تم التقييم عنها بالفعل",
-    priority: "الاولوية",
-    randomTask: "موجود في المهام العشوائية",
-  },
-};
-
-const daysOfWeek = [
-  { label: t("sunday"), value: 0 },
-  { label: t("monday"), value: 1 },
-  { label: t("tuesday"), value: 2 },
-  { label: t("wednesday"), value: 3 },
-  { label: t("thursday"), value: 4 },
-  { label: t("friday"), value: 5 },
-  { label: t("saturday"), value: 6 },
-];
+const daysOfWeek = computed(() => [
+  { label: t("reportedTasks.sunday"), value: 0 },
+  { label: t("reportedTasks.monday"), value: 1 },
+  { label: t("reportedTasks.tuesday"), value: 2 },
+  { label: t("reportedTasks.wednesday"), value: 3 },
+  { label: t("reportedTasks.thursday"), value: 4 },
+  { label: t("reportedTasks.friday"), value: 5 },
+  { label: t("reportedTasks.saturday"), value: 6 },
+]);
 
 // التعامل مع تغيير الصفحة
 // const changePage = (page) => {

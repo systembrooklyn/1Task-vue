@@ -12,6 +12,7 @@ import ArgonTagsInput from "@/components/ArgonTagsInput.vue";
 import ArgonTextarea from "@/components/ArgonTextarea.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
 import Swal from 'sweetalert2';
 import {
   savePermissionsToLocalStorage,
@@ -22,6 +23,7 @@ import {
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 // const userName = computed(() => store.getters.userName);
 
 // Permissions (aligned with SidenavList.vue)
@@ -323,10 +325,10 @@ const formattedDepartments = computed(() => {
 
 // Task type options for Routine Task (4 options)
 const taskTypeOptions = computed(() => [
-  { value: "daily", label: t('daily') },
-  { value: "weekly", label: t('weekly') },
-  { value: "monthly", label: t('monthly') },
-  { value: "last_day_of_month", label: t('lastDayOfMonth') }
+  { value: "daily", label: t('dashboard.daily') },
+  { value: "weekly", label: t('dashboard.weekly') },
+  { value: "monthly", label: t('dashboard.monthly') },
+  { value: "last_day_of_month", label: t('dashboard.lastDayOfMonth') }
 ]);
 
 // Conditional field visibility for Routine Task
@@ -336,13 +338,13 @@ const showLastDayOfMonthOptions = computed(() => quickRoutineTask.value.task_typ
 
 // Day options for weekly task type
 const weekDaysOptions = computed(() => [
-  { value: 1, label: t('monday') },
-  { value: 2, label: t('tuesday') },
-  { value: 3, label: t('wednesday') },
-  { value: 4, label: t('thursday') },
-  { value: 5, label: t('friday') },
-  { value: 6, label: t('saturday') },
-  { value: 7, label: t('sunday') }
+  { value: 1, label: t('dashboard.monday') },
+  { value: 2, label: t('dashboard.tuesday') },
+  { value: 3, label: t('dashboard.wednesday') },
+  { value: 4, label: t('dashboard.thursday') },
+  { value: 5, label: t('dashboard.friday') },
+  { value: 6, label: t('dashboard.saturday') },
+  { value: 7, label: t('dashboard.sunday') }
 ]);
 
 // Day of month options for monthly task type
@@ -356,10 +358,11 @@ const monthDaysOptions = computed(() => {
 
 // Options for last day of month (no additional options needed)
 const lastDayOfMonthOptions = computed(() => [
-  { value: 'last_day', label: t('lastDayOfMonth') }
+  { value: 'last_day', label: t('dashboard.lastDayOfMonth') }
 ]);
 
-// Translation system
+// Translation system - Now using vue-i18n, keeping this for reference
+// eslint-disable-next-line no-unused-vars
 const translations = {
   en: {
     // Header
@@ -649,19 +652,19 @@ const translations = {
   }
 };
 
-const currentLanguage = computed(() => store.getters.currentLanguage);
-
-const t = (key) => {
-  return translations[currentLanguage.value][key] || key;
-};
+// Translation function removed - now using useI18n from vue-i18n
+// const currentLanguage = computed(() => store.getters.currentLanguage);
+// const t = (key) => {
+//   return translations[currentLanguage.value][key] || key;
+// };
 
 // Bar Chart Data - Task Progress
 const taskProgressChartData = computed(() => {
   const depts = dashboardData.value?.DailyTasks?.DailyTaskDepts || [];
   return depts.map(dept => ({
-    dept: dept.department_name || t('undefined'),
-    [t('done')]: dept.done_reports || 0,
-    [t('notDone')]: dept.not_done_reports || 0
+    dept: dept.department_name || t('dashboard.undefined'),
+    [t('dashboard.done')]: dept.done_reports || 0,
+    [t('dashboard.notDone')]: dept.not_done_reports || 0
   }));
 });
 
@@ -669,9 +672,9 @@ const taskProgressChartData = computed(() => {
 const reportsStatusChartData = computed(() => {
   const depts = dashboardData.value?.DailyTasks?.DailyTaskDepts || [];
   return depts.map(dept => ({
-    dept: dept.department_name || t('undefined'),
-    [t('reported')]: dept.total_reports || 0,
-    [t('notReported')]: (dept.total_tasks || 0) - (dept.total_reports || 0)
+    dept: dept.department_name || t('dashboard.undefined'),
+    [t('dashboard.reported')]: dept.total_reports || 0,
+    [t('dashboard.notReported')]: (dept.total_tasks || 0) - (dept.total_reports || 0)
   }));
 });
 
@@ -681,19 +684,19 @@ const chartsConfig = computed(() => ([
   {
     key: 'taskProgress',
     titleIconClass: 'fas fa-chart-area me-2 text-primary',
-    title: t('taskProgressByDept'),
-    subtitle: t('taskProgressSubtitle'),
+    title: t('dashboard.taskProgressByDept'),
+    subtitle: t('dashboard.taskProgressSubtitle'),
     data: taskProgressChartData.value,
-    categories: [t('done'), t('notDone')],
+    categories: [t('dashboard.done'), t('dashboard.notDone')],
     colors: ['#10b981', '#ef4444']
   },
   {
     key: 'reportsStatus',
     titleIconClass: 'fas fa-chart-bar me-2 text-info',
-    title: t('reportsStatus'),
-    subtitle: t('reportsStatusSubtitle'),
+    title: t('dashboard.reportsStatus'),
+    subtitle: t('dashboard.reportsStatusSubtitle'),
     data: reportsStatusChartData.value,
-    categories: [t('reported'), t('notReported')],
+    categories: [t('dashboard.reported'), t('dashboard.notReported')],
     colors: ['#3b82f6', '#f59e0b']
   }
 ]));
@@ -754,9 +757,9 @@ const performanceLineData = computed(() => {
   const tasks = dashboardData.value?.Tasks || {};
   return [{
     date: new Date().toLocaleDateString(),
-    [t('openTasks')]: (tasks.pending || 0) + (tasks.inProgress || 0),
-    [t('review')]: tasks.review || 0,
-    [t('done')]: tasks.done || 0
+    [t('dashboard.openTasks')]: (tasks.pending || 0) + (tasks.inProgress || 0),
+    [t('dashboard.review')]: tasks.review || 0,
+    [t('dashboard.done')]: tasks.done || 0
   }];
 });
 
@@ -998,17 +1001,17 @@ const clearEndDate = () => {
 const getProjectTooltip = () => {
   if (quickOneTimeTask.value.project_id) {
     const p = formattedProjects.value.find(p => p.value === quickOneTimeTask.value.project_id);
-    return p ? `${t('project')}: ${p.label}` : t('project');
+    return p ? `${t('dashboard.project')}: ${p.label}` : t('dashboard.project');
   }
-  return t('selectProject');
+  return t('dashboard.selectProject');
 };
 
 const getPriorityTooltip = () => {
   if (quickOneTimeTask.value.priority) {
     const opt = filteredPriorities.value.find(p => p.value === quickOneTimeTask.value.priority);
-    return opt ? `${t('priority')}: ${opt.label}` : t('priority');
+    return opt ? `${t('dashboard.priority')}: ${opt.label}` : t('dashboard.priority');
   }
-  return t('selectPriority');
+  return t('dashboard.selectPriority');
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -1024,10 +1027,10 @@ const filterProjects = () => {
 // eslint-disable-next-line no-unused-vars
 const filterPriorities = () => {
   const base = [
-    { value: 'low', label: t('low') },
-    { value: 'normal', label: t('normal') },
-    { value: 'high', label: t('high') },
-    { value: 'urgent', label: t('urgent') }
+    { value: 'low', label: t('dashboard.low') },
+    { value: 'normal', label: t('dashboard.normal') },
+    { value: 'high', label: t('dashboard.high') },
+    { value: 'urgent', label: t('dashboard.urgent') }
   ];
   if (!prioritySearchQuery.value.trim()) {
     filteredPriorities.value = base;
@@ -1055,11 +1058,11 @@ const selectPriority = (priorityOption) => {
 
 // Simple tooltips for dates
 const getStartDateTooltip = () => {
-  return quickOneTimeTask.value.start_date ? `${t('startDate')}: ${quickOneTimeTask.value.start_date}` : t('enterStartDate');
+  return quickOneTimeTask.value.start_date ? `${t('dashboard.startDate')}: ${quickOneTimeTask.value.start_date}` : t('dashboard.enterStartDate');
 };
 
 const getEndDateTooltip = () => {
-  return quickOneTimeTask.value.deadline ? `${t('endDate')}: ${quickOneTimeTask.value.deadline}` : t('endDate');
+  return quickOneTimeTask.value.deadline ? `${t('dashboard.endDate')}: ${quickOneTimeTask.value.deadline}` : t('dashboard.endDate');
 };
 
 // Dropdown positioning
@@ -1254,18 +1257,18 @@ onMounted(async () => {
           <div class="col-md-8">
             <h1 class="dashboard-title">
               <i class="fas fa-tachometer-alt me-3"></i>
-              {{ t('dashboard') }}
+              {{ t('dashboard.dashboard') }}
             </h1>
-            <p class="dashboard-subtitle">{{ t('dashboardSubtitle') }}</p>
+            <p class="dashboard-subtitle">{{ t('dashboard.dashboardSubtitle') }}</p>
           </div>
           <div class="col-md-4 text-end">
             <div class="dashboard-controls">
               <button @click="fetchAndSaveDashboardData" class="btn btn-refresh" :disabled="isLoading">
                 <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
-                {{ t('refreshData') }}
+                {{ t('dashboard.refreshData') }}
               </button>
               <div class="last-update">
-                <small>{{ t('lastUpdated') }}: {{ dashboardData.lastUpdated }}</small>
+                <small>{{ t('dashboard.lastUpdated') }}: {{ dashboardData.lastUpdated }}</small>
               </div>
             </div>
           </div>
@@ -1279,11 +1282,11 @@ onMounted(async () => {
         <div class="d-flex align-items-center">
           <i class="fas fa-exclamation-triangle fa-2x text-danger me-3"></i>
           <div class="flex-grow-1">
-            <h5 class="alert-heading mb-1">{{ t('errorLoadingData') }}</h5>
+            <h5 class="alert-heading mb-1">{{ t('dashboard.errorLoadingData') }}</h5>
             <p class="mb-0">{{ errorMessage }}</p>
           </div>
           <button @click="fetchAndSaveDashboardData" class="btn btn-outline-danger">
-            <i class="fas fa-redo me-2"></i>{{ t('retry') }}
+            <i class="fas fa-redo me-2"></i>{{ t('dashboard.retry') }}
           </button>
         </div>
       </div>
@@ -1295,8 +1298,8 @@ onMounted(async () => {
         <div class="spinner-wrapper">
           <div class="spinner-border text-primary" role="status"></div>
         </div>
-        <h4 class="loading-title">{{ t('loadingData') }}</h4>
-        <p class="loading-subtitle">{{ t('gatheringInfo') }}</p>
+        <h4 class="loading-title">{{ t('dashboard.loadingData') }}</h4>
+        <p class="loading-subtitle">{{ t('dashboard.gatheringInfo') }}</p>
       </div>
     </div>
 
@@ -1309,9 +1312,9 @@ onMounted(async () => {
         <!-- <div class="section-header mb-4">
           <h3 class="section-title">
             <i class="fas fa-chart-bar me-2"></i>
-            {{ t('statisticsTitle') }}
+            {{ t('dashboard.statisticsTitle') }}
           </h3>
-          <p class="section-subtitle">{{ t('statisticsSubtitle') }}</p>
+          <p class="section-subtitle">{{ t('dashboard.statisticsSubtitle') }}</p>
         </div> -->
 
         <div class="stats-row-container">
@@ -1323,14 +1326,15 @@ onMounted(async () => {
                   <i class="fas fa-clipboard-list"></i>
                 </div>
                 <div class="card-title-text">
-                  {{ t('todayTasks') }}
+                  {{ t('dashboard.todayTasks') }}
                   <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('routine task')"
-                    title="Click to view Routine Tasks"
+                    :title="t('dashboard.clickToViewRoutineTasks')"
                     style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
                 </div>
               </div>
               <!-- Quick Add Button -->
-              <button @click="openQuickAddRoutine($event)" class="quick-add-btn-top" :title="t('quickAddTask')">
+              <button @click="openQuickAddRoutine($event)" class="quick-add-btn-top"
+                :title="t('dashboard.quickAddTask')">
                 <i class="fas fa-plus"></i>
               </button>
             </div>
@@ -1345,13 +1349,13 @@ onMounted(async () => {
                   @click="goToRoutineOrReported('reported')">
                   <i
                     :class="(dashboardData?.DailyTasks?.total_reports || 0) > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
-                  {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
+                  {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('dashboard.reported') }}
                 </span>
               </div>
-              <div class="metric-subtitle">{{ t('task') }}</div>
+              <div class="metric-subtitle">{{ t('dashboard.task') }}</div>
             </div>
             <!-- <div class="metric-col">
-                <div class="metric-subtitle">{{ t('totalTasks') }}</div>
+                <div class="metric-subtitle">{{ t('dashboard.totalTasks') }}</div>
               </div> -->
             <!-- <div class="metric-divider"></div> -->
             <!-- <div class="metric-col">
@@ -1361,26 +1365,26 @@ onMounted(async () => {
             <div class="card-badges-section">
               <span class="status-pill pill-success" style="cursor:pointer" @click="goToRoutineOrReported('done')">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.DailyTasks?.done_reports || 0 }} {{ t('done') }}
+                {{ dashboardData?.DailyTasks?.done_reports || 0 }} {{ t('dashboard.done') }}
               </span>
               <span class="status-pill pill-danger" style="cursor:pointer" @click="goToRoutineOrReported('not_done')">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.DailyTasks?.not_done_reports || 0 }} {{ t('notDone') }}
+                {{ dashboardData?.DailyTasks?.not_done_reports || 0 }} {{ t('dashboard.notDone') }}
               </span>
               <!-- <span class="status-pill pill-primary">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('reported') }}
+                {{ dashboardData?.DailyTasks?.total_reports || 0 }} {{ t('dashboard.reported') }}
               </span> -->
               <span class="status-pill pill-warning" style="cursor:pointer"
                 @click="goToRoutineOrReported('not_reported')">
                 <span class="pill-dot"></span>
                 {{ (dashboardData?.DailyTasks?.today_total_daily_tasks || 0) - (dashboardData?.DailyTasks?.total_reports
-                  || 0) }} {{ t('notReported') }}
+                  || 0) }} {{ t('dashboard.notReported') }}
               </span>
             </div>
 
             <!-- <div class="card-footer-v2">
-              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
+              <a href="#" class="card-link">{{ t('dashboard.viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
             </div> -->
           </div>
 
@@ -1392,14 +1396,15 @@ onMounted(async () => {
                   <i class="fas fa-tasks"></i>
                 </div>
                 <div class="card-title-text" style="font-weight:600;">
-                  {{ t('oneTimeTasks') }}
+                  {{ t('dashboard.oneTimeTasks') }}
                   <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('one time task')"
-                    title="Click to view One-Time Tasks"
+                    :title="t('dashboard.clickToViewOneTimeTasks')"
                     style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
                 </div>
               </div>
               <!-- Quick Add Button -->
-              <button @click="openQuickAddOneTime($event)" class="quick-add-btn-top" :title="t('quickAddTask')">
+              <button @click="openQuickAddOneTime($event)" class="quick-add-btn-top"
+                :title="t('dashboard.quickAddTask')">
                 <i class="fas fa-plus"></i>
               </button>
             </div>
@@ -1412,59 +1417,59 @@ onMounted(async () => {
                   @click="goToOneTimeTasks('priority', 'urgent')" style="cursor:pointer">
                   <i
                     :class="(oneTimeMetricsFiltered.urgent || 0) > 0 ? 'fas fa-exclamation-triangle' : 'fas fa-minus'"></i>
-                  {{ oneTimeMetricsFiltered.urgent }} {{ t('urgent') }}
+                  {{ oneTimeMetricsFiltered.urgent }} {{ t('dashboard.urgent') }}
                 </span>
               </div>
-              <div class="metric-subtitle">{{ t('openTasks') }}</div>
+              <div class="metric-subtitle">{{ t('dashboard.openTasks') }}</div>
             </div>
 
             <div class="card-badges-section">
               <!-- <span class="status-pill pill-success">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Tasks?.done || 0 }} {{ t('done') }}
+                {{ dashboardData?.Tasks?.done || 0 }} {{ t('dashboard.done') }}
               </span> -->
 
               <!-- <span class="status-pill pill-warning">
                 <span class="pill-dot"></span>
-                {{ oneTimeOpenTasks }} {{ t('openTasks') }}
+                {{ oneTimeOpenTasks }} {{ t('dashboard.openTasks') }}
               </span> -->
 
               <!-- <span class="status-pill pill-danger">
                 <span class="pill-dot"></span>
-                {{ oneTimeUrgent }} {{ t('urgent') }}
+                {{ oneTimeUrgent }} {{ t('dashboard.urgent') }}
               </span> -->
 
               <span class="status-pill pill-success" @click="goToOneTimeTasks('status', 'inProgress')"
                 style="cursor:pointer">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Tasks?.inProgress }} {{ t('inProgress') }}
+                {{ dashboardData?.Tasks?.inProgress }} {{ t('dashboard.inProgress') }}
               </span>
 
               <span class="status-pill pill-secondary" @click="goToOneTimeTasks('status', 'Review')"
                 style="cursor:pointer">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Tasks?.review || 0 }} {{ t('review') }}
+                {{ dashboardData?.Tasks?.review || 0 }} {{ t('dashboard.review') }}
               </span>
 
               <span class="status-pill pill-warning" @click="goToOneTimeTasks('due', 'today')" style="cursor:pointer">
                 <span class="pill-dot"></span>
-                {{ oneTimeMetricsFiltered.dueToday }} {{ t('dueToday') }}
+                {{ oneTimeMetricsFiltered.dueToday }} {{ t('dashboard.dueToday') }}
               </span>
 
               <span class="status-pill pill-warning" @click="goToOneTimeTasks('due', 'soon')" style="cursor:pointer">
                 <span class="pill-dot"></span>
-                {{ oneTimeMetricsFiltered.dueSoon }} {{ t('dueSoon') }}
+                {{ oneTimeMetricsFiltered.dueSoon }} {{ t('dashboard.dueSoon') }}
               </span>
 
               <span class="status-pill pill-danger" @click="goToOneTimeTasks('due', 'overdue')" style="cursor:pointer">
                 <span class="pill-dot"></span>
-                {{ oneTimeMetricsFiltered.overdue }} {{ t('overdue') }}
+                {{ oneTimeMetricsFiltered.overdue }} {{ t('dashboard.overdue') }}
               </span>
 
             </div>
 
             <!-- <div class="card-footer-v2">
-              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
+              <a href="#" class="card-link">{{ t('dashboard.viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
             </div> -->
           </div>
 
@@ -1478,9 +1483,9 @@ onMounted(async () => {
                   <i class="fas fa-folder-open"></i>
                 </div>
                 <div class="card-title-text">
-                  {{ t('projects') }}
+                  {{ t('dashboard.projects') }}
                   <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('project')"
-                    title="Click to view Projects"
+                    :title="t('dashboard.clickToViewProjects')"
                     style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
                 </div>
               </div>
@@ -1491,25 +1496,25 @@ onMounted(async () => {
                 <div class="main-metric">{{ dashboardData?.Projects?.total || 0 }}</div>
                 <span class="trend-badge" :class="dashboardData?.Projects?.active > 0 ? 'trend-up' : 'trend-neutral'">
                   <i :class="dashboardData?.Projects?.active > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
-                  {{ dashboardData?.Projects?.active || 0 }} {{ t('active') }}
+                  {{ dashboardData?.Projects?.active || 0 }} {{ t('dashboard.active') }}
                 </span>
               </div>
-              <div class="metric-subtitle">{{ t('active') }} / {{ t('stopped') }}</div>
+              <div class="metric-subtitle">{{ t('dashboard.active') }} / {{ t('dashboard.stopped') }}</div>
             </div>
 
             <div class="card-badges-section">
               <span class="status-pill pill-success">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Projects?.active || 0 }} {{ t('active') }}
+                {{ dashboardData?.Projects?.active || 0 }} {{ t('dashboard.active') }}
               </span>
               <span class="status-pill pill-secondary">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Projects?.inActive || 0 }} {{ t('inActive') }}
+                {{ dashboardData?.Projects?.inActive || 0 }} {{ t('dashboard.inActive') }}
               </span>
             </div>
 
             <!-- <div class="card-footer-v2">
-              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
+              <a href="#" class="card-link">{{ t('dashboard.viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
             </div> -->
           </div>
 
@@ -1521,9 +1526,9 @@ onMounted(async () => {
                   <i class="fas fa-users"></i>
                 </div>
                 <div class="card-title-text">
-                  {{ t('employees') }}
+                  {{ t('dashboard.employees') }}
                   <span class="material-symbols-rounded ms-2 clickable-title" @click="navigateToCard('team')"
-                    title="Click to view Team/Employees"
+                    :title="t('dashboard.clickToViewTeam')"
                     style="cursor:pointer; color:#2563eb; font-size: 1.1em; vertical-align: middle;">open_in_new</span>
                 </div>
               </div>
@@ -1534,25 +1539,25 @@ onMounted(async () => {
                 <div class="main-metric">{{ dashboardData?.Emps?.total || 0 }}</div>
                 <!-- <span class="trend-badge" :class="dashboardData?.Emps?.invited > 0 ? 'trend-up' : 'trend-neutral'">
                   <i :class="dashboardData?.Emps?.invited > 0 ? 'fas fa-arrow-up' : 'fas fa-minus'"></i>
-                  {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
+                  {{ dashboardData?.Emps?.invited || 0 }} {{ t('dashboard.active') }}
                 </span> -->
               </div>
-              <div class="metric-subtitle">{{ t('active') }}</div>
+              <div class="metric-subtitle">{{ t('dashboard.active') }}</div>
             </div>
 
             <div class="card-badges-section">
               <!-- <span class="status-pill pill-success">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Emps?.invited || 0 }} {{ t('active') }}
+                {{ dashboardData?.Emps?.invited || 0 }} {{ t('dashboard.active') }}
               </span> -->
               <span class="status-pill pill-warning">
                 <span class="pill-dot"></span>
-                {{ dashboardData?.Emps?.pending || 0 }} {{ t('pending') }}
+                {{ dashboardData?.Emps?.pending || 0 }} {{ t('dashboard.pending') }}
               </span>
             </div>
 
             <!-- <div class="card-footer-v2">
-              <a href="#" class="card-link">{{ t('viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
+              <a href="#" class="card-link">{{ t('dashboard.viewDetails') }} <i class="fas fa-arrow-right ms-1"></i></a>
             </div> -->
           </div>
 
@@ -1575,10 +1580,10 @@ onMounted(async () => {
                     <p class="chart-subtitle-inline">{{ activeChart.subtitle }}</p>
                   </div>
                   <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-sm btn-light" @click="prevChart" title="Prev">
+                    <button class="btn btn-sm btn-light" @click="prevChart" :title="t('dashboard.prevChart')">
                       <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button class="btn btn-sm btn-light" @click="nextChart" title="Next">
+                    <button class="btn btn-sm btn-light" @click="nextChart" :title="t('dashboard.nextChart')">
                       <i class="fas fa-chevron-right"></i>
                     </button>
                   </div>
@@ -1599,13 +1604,14 @@ onMounted(async () => {
                   <div>
                     <h5 class="chart-title-inline">
                       <i class="fas fa-chart-bar me-2 text-primary"></i>
-                      {{ t('performanceTrends') }}
+                      {{ t('dashboard.performanceTrends') }}
                     </h5>
-                    <p class="chart-subtitle-inline">{{ t('performanceTrendsSubtitle') }}</p>
+                    <p class="chart-subtitle-inline">{{ t('dashboard.performanceTrendsSubtitle') }}</p>
                   </div>
                 </div>
                 <div class="chart-content">
-                  <ShBar :data="performanceLineData" index="date" :categories="[t('openTasks'), t('review'), t('done')]"
+                  <ShBar :data="performanceLineData" index="date"
+                    :categories="[t('dashboard.openTasks'), t('dashboard.review'), t('dashboard.done')]"
                     :colors="['#f59e0b', '#3b82f6', '#10b981']" type="grouped" :show-grid-line="true"
                     :rounded-corners="12" />
                 </div>
@@ -1622,7 +1628,7 @@ onMounted(async () => {
             <i class="fas fa-robot"></i>
           </div>
           <div class="ai-label">
-            <span class="ai-text">{{ t('aiAnalysis') }}</span>
+            <span class="ai-text">{{ t('dashboard.aiAnalysis') }}</span>
             <div class="ai-badge-mini">AI</div>
           </div>
         </div>
@@ -1639,15 +1645,15 @@ onMounted(async () => {
                 </div>
                 <div>
                   <h4 class="sidebar-title mb-1">
-                    {{ t('aiAnalysisTitle') }}
+                    {{ t('dashboard.aiAnalysisTitle') }}
                   </h4>
-                  <p class="mb-0 opacity-75">{{ t('aiAnalysisSubtitle') }}</p>
+                  <p class="mb-0 opacity-75">{{ t('dashboard.aiAnalysisSubtitle') }}</p>
                 </div>
               </div>
               <!-- <div class="d-flex align-items-center gap-3">
                 <button @click="refreshAIAnalysis" class="btn btn-outline-light btn-sm" :disabled="isLoadingAI">
                   <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoadingAI }"></i>
-                  {{ t('refresh') }}
+                  {{ t('dashboard.refresh') }}
                 </button>
                 <button type="button" class="btn-close btn-close-white" @click="closeAIModal"
                   aria-label="Close"></button>
@@ -1664,8 +1670,8 @@ onMounted(async () => {
                       <div class="brain-wave"></div>
                     </div>
                   </div>
-                  <h5 class="mt-3">{{ t('analyzingLatestData') }}</h5>
-                  <p class="text-muted">{{ t('gatheringInsights') }}</p>
+                  <h5 class="mt-3">{{ t('dashboard.analyzingLatestData') }}</h5>
+                  <p class="text-muted">{{ t('dashboard.gatheringInsights') }}</p>
                 </div>
               </div>
 
@@ -1678,15 +1684,15 @@ onMounted(async () => {
               <div class="d-flex justify-content-between align-items-center w-100">
                 <small class="text-muted">
                   <i class="fas fa-clock me-1"></i>
-                  {{ t('lastAnalyzed') }}: <br> {{ aiLastUpdated }}
+                  {{ t('dashboard.lastAnalyzed') }}: <br> {{ aiLastUpdated }}
                 </small>
                 <div>
                   <button type="button" class="btn btn-secondary me-2" @click="closeAIModal">
-                    {{ t('close') }}
+                    {{ t('dashboard.close') }}
                   </button>
                   <button @click="refreshAIAnalysis" class="btn btn-primary" :disabled="isLoadingAI">
                     <i class="fas fa-redo me-1"></i>
-                    {{ t('reanalyze') }}
+                    {{ t('dashboard.reanalyze') }}
                   </button>
                 </div>
               </div>
@@ -1700,9 +1706,9 @@ onMounted(async () => {
       <!-- <div class="section-header mb-4">
           <h3 class="section-title">
             <i class="fas fa-table me-2"></i>
-            {{ t('tablesTitle') }}
+            {{ t('dashboard.tablesTitle') }}
           </h3>
-          <p class="section-subtitle">{{ t('tablesSubtitle') }}</p>
+          <p class="section-subtitle">{{ t('dashboard.tablesSubtitle') }}</p>
         </div> -->
 
       <!-- <div class="row g-4"> -->
@@ -1714,9 +1720,9 @@ onMounted(async () => {
                   <div>
                     <h5 class="table-title mb-1">
                       <i class="fas fa-clipboard-list me-2 text-primary"></i>
-                      {{ t('dailyTasksByDept') }}
+                      {{ t('dashboard.dailyTasksByDept') }}
                     </h5>
-                    <p class="table-subtitle">{{ t('dailyTasksSubtitle') }}</p>
+                    <p class="table-subtitle">{{ t('dashboard.dailyTasksSubtitle') }}</p>
                   </div>
                   <button @click="fetchAndSaveDashboardData" class="btn btn-refresh-table" :disabled="isLoading">
                     <i class="fas fa-sync-alt" :class="{ 'fa-spin': isLoading }"></i>
@@ -1730,23 +1736,23 @@ onMounted(async () => {
                       <tr>
                         <th class="table-header">
                           <i class="fas fa-building me-2"></i>
-                          {{ t('department') }}
-                        </th>
-                        <th class="table-header text-center">
-                          <i class="fas fa-tasks me-2"></i>
-                          {{ t('totalTasks') }}
-                        </th>
-                        <th class="table-header text-center">
-                          <i class="fas fa-file-alt me-2"></i>
-                          {{ t('reportedTasks') }}
-                        </th>
-                        <th class="table-header text-center">
-                          <i class="fas fa-file-excel me-2"></i>
-                          {{ t('notReportedTasks') }}
-                        </th>
-                        <th class="table-header text-center">
-                          <i class="fas fa-chart-pie me-2"></i>
-                          {{ t('completionRate') }}
+                          {{ t('dashboard.department') }}
+                          </th>
+                          <th class="table-header text-center">
+                            <i class="fas fa-tasks me-2"></i>
+                            {{ t('dashboard.totalTasks') }}
+                          </th>
+                          <th class="table-header text-center">
+                            <i class="fas fa-file-alt me-2"></i>
+                            {{ t('dashboard.reportedTasks') }}
+                          </th>
+                          <th class="table-header text-center">
+                            <i class="fas fa-file-excel me-2"></i>
+                            {{ t('dashboard.notReportedTasks') }}
+                          </th>
+                          <th class="table-header text-center">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            {{ t('dashboard.completionRate') }}
                         </th>
                       </tr>
                     </thead>
@@ -1768,8 +1774,8 @@ onMounted(async () => {
                           <div class="reported-stats">
                             <span class="stats-badge bg-primary text-white">{{ dept.total_reports || 0 }}</span>
                             <div class="mt-1">
-                              <span class="mini-badge bg-success">{{ dept.done_reports || 0 }} {{ t('done') }}</span>
-                              <span class="mini-badge bg-danger">{{ dept.not_done_reports || 0 }} {{ t('notDone')
+                              <span class="mini-badge bg-success">{{ dept.done_reports || 0 }} {{ t('dashboard.done') }}</span>
+                              <span class="mini-badge bg-danger">{{ dept.not_done_reports || 0 }} {{ t('dashboard.notDone')
                               }}</span>
                             </div>
                           </div>
@@ -1805,9 +1811,9 @@ onMounted(async () => {
                 <div>
                   <h5 class="table-title mb-1">
                     <i class="fas fa-users me-2 text-success"></i>
-                    {{ t('employeesByDept') }}
+                    {{ t('dashboard.employeesByDept') }}
                   </h5>
-                  <p class="table-subtitle">{{ t('employeesSubtitle') }}</p>
+                  <p class="table-subtitle">{{ t('dashboard.employeesSubtitle') }}</p>
                 </div>
               </div>
               <div class="data-table-body">
@@ -1817,11 +1823,11 @@ onMounted(async () => {
                       <tr>
                         <th class="table-header">
                           <i class="fas fa-building me-2"></i>
-                          {{ t('department') }}
-                        </th>
-                        <th class="table-header text-center">
-                          <i class="fas fa-user-friends me-2"></i>
-                          {{ t('count') }}
+                          {{ t('dashboard.department') }}
+                          </th>
+                          <th class="table-header text-center">
+                            <i class="fas fa-user-friends me-2"></i>
+                            {{ t('dashboard.count') }}
                         </th>
                       </tr>
                     </thead>
@@ -1860,7 +1866,7 @@ onMounted(async () => {
             <div class="gmail-quick-header-left">
               <span class="gmail-quick-title">
                 <i class="fas fa-sync me-2"></i>
-                {{ t('quickAddRoutineTask') }}
+                {{ t('dashboard.quickAddRoutineTask') }}
               </span>
             </div>
             <div class="gmail-quick-header-right">
@@ -1875,21 +1881,21 @@ onMounted(async () => {
             <div>
               <!-- <label class="form-label small text-muted mb-1">{{ t('taskName') }} *</label> -->
               <ArgonInput id="quick-routine-task-name" v-model="quickRoutineTask.task_name" type="text"
-                :placeholder="t('enterTaskName')" size="sm" :error="validationErrors.task_name" />
+                :placeholder="t('dashboard.enterTaskName')" size="sm" :error="validationErrors.task_name" />
             </div>
 
             <!-- Description -->
             <div class="mb-2">
               <!-- <label class="form-label small text-muted mb-1">{{ t('description') }}</label> -->
               <ArgonTextarea id="quick-routine-description" v-model="quickRoutineTask.description"
-                :placeholder="t('enterDescription')" :rows="2" />
+                :placeholder="t('dashboard.enterDescription')" :rows="2" />
             </div>
 
             <!-- Task Type -->
             <div class="mb-2">
               <!-- <label class="form-label small text-muted mb-1">{{ t('taskType') }} *</label> -->
               <ArgonSelect v-model="quickRoutineTask.task_type" :options="taskTypeOptions"
-                :placeholder="t('selectTaskType')" :searchable="false" :error="validationErrors.task_type" />
+                :placeholder="t('dashboard.selectTaskType')" :searchable="false" :error="validationErrors.task_type" />
             </div>
 
             <!-- Weekly Options -->
@@ -1897,7 +1903,7 @@ onMounted(async () => {
               <div class="col-12 ">
                 <!-- <label class="form-label small text-muted mb-1">{{ t('selectDays') }}</label> -->
                 <ArgonMultipleSelect v-model="quickRoutineTask.recurrent_days" :options="weekDaysOptions"
-                  :placeholder="t('selectDaysOfWeek')" :searchable="false" class="w-100" />
+                  :placeholder="t('dashboard.selectDaysOfWeek')" :searchable="false" class="w-100" />
               </div>
             </div>
 
@@ -1906,7 +1912,7 @@ onMounted(async () => {
               <div class="col-12 ">
                 <!-- <label class="form-label small text-muted mb-1">{{ t('dayOfMonth') }}</label> -->
                 <ArgonSelect v-model="quickRoutineTask.day_of_month" :options="monthDaysOptions"
-                  :placeholder="t('selectDayOfMonth')" :searchable="true" />
+                  :placeholder="t('dashboard.selectDayOfMonth')" :searchable="true" />
               </div>
             </div>
 
@@ -1915,7 +1921,7 @@ onMounted(async () => {
               <div class="col-12 ">
                 <!-- <label class="form-label small text-muted mb-1">{{ t('lastDayOfMonth') }}</label> -->
                 <ArgonSelect v-model="quickRoutineTask.last_day_of_month" :options="lastDayOfMonthOptions"
-                  :placeholder="t('selectLastDayOfMonth')" :searchable="true" />
+                  :placeholder="t('dashboard.selectLastDayOfMonth')" :searchable="true" />
               </div>
             </div>
 
@@ -1927,12 +1933,12 @@ onMounted(async () => {
               <div class="col-md-6 ">
                 <!-- <label class="form-label small text-muted mb-1">{{ t('department') }}</label> -->
                 <ArgonSelect v-model="quickRoutineTask.dept_id" :options="formattedDepartments"
-                  :placeholder="t('selectDepartment')" :searchable="true" />
+                  :placeholder="t('dashboard.selectDepartment')" :searchable="true" />
               </div>
 
               <!-- Start Date -->
               <div class="col-md-6">
-                <label class="form-label small text-muted mb-2">{{ t('startDate') }} *</label>
+                <label class="form-label small text-muted mb-2">{{ t('dashboard.startDate') }} *</label>
                 <ArgonInput id="quick-routine-start-date" type="date" v-model="quickRoutineTask.start_date" size="sm"
                   :error="validationErrors.start_date" />
               </div>
@@ -1943,13 +1949,13 @@ onMounted(async () => {
 
               <!-- From Time -->
               <div class="col-md-6">
-                <label class="form-label small text-muted mb-2">{{ t('from') }}</label>
+                <label class="form-label small text-muted mb-2">{{ t('dashboard.from') }}</label>
                 <ArgonInput id="quick-routine-from" type="time" v-model="quickRoutineTask.from" size="sm" />
               </div>
 
               <!-- To Time -->
               <div class="col-md-6">
-                <label class="form-label small text-muted mb-2">{{ t('to') }}</label>
+                <label class="form-label small text-muted mb-2">{{ t('dashboard.to') }}</label>
                 <ArgonInput id="quick-routine-to" type="time" v-model="quickRoutineTask.to" size="sm" />
               </div>
             </div>
@@ -1960,12 +1966,12 @@ onMounted(async () => {
           <div class="quick-add-footer">
             <ArgonButton color="light" size="sm" @click="closeQuickAdd" class="me-2">
               <i class="fas fa-times me-1"></i>
-              {{ t('cancel') }}
+              {{ t('dashboard.cancel') }}
             </ArgonButton>
             <ArgonButton color="success" size="sm" @click="submitQuickRoutineTask" :disabled="isSubmittingRoutine">
               <span v-if="isSubmittingRoutine" class="spinner-border spinner-border-sm" role="status"
                 aria-hidden="true"></span>
-              {{ isSubmittingRoutine ? t('saving') : t('create') }}
+              {{ isSubmittingRoutine ? t('dashboard.saving') : t('dashboard.create') }}
             </ArgonButton>
           </div>
         </div>
@@ -1982,7 +1988,7 @@ onMounted(async () => {
             <div class="gmail-quick-header-left">
               <span class="gmail-quick-title">
                 <i class="fas fa-tasks me-2"></i>
-                {{ t('quickAddOneTimeTask') }}
+                {{ t('dashboard.quickAddOneTimeTask') }}
               </span>
             </div>
             <div class="gmail-quick-header-right">
@@ -2047,11 +2053,11 @@ onMounted(async () => {
                     <template v-else>
                       <span class="gmail-compact-placeholder">
                         <i class="fas fa-users"></i>
-                        {{ t('clickToAddPeople') }}
+                        {{ t('dashboard.clickToAddPeople') }}
                       </span>
                     </template>
                   </div>
-                  <span class="gmail-compact-hint">{{ t('clickToEdit') }}</span>
+                  <span class="gmail-compact-hint">{{ t('dashboard.clickToEdit') }}</span>
                 </div>
               </div>
 
@@ -2062,7 +2068,7 @@ onMounted(async () => {
                   <div class="gmail-row-content w-100">
                     <div class="w-100">
                       <ArgonTagsInput v-model="quickOneTimeTask.assigned_user_id" :options="employeeOptions"
-                        :placeholder="t('selectAssignee')" class="gmail-people-input" />
+                        :placeholder="t('dashboard.selectAssignee')" class="gmail-people-input" />
                     </div>
                     <div class="gmail-shortcuts">
                       <a href="#" @click.prevent="showCcFields = !showCcFields" class="gmail-shortcut-link">
@@ -2079,8 +2085,8 @@ onMounted(async () => {
                 <div v-show="showCcFields" class="gmail-people-row">
                   <div class="gmail-row-content w-100">
                     <ArgonSelect v-model="quickOneTimeTask.supervisor_user_id" :options="employeeOptions"
-                      :placeholder="t('selectSupervisor')" class="gmail-people-input w-100" :searchable="true"
-                      :search-placeholder="t('searchEmployees')" />
+                      :placeholder="t('dashboard.selectSupervisor')" class="gmail-people-input w-100" :searchable="true"
+                      :search-placeholder="t('dashboard.searchEmployees')" />
                   </div>
                 </div>
 
@@ -2090,13 +2096,13 @@ onMounted(async () => {
                     <!-- Informer -->
                     <div class="mb-2 w-100">
                       <ArgonTagsInput v-model="quickOneTimeTask.inform_user_id" :options="employeeOptions"
-                        :placeholder="t('selectInformer')" class="gmail-people-input" />
+                        :placeholder="t('dashboard.selectInformer')" class="gmail-people-input" />
                     </div>
 
                     <!-- Consultant -->
                     <div class="w-100">
                       <ArgonTagsInput v-model="quickOneTimeTask.consult_user_id" :options="employeeOptions"
-                        :placeholder="t('selectConsultant')" class="gmail-people-input" />
+                        :placeholder="t('dashboard.selectConsultant')" class="gmail-people-input" />
                     </div>
                   </div>
                 </div>
@@ -2105,13 +2111,13 @@ onMounted(async () => {
               <!-- حقل اسم المهمة -->
               <div class="gmail-field">
                 <ArgonInput v-model="quickOneTimeTask.title" class="gmail-input gmail-title-input"
-                  :placeholder="t('enterTaskName')" dir="auto" :error="validationErrors.title" />
+                  :placeholder="t('dashboard.enterTaskName')" dir="auto" :error="validationErrors.title" />
               </div>
 
               <!-- حقل الوصف -->
               <div class="gmail-field">
                 <ArgonTextarea v-model="quickOneTimeTask.description" class="gmail-textarea"
-                  :placeholder="t('enterDescription')" :rows="2" dir="auto" />
+                  :placeholder="t('dashboard.enterDescription')" :rows="2" dir="auto" />
               </div>
 
               <!-- شريط الأدوات مع الأيقونات -->
@@ -2126,14 +2132,14 @@ onMounted(async () => {
                       <span v-else>✓</span>
                     </span>
                   </div>
-                  <span class="gmail-icon-label">{{ t("project") }}</span>
+                  <span class="gmail-icon-label">{{ t("dashboard.project") }}</span>
 
                   <!-- Project Dropdown -->
                   <div v-show="showProjectDropdown" class="toolbar-dropdown" @click.stop>
                     <div class="toolbar-dropdown-content">
                       <div class="toolbar-search-container mb-3">
                         <input v-model="projectSearchQuery" type="text" class="toolbar-search-input"
-                          :placeholder="t('searchProjects')" @input="filterProjects" />
+                          :placeholder="t('dashboard.searchProjects')" @input="filterProjects" />
                       </div>
                       <div class="toolbar-options-container">
                         <div v-for="project in filteredProjects" :key="project.value" class="toolbar-option-item"
@@ -2144,7 +2150,7 @@ onMounted(async () => {
                             class="fas fa-check toolbar-option-check"></i>
                         </div>
                         <div v-if="filteredProjects.length === 0" class="toolbar-no-results">
-                          {{ t('noResultsFound') }}
+                          {{ t('dashboard.noResultsFound') }}
                         </div>
                       </div>
                     </div>
@@ -2161,14 +2167,14 @@ onMounted(async () => {
                       <span v-else>✓</span>
                     </span>
                   </div>
-                  <span class="gmail-icon-label">{{ t("priority") }}</span>
+                  <span class="gmail-icon-label">{{ t("dashboard.priority") }}</span>
 
                   <!-- Priority Dropdown -->
                   <div v-show="showPriorityDropdown" class="toolbar-dropdown" @click.stop>
                     <div class="toolbar-dropdown-content">
                       <div class="toolbar-search-container mb-3">
                         <input v-model="prioritySearchQuery" type="text" class="toolbar-search-input"
-                          :placeholder="t('searchPriorities')" @input="filterPriorities" />
+                          :placeholder="t('dashboard.searchPriorities')" @input="filterPriorities" />
                       </div>
                       <div class="toolbar-options-container">
                         <div v-for="priorityOption in filteredPriorities" :key="priorityOption.value"
@@ -2180,7 +2186,7 @@ onMounted(async () => {
                             class="fas fa-check toolbar-option-check"></i>
                         </div>
                         <div v-if="filteredPriorities.length === 0" class="toolbar-no-results">
-                          {{ t('noResultsFound') }}
+                          {{ t('dashboard.noResultsFound') }}
                         </div>
                       </div>
                     </div>
@@ -2197,13 +2203,13 @@ onMounted(async () => {
                       <span v-else>✓</span>
                     </span>
                   </div>
-                  <span class="gmail-icon-label">{{ t("startDate") }}*</span>
+                  <span class="gmail-icon-label">{{ t("dashboard.startDate") }}*</span>
 
                   <!-- Start Date Picker -->
                   <div v-show="showStartDatePicker" class="toolbar-dropdown" @click.stop>
                     <div class="toolbar-dropdown-content">
                       <ArgonInput type="date" v-model="quickOneTimeTask.start_date"
-                        :placeholder="t('enterStartDate')" />
+                        :placeholder="t('dashboard.enterStartDate')" />
                     </div>
                   </div>
                 </div>
@@ -2218,12 +2224,13 @@ onMounted(async () => {
                       <span v-else>✓</span>
                     </span>
                   </div>
-                  <span class="gmail-icon-label">{{ t("endDate") }}</span>
+                  <span class="gmail-icon-label">{{ t("dashboard.endDate") }}</span>
 
                   <!-- End Date Picker -->
                   <div v-show="showEndDatePicker" class="toolbar-dropdown" @click.stop>
                     <div class="toolbar-dropdown-content">
-                      <ArgonInput type="date" v-model="quickOneTimeTask.deadline" :placeholder="t('enterEndDate')" />
+                      <ArgonInput type="date" v-model="quickOneTimeTask.deadline"
+                        :placeholder="t('dashboard.enterEndDate')" />
                     </div>
                   </div>
                 </div>
@@ -2236,12 +2243,12 @@ onMounted(async () => {
           <div class="gmail-quick-footer">
             <ArgonButton color="light" size="sm" @click="closeQuickAdd" class="me-2">
               <i class="fas fa-times me-1"></i>
-              {{ t('cancel') }}
+              {{ t('dashboard.cancel') }}
             </ArgonButton>
             <ArgonButton color="success" size="sm" @click="submitQuickOneTimeTask" :disabled="isSubmittingOneTime">
               <span v-if="isSubmittingOneTime" class="spinner-border spinner-border-sm" role="status"
                 aria-hidden="true"></span>
-              {{ isSubmittingOneTime ? t('saving') : t('create') }}
+              {{ isSubmittingOneTime ? t('dashboard.saving') : t('dashboard.create') }}
             </ArgonButton>
           </div>
         </div>

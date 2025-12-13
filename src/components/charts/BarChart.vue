@@ -169,6 +169,13 @@ watch(() => props.data, () => {
     createChart();
 }, { deep: true });
 
+// Watch for options changes (including dark mode updates)
+watch(() => props.options, () => {
+    if (chartInstance) {
+        createChart();
+    }
+}, { deep: true });
+
 // Watch for dark mode class changes on body
 const darkModeObserver = new MutationObserver(() => {
     if (chartInstance) {

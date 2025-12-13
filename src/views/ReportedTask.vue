@@ -3,6 +3,7 @@
 import { ref, computed, onBeforeMount, watch, onMounted, reactive } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import ArgonAlert from "@/components/ArgonAlert.vue";
@@ -254,7 +255,7 @@ const fetchNotReportedTasks = async (
     }
   } catch (error) {
     showAlert.value = true;
-    errorMessage.value = t("generalError");
+    errorMessage.value = t("reportedTasks.generalError");
   } finally {
     isNotReportedLoading.value = false;
   }
@@ -280,7 +281,7 @@ const fetchEvaluatedTasks = async (date = selectedDateForNotReported.value) => {
     }
   } catch (error) {
     showAlert.value = true;
-    errorMessage.value = t("generalError");
+    errorMessage.value = t("reportedTasks.generalError");
   } finally {
     isNotReportedLoading.value = false;
   }
@@ -306,7 +307,7 @@ const fetchTasksReports = async (date = selectedDateForNotReported.value) => {
     }
   } catch (error) {
     showAlert.value = true;
-    errorMessage.value = t("generalError");
+    errorMessage.value = t("reportedTasks.generalError");
   } finally {
     isNotReportedLoading.value = false;
   }
@@ -408,11 +409,7 @@ watch(
 
 // console.log("dynamicDepartmentsForNotReported:", dynamicDepartmentsForNotReported.value);
 
-const currentLanguage = computed(() => store.getters.currentLanguage);
-
-const t = (key) => {
-  return translations[currentLanguage.value][key];
-};
+const { t } = useI18n();
 
 const applyFilter = () => {
   console.log(
@@ -439,167 +436,15 @@ const applyFilter = () => {
 
 };
 
-const translations = {
-  en: {
-    addMember: "Add Member",
-    email: "Email",
-    emailExistsError:
-      "This email is already registered. Please use another email.",
-    generalError: "An error occurred while submitting. Please try again later.",
-    invalidCompanyIdOrUserId: "Invalid Company ID or User ID.",
-    routineTaskDeleted: "Routine Task deleted successfully.",
-    routineTaskAdded: "Routine Task added successfully.",
-    deleteConfirmationTitle: "Delete Routine Task",
-    deleteConfirmationText:
-      "Are you sure you want to delete this Routine Task?",
-    delete: "Delete",
-    addRoutineTask: "Add Routine Task",
-    routineTaskName: "Routine Task Name",
-    description: "Description",
-    close: "Close",
-    create: "Create",
-    reportedTasksTable: "Reported Routine Tasks",
-    routineTaskNameRequired: "Please enter the routine task name.",
-    routineTaskAddedError:
-      "An error occurred while adding the routine task. Please try again later.",
-    from: "From",
-    to: "To",
-    routineTaskManager: "Routine Task Manager",
-    assignManager: "Assign Manager",
-    enterDescription: "Enter Description",
-    enterRoutineTaskName: "Enter Routine Task Name",
-    createRoutineTask: "Create Routine Task",
-    saving: "Saving...",
-    noRoutineTasks: "No routine tasks found.",
-    createee: "Create your routine task ",
-    inactive: "Inactive",
-    active: "Active",
-    advancedSettings: "Advanced Settings",
-    taskNumber: "Task Number",
-
-    taskType: "Task Type",
-    selectTaskType: "Select Task Type",
-    recurrentDays: "Recurrent Days",
-    enterRecurrentDays: "Enter number of recurrent days",
-    dayOfMonth: "Day of Month",
-    enterDayOfMonth: "Enter day of the month ex: 1, 2,....31",
-    department: "Department",
-    selectDepartment: "Select Department",
-    sunday: "Sunday",
-    monday: "Monday",
-    tuesday: "Tuesday",
-    wednesday: "Wednesday",
-    thursday: "Thursday",
-    friday: "Friday",
-    saturday: "Saturday",
-    enterStartDate: "Enter start date",
-    startDate: "Start Date",
-
-    status: "Status",
-    allTypes: "All Types",
-    allStatuses: "All Statuses",
-    allDepartments: "All Departments",
-    weekly: "Weekly",
-    monthly: "Monthly",
-    last_day_of_month: "Last Day of Month",
-    daily: "Daily",
-    applyFilters: "Apply Filters",
-    resetFilters: "Reset Filters",
-    selectAll: "Select All",
-    departmentsSelected: "Departments Selected",
-    filterByDate: "Filter by Date",
-    reported: "Reported",
-    not_reported: "Not Reported",
-    searchPlaceholder: "Search tasks...",
-    evaluated_Task: "Evaluated Tasks",
-    done: "Done",
-    notDone: "Not Done",
-  },
-  ar: {
-    addMember: "اضافة عضو",
-    email: "البريد الالكتروني",
-    emailExistsError:
-      "هذا البريد الالكتروني مسجل بالفعل. يرجى استخدام بريد الكتروني اخر.",
-    generalError: "حدث خطأ في التقديم. يرجى المحاولة مرة اخرى في وقت لاحق.",
-    invalidCompanyIdOrUserId: "معرف الشركة أو معرف المستخدم غير صحيح.",
-    routineTaskDeleted: "تم حذف المهمة الروتينية بنجاح.",
-    routineTaskAdded: "تم اضافة المهمة الروتينية بنجاح.",
-    deleteConfirmationTitle: "حذف المهمة الروتينية",
-    deleteConfirmationText: "هل تريد حذف هذه المهمة الروتينية؟",
-    delete: "حذف",
-    addRoutineTask: "اضافة مهمة روتينية",
-    routineTaskName: "اسم المهمة الروتينية",
-    description: "وصف المشروع",
-    close: "اغلاق",
-    create: "اضافة",
-    reportedTasksTable: "تقارير المهام الروتينية",
-    routineTaskNameRequired: "يرجى ادخال اسم المهمة الروتينية.",
-    routineTaskAddedError:
-      "حدث خطأ في اضافة المهمة الروتينية. يرجى المحاولة مرة اخرى في وقت لاحق.",
-    from: "من",
-    to: "إلى",
-    routineTaskManager: "مدير المهمة الروتينية",
-    assignManager: "تعيين المدير",
-    enterDescription: "ادخال الوصف",
-    enterRoutineTaskName: "ادخال اسم المهمة الروتينية",
-    createRoutineTask: "اضافة مهمة روتينية",
-    saving: "يتم الحفظ...",
-    noRoutineTasks: "لا يوجد مهام روتينية.",
-    createee: "انشئ مهامك الروتينية ",
-    inactive: "غير نشط",
-    active: "نشط",
-    advancedSettings: "الإعدادات المتقدمة",
-    taskNumber: "رقم المهمة",
-
-    taskType: "نوع المهمة",
-    selectTaskType: "اختر نوع المهمة",
-    recurrentDays: "أيام التكرار",
-    enterRecurrentDays: "ادخل عدد أيام التكرار",
-    dayOfMonth: "يوم الشهر",
-    enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,....31",
-    department: "قسم",
-    selectDepartment: "اختر القسم",
-    sunday: "الاحد",
-    monday: "الاثنين",
-    tuesday: "الثلاثاء",
-    wednesday: "الاربعاء",
-    thursday: "الخميس",
-    friday: "الجمعة",
-    saturday: "السبت",
-    enterStartDate: "ادخل تاريخ البدء",
-    startDate: "تاريخ البدء",
-
-    status: "حالة",
-    allTypes: "جميع النوايات",
-    allStatuses: "جميع الحالات",
-    allDepartments: "جميع القسوم",
-    weekly: "اسبوعي",
-    monthly: "شهري",
-    last_day_of_month: "اخر يوم من الشهر",
-    daily: "يومي",
-    applyFilters: "تطبيق التصفيات",
-    resetFilters: "اعادة تعيين التصفيات",
-    selectAll: "اختر الكل",
-    departmentsSelected: "اقسام محددة",
-    filterByDate: "تصفية حسب التاريخ",
-    reported: "تقرير",
-    not_reported: "لم يتم التقرير",
-    searchPlaceholder: "...ابحث هنا",
-    evaluated_Task: "المهام المقيدة",
-    done: "تم التقرير",
-    notDone: "لم يتم التقرير",
-  },
-};
-
-const daysOfWeek = [
-  { label: t("sunday"), value: 0 },
-  { label: t("monday"), value: 1 },
-  { label: t("tuesday"), value: 2 },
-  { label: t("wednesday"), value: 3 },
-  { label: t("thursday"), value: 4 },
-  { label: t("friday"), value: 5 },
-  { label: t("saturday"), value: 6 },
-];
+const daysOfWeek = computed(() => [
+  { label: t("reportedTasks.sunday"), value: 0 },
+  { label: t("reportedTasks.monday"), value: 1 },
+  { label: t("reportedTasks.tuesday"), value: 2 },
+  { label: t("reportedTasks.wednesday"), value: 3 },
+  { label: t("reportedTasks.thursday"), value: 4 },
+  { label: t("reportedTasks.friday"), value: 5 },
+  { label: t("reportedTasks.saturday"), value: 6 },
+]);
 
 // التعامل مع تغيير الصفحة
 const handlePageChange = (page) => {
@@ -801,7 +646,7 @@ const filteredEvaluatedTasks = computed(() => {
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
-            <p class="mb-0 font-weight-bold">{{ t("reportedTasksTable") }}</p>
+            <p class="mb-0 font-weight-bold">{{ t("reportedTasks.reportedTasksTable") }}</p>
 
             <div class="row g-2 align-items-center">
               <!-- Tabs -->
@@ -810,19 +655,19 @@ const filteredEvaluatedTasks = computed(() => {
                   <li class="nav-item">
                     <argon-button class="nav-link" :class="{ active: reportActiveTab === 'reported' }"
                       @click="setActiveTab('reported')">
-                      {{ t("reported") }}
+                      {{ t("reportedTasks.reported") }}
                     </argon-button>
                   </li>
                   <li class="nav-item">
                     <argon-button class="nav-link" :class="{ active: reportActiveTab === 'not_reported' }"
                       @click="setActiveTab('not_reported')">
-                      {{ t("not_reported") }}
+                      {{ t("reportedTasks.not_reported") }}
                     </argon-button>
                   </li>
                   <li class="nav-item">
                     <argon-button class="nav-link" :class="{ active: reportActiveTab === 'evaluated_Task' }"
                       @click="setActiveTab('evaluated_Task')">
-                      {{ t("evaluated_Task") }}
+                      {{ t("reportedTasks.evaluated_Task") }}
                     </argon-button>
                   </li>
                 </ul>
@@ -831,7 +676,8 @@ const filteredEvaluatedTasks = computed(() => {
               <!-- Search -->
               <div class="col-12 col-md-auto">
                 <div class="input-group" style="max-width: 100%">
-                  <input type="text" class="form-control" :placeholder="t('searchPlaceholder')" v-model="searchQuery" />
+                  <input type="text" class="form-control" :placeholder="t('reportedTasks.searchPlaceholder')"
+                    v-model="searchQuery" />
                 </div>
               </div>
 
@@ -849,18 +695,18 @@ const filteredEvaluatedTasks = computed(() => {
                 <div class="row">
                   <!-- Report Status (Owner only) -->
                   <div class="col-md-6 mb-3" v-if="isOwner">
-                    <label class="form-label">{{ t("status") }}</label>
+                    <label class="form-label">{{ t("reportedTasks.status") }}</label>
                     <select class="form-select" v-model="activeQuery.reportStatus">
-                      <option value="">{{ t("allStatuses") }}</option>
-                      <option value="reported">{{ t("reported") }}</option>
-                      <option value="not_reported">{{ t("not_reported") }}</option>
-                      <option value="done">{{ t("done") }}</option>
-                      <option value="not_done">{{ t("notDone") }}</option>
+                      <option value="">{{ t("reportedTasks.allStatuses") }}</option>
+                      <option value="reported">{{ t("reportedTasks.reported") }}</option>
+                      <option value="not_reported">{{ t("reportedTasks.not_reported") }}</option>
+                      <option value="done">{{ t("reportedTasks.done") }}</option>
+                      <option value="not_done">{{ t("reportedTasks.notDone") }}</option>
                     </select>
                   </div>
                   <!-- Filter by Department (shown only in 'reported' tab) -->
                   <div class="col-md-6 mb-3">
-                    <label class="form-label">{{ t("department") }}</label>
+                    <label class="form-label">{{ t("reportedTasks.department") }}</label>
                     <div class="dropdown">
                       <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
                         id="departmentDropdown" data-bs-toggle="dropdown" aria-expanded="false" :aria-label="selectedDepartments.length === 0
@@ -870,11 +716,11 @@ const filteredEvaluatedTasks = computed(() => {
                             : `${selectedDepartments.length} Departments Selected`
                           ">
                         {{
-                        selectedDepartments.length === 0
-                        ? t("allDepartments")
-                        : selectedDepartments.length === 1
-                        ? selectedDepartments[0].name
-                        : `${selectedDepartments.length} ${t("departmentsSelected")}`
+                          selectedDepartments.length === 0
+                            ? t("reportedTasks.allDepartments")
+                            : selectedDepartments.length === 1
+                              ? selectedDepartments[0].name
+                              : `${selectedDepartments.length} ${t("reportedTasks.departmentsSelected")}`
                         }}
                       </button>
                       <ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
@@ -884,13 +730,13 @@ const filteredEvaluatedTasks = computed(() => {
                             <input class="form-check-input" type="checkbox" id="selectAllDepartments"
                               :checked="areAllDepartmentsSelected" @change="toggleAllDepartments" />
                             <label class="form-check-label" for="selectAllDepartments">
-                              {{ t("selectAll") }}
+                              {{ t("reportedTasks.selectAll") }}
                             </label>
                           </div>
                         </li>
                         <li class="px-2">
                           <button class="btn btn-link text-danger" @click="clearAllDepartments">
-                            {{ t("clearAll") }}
+                            {{ t("reportedTasks.clearAll") }}
                           </button>
                         </li>
                         <li>
@@ -941,7 +787,7 @@ const filteredEvaluatedTasks = computed(() => {
 
                   <!-- Filter by Specific Date -->
                   <div class="col-md-6 mb-3">
-                    <label class="form-label">{{ t("filterByDate") }}</label>
+                    <label class="form-label">{{ t("reportedTasks.filterByDate") }}</label>
                     <div v-if="reportActiveTab === 'reported'">
                       <input type="date" class="form-control" v-model="selectedDateForNotReported"
                         @change="applyFilter" />
@@ -961,10 +807,10 @@ const filteredEvaluatedTasks = computed(() => {
                 <div class="d-flex justify-content-end">
                   <button class="btn btn-outline-secondary me-2" v-if="activeQuery.reportStatus"
                     @click="resetReportStatus">
-                    {{ t("resetFilters") }}
+                    {{ t("reportedTasks.resetFilters") }}
                   </button>
                   <button class="btn btn-secondary" @click="resetFilters">
-                    {{ t("resetFilters") }}
+                    {{ t("reportedTasks.resetFilters") }}
                   </button>
                 </div>
               </div>
@@ -1002,28 +848,30 @@ const filteredEvaluatedTasks = computed(() => {
   <!-- Add Routine Task Modal -->
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
-      <ArgonModal v-if="showPopup" :title="t('createRoutineTask')" @close="closePopup" class="routine-task-modal">
+      <ArgonModal v-if="showPopup" :title="t('reportedTasks.createRoutineTask')" @close="closePopup"
+        class="routine-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("routineTaskName") }}:</label>
-              <input v-model="routineTaskName" class="form-control" :placeholder="t('enterRoutineTaskName')" />
+              <label class="form-label">{{ t("reportedTasks.routineTaskName") }}:</label>
+              <input v-model="routineTaskName" class="form-control"
+                :placeholder="t('reportedTasks.enterRoutineTaskName')" />
             </div>
 
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("description") }}:</label>
+              <label class="form-label">{{ t("reportedTasks.description") }}:</label>
               <textarea v-model="routineTaskDescription" class="form-control"
-                :placeholder="t('enterDescription')"></textarea>
+                :placeholder="t('reportedTasks.enterDescription')"></textarea>
             </div>
 
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("taskType") }}:</label>
-              <argon-select v-model="taskType" :options="taskTypeOptions" :placeholder="t('selectTaskType')"
-                class="form-control" />
+              <label class="form-label">{{ t("reportedTasks.taskType") }}:</label>
+              <argon-select v-model="taskType" :options="taskTypeOptions"
+                :placeholder="t('reportedTasks.selectTaskType')" class="form-control" />
             </div>
 
             <div v-show="taskType === 'weekly'" class="form-group mb-3">
-              <label class="form-label">{{ t("recurrentDays") }}:</label>
+              <label class="form-label">{{ t("reportedTasks.recurrentDays") }}:</label>
               <div class="d-flex flex-wrap">
                 <div v-for="day in daysOfWeek" :key="day.value" class="form-check me-3">
                   <argon-checkbox :id="'day-' + day.value" :name="'recurrentDays'" :value="day.value"
@@ -1037,28 +885,30 @@ const filteredEvaluatedTasks = computed(() => {
             </div>
 
             <div v-show="taskType === 'monthly'" class="form-group mb-3">
-              <label class="form-label">{{ t("dayOfMonth") }}:</label>
-              <input type="number" v-model="dayOfMonth" class="form-control" :placeholder="t('enterDayOfMonth')" min="1"
-                max="31" />
+              <label class="form-label">{{ t("reportedTasks.dayOfMonth") }}:</label>
+              <input type="number" v-model="dayOfMonth" class="form-control"
+                :placeholder="t('reportedTasks.enterDayOfMonth')" min="1" max="31" />
             </div>
 
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("department") }}:</label>
-              <argon-select v-model="deptId" :options="formattedDepartments" :placeholder="t('selectDepartment')"
-                class="form-control" searchable searchPlaceholder="Search departments..." />
+              <label class="form-label">{{ t("reportedTasks.department") }}:</label>
+              <argon-select v-model="deptId" :options="formattedDepartments"
+                :placeholder="t('reportedTasks.selectDepartment')" class="form-control" searchable
+                searchPlaceholder="Search departments..." />
             </div>
 
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("startDate") }}:</label>
-              <input type="date" v-model="startDate" class="form-control" :placeholder="t('enterStartDate')" />
+              <label class="form-label">{{ t("reportedTasks.startDate") }}:</label>
+              <input type="date" v-model="startDate" class="form-control"
+                :placeholder="t('reportedTasks.enterStartDate')" />
             </div>
 
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("from") }}:</label>
+              <label class="form-label">{{ t("reportedTasks.from") }}:</label>
               <input type="time" v-model="fromDate" class="form-control" />
             </div>
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("to") }}:</label>
+              <label class="form-label">{{ t("reportedTasks.to") }}:</label>
               <input type="time" v-model="toDate" class="form-control" />
             </div>
           </div>
@@ -1067,10 +917,10 @@ const filteredEvaluatedTasks = computed(() => {
         <template #footer>
           <argon-button variant="success" @click="addRoutineTask" :disabled="isLoading">
             <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            {{ isLoading ? t("saving") : t("create") }}
+            {{ isLoading ? t("reportedTasks.saving") : t("reportedTasks.create") }}
           </argon-button>
           <argon-button variant="secondary" @click="closePopup">
-            {{ t("close") }}
+            {{ t("reportedTasks.close") }}
           </argon-button>
         </template>
       </ArgonModal>

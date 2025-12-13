@@ -2,16 +2,23 @@
 import { computed, ref, onMounted } from 'vue'
 import BarChart from './BarChart.vue'
 import { useResponsive } from '@/composables/useResponsive'
-
 const { isMobile } = useResponsive()
 
 // Reactive dark mode state
 const isDarkMode = ref(document.body.classList.contains('dark-version'))
 
+// Key to force chart re-render when dark mode changes
+const chartKey = ref(0)
+
 // Watch for dark mode changes
 onMounted(() => {
     const observer = new MutationObserver(() => {
-        isDarkMode.value = document.body.classList.contains('dark-version')
+        const newDarkMode = document.body.classList.contains('dark-version')
+        if (isDarkMode.value !== newDarkMode) {
+            isDarkMode.value = newDarkMode
+            // Force chart re-render by updating key
+            chartKey.value++
+        }
     })
 
     observer.observe(document.body, {
@@ -151,7 +158,7 @@ const chartOptions = computed(() => {
             },
             datalabels: {
                 display: true,
-                anchor: 'end',
+                anchor: 'center', // Center anchor for better RTL/LTR support
                 align: 'top',
                 offset: 2,
                 font: {
@@ -159,6 +166,8 @@ const chartOptions = computed(() => {
                     weight: 'bold'
                 },
                 color: darkMode ? '#ffffff' : '#1a202c',
+                clamp: true,
+                clip: false,
                 formatter: function (value, context) {
                     // Get the value from dataset.data array (most reliable)
                     let dataValue = null;
@@ -256,11 +265,13 @@ const chartOptions = computed(() => {
     <div class="sh-bar-wrapper" :class="{ 'needs-scroll': needsHorizontalScroll && isMobile }">
         <div class="chart-scroll-container" v-if="needsHorizontalScroll && isMobile">
             <div class="chart-inner-wrapper">
-                <BarChart :id="`bar-chart-${Math.random().toString(36).substr(2, 9)}`" :data="chartData"
+                <BarChart :key="`chart-${chartKey}`"
+                    :id="`bar-chart-${chartKey}-${Math.random().toString(36).substr(2, 9)}`" :data="chartData"
                     :options="chartOptions" height="350" />
             </div>
         </div>
-        <BarChart v-else :id="`bar-chart-${Math.random().toString(36).substr(2, 9)}`" :data="chartData"
+        <BarChart v-else :key="`chart-${chartKey}`"
+            :id="`bar-chart-${chartKey}-${Math.random().toString(36).substr(2, 9)}`" :data="chartData"
             :options="chartOptions" height="350" />
 
         <!-- Scroll hint for mobile -->

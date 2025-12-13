@@ -78,10 +78,21 @@ onBeforeMount(async () => {
   } catch (err) {
     console.warn("Boot fetch failed:", err);
   }
-  // تحميل اللغة بغض النظر عن حالة تسجيل الدخول
-  const language = localStorage.getItem("language");
+  // تحميل اللغة وتطبيق RTL بغض النظر عن حالة تسجيل الدخول
+  const language = localStorage.getItem("language") || "en";
   if (language) {
-    store.commit("setLanguage", language);
+    store.commit("SET_LANGUAGE", language);
+    // تطبيق RTL مباشرة
+    const isRTL = language === "ar";
+    document.documentElement.setAttribute("lang", language);
+    document.documentElement.setAttribute("dir", isRTL ? "rtl" : "ltr");
+    const appElement = document.querySelector("#app");
+    if (appElement) {
+      appElement.classList.remove("rtl", "ltr");
+      appElement.classList.add(isRTL ? "rtl" : "ltr");
+      document.body.classList.remove("rtl", "ltr");
+      document.body.classList.add(isRTL ? "rtl" : "ltr");
+    }
   }
 
   // تحميل حالة dark mode من localStorage
@@ -202,6 +213,7 @@ body,
 
 /* ===== Mobile & Tablet: Reduce Side Padding for Better Space Utilization ===== */
 @media (max-width: 991px) {
+
   /* Reduce container padding on mobile and tablet */
   .container-fluid {
     padding-left: 0.5rem !important;
@@ -270,5 +282,199 @@ body,
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
   }
+}
+
+/* ========================================
+   RTL Support - دعم اللغة العربية
+   ======================================== */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="ltr"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* عكس margin و padding في RTL */
+[dir="rtl"] .ms-1 {
+  margin-right: 0.25rem !important;
+  margin-left: 0 !important;
+}
+
+[dir="rtl"] .ms-2 {
+  margin-right: 0.5rem !important;
+  margin-left: 0 !important;
+}
+
+[dir="rtl"] .ms-3 {
+  margin-right: 1rem !important;
+  margin-left: 0 !important;
+}
+
+[dir="rtl"] .ms-4 {
+  margin-right: 1.5rem !important;
+  margin-left: 0 !important;
+}
+
+[dir="rtl"] .ms-5 {
+  margin-right: 3rem !important;
+  margin-left: 0 !important;
+}
+
+[dir="rtl"] .ms-auto {
+  margin-right: auto !important;
+  margin-left: 0 !important;
+}
+
+[dir="rtl"] .me-1 {
+  margin-left: 0.25rem !important;
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] .me-2 {
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] .me-3 {
+  margin-left: 1rem !important;
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] .me-4 {
+  margin-left: 1.5rem !important;
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] .me-5 {
+  margin-left: 3rem !important;
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] .me-auto {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] .ps-1 {
+  padding-right: 0.25rem !important;
+  padding-left: 0 !important;
+}
+
+[dir="rtl"] .ps-2 {
+  padding-right: 0.5rem !important;
+  padding-left: 0 !important;
+}
+
+[dir="rtl"] .ps-3 {
+  padding-right: 1rem !important;
+  padding-left: 0 !important;
+}
+
+[dir="rtl"] .ps-4 {
+  padding-right: 1.5rem !important;
+  padding-left: 0 !important;
+}
+
+[dir="rtl"] .ps-5 {
+  padding-right: 3rem !important;
+  padding-left: 0 !important;
+}
+
+[dir="rtl"] .pe-1 {
+  padding-left: 0.25rem !important;
+  padding-right: 0 !important;
+}
+
+[dir="rtl"] .pe-2 {
+  padding-left: 0.5rem !important;
+  padding-right: 0 !important;
+}
+
+[dir="rtl"] .pe-3 {
+  padding-left: 1rem !important;
+  padding-right: 0 !important;
+}
+
+[dir="rtl"] .pe-4 {
+  padding-left: 1.5rem !important;
+  padding-right: 0 !important;
+}
+
+[dir="rtl"] .pe-5 {
+  padding-left: 3rem !important;
+  padding-right: 0 !important;
+}
+
+/* عكس text-align */
+[dir="rtl"] .text-start {
+  text-align: right !important;
+}
+
+[dir="rtl"] .text-end {
+  text-align: left !important;
+}
+
+/* عكس float */
+[dir="rtl"] .float-start {
+  float: right !important;
+}
+
+[dir="rtl"] .float-end {
+  float: left !important;
+}
+
+/* عكس position */
+[dir="rtl"] .left-auto {
+  left: auto !important;
+  right: 0 !important;
+}
+
+[dir="rtl"] .right-auto {
+  right: auto !important;
+  left: 0 !important;
+}
+
+/* عكس main content margin */
+[dir="rtl"] .main-content-expanded {
+  margin-right: 260px !important;
+  margin-left: 0 !important;
+  transition: margin-right 0.3s ease;
+}
+
+[dir="rtl"] .main-content-collapsed {
+  margin-right: 80px !important;
+  margin-left: 0 !important;
+  transition: margin-right 0.3s ease;
+}
+
+[dir="rtl"] .main-content {
+  transition: margin-right 0.3s ease;
+}
+
+@media (max-width: 1199px) {
+
+  [dir="rtl"] .main-content-expanded,
+  [dir="rtl"] .main-content-collapsed {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+}
+
+/* عكس border-radius في بعض الحالات */
+[dir="rtl"] .border-radius-start {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 0.5rem !important;
+  border-bottom-right-radius: 0.5rem !important;
+}
+
+[dir="rtl"] .border-radius-end {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-top-left-radius: 0.5rem !important;
+  border-bottom-left-radius: 0.5rem !important;
 }
 </style>

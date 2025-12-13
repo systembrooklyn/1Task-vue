@@ -37,7 +37,7 @@ defineProps({
     <div class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center sidebar-icon">
       <slot name="icon"></slot>
     </div>
-    <span v-if="!collapsed" class="nav-link-text" :class="isRTL ? ' me-1' : 'ms-1'">
+    <span v-if="!collapsed" class="nav-link-text" :class="isRTL ? ' me-3' : 'ms-3'">
       {{ navText }}
     </span>
   </router-link>

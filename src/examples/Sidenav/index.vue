@@ -172,6 +172,13 @@ const handleBackdropClick = () => {
   overflow-y: auto !important;
 }
 
+/* RTL Support for Sidebar - Base */
+[dir="rtl"] .sidebar-overlay {
+  left: auto !important;
+  right: 0 !important;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1) !important;
+}
+
 /* Sidebar width transitions */
 .sidebar-transition {
   transition: width 0.3s ease, min-width 0.3s ease, transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
@@ -246,6 +253,13 @@ const handleBackdropClick = () => {
     visibility: visible !important;
     width: auto !important;
     max-width: none !important;
+  }
+
+  /* RTL Support for Desktop Sidebar */
+  [dir="rtl"] .sidebar-overlay {
+    left: auto !important;
+    right: 0 !important;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1) !important;
   }
 }
 

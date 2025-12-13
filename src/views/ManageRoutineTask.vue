@@ -3,6 +3,7 @@
 <script setup>
 import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
 // import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
@@ -317,11 +318,7 @@ watch(
   }
 );
 
-const currentLanguage = computed(() => store.getters.currentLanguage);
-
-const t = (key) => {
-  return translations[currentLanguage.value][key];
-};
+const { t } = useI18n();
 
 const openPopup = () => {
   showPopup.value = true;
@@ -351,7 +348,7 @@ const addRoutineTask = async () => {
     if (response.status === 201) {
       Swal.fire({
         icon: "success",
-        title: t("routineTaskAdded"),
+        title: t("manageRoutineTasks.routineTaskAdded"),
         showConfirmButton: false,
         timer: 1500,
         timerProgressBar: true,
@@ -366,7 +363,7 @@ const addRoutineTask = async () => {
 
     Swal.fire({
       icon: "warning",
-      title: t("errorOccurred"),
+      title: t("manageRoutineTasks.errorOccurred"),
       html: error,
       showConfirmButton: true,
       backdrop: "rgba(0,0,0,0.5)",
@@ -380,191 +377,15 @@ const addRoutineTask = async () => {
   }
 };
 
-const translations = {
-  en: {
-    addMember: "Add Member",
-    email: "Email",
-    emailExistsError:
-      "This email is already registered. Please use another email.",
-    generalError: "An error occurred while submitting. Please try again later.",
-    invalidCompanyIdOrUserId: "Invalid Company ID or User ID.",
-    routineTaskDeleted: "Routine Task deleted successfully.", // تعديل الترجمة
-    routineTaskAdded: "Routine Task added successfully.", // تعديل الترجمة
-    deleteConfirmationTitle: "Delete Routine Task", // تعديل الترجمة
-    deleteConfirmationText:
-      "Are you sure you want to delete this Routine Task?", // تعديل الترجمة
-    delete: "Delete",
-    addRoutineTask: "Add Routine Task", // تعديل الترجمة
-    routineTaskName: "Routine Task Name", // تعديل الترجمة
-    description: "Description",
-    close: "Close",
-    create: "Create",
-    routineTasksTable: "Manage Routine Tasks", // تعديل الترجمة
-    routineTaskNameRequired: "Please enter the routine task name.", // تعديل الترجمة
-    routineTaskAddedError:
-      "An error occurred while adding the routine task. Please try again later.", // تعديل الترجمة
-    from: "From",
-    to: "To",
-    routineTaskManager: "Routine Task Manager", // تعديل الترجمة
-    assignManager: "Assign Manager",
-    enterDescription: "Enter Description",
-    enterRoutineTaskName: "Enter Routine Task Name", // تعديل الترجمة
-    createRoutineTask: "Create Routine Task", // تعديل الترجمة
-    saving: "Saving...",
-    noRoutineTasks: "No routine tasks found.", // تعديل الترجمة
-    createee: "Create your routine task ", // تعديل الترجمة
-    inactive: "Inactive", // إضافة ترجمة للحالة
-    active: "Active",
-    advancedSettings: "Advanced Settings", // إضافة ترجمة
-    taskNumber: "Task Number",
-
-    taskType: "Task Type",
-    selectTaskType: "Select Task Type",
-    recurrentDays: "Recurrent Days",
-    enterRecurrentDays: "Enter number of recurrent days",
-    dayOfMonth: "Day of Month",
-    enterDayOfMonth: "Enter day of the month ex: 1, 2,....31",
-    department: "Department",
-    selectDepartment: "Select Department",
-    sunday: "Sunday",
-    monday: "Monday",
-    tuesday: "Tuesday",
-    wednesday: "Wednesday",
-    thursday: "Thursday",
-    friday: "Friday",
-    saturday: "Saturday",
-    enterStartDate: "Enter start date",
-    startDate: "Start Date",
-
-    status: "Status",
-    allTypes: "All Types",
-    allStatuses: "All Statuses",
-    allDepartments: "All Departments",
-
-    weekly: "Weekly",
-    monthly: "Monthly",
-    last_day_of_month: "Last Day of Month",
-    daily: "Daily",
-
-    // active: 'Active',
-    // inactive: 'Inactive',
-    applyFilters: "Apply Filters",
-    resetFilters: "Reset Filters",
-    selectAll: "Select All",
-    departmentsSelected: "Departments Selected",
-
-    selectProject: "Select Project",
-    project: "Project",
-    allProjects: "All Projects",
-    projectsSelected: "Projects Selected",
-    searchPlaceholder: "Search tasks...",
-    allPriorities: "All Priorities",
-    priority: "Priority",
-    normal: "Normal",
-    critical: "Critical",
-
-
-
-    // التحكم في الإعدادات المتقدمة
-  },
-  ar: {
-    addMember: "اضافة عضو",
-    email: "البريد الالكتروني",
-    emailExistsError:
-      "هذا البريد الالكتروني مسجل بالفعل. يرجى استخدام بريد الكتروني اخر.",
-    generalError: "حدث خطأ في التقديم. يرجى المحاولة مرة اخرى في وقت لاحق.",
-    invalidCompanyIdOrUserId: "معرف الشركة أو معرف المستخدم غير صحيح.",
-    routineTaskDeleted: "تم حذف المهمة الروتينية بنجاح.", // تعديل الترجمة
-    routineTaskAdded: "تم اضافة المهمة الروتينية بنجاح.", // تعديل الترجمة
-    deleteConfirmationTitle: "حذف المهمة الروتينية", // تعديل الترجمة
-    deleteConfirmationText: "هل تريد حذف هذه المهمة الروتينية؟", // تعديل الترجمة
-    delete: "حذف",
-    addRoutineTask: "اضافة مهمة روتينية", // تعديل الترجمة
-    routineTaskName: "اسم المهمة الروتينية", // تعديل الترجمة
-    description: "وصف المشروع",
-    close: "اغلاق",
-    create: "اضافة",
-    routineTasksTable: "أدارة المهام الروتينية", // تعديل الترجمة
-    routineTaskNameRequired: "يرجى ادخال اسم المهمة الروتينية.", // تعديل الترجمة
-    routineTaskAddedError:
-      "حدث خطأ في اضافة المهمة الروتينية. يرجى المحاولة مرة اخرى في وقت لاحق.", // تعديل الترجمة
-    from: "من",
-    to: "إلى",
-    routineTaskManager: "مدير المهمة الروتينية", // تعديل الترجمة
-    assignManager: "تعيين المدير",
-    enterDescription: "ادخال الوصف",
-    enterRoutineTaskName: "ادخال اسم المهمة الروتينية", // تعديل الترجمة
-    createRoutineTask: "اضافة مهمة روتينية", // تعديل الترجمة
-    saving: "يتم الحفظ...",
-    noRoutineTasks: "لا يوجد مهام روتينية.", // تعديل الترجمة
-    createee: "انشئ مهامك الروتينية ", // تعديل الترجمة
-    inactive: "غير نشط", // إضافة ترجمة للحالة
-    active: "نشط",
-    advancedSettings: "الإعدادات المتقدمة", // إضافة ترجمة
-    taskNumber: "رقم المهمة",
-
-    taskType: "نوع المهمة",
-    selectTaskType: "اختر نوع المهمة",
-    recurrentDays: "أيام التكرار",
-    enterRecurrentDays: "ادخل عدد أيام التكرار",
-    dayOfMonth: "يوم الشهر",
-    enterDayOfMonth: "ادخل يوم الشهر مثل 1, 2,....31",
-    selectDepartment: "اختر القسم",
-    sunday: "الاحد",
-    monday: "الاثنين",
-    tuesday: "الثلاثاء",
-    wednesday: "الاربعاء",
-    thursday: "الخميس",
-    friday: "الجمعة",
-    saturday: "السبت",
-    enterStartDate: "ادخل تاريخ البدء",
-    startDate: "تاريخ البدء",
-
-    status: "حالة",
-    department: "قسم",
-    allTypes: "جميع النوايات",
-    allStatuses: "جميع الحالات",
-    allDepartments: "جميع القسوم",
-    weekly: "اسبوعي",
-    monthly: "شهري",
-    daily: "يومي",
-    last_day_of_month: "اخر يوم من الشهر",
-    // active: 'نشط',
-    // inactive: 'غير نشط',
-    applyFilters: "تطبيق التصفيات",
-    resetFilters: "اعادة تعيين التصفيات",
-    selectAll: "اختر الكل",
-    departmentsSelected: "اقسام محددة",
-    projectsSelected: "مشاريع محددة",
-    // taskType: 'نوع المهمة',
-    // status: 'الحالة',
-    // department: 'القسم',
-    // allTypes: 'جميع النوايات',
-    // allStatuses: 'جميع الحالات',
-    // allDepartments: 'جميع القسوم',
-
-    // active: 'نشط',
-    // inactive: 'غير نشط',
-    allPriorities: "جميع الأولويات",
-    priority: "الاولوية",
-    project: "مشروع",
-    selectProject: "اختر المشروع",
-    allProjects: "جميع المشاريع",
-    searchPlaceholder: "...ابحث هنا",
-    normal: "عادية",
-    critical: "حرجة",
-  },
-};
-
-const daysOfWeek = [
-  { label: t("sunday"), value: 0 },
-  { label: t("monday"), value: 1 },
-  { label: t("tuesday"), value: 2 },
-  { label: t("wednesday"), value: 3 },
-  { label: t("thursday"), value: 4 },
-  { label: t("friday"), value: 5 },
-  { label: t("saturday"), value: 6 },
-];
+const daysOfWeek = computed(() => [
+  { label: t("manageRoutineTasks.sunday"), value: 0 },
+  { label: t("manageRoutineTasks.monday"), value: 1 },
+  { label: t("manageRoutineTasks.tuesday"), value: 2 },
+  { label: t("manageRoutineTasks.wednesday"), value: 3 },
+  { label: t("manageRoutineTasks.thursday"), value: 4 },
+  { label: t("manageRoutineTasks.friday"), value: 5 },
+  { label: t("manageRoutineTasks.saturday"), value: 6 },
+]);
 
 // التعامل مع تغيير الصفحة
 // const handlePageChange = (page) => {
@@ -647,7 +468,7 @@ const searchMatch = (task) => {
                 <!-- القسم الأيسر: العنوان وزر الإضافة -->
                 <div class="col-12 col-md-4 d-flex align-items-center">
                   <p class="mb-0 font-weight-bold me-2">
-                    {{ t("routineTasksTable") }}
+                    {{ t("manageRoutineTasks.routineTasksTable") }}
                   </p>
                   <argon-button v-show="canCreateRoutineTask || isOwner" @click="openPopup">
                     <i class="fas fa-plus"></i>
@@ -657,7 +478,7 @@ const searchMatch = (task) => {
                 <!-- القسم الأوسط: شريط البحث -->
                 <div class="col-12 col-md-4 text-center my-2 my-md-0">
                   <div class="input-group" style="max-width: 100%">
-                    <input type="text" class="form-control" :placeholder="t('searchPlaceholder')"
+                    <input type="text" class="form-control" :placeholder="t('manageRoutineTasks.searchPlaceholder')"
                       v-model="searchQuery" />
                   </div>
                 </div>
@@ -677,50 +498,50 @@ const searchMatch = (task) => {
                 <div class="row">
                   <!-- Filter by Task Type -->
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("taskType") }}</label>
+                    <label class="form-label">{{ t("manageRoutineTasks.taskType") }}</label>
                     <select class="form-select" v-model="selectedTaskType">
-                      <option value="">{{ t("allTypes") }}</option>
-                      <option value="weekly">{{ t("weekly") }}</option>
-                      <option value="monthly">{{ t("monthly") }}</option>
-                      <option value="daily">{{ t("daily") }}</option>
+                      <option value="">{{ t("manageRoutineTasks.allTypes") }}</option>
+                      <option value="weekly">{{ t("manageRoutineTasks.weekly") }}</option>
+                      <option value="monthly">{{ t("manageRoutineTasks.monthly") }}</option>
+                      <option value="daily">{{ t("manageRoutineTasks.daily") }}</option>
                       <option value="last_day_of_month">
-                        {{ t("last_day_of_month") }}
+                        {{ t("manageRoutineTasks.last_day_of_month") }}
                       </option>
                     </select>
                   </div>
 
                   <!-- Filter by Status -->
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("status") }}</label>
+                    <label class="form-label">{{ t("manageRoutineTasks.status") }}</label>
                     <select class="form-select" v-model="selectedStatus">
-                      <option value="">{{ t("allStatuses") }}</option>
-                      <option value="active">{{ t("active") }}</option>
-                      <option value="inactive">{{ t("inactive") }}</option>
+                      <option value="">{{ t("manageRoutineTasks.allStatuses") }}</option>
+                      <option value="active">{{ t("manageRoutineTasks.active") }}</option>
+                      <option value="inactive">{{ t("manageRoutineTasks.inactive") }}</option>
                     </select>
                   </div>
 
                   <!-- Filter by Priority -->
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("priority") }}</label>
+                    <label class="form-label">{{ t("manageRoutineTasks.priority") }}</label>
                     <select class="form-select" v-model="selectedPriority">
-                      <option value="">{{ t("allPriorities") }}</option>
-                      <option value="normal">{{ t("normal") }}</option>
-                      <option value="critical">{{ t("critical") }}</option>
+                      <option value="">{{ t("manageRoutineTasks.allPriorities") }}</option>
+                      <option value="normal">{{ t("manageRoutineTasks.normal") }}</option>
+                      <option value="critical">{{ t("manageRoutineTasks.critical") }}</option>
                     </select>
                   </div>
 
                   <!-- Filter by Department -->
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("department") }}</label>
+                    <label class="form-label">{{ t("manageRoutineTasks.department") }}</label>
                     <div class="dropdown">
                       <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
                         id="departmentDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         {{
                           selectedDepartments.length === 0
-                            ? t("allDepartments")
+                            ? t("manageRoutineTasks.allDepartments")
                             : selectedDepartments.length === 1
                               ? selectedDepartments[0].name
-                              : `${selectedDepartments.length} ${t("departmentsSelected")}`
+                              : `${selectedDepartments.length} ${t("manageRoutineTasks.departmentsSelected")}`
                         }}
                       </button>
                       <ul class="dropdown-menu w-100" aria-labelledby="departmentDropdown">
@@ -730,7 +551,7 @@ const searchMatch = (task) => {
                               formattedDepartments.length
                               " @change="toggleAllDepartments" />
                             <label class="form-check-label" for="selectAllDepartments">
-                              {{ t("selectAll") }}
+                              {{ t("manageRoutineTasks.selectAll") }}
                             </label>
                           </div>
                         </li>
@@ -757,16 +578,16 @@ const searchMatch = (task) => {
                   <!-- filter by project -->
 
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">{{ t("project") }}</label>
+                    <label class="form-label">{{ t("manageRoutineTasks.project") }}</label>
                     <div class="dropdown">
                       <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
                         id="projectDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         {{
                           selectedProjects.length === 0
-                            ? t("allProjects")
+                            ? t("manageRoutineTasks.allProjects")
                             : selectedProjects.length === 1
                               ? selectedProjects[0].name
-                              : `${selectedProjects.length} ${t("projectsSelected")}`
+                              : `${selectedProjects.length} ${t("manageRoutineTasks.projectsSelected")}`
                         }}
                       </button>
                       <ul class="dropdown-menu w-100" aria-labelledby="projectDropdown">
@@ -776,7 +597,7 @@ const searchMatch = (task) => {
                               formattedProjects.length
                               " @change="toggleAllProjects" />
                             <label class="form-check-label" for="selectAllProjects">
-                              {{ t("selectAll") }}
+                              {{ t("manageRoutineTasks.selectAll") }}
                             </label>
                           </div>
                         </li>
@@ -806,7 +627,7 @@ const searchMatch = (task) => {
                     {{ t("applyFilters") }}
                   </button> -->
                   <button class="btn btn-secondary" @click="resetFilters">
-                    {{ t("resetFilters") }}
+                    {{ t("manageRoutineTasks.resetFilters") }}
                   </button>
                 </div>
               </div>
@@ -829,10 +650,10 @@ const searchMatch = (task) => {
 
             <div v-else-if="allroutineTasks.length === 0"
               class="d-flex justify-content-center py-5 flex-column align-items-center">
-              <h5>{{ t("noRoutineTasks") }}</h5>
+              <h5>{{ t("manageRoutineTasks.noRoutineTasks") }}</h5>
               <!-- تعديل الترجمة -->
               <p>
-                {{ t("createee") }}
+                {{ t("manageRoutineTasks.createee") }}
               </p>
             </div>
             <ManageRoutineTaskTable v-else :allroutineTasks="paginatedTasks" :key="componentKey"
@@ -846,25 +667,25 @@ const searchMatch = (task) => {
   <!-- create routine task popup -->
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
-      <ArgonModal v-if="showPopup" :title="t('createRoutineTask')" @close="closePopup" class="routine-task-modal">
+      <ArgonModal v-if="showPopup" :title="t('manageRoutineTasks.createRoutineTask')" @close="closePopup" class="routine-task-modal">
         <template #default>
           <div class="modal-content-scroll">
             <!-- غلاف للمحتوى -->
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("routineTaskName") }}:</label>
-              <input v-model="routineTaskName" class="form-control" :placeholder="t('enterRoutineTaskName')" />
+              <label class="form-label">{{ t("manageRoutineTasks.routineTaskName") }}:</label>
+              <input v-model="routineTaskName" class="form-control" :placeholder="t('manageRoutineTasks.enterRoutineTaskName')" />
             </div>
 
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("description") }}:</label>
+              <label class="form-label">{{ t("manageRoutineTasks.description") }}:</label>
               <textarea v-model="routineTaskDescription" class="form-control"
-                :placeholder="t('enterDescription')"></textarea>
+                :placeholder="t('manageRoutineTasks.enterDescription')"></textarea>
             </div>
 
             <!-- الحقول الجديدة -->
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("taskType") }}:</label>
-              <argon-select v-model="taskType" :options="taskTypeOptions" :placeholder="t('selectTaskType')"
+              <label class="form-label">{{ t("manageRoutineTasks.taskType") }}:</label>
+              <argon-select v-model="taskType" :options="taskTypeOptions" :placeholder="t('manageRoutineTasks.selectTaskType')"
                 class="form-control" />
             </div>
 
@@ -881,7 +702,7 @@ const searchMatch = (task) => {
 
             <!-- select box for weekly task -->
             <div v-show="taskType === 'weekly'" class="form-group mb-3">
-              <label class="form-label">{{ t("recurrentDays") }}:</label>
+              <label class="form-label">{{ t("manageRoutineTasks.recurrentDays") }}:</label>
               <div class="d-flex flex-wrap">
                 <div v-for="day in daysOfWeek" :key="day.value" class="form-check me-3">
                   <argon-checkbox :id="'day-' + day.value" :name="'recurrentDays'" :value="day.value"
@@ -895,36 +716,36 @@ const searchMatch = (task) => {
             </div>
 
             <div v-show="taskType === 'monthly'" class="form-group mb-3">
-              <label class="form-label">{{ t("dayOfMonth") }}:</label>
-              <input type="number" v-model="dayOfMonth" class="form-control" :placeholder="t('enterDayOfMonth')" min="1"
+              <label class="form-label">{{ t("manageRoutineTasks.dayOfMonth") }}:</label>
+              <input type="number" v-model="dayOfMonth" class="form-control" :placeholder="t('manageRoutineTasks.enterDayOfMonth')" min="1"
                 max="31" />
             </div>
 
             <!-- select Department -->
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("department") }}:</label>
-              <argon-select v-model="deptId" :options="formattedDepartments" :placeholder="t('selectDepartment')"
+              <label class="form-label">{{ t("manageRoutineTasks.department") }}:</label>
+              <argon-select v-model="deptId" :options="formattedDepartments" :placeholder="t('manageRoutineTasks.selectDepartment')"
                 class="form-control" />
             </div>
 
             <!-- select project -->
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("project") }}:</label>
-              <argon-select v-model="projectId" :options="formattedProjects" :placeholder="t('selectProject')"
+              <label class="form-label">{{ t("manageRoutineTasks.project") }}:</label>
+              <argon-select v-model="projectId" :options="formattedProjects" :placeholder="t('manageRoutineTasks.selectProject')"
                 class="form-control" />
             </div>
 
             <!-- أولوية (نصف العرض) -->
             <div class=" mb-3">
-              <label class="form-label">{{ t("priority") }}:</label>
-              <argon-select v-model="priority" :options="prioritiesOptions" :placeholder="t('selectPriority')"
+              <label class="form-label">{{ t("manageRoutineTasks.priority") }}:</label>
+              <argon-select v-model="priority" :options="prioritiesOptions" :placeholder="t('manageRoutineTasks.selectPriority')"
                 class="form-control" searchable searchPlaceholder="Search priorities..." required />
             </div>
 
             <!-- start date -->
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("startDate") }}:</label>
-              <input type="date" v-model="startDate" class="form-control" :placeholder="t('enterStartDate')" min="1"
+              <label class="form-label">{{ t("manageRoutineTasks.startDate") }}:</label>
+              <input type="date" v-model="startDate" class="form-control" :placeholder="t('manageRoutineTasks.enterStartDate')" min="1"
                 max="31" />
             </div>
 
@@ -950,11 +771,11 @@ const searchMatch = (task) => {
             </div>
 
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("from") }}:</label>
+              <label class="form-label">{{ t("manageRoutineTasks.from") }}:</label>
               <input type="time" v-model="fromDate" class="form-control" />
             </div>
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("to") }}:</label>
+              <label class="form-label">{{ t("manageRoutineTasks.to") }}:</label>
               <input type="time" v-model="toDate" class="form-control" />
             </div>
 
@@ -984,11 +805,11 @@ const searchMatch = (task) => {
 
         <template #footer>
           <argon-button variant="secondary" @click="closePopup">
-            {{ t("close") }}
+            {{ t("manageRoutineTasks.close") }}
           </argon-button>
           <argon-button variant="success" @click="addRoutineTask" :disabled="isLoading">
             <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            {{ isLoading ? t("saving") : t("create") }}
+            {{ isLoading ? t("manageRoutineTasks.saving") : t("manageRoutineTasks.create") }}
           </argon-button>
         </template>
       </ArgonModal>
