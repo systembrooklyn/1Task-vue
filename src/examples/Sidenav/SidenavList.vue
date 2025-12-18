@@ -582,4 +582,70 @@ const toggleSection = (section) => {
 [dir="rtl"] .fa-chevron-right.rotate-180 {
   transform: scaleX(-1) rotate(90deg);
 }
+
+/* Center icons when sidebar is collapsed - remove margin from icons */
+/* Using global style to target parent class */
+</style>
+
+<style>
+/* Global styles for collapsed sidebar - center icons */
+.sidebar-collapsed .nav-link .sidebar-icon span,
+.sidebar-collapsed .nav-link .sidebar-icon .material-symbols-rounded {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Center nav-link content when collapsed */
+.sidebar-collapsed .nav-link {
+  justify-content: center !important;
+}
+
+/* Remove margin from icons inside sidebar-icon when expanded - align icons in one column */
+.sidebar-expanded .nav-link .sidebar-icon .material-symbols-rounded,
+.sidebar-expanded .nav-link .sidebar-icon span,
+.sidebar-expanded .nav-link .material-symbols-rounded,
+.sidebar-expanded .nav-link>div>.material-symbols-rounded,
+.sidebar-expanded .cursor-pointer>div>.material-symbols-rounded {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Ensure sidebar-icon has fixed width and alignment */
+.sidebar-expanded .nav-link .sidebar-icon,
+.sidebar-expanded .cursor-pointer>div>.material-symbols-rounded {
+  width: 24px !important;
+  min-width: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Ensure nav-link items are aligned properly when expanded */
+.sidebar-expanded .nav-link,
+.sidebar-expanded .cursor-pointer {
+  align-items: center !important;
+}
+
+/* Unified spacing between icons and text in expanded sidebar - remove all existing margins first */
+.sidebar-expanded .nav-link .nav-link-text {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Unified spacing for collapsible sections - remove margins from text */
+.sidebar-expanded .cursor-pointer>div>span:not(.material-symbols-rounded) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Apply unified spacing: 0.75rem between icon and text (works for both LTR and RTL) */
+.sidebar-expanded .nav-link .sidebar-icon~.nav-link-text {
+  margin-left: 0.75rem !important;
+  margin-right: 0.75rem !important;
+}
+
+.sidebar-expanded .cursor-pointer>div>.material-symbols-rounded~span {
+  margin-left: 0.75rem !important;
+  margin-right: 0.75rem !important;
+}
 </style>

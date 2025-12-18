@@ -1,14 +1,22 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
+import { useStore } from 'vuex'
 import BarChart from './BarChart.vue'
 import { useResponsive } from '@/composables/useResponsive'
 const { isMobile } = useResponsive()
+const store = useStore()
+const isRTL = computed(() => store.state.isRTL)
 
 // Reactive dark mode state
 const isDarkMode = ref(document.body.classList.contains('dark-version'))
 
-// Key to force chart re-render when dark mode changes
+// Key to force chart re-render when dark mode or RTL changes
 const chartKey = ref(0)
+
+// Watch for RTL changes to force chart re-render
+watch(isRTL, () => {
+    chartKey.value++
+})
 
 // Watch for dark mode changes
 onMounted(() => {
@@ -158,9 +166,16 @@ const chartOptions = computed(() => {
             },
             datalabels: {
                 display: true,
-                anchor: 'center', // Center anchor for better RTL/LTR support
+                // في RTL نستخدم 'center' anchor لتحديد نقطة الربط في المنتصف
+                // في LTR نستخدم 'end' كما كان
+                anchor: isRTL.value ? 'end' : 'end',
+                // في كلاهما نستخدم 'top' لجعل النص فوق البار
                 align: 'top',
-                offset: 2,
+                // في RTL نستخدم offset موجب لجعل النص فوق البار مباشرة
+                // في LTR نستخدم offset موجب للأعلى
+                offset: isRTL.value ? 2 : 2,
+                // محاذاة النص نفسه في المنتصف في RTL
+                textAlign: isRTL.value ? 'center' : 'start',
                 font: {
                     size: mobileMode ? 9 : 10,
                     weight: 'bold'

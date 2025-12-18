@@ -11,7 +11,7 @@
     </div>
 
     <!-- المحتوى الرئيسي -->
-    <div class="main-content">
+    <div class="task-content">
       <!-- عندما لا توجد مهام مفلترة -->
       <div v-if="filteredTasks.length === 0" class="no-tasks-container">
         <img src="https://ik.imagekit.io/ts7pphpbz3/man-despair-data-leak_11197-392.jpg?updatedAt=1742827650800"
@@ -466,7 +466,7 @@
     </div>
 
     <!-- المحتوى الرئيسي -->
-    <div class="main-content-mobile">
+    <div class="task-content-mobile">
       <!-- عندما لا توجد مهام -->
       <div v-if="filteredTasks.length === 0" class="no-tasks-container-mobile">
         <img src="https://ik.imagekit.io/ts7pphpbz3/man-despair-data-leak_11197-392.jpg?updatedAt=1742827650800"
@@ -1841,7 +1841,7 @@ function getTabCount(tabName) {
   color: #fff;
 }
 
-.main-content {
+.task-content {
   flex: 1;
 }
 
@@ -3070,7 +3070,7 @@ function getTabCount(tabName) {
   color: white;
 }
 
-.main-content-mobile {
+.task-content-mobile {
   width: 100%;
 }
 

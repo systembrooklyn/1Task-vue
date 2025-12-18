@@ -4623,6 +4623,21 @@ onMounted(async () => {
   flex-shrink: 0;
 }
 
+/* Ensure Create button text is white in gmail-quick-footer */
+.gmail-quick-footer .btn-success,
+.gmail-quick-footer .btn-success *,
+.dark-version .gmail-quick-footer .btn-success,
+.dark-version .gmail-quick-footer .btn-success * {
+  color: #ffffff !important;
+}
+
+.gmail-quick-footer .btn-success span,
+.gmail-quick-footer .btn-success i,
+.dark-version .gmail-quick-footer .btn-success span,
+.dark-version .gmail-quick-footer .btn-success i {
+  color: #ffffff !important;
+}
+
 /* Mobile Responsive for Gmail Styles */
 @media (max-width: 768px) {
   .gmail-toolbar {

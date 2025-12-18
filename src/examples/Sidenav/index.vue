@@ -51,9 +51,11 @@ onMounted(() => {
   if (checkMobile()) {
     // On mobile, don't load desktop state
     collapsed.value = false;
+    document.body.classList.remove('sidebar-expanded');
   } else {
     const savedState = localStorage.getItem('sidebarCollapsed');
     collapsed.value = savedState === 'true';
+    document.body.classList.toggle('sidebar-expanded', !collapsed.value);
   }
 
   // Listen for mobile sidebar toggle events from Navbar
@@ -101,6 +103,9 @@ const toggleSidebar = () => {
   // Desktop only: toggle and save to localStorage
   collapsed.value = !collapsed.value;
   localStorage.setItem('sidebarCollapsed', String(collapsed.value));
+  
+  // Update body class for CSS variable
+  document.body.classList.toggle('sidebar-expanded', !collapsed.value);
 
   // Dispatch custom event for main content to listen (desktop only)
   window.dispatchEvent(new CustomEvent('sidebarToggle'));

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
 // import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
@@ -13,6 +14,7 @@ import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
 
 import Swal from "sweetalert2";
 const store = useStore();
+const { t } = useI18n();
 
 
 const userData = computed(() => store.getters.user);
@@ -152,7 +154,7 @@ const fetchProjects = async () => {
       console.log("projects:", projects.value);
       componentKey.value += 1;
     } else {
-      errorMessage.value = t("generalError");
+      errorMessage.value = t("projects.generalError");
       showAlert.value = true;
       setTimeout(() => {
         showAlert.value = false;
@@ -161,7 +163,7 @@ const fetchProjects = async () => {
   } catch (error) {
     Swal.fire({
       icon: "error",
-      title: "Error fetching projects",
+      title: t("projects.errorFetchingProjects"),
       text: error.message || "An unexpected error occurred.",
     });
   } finally {
@@ -180,12 +182,6 @@ watch(
     componentKey.value += 1; // إعادة تحميل المكون عند حدوث أي تحديث في البيانات
   }
 );
-
-const currentLanguage = computed(() => store.getters.currentLanguage);
-
-const t = (key) => {
-  return translations[currentLanguage.value][key];
-};
 
 const openPopup = () => {
   showPopup.value = true;
@@ -209,7 +205,7 @@ const addProject = async () => {
     if (response.status === 201) {
       Swal.fire({
         icon: "success",
-        title: t("projectAdded"),
+        title: t("projects.projectAdded"),
         showConfirmButton: false,
         timer: 1500,
         timerProgressBar: true,
@@ -226,7 +222,7 @@ const addProject = async () => {
 
     Swal.fire({
       icon: "warning",
-      title: t("errorOccurred"),
+      title: t("projects.errorOccurred"),
       html: error,
       showConfirmButton: true,
       backdrop: 'rgba(0,0,0,0.5)',
@@ -242,79 +238,6 @@ const addProject = async () => {
 
 
 
-const translations = {
-  en: {
-    addMember: "Add Member",
-    email: "Email",
-    emailExistsError:
-      "This email is already registered. Please use another email.",
-    generalError: "An error occurred while submitting. Please try again later.",
-    invalidCompanyIdOrUserId: "Invalid Company ID or User ID.",
-    projectDeleted: "Project deleted successfully.",
-    projectAdded: "Project added successfully.",
-    deleteConfirmationTitle: "Delete Project",
-    deleteConfirmationText: "Are you sure you want to delete this Project?",
-    delete: "Delete",
-    addProject: "Add Project",
-    projectName: "Project Name *",
-    description: "Description",
-    close: "Close",
-    create: "create",
-    projectsTable: "Projects ",
-    projectNameRequired: "Please enter the project name.",
-    projectAddedError:
-      "An error occurre while adding the project. Please try again later.",
-    from: "From",
-    to: "To",
-    projectManager: "Project Manager",
-    assignManager: "Assign Manager",
-    enterDescription: "Enter Description",
-    enterProjectName: "Enter Project Name",
-    createProject: "Create Project",
-    saving: "Saving...",
-    noProjects: "No projects found.",
-    createee: "Create your project",
-    departments: "Departments",
-    selectDepartment: "Select Department",
-  },
-  ar: {
-    addMember: "اضافة عضو",
-    email: "البريد الالكتروني",
-    emailExistsError:
-      "هذا البريد الالكتروني مسجل بالفعل. يرجى استخدام بريد الكتروني اخر.",
-    generalError: "حدث خطأ في التقديم. يرجى المحاولة مرة اخرى في وقت لاحق.",
-    invalidCompanyIdOrUserId: "معرف الشركة غير صحيح.",
-    projectDeleted: "تم حذف المشروع بنجاح.",
-    projectAdded: "تم اضافة المشروع بنجاح.",
-    deleteConfirmationTitle: "حذف المشروع",
-    deleteConfirmationText: "هل تريد حذف هذا المشروع؟",
-    delete: "حذف",
-    addProject: "اضافة مشروع",
-    projectName: "*اسم المشروع",
-    description: "وصف المشروع",
-    close: "اغلاق",
-    create: "اضافة",
-    projectsTable: "المشاريع",
-    projectNameRequired: "يرجى ادخال اسم المشروع.",
-    projectAddedError:
-      "حدث خطأ في اضافة المشروع. يرجى المحاولة مرة اخرى في وقت لاحق.",
-    from: "من",
-    to: "إلى",
-    projectManager: "مدير المشروع",
-    assignManager: "تعيين المدير",
-    enterDescription: "ادخال الوصف",
-    enterProjectName: "ادخال اسم المشروع",
-    createProject: "اضافة مشروع",
-    saving: "يتم الحفظ...",
-    noProjects: "لا يوجد مشاريع.",
-    createee: "انشئ مشروعك من الزر المتواجد بالاعلي",
-    departments: "الاقسام",
-    selectDepartment: "اختر قسم",
-  },
-};
-
-
-
 
 </script>
 
@@ -327,7 +250,7 @@ const translations = {
           <div class="card-header ">
             <div class="d-flex align-items-center">
               <p class="mb-0 font-weight-bold">
-                {{ t("projectsTable") }}
+                {{ t("projects.projectsTable") }}
                 <span v-if="projects && projects.length > 0" class="text-muted" style="font-size: 0.95em;">
                   ({{ projects.length }})
                 </span>
@@ -348,15 +271,15 @@ const translations = {
             </form>
             <div v-if="isLoading" class="d-flex justify-content-center py-5">
               <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ t("projects.loading") }}</span>
               </div>
             </div>
 
             <div v-else-if="projects.length === 0"
               class="d-flex justify-content-center py-5 flex-column align-items-center">
-              <h5>{{ t("noProjects") }}</h5>
+              <h5>{{ t("projects.noProjects") }}</h5>
               <p>
-                {{ t("createee") }}
+                {{ t("projects.createee") }}
               </p>
             </div>
             <projects-table v-else :projects="projects" :key="componentKey" />
@@ -368,44 +291,46 @@ const translations = {
 
   <div v-if="showPopup" class="popup-overlay">
     <transition name="modal-fade">
-      <ArgonModal v-if="showPopup" :title="t('createProject')" @close="closePopup" class="project-modal">
+      <ArgonModal v-if="showPopup" :title="t('projects.createProject')" @close="closePopup" class="project-modal">
         <template #default>
           <div class="modal-content-scroll">
 
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("projectName") }}:</label>
-              <input v-model="projectName" class="form-control" :placeholder="t('enterProjectName')" />
+              <label class="form-label">{{ t("projects.projectName") }}:</label>
+              <input v-model="projectName" class="form-control" :placeholder="t('projects.enterProjectName')" />
             </div>
 
             <div class="form-group mb-3">
-              <label class="form-label">{{ t("description") }}:</label>
+              <label class="form-label">{{ t("projects.description") }}:</label>
               <textarea v-model="projectDescription" class="form-control"
-                :placeholder="t('enterDescription')"></textarea>
+                :placeholder="t('projects.enterDescription')"></textarea>
             </div>
 
             <div v-if="employeeOptions.length > 0" class="mb-3">
-              <label class="form-label">{{ t("projectManager") }}:</label>
-              <argon-select v-model="selectedManager" :options="employeeOptions" :placeholder="t('assignManager')"
-                class="form-control" searchable searchPlaceholder="Search employees..." />
+              <label class="form-label">{{ t("projects.projectManager") }}:</label>
+              <argon-select v-model="selectedManager" :options="employeeOptions"
+                :placeholder="t('projects.projectManager')" class="form-control" searchable
+                :searchPlaceholder="t('projects.searchEmployees')" />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">{{ t("departments") }}:</label>
+              <label class="form-label">{{ t("projects.departments") }}:</label>
               <argon-multiple-select v-model="departmentIds" :model-names="departmentNames"
-                :options="formattedDepartments" :placeholder="t('selectDepartment')" class="form-control mb-3" />
+                :options="formattedDepartments" :placeholder="t('projects.selectDepartment')"
+                class="form-control mb-3" />
             </div>
 
             <!-- زر الإعدادات المتقدمة -->
             <div class="d-flex align-items-center">
               <ArgonButton class="btn btn-link mb-3" @click="toggleAdvancedSettings">
-                Advanced Settings
+                {{ t("projects.advancedSettings") }}
               </ArgonButton>
 
               <div class="d-flex align-items-center ms-auto">
-                <span class="me-2">{{ t("inactive") }}</span>
+                <span class="me-2">{{ t("projects.inactive") }}</span>
                 <argon-switch class="custom-switch-modal" v-model:checked="projectStatus" aria-label="Project Status"
                   role="switch"></argon-switch>
-                <span class="ms-2">{{ t("active") }}</span>
+                <span class="ms-2">{{ t("projects.active") }}</span>
               </div>
             </div>
 
@@ -413,11 +338,11 @@ const translations = {
             <transition name="fade">
               <div v-if="showAdvancedSettings" class="advanced-settings">
                 <div class="form-group mb-3">
-                  <label class="form-label">{{ t("from") }}:</label>
+                  <label class="form-label">{{ t("projects.from") }}:</label>
                   <input type="date" v-model="fromDate" class="form-control" />
                 </div>
                 <div class="form-group mb-3">
-                  <label class="form-label">{{ t("to") }}:</label>
+                  <label class="form-label">{{ t("projects.to") }}:</label>
                   <input type="date" v-model="toDate" class="form-control" />
                 </div>
               </div>
@@ -430,10 +355,10 @@ const translations = {
 
           <argon-button variant="success" @click="addProject" :disabled="isLoading">
             <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            {{ isLoading ? t("saving") : t("create") }}
+            {{ isLoading ? t("projects.saving") : t("projects.create") }}
           </argon-button>
           <argon-button variant="secondary" @click="closePopup">
-            {{ t("close") }}
+            {{ t("projects.close") }}
           </argon-button>
         </template>
       </ArgonModal>

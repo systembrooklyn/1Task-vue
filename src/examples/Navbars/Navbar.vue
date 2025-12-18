@@ -324,6 +324,23 @@ onMounted(async () => {
       sidebarExpandedDesktop.value = savedState !== 'true';
     }
   });
+
+  // Glass effect on scroll
+  const handleScroll = () => {
+    const navbar = document.getElementById('navbarBlur');
+    if (navbar) {
+      if (window.scrollY > 0) {
+        navbar.setAttribute('data-scrolled', 'true');
+      } else {
+        navbar.setAttribute('data-scrolled', 'false');
+      }
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll);
+
+  // Initial check
+  handleScroll();
 });
 
 console.log("profileData", profileData.value);
@@ -372,8 +389,8 @@ const toggleDarkMode = () => {
 // };
 </script>
 <template>
-  <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" :class="[
-    isRTL ? 'top-0 position-sticky z-index-sticky' : '',
+  <nav class="navbar navbar-main navbar-expand-lg px-0 shadow-none border-radius-xl" :class="[
+    'top-0 position-fixed z-index-sticky',
     { 'navbar-small-screen': isSmallScreen },
   ]" v-bind="$attrs" id="navbarBlur" data-scroll="true">
     <!-- <language-switcher /> -->
@@ -1248,5 +1265,52 @@ button {
 .language-switcher-desktop {
   display: flex;
   align-items: center;
+}
+
+/* Fixed navbar with glass effect on scroll */
+.navbar-main {
+  position: fixed !important;
+  top: 0;
+  inset-inline-start: 0 !important;
+  inset-inline-end: 0 !important;
+  width: 100% !important;
+  z-index: 1030;
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+/* Navbar container padding - يستخدم المتغير */
+.navbar-main .navbar-container-fluid {
+  padding-inline-start: var(--sidebar-offset) !important;
+  padding-inline-end: 1rem !important;
+  transition: padding-inline-start 0.3s ease;
+}
+
+/* Glass effect when scrolled */
+.navbar-main[data-scrolled="true"] {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode glass effect when scrolled */
+.dark-version .navbar-main[data-scrolled="true"] {
+  background-color: rgba(26, 32, 44, 0.8) !important;
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* على mobile/tablet: navbar يأخذ العرض الكامل */
+@media (max-width: 1199px) {
+  .navbar-main {
+    inset-inline-start: 0 !important;
+    inset-inline-end: 0 !important;
+  }
+
+  .navbar-main .navbar-container-fluid {
+    padding-inline-start: 1rem !important;
+    padding-inline-end: 1rem !important;
+  }
 }
 </style>

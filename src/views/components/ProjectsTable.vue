@@ -5,19 +5,19 @@
         <thead class="thead-light">
           <tr>
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("status") }}
+              {{ t("projects.status") }}
             </th>
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("projectName") }}
+              {{ t("projects.projectName") }}
             </th>
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("assignManager") }}
+              {{ t("projects.projectManager") }}
             </th>
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("projectCreatedBy") }}
+              {{ t("projects.projectCreatedBy") }}
             </th>
             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-              {{ t("departmentName") }}
+              {{ t("projects.departmentName") }}
             </th>
             <th class="text-secondary opacity-7"
               v-if="isOwner || permissions['edit-project'] || permissions['delete-project']"></th>
@@ -35,7 +35,7 @@
                         toggleStatus(Project.id)
                       }
                     }">
-                    {{ Project.status ? t("active") : t("inactive") }}
+                    {{ Project.status ? t("projects.active") : t("projects.inactive") }}
                   </argon-switch>
                 </div>
               </div>
@@ -59,13 +59,13 @@
             <td>
               <div class="d-flex px-2 py-1 align-items-center justify-content-center position-relative">
                 <div class="d-flex justify-content-center align-items-center task-name text-center w-100 cursor-pointer"
-                  @click="openDescriptionModal(Project)" title="Open Task Description">
+                  @click="openDescriptionModal(Project)" :title="t('projects.openTaskDescription')">
                   <h6 class="mb-0 text-sm hover-effect mx-1" style="direction: rtl">
                     {{ Project.name }}
                   </h6>
                   <div v-if="loadingTaskId === Project.id" class="spinner-border spinner-border-sm text-primary"
                     role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">{{ t("projects.loading") }}</span>
                   </div>
                 </div>
               </div>
@@ -73,7 +73,7 @@
 
             <td>
               <p class="text-xs font-weight-bold mb-0">
-                {{ Project.leader_name || "No Manager" }}
+                {{ Project.leader_name || t("projects.noManager") }}
               </p>
             </td>
             <td>
@@ -96,17 +96,17 @@
                   </button> -->
                 </span>
               </div>
-              <p v-else class="text-xs font-weight-bold mb-0">No Department</p>
+              <p v-else class="text-xs font-weight-bold mb-0">{{ t("projects.noDepartment") }}</p>
             </td>
 
             <td v-if="isOwner || permissions['edit-project'] || permissions['delete-project']" class="align-middle">
               <a href="javascript:;" v-if="permissions['edit-project'] || isOwner"
                 class="text-secondary font-weight-bold text-xs me-2" @click="openEditModal(Project)">
-                {{ t("edit") }}
+                {{ t("projects.edit") }}
               </a>
               <a href="javascript:;" v-if="permissions['delete-project'] || isOwner"
                 class="text-danger font-weight-bold text-xs" @click="confirmDelete(Project)">
-                {{ t("delete") }}
+                {{ t("projects.delete") }}
               </a>
             </td>
           </tr>
@@ -118,33 +118,33 @@
       <transition name="modal-fade">
         <ArgonModal v-if="showEditPopup" :title="selectedProject.name" @close="closeEditPopup">
           <template #default>
-            <label class="form-label">{{ t("projectName") }}:</label>
+            <label class="form-label">{{ t("projects.projectName") }}:</label>
             <input v-model="selectedProject.name" class="form-control mb-3" />
 
-            <label class="form-label">{{ t("description") }}:</label>
+            <label class="form-label">{{ t("projects.description") }}:</label>
             <input v-model="selectedProject.desc" class="form-control mb-3" />
 
             <div v-if="employeeOptions.length > 0" class="mb-3">
-              <label class="form-label">{{ t("assignManager") }}:</label>
+              <label class="form-label">{{ t("projects.projectManager") }}:</label>
               <argon-select v-model="selectedProject.leader_id" :options="employeeOptions"
-                :placeholder="t('assignManager')" class="form-control" searchable
-                searchPlaceholder="Search manager..." />
+                :placeholder="t('projects.projectManager')" class="form-control" searchable
+                :searchPlaceholder="t('projects.searchManager')" />
             </div>
 
-            <label class="form-label">{{ t("startDate") }}:</label>
+            <label class="form-label">{{ t("projects.startDate") }}:</label>
             <input v-model="selectedProject.start_date" type="date" class="form-control mb-3" />
 
-            <label class="form-label">{{ t("deadline") }}:</label>
+            <label class="form-label">{{ t("projects.deadline") }}:</label>
             <input v-model="selectedProject.deadline" type="date" class="form-control mb-3" />
 
-            <label class="form-label">{{ t("departments") }}:</label>
+            <label class="form-label">{{ t("projects.departments") }}:</label>
             <argon-multiple-select v-model="selectedProject.departmentIds"
               :model-names="selectedProject.departmentNames" :options="departmentOptions"
-              :placeholder="t('selectDepartment')" class="form-control mb-3" />
+              :placeholder="t('projects.selectDepartment')" class="form-control mb-3" />
 
-            <label style="display: none" class="form-label">{{ t("status") }}:</label>
+            <label style="display: none" class="form-label">{{ t("projects.status") }}:</label>
             <argon-switch style="display: none" v-model:checked="selectedProject.status">
-              {{ selectedProject.status ? t("active") : t("inactive") }}
+              {{ selectedProject.status ? t("projects.active") : t("projects.inactive") }}
             </argon-switch>
           </template>
 
@@ -152,10 +152,10 @@
             <argon-button variant="success" @click="updateProject" :disabled="isLoading">
               <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
                 aria-hidden="true"></span>
-              {{ isLoading ? t("saving") : t("update") }}
+              {{ isLoading ? t("projects.saving") : t("projects.update") }}
             </argon-button>
             <argon-button variant="secondary" @click="closeEditPopup">
-              {{ t("close") }}
+              {{ t("projects.close") }}
             </argon-button>
           </template>
 
@@ -175,40 +175,40 @@
           <ul class="nav nav-tabs custom-tabs" role="tablist">
             <li class="nav-item">
               <argon-button class="nav-link" :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">
-                {{ t("info") }}
+                {{ t("projects.info") }}
               </argon-button>
             </li>
             <li class="nav-item">
               <argon-button class="nav-link" :class="{ active: activeTab === 'log' }" @click="activeTab = 'log'">
-                {{ t("log") }}
+                {{ t("projects.log") }}
               </argon-button>
             </li>
           </ul>
           <div class="tab-content">
             <div v-if="activeTab === 'info'">
-              <!-- <h5>{{ t('projectDetails') }}</h5> -->
+              <!-- <h5>{{ t('projects.projectDetails') }}</h5> -->
               <dl class="row">
                 <dt v-if="selectedDescription" class="col-sm-3">
-                  {{ t("description") }}:
+                  {{ t("projects.description") }}:
                 </dt>
                 <dd v-if="selectedDescription" class="col-sm-9">
                   {{ selectedDescription || "N/A" }}
                 </dd>
 
-                <dt class="col-sm-3">{{ t("createdAt") }}:</dt>
+                <dt class="col-sm-3">{{ t("projects.createdAt") }}:</dt>
                 <dd class="col-sm-9">
                   {{ formatDate(selectedProjectCreationDate) || "N/A" }}
                 </dd>
 
                 <dt v-if="selectedProjectStartDate" class="col-sm-3">
-                  {{ t("startDate") }}:
+                  {{ t("projects.startDate") }}:
                 </dt>
                 <dd v-if="selectedProjectStartDate" class="col-sm-9">
                   {{ formatDate(selectedProjectStartDate) || "N/A" }}
                 </dd>
 
                 <dt v-if="selectedProjectDeadline" class="col-sm-3">
-                  {{ t("deadline") }}:
+                  {{ t("projects.deadline") }}:
                 </dt>
                 <dd v-if="selectedProjectDeadline" class="col-sm-9">
                   {{ formatDate(selectedProjectDeadline) || " N/A" }}
@@ -219,20 +219,20 @@
               <div v-if="projectLogs.length > 0">
                 <ul class="log-list">
                   <li v-for="log in projectLogs" :key="log.id" class="log-item">
-                    {{ t("onDate") }}
+                    {{ t("projects.onDate") }}
                     <strong>{{ formatDate(log.changed_at) }}</strong>,
                     <strong>{{ log.changed_by }}</strong>
-                    {{ t("changedTheField") }}
+                    {{ t("projects.changedTheField") }}
                     "<strong>{{ log.field }}</strong>"
-                    {{ t("from") }}
+                    {{ t("projects.from") }}
                     "<strong>{{ log.old_value }}</strong>"
-                    {{ t("to") }}
+                    {{ t("projects.to") }}
                     "<strong>{{ log.new_value }}</strong>".
                   </li>
                 </ul>
               </div>
               <div v-else>
-                <p>{{ t("noLogsAvailable") }}</p>
+                <p>{{ t("projects.noLogsAvailable") }}</p>
               </div>
             </div>
           </div>
@@ -240,7 +240,7 @@
       </template>
       <template #footer>
         <argon-button variant="secondary" @click="closeDescriptionModal">
-          {{ t("close") }}
+          {{ t("projects.close") }}
         </argon-button>
       </template>
     </ArgonModal>
@@ -250,6 +250,7 @@
 <script setup>
 import { computed, ref, onBeforeMount, watch, onMounted } from "vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
 import Swal from "sweetalert2";
 import ArgonModal from "@/components/ArgonModal.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
@@ -264,6 +265,7 @@ import {
 } from "@/utils/permissions.js";
 
 const store = useStore();
+const { t } = useI18n();
 const currentCompanyId = computed(() => store.getters.companyId);
 console.log("currentCompanyId:", currentCompanyId.value);
 
@@ -349,7 +351,7 @@ const toggleStatus = async (projectId) => {
     if (response.status === 200) {
       Swal.fire({
         icon: "success",
-        title: t("statusUpdatedSuccessfully"),
+        title: t("projects.statusUpdatedSuccessfully"),
         showConfirmButton: false,
         timer: 1500,
         timerProgressBar: true,
@@ -360,7 +362,7 @@ const toggleStatus = async (projectId) => {
     console.error("Error updating status:", error);
     Swal.fire({
       icon: "error",
-      title: "Error updating status",
+      title: t("projects.errorUpdatingStatus"),
       text: error.message,
     });
   }
@@ -376,7 +378,6 @@ const selectedViceManager = ref(null);
 const selectedProject = ref(null); // غير مستخدم حالياً
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
-const t = (key) => translations[currentLanguage.value][key];
 
 const dataFromApi = computed(() => store.getters.dataFromApi);
 
@@ -444,7 +445,7 @@ const updateProject = async () => {
       // تحديث بيانات الموظفين
       Swal.fire({
         icon: "success",
-        title: t("projectUpdatedSuccessfully"),
+        title: t("projects.projectUpdatedSuccessfully"),
         showConfirmButton: false,
         timer: 1500,
         timerProgressBar: true,
@@ -463,7 +464,7 @@ const updateProject = async () => {
     console.error("Error updating project:", error);
     Swal.fire({
       icon: "error",
-      title: "Error updating project",
+      title: t("projects.errorUpdatingProject"),
       text: error.message,
     });
   } finally {
@@ -473,12 +474,12 @@ const updateProject = async () => {
 
 const confirmDelete = (Project) => {
   Swal.fire({
-    title: t("deleteConfirmationTitle"),
-    text: t("deleteConfirmationText"),
+    title: t("projects.deleteConfirmationTitle"),
+    text: t("projects.deleteConfirmationText"),
     icon: "warning",
     showCancelButton: true,
-    confirmButtonText: t("delete"),
-    cancelButtonText: t("close"),
+    confirmButtonText: t("projects.delete"),
+    cancelButtonText: t("projects.close"),
   }).then(async (result) => {
     if (result.isConfirmed) {
       await deleteProject(Project.id);
@@ -494,7 +495,7 @@ const deleteProject = async (projectId) => {
     componentKey.value += 1;
     Swal.fire({
       icon: "success",
-      title: t("projectDeletedSuccessfully"),
+      title: t("projects.projectDeletedSuccessfully"),
       showConfirmButton: false,
       timer: 1500,
       timerProgressBar: true,
@@ -503,7 +504,7 @@ const deleteProject = async (projectId) => {
     console.error("Error deleting project:", error);
     Swal.fire({
       icon: "error",
-      title: "Error deleting project",
+      title: t("projects.errorDeletingProject"),
       text: error.message,
     });
   }
@@ -571,106 +572,6 @@ const formatDate = (dateString) => {
     currentLanguage.value,
     options
   );
-};
-
-const translations = {
-  en: {
-    projectsTable: "Projects Table",
-    projectName: "Project Name",
-    edit: "Edit",
-    delete: "Delete",
-    deleteConfirmationTitle: "Delete Project",
-    deleteConfirmationText: "Are you sure you want to delete this project?",
-    deleteConfirmationSuccess: "Project deleted successfully.",
-    close: "Close",
-    saving: "Saving...",
-    update: "Update",
-    assignManager: "Project Manager",
-    viceManager: "Vice Manager",
-    projectUpdatedSuccessfully: "Project updated successfully",
-    projectDeletedSuccessfully: "Project deleted successfully",
-    status: "Status",
-    projectCreatedBy: "created by",
-    description: "Description",
-    projectDetails: "Project Details",
-    companyName: "Company Name",
-    createdAt: "Created At",
-    createdBy: "Created By",
-    deadline: "Deadline",
-    departmentName: "Department",
-    editedBy: "Edited By",
-    id: "ID",
-    leaderName: "Leader Name",
-    name: "Name",
-    startDate: "Start Date",
-    updatedAt: "Updated At",
-    active: "Active",
-    inactive: "Inactive",
-    log: "Log",
-    info: "Info",
-    statusUpdatedSuccessfully: "Status updated successfully",
-    noLogsAvailable: "No logs available",
-    changedBy: "Changed By",
-    field: "Field",
-    oldValue: "Old Value",
-    newValue: "New Value",
-    changedAt: "Changed At",
-    // مثال ترجمة بالإنجليزية
-    onDate: "On",
-    changedTheField: "changed the field",
-    from: "from",
-    to: "to",
-    departments: "Departments",
-    selectDepartment: "Select Department",
-  },
-  ar: {
-    projectsTable: "جدول المشاريع",
-    projectName: "اسم المشروع",
-    edit: "تعديل",
-    delete: "حذف",
-    deleteConfirmationTitle: "حذف المشروع",
-    deleteConfirmationText: "هل تريد حذف هذا المشروع؟",
-    deleteConfirmationSuccess: "تم حذف المشروع بنجاح.",
-    close: "إغلاق",
-    saving: "يتم الحفظ...",
-    update: "تحديث",
-    assignManager: "مدير المشروع",
-    viceManager: "مدير مساعد",
-    projectUpdatedSuccessfully: "تم تحديث المشروع بنجاح",
-    projectDeletedSuccessfully: "تم حذف المشروع بنجاح",
-    status: "حالة المشروع",
-    projectCreatedBy: "منشئ المشروع",
-    description: "وصف المشروع",
-    projectDetails: "تفاصيل المشروع",
-    companyName: "اسم الشركة",
-    createdAt: "تاريخ الإنشاء",
-    createdBy: "أنشئ بواسطة",
-    deadline: "المهلة النهائية",
-    departmentName: "القسم",
-    editedBy: "تم التعديل بواسطة",
-    id: "المعرف",
-    leaderName: "اسم القائد",
-    name: "الاسم",
-    startDate: "تاريخ البدء",
-    updatedAt: "تاريخ التحديث",
-    active: "نشط",
-    inactive: "غير نشط",
-    log: "سجل",
-    info: "معلومات",
-    statusUpdatedSuccessfully: "تم تحديث الحالة بنجاح",
-    noLogsAvailable: "لا يوجد سجلات متاحة",
-    changedBy: "تم التعديل بواسطة",
-    field: "الحقل",
-    oldValue: "القيمة القديمة",
-    newValue: "القيمة الجديدة",
-    changedAt: "تم التعديل في",
-    onDate: "في تاريخ",
-    changedTheField: "قام بتغيير الحقل",
-    from: "من",
-    to: "إلى",
-    selectDepartment: "Select Department",
-    departments: "Department",
-  },
 };
 
 // will be updated in the future

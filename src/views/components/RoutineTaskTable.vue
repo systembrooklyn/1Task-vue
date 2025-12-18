@@ -394,20 +394,20 @@
           </template>
 
           <template #footer>
+            <argon-button variant="secondary" @click="closeEditPopup">
+              {{ t("routineTasks.close") }}
+            </argon-button>
             <argon-button variant="success" @click="reportTask" :disabled="isLoading">
               <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
                 aria-hidden="true"></span>
               {{ isLoading ? t("routineTasks.saving") : t("routineTasks.report") }}
             </argon-button>
-            <argon-button variant="secondary" @click="closeEditPopup">
-              {{ t("routineTasks.close") }}
-            </argon-button>
           </template>
 
-          <template #title>
+          <!-- <template #title>
             <i class="fas fa-user-edit me-2"></i>
             {{ t("routineTasks.editTask") }}
-          </template>
+          </template> -->
         </ArgonModal>
       </transition>
     </div>

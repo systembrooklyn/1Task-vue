@@ -42,6 +42,7 @@ const sidebarCollapsed = ref(false);
 onMounted(() => {
   const updateSidebarState = () => {
     sidebarCollapsed.value = localStorage.getItem('sidebarCollapsed') === 'true';
+    document.body.classList.toggle('sidebar-expanded', !sidebarCollapsed.value);
   };
 
   updateSidebarState();
@@ -187,20 +188,34 @@ body,
   overflow: visible !important;
 }
 
-/* Main content responsive behavior */
+/* Sidebar offset CSS variable */
+:root {
+  --sidebar-offset: 80px;
+  /* collapsed */
+}
+
+body.sidebar-expanded {
+  --sidebar-offset: 260px;
+  /* expanded */
+}
+
+/* Main content responsive behavior - استخدام المتغير */
 .main-content-expanded {
-  margin-left: 260px !important;
+  margin-left: var(--sidebar-offset) !important;
   transition: margin-left 0.3s ease;
+  padding-top: 80px !important;
 }
 
 .main-content-collapsed {
-  margin-left: 80px !important;
+  margin-left: var(--sidebar-offset) !important;
   transition: margin-left 0.3s ease;
+  padding-top: 80px !important;
 }
 
 /* Ensure main content takes full width when no sidebar */
 .main-content {
   transition: margin-left 0.3s ease;
+  padding-top: 80px !important;
 }
 
 @media (max-width: 1199px) {
@@ -437,21 +452,24 @@ body,
   left: 0 !important;
 }
 
-/* عكس main content margin */
+/* عكس main content margin - RTL */
 [dir="rtl"] .main-content-expanded {
-  margin-right: 260px !important;
+  margin-right: var(--sidebar-offset) !important;
   margin-left: 0 !important;
   transition: margin-right 0.3s ease;
+  padding-top: 80px !important;
 }
 
 [dir="rtl"] .main-content-collapsed {
-  margin-right: 80px !important;
+  margin-right: var(--sidebar-offset) !important;
   margin-left: 0 !important;
   transition: margin-right 0.3s ease;
+  padding-top: 80px !important;
 }
 
 [dir="rtl"] .main-content {
   transition: margin-right 0.3s ease;
+  /* padding-top: 80px !important; */
 }
 
 @media (max-width: 1199px) {
