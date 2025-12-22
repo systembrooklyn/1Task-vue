@@ -295,7 +295,7 @@ watch(isOpen, (newVal) => {
 }
 
 .option-icon {
-    margin-right: 0.75rem;
+    margin-inline-end: 0.75rem;
     font-size: 1.1rem;
     width: 1.2rem;
     text-align: center;

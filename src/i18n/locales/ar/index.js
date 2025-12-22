@@ -11,6 +11,7 @@ import users from "./users";
 import projects from "./projects";
 import components from "./components";
 import validation from "./validation";
+import profile from "./profile";
 
 export default {
   common,
@@ -26,4 +27,5 @@ export default {
   projects,
   components,
   validation,
+  profile,
 };

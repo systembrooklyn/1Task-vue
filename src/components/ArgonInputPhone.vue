@@ -5,7 +5,7 @@
     <vue-tel-input :id="id" v-model="localValue" :disabled="disabled" :placeholder="placeholder" :mode="'international'"
       :defaultCountry="resolvedDefaultCountry" :autoDefaultCountry="false" :onlyCountries="onlyCountries"
       :inputOptions="{ showDialCode: true, maxlength: 20 }" @validate="handleValidate"
-      @country-changed="handleCountryChanged" @input="handleInput" />
+      @country-changed="handleCountryChanged" @input="handleInput" dir="ltr" />
     <div v-if="showValidationMessages && touched && !isValid && (localValue?.length || 0) > 0"
       class="invalid-feedback d-block">
       Please enter a valid phone number for the selected country.
@@ -138,6 +138,7 @@ function handleInput() {
   padding: 0;
   min-height: calc(1.5em + 1rem + 2px);
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  direction: ltr;
 }
 
 .argon-input-phone :deep(.vue-tel-input:focus-within) {
@@ -154,13 +155,16 @@ function handleInput() {
   padding: 0.5rem 0.75rem;
   border: none;
   font-size: 1rem;
-  color: #525f7f;
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+  /* color: #525f7f; - Removed to allow dark mode styles */
 }
 
 .argon-input-phone :deep(.vti__dropdown) {
   border: none;
   padding: 0.5rem 0.75rem;
-  background: white;
+  /* background: white; - Removed to allow dark mode styles */
 }
 
 .argon-input-phone :deep(.vti__dropdown:focus) {

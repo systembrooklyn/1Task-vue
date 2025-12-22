@@ -9,7 +9,7 @@
           <div class="spinner-ring"></div>
           <div class="spinner-ring"></div>
         </div>
-        <h6 class="card-loading-text">Loading Profile...</h6>
+        <h6 class="card-loading-text">{{ t("profile.loadingProfile") }}</h6>
       </div>
     </div>
 
@@ -33,7 +33,7 @@
               :class="{ 'loading-opacity': isLoading }" alt="Profile" />
             <div v-if="!isLoading" class="edit-overlay">
               <i class="fas fa-camera"></i>
-              <span>Change Photo</span>
+              <span>{{ t("profile.changePhoto") }}</span>
             </div>
           </div>
         </div>
@@ -60,14 +60,14 @@
           <div v-if="user?.phones?.length > 0" class="contact-group">
             <h6 class="contact-title">
               <i class="fas fa-phone"></i>
-              Phone Numbers
+              {{ t("profile.phoneNumbers") }}
             </h6>
             <div class="contact-items">
               <div v-for="phone in user.phones" :key="phone.phone" class="contact-item">
                 <div class="contact-icon">
                   <i class="fas fa-phone-alt"></i>
                 </div>
-                <span class="contact-text">+{{ phone.CC }} {{ phone.phone }}</span>
+                <span class="contact-text" dir="ltr">{{ phone.CC ? '+' + phone.CC : '' }} {{ phone.phone }}</span>
                 <a :href="`tel:+${phone.CC}${phone.phone}`" class="contact-action">
                   <i class="fas fa-external-link-alt"></i>
                 </a>
@@ -79,7 +79,7 @@
           <div v-if="user?.links?.length > 0" class="contact-group">
             <h6 class="contact-title">
               <i class="fas fa-share-alt"></i>
-              Social Links
+              {{ t("profile.socialLinks") }}
             </h6>
             <div class="social-links">
               <a v-for="link in user.links" :key="link.link" :href="link.link" target="_blank" class="social-link"
@@ -105,8 +105,11 @@
 
 <script setup>
 import { computed, defineProps, defineEmits, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import Swal from "sweetalert2";
 import defaultImg from "@/assets/img/userProfile.png";
+
+const { t } = useI18n();
 
 const props = defineProps({
   user: {
@@ -167,8 +170,8 @@ const handleFileUpload = async (event) => {
   if (file.size > maxSizeInBytes) {
     Swal.fire({
       icon: "error",
-      title: "Upload Error",
-      text: `File size exceeds limit of 1.99MB`,
+      title: t("profile.uploadError"),
+      text: t("profile.fileSizeExceedsLimit"),
     });
     return;
   }
@@ -185,7 +188,7 @@ const handleFileUpload = async (event) => {
     }, 2000);
   } catch (error) {
     console.error("Error uploading image:", error);
-    Swal.fire("Error", "Failed to upload image", "error");
+    Swal.fire(t("profile.error"), t("profile.failedToUploadImage"), "error");
     isLoading.value = false;
   }
 };
@@ -411,6 +414,9 @@ const handleFileUpload = async (event) => {
   flex-grow: 1;
   color: #4a5568;
   font-weight: 500;
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
 }
 
 .contact-action {

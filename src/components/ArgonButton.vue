@@ -79,7 +79,7 @@ const getClasses = (variant, color, size, fullWidth, active) => {
 .dark-version button.btn.mb-0.btn-secondary,
 .dark-version button.btn.mb-0 {
   background-color: rgba(144, 177, 64, 0.15) !important;
-  color: rgba(144, 177, 64, 1) !important;
+  /* color: rgba(144, 177, 64, 1) !important; */
   outline-color: rgba(144, 177, 64, 0.5) !important;
   border-color: rgba(144, 177, 64, 0.5) !important;
 }

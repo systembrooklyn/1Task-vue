@@ -10,6 +10,7 @@ import {
   watch,
 } from "vue";
 import { useStore } from "vuex";
+import { useI18n } from "vue-i18n";
 import setNavPills from "@/assets/js/nav-pills.js"; // Assuming these are still used
 import setTooltip from "@/assets/js/tooltip.js"; // Assuming these are still used
 import ProfileCard from "./components/ProfileCard.vue";
@@ -22,6 +23,7 @@ import Swal from "sweetalert2";
 // REMOVED: import { parsePhoneNumberFromString } from 'libphonenumber-js'; // This was unused here
 
 const store = useStore();
+const { t } = useI18n();
 const body = document.getElementsByTagName("body")[0];
 
 const linkIcons = ref([
@@ -58,12 +60,12 @@ const profileData = ref({}); // For ProfileCard (user object for the card)
 const showErrorAlert = (error, context = '') => {
   console.error(`Error in ${context}:`, error);
 
-  let message = 'An unexpected error occurred';
-  let title = 'Error';
+  let message = t('profile.unexpectedError');
+  let title = t('profile.error');
 
   // Handle 422 validation errors first
   if (error?.response?.status === 422) {
-    title = 'Validation Error';
+    title = t('profile.validationError');
 
     // Check if there's a main message
     if (error.response.data?.message) {
@@ -101,17 +103,17 @@ const showErrorAlert = (error, context = '') => {
     icon: 'error',
     title: context || title,
     html: message,
-    confirmButtonText: 'OK',
+    confirmButtonText: t('profile.ok'),
     confirmButtonColor: '#dc3545'
   });
 };
 
-const showSuccessAlert = (message, title = 'Success') => {
+const showSuccessAlert = (message, title = '') => {
   Swal.fire({
     icon: 'success',
-    title: title,
+    title: title || t('profile.success'),
     text: message,
-    confirmButtonText: 'OK',
+    confirmButtonText: t('profile.ok'),
     confirmButtonColor: '#A5C958'
   });
 };
@@ -178,7 +180,7 @@ const fetchProfileData = async () => {
       );
     }
   } catch (error) {
-    showErrorAlert(error, 'Failed to load profile data');
+    showErrorAlert(error, t('profile.failedToLoadProfileData'));
     const defaultCountry = getDefaultCountryForPhone();
     userPhones.value = [{ CC: defaultCountry.dialCode, phone: "" }];
   } finally {
@@ -245,7 +247,7 @@ const allPhonesValid = computed(() => {
 const saveChanges = async () => {
   isSaving.value = true;
   if (!allPhonesValid.value) {
-    showErrorAlert("Please correct the invalid phone numbers before saving.", "Validation Error");
+    showErrorAlert(t('profile.pleaseCorrectInvalidPhones'), t('profile.validationError'));
     isSaving.value = false; // Stop saving
     return;
   }
@@ -284,9 +286,9 @@ const saveChanges = async () => {
     isSaving.value = false;
     await fetchProfileData();
     // Show success message
-    showSuccessAlert("Profile updated successfully!");
+    showSuccessAlert(t('profile.profileUpdatedSuccessfully'));
   } catch (error) {
-    showErrorAlert(error, 'Failed to save profile data');
+    showErrorAlert(error, t('profile.failedToSaveProfileData'));
     isSaving.value = false;
   }
 };
@@ -296,9 +298,9 @@ const uploadProfileImage = async (formData) => {
   try {
     await store.dispatch("uploadProfileImage", formData);
     await fetchProfileData();
-    showSuccessAlert("Profile image updated successfully!");
+    showSuccessAlert(t('profile.profileImageUpdatedSuccessfully'));
   } catch (error) {
-    showErrorAlert(error, 'Failed to upload profile image');
+    showErrorAlert(error, t('profile.failedToUploadProfileImage'));
   }
 };
 
@@ -341,8 +343,8 @@ onBeforeUnmount(() => {
                 <div class="spinner-ring"></div>
                 <div class="spinner-ring"></div>
               </div>
-              <h5 class="loading-text">Loading Profile...</h5>
-              <p class="loading-subtitle">Please wait while we fetch your data</p>
+              <h5 class="loading-text">{{ t("profile.loadingProfile") }}</h5>
+              <p class="loading-subtitle">{{ t("profile.pleaseWait") }}</p>
             </div>
           </div>
         </div>
@@ -353,10 +355,10 @@ onBeforeUnmount(() => {
             <div class="card mb-4">
               <div class="card-header pb-0">
                 <div class="d-flex align-items-center">
-                  <h5 class="mb-0">Edit Profile</h5>
+                  <h5 class="mb-0">{{ t("profile.editProfile") }}</h5>
                   <argon-button color="success" size="sm" class="ms-auto d-flex align-items-center" @click="saveChanges"
                     :disabled="!allPhonesValid || isSaving">
-                    Save Changes
+                    {{ t("profile.saveChanges") }}
 
                     <span v-if="isSaving" class="spinner-border spinner-border-sm ms-2"></span>
                   </argon-button>
@@ -365,92 +367,93 @@ onBeforeUnmount(() => {
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-6">
-                    <label for="username" class="form-label">First Name</label>
+                    <label for="username" class="form-label">{{ t("profile.firstName") }}</label>
                     <argon-input id="username" type="text" v-model="userName" />
                   </div>
                   <div class="col-md-6">
-                    <label for="username" class="form-label">Last Name</label>
+                    <label for="username" class="form-label">{{ t("profile.lastName") }}</label>
                     <argon-input id="username" type="text" v-model="userLastName" />
                   </div>
                   <div class="col-md-6">
-                    <label for="email" class="form-label">Email address</label>
+                    <label for="email" class="form-label">{{ t("profile.emailAddress") }}</label>
                     <argon-input id="email" type="email" v-model="userEmail" />
                   </div>
                   <div class="col-md-6">
-                    <label for="position" class="form-label">Position</label>
+                    <label for="position" class="form-label">{{ t("profile.position") }}</label>
                     <argon-input id="position" type="text" v-model="userPosition" />
                   </div>
                 </div>
 
                 <hr />
-                <h6 class="text-uppercase text-sm">Contact Information</h6>
+                <h6 class="text-uppercase text-sm">{{ t("profile.contactInformation") }}</h6>
                 <div class="row">
                   <div class="col-md-4">
-                    <label for="city" class="form-label">City</label>
+                    <label for="city" class="form-label">{{ t("profile.city") }}</label>
                     <argon-input id="city" type="text" v-model="userCity" />
                   </div>
                   <div class="col-md-4">
-                    <label for="country" class="form-label">Country</label>
+                    <label for="country" class="form-label">{{ t("profile.country") }}</label>
                     <argon-input id="country" type="text" v-model="userCountry" />
                   </div>
                   <div class="col-md-4">
-                    <label for="state" class="form-label">State</label>
+                    <label for="state" class="form-label">{{ t("profile.state") }}</label>
                     <argon-input id="state" type="text" v-model="userState" />
                   </div>
                 </div>
 
                 <hr />
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h6 class="text-uppercase text-sm">Phone Numbers</h6>
-                  <argon-button color="primary" size="sm" @click="addPhoneNumber" title="Add another phone number">
-                    <i class="fas fa-plus me-1"></i> Add Phone
+                  <h6 class="text-uppercase text-sm">{{ t("profile.phoneNumbers") }}</h6>
+                  <argon-button color="primary" size="sm" @click="addPhoneNumber" :title="t('profile.addAnotherPhone')">
+                    <i class="fas fa-plus me-1"></i> {{ t("profile.addPhone") }}
                   </argon-button>
                 </div>
 
                 <div v-if="userPhones.length === 0" class="text-muted my-3 ps-1">
-                  No phone numbers added. Click 'Add Phone' to add one.
+                  {{ t("profile.noPhoneNumbersAdded") }}
                 </div>
 
                 <div v-for="(phoneEntry, index) in userPhones" :key="phoneEntry.tempId || index"
                   class="phone-entry-row align-items-start border-bottommb-3">
                   <div class="flex-grow-1">
-                    <argon-input-phone :id="'profile-phone-' + index" :label="userPhones.length > 1 ? 'Phone ' + (index + 1) : 'Phone'
+                    <argon-input-phone :id="'profile-phone-' + index" :label="userPhones.length > 1 ? t('profile.phone') + ' ' + (index + 1) : t('profile.phone')
                       " v-model="userPhones[index]" :countries="allCountriesForPhoneInput" :default-country-iso-code="phoneEntry.CC
-                      ? countriesList.find(
-                        (c) => c.dialCode === phoneEntry.CC
-                      )?.isoCode || defaultPhoneCountryIso
-                      : defaultPhoneCountryIso
-                      " placeholder="Enter phone number" @validity-change="
-                        (isValid) => handlePhoneValidity(index, isValid)
-                      " />
+                        ? countriesList.find(
+                          (c) => c.dialCode === phoneEntry.CC
+                        )?.isoCode || defaultPhoneCountryIso
+                        : defaultPhoneCountryIso
+                        " :placeholder="t('profile.enterPhoneNumber')" @validity-change="
+                          (isValid) => handlePhoneValidity(index, isValid)
+                        " />
                   </div>
                   <div class="ms-2 pt-4">
                     <argon-button v-if="userPhones.length > 0" color="danger" size="sm" class="btn-icon-only"
-                      title="Remove this phone number" @click="removePhoneNumber(index)"
-                      aria-label="Remove phone number">
+                      :title="t('profile.removeThisPhoneNumber')" @click="removePhoneNumber(index)"
+                      :aria-label="t('profile.removePhoneNumber')">
                       <i class="fas fa-trash"></i>
                     </argon-button>
                   </div>
                 </div>
                 <hr />
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h6 class="text-uppercase text-sm">Links</h6>
-                  <argon-button color="primary" size="sm" @click="addLink" title="Add another link">
-                    <i class="fas fa-plus me-1"></i> Add Link
+                  <h6 class="text-uppercase text-sm">{{ t("profile.links") }}</h6>
+                  <argon-button color="primary" size="sm" @click="addLink" :title="t('profile.addAnotherLink')">
+                    <i class="fas fa-plus me-1"></i> {{ t("profile.addLink") }}
                   </argon-button>
                 </div>
                 <div v-for="(linkEntry, index) in userLinks" :key="linkEntry.tempId || index"
                   class="link-entry-row align-items-start border-bottom mb-3">
                   <div class="icon-entry">
                     <argon-icon-picker :id="'profile-link-type-' + index" v-model="userLinks[index].icon"
-                      :options="linkIcons" placeholder="Select social platform" />
+                      :options="linkIcons" :placeholder="t('profile.selectSocialPlatform')" />
                   </div>
                   <div class="url-input">
                     <argon-input :id="'profile-link-' + index" v-model="userLinks[index].link"
-                      :placeholder="'Enter your profile URL'" />
+                      :placeholder="t('profile.enterProfileUrl')" />
                   </div>
                   <argon-button v-if="userLinks.length > 0" color="danger" size="sm" class="btn-icon-only"
-                    title="Remove this link" @click="removeLink(index)" aria-label="Remove link">
+                    :title="t('profile.removeThisLink')" @click="removeLink(index)"
+                    :aria-label="t('profile.removeLink')">
                     <i class="fas fa-trash"></i>
                   </argon-button>
                 </div>
@@ -470,7 +473,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .profile-overview {
   background-color: #f5f5f5;
-  padding-top: 7%;
+  /*padding-top: 7%;*/
 }
 
 .profile-page {
@@ -554,7 +557,6 @@ onBeforeUnmount(() => {
 /* Optional: Add a light border to visually separate entries if many */
 .phone-entry-row.border-bottom {
   border-bottom: 1px solid #e9ecef;
-  /* Light border */
 }
 
 .phone-entry-row:last-child.border-bottom {

@@ -304,6 +304,113 @@
     }
   }
 
+  // vue-tel-input Global Dark Mode Styles
+  .vue-tel-input {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+  }
+
+  .vue-tel-input:focus-within {
+    border-color: rgba(144, 177, 64, 0.5) !important;
+    box-shadow: 0 0 0 0.2rem rgba(144, 177, 64, 0.25) !important;
+  }
+
+  .vue-tel-input:hover {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+
+  .vti__input {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &::-webkit-input-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &::-moz-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &:-ms-input-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+  }
+
+  .vti__dropdown {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  // Dropdown list (may be teleported to body)
+  .vti__dropdown-list,
+  .vti__dropdown-list-wrapper,
+  .vti__dropdown.open,
+  .vti__dropdown-list-container {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .vti__dropdown-list-item,
+  .vti__dropdown-item,
+  .vti__dropdown-list li,
+  .vti__dropdown-list > div,
+  .vti__dropdown-list > ul > li {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .vti__dropdown-list-item:hover,
+  .vti__dropdown-item:hover,
+  .vti__dropdown-list li:hover,
+  .vti__dropdown-list > div:hover,
+  .vti__dropdown-list > ul > li:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  .vti__dropdown-list-item.highlighted,
+  .vti__dropdown-item.highlighted,
+  .vti__dropdown-list li.highlighted,
+  .vti__dropdown-list > div.highlighted,
+  .vti__dropdown-list > ul > li.highlighted {
+    background-color: rgba(144, 177, 64, 0.2) !important;
+    color: rgba(144, 177, 64, 1) !important;
+  }
+
+  .vti__dropdown-list-item.selected,
+  .vti__dropdown-item.selected,
+  .vti__dropdown-list li.selected,
+  .vti__dropdown-list > div.selected,
+  .vti__dropdown-list > ul > li.selected {
+    background-color: rgba(144, 177, 64, 0.15) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  // Search input in dropdown (if exists)
+  .vti__search,
+  .vti__dropdown-list input[type="search"],
+  .vti__dropdown-list input[type="text"] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+  }
+
   // Chart Report Page Styles
   .no-tasks-container {
     .no-tasks-text {
@@ -1084,7 +1191,7 @@
   button.btn.btn-secondary,
   button.btn.mb-0.btn-secondary {
     background-color: rgba(144, 177, 64, 0.15) !important;
-    color: rgba(144, 177, 64, 1) !important;
+    // color: rgba(144, 177, 64, 1) !important;
     border-color: rgba(144, 177, 64, 0.5) !important;
     outline-color: rgba(144, 177, 64, 0.5) !important;
 
@@ -1106,7 +1213,7 @@
   // Override ArgonButton scoped styles
   button.btn.mb-0 {
     background-color: rgba(144, 177, 64, 0.15) !important;
-    color: rgba(144, 177, 64, 1) !important;
+    // color: rgba(144, 177, 64, 1) !important;
     outline-color: rgba(144, 177, 64, 0.5) !important;
 
     &:hover,
@@ -3151,6 +3258,337 @@
     p {
       color: rgba(255, 255, 255, 0.6) !important;
     }
+  }
+
+  // Profile Page Styles (Profile.vue)
+  .profile-overview {
+    background-color: $dark-version-bg-color !important;
+  }
+
+  .profile-page {
+    background-color: $dark-version-bg-color !important;
+  }
+
+  .profile-overview .card {
+    background-color: $dark-version-card-bg-color !important;
+    border-color: $dark-version-border-color !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .profile-overview .card-header {
+    background-color: transparent !important;
+    border-bottom-color: $dark-version-border-color !important;
+
+    h5 {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .profile-overview .card-body {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .profile-overview .form-label {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .profile-overview h6 {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .profile-overview hr {
+    border-top-color: $dark-version-border-color !important;
+    opacity: 0.3 !important;
+  }
+
+  .profile-overview .phone-entry-row.border-bottom {
+    border-bottom-color: $dark-version-border-color !important;
+    opacity: 0.3 !important;
+  }
+
+  // ArgonInput in Profile Page
+  .profile-overview .form-control {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &::-webkit-input-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &::-moz-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &:-ms-input-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &:-moz-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(144, 177, 64, 0.5) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  // ArgonInputPhone (vue-tel-input) in Profile Page
+  .profile-overview .argon-input-phone :deep(.vue-tel-input) {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .profile-overview .argon-input-phone :deep(.vue-tel-input:focus-within) {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(144, 177, 64, 0.5) !important;
+    box-shadow: 0 0 0 0.2rem rgba(144, 177, 64, 0.25) !important;
+  }
+
+  .profile-overview .argon-input-phone :deep(.vue-tel-input:hover) {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .profile-overview .argon-input-phone :deep(.vti__input) {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &::-webkit-input-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &::-moz-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &:-ms-input-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+
+    &:-moz-placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 1 !important;
+    }
+  }
+
+  .profile-overview .argon-input-phone :deep(.vti__dropdown) {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .profile-overview .argon-input-phone .form-label {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  // ArgonIconPicker Global Dark Mode Styles
+  .argon-icon-picker {
+    .form-label {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .icon-picker-trigger {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      &:hover:not(:disabled) {
+        border-color: rgba(255, 255, 255, 0.3) !important;
+      }
+
+      &:focus {
+        border-color: rgba(144, 177, 64, 0.5) !important;
+        box-shadow: 0 0 0 0.2rem rgba(144, 177, 64, 0.25) !important;
+      }
+
+      &:disabled {
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        opacity: 0.65;
+      }
+    }
+
+    .dropdown-arrow {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .icon-picker-dropdown-menu {
+      background-color: $dark-version-card-bg-color !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .search-container {
+      border-bottom-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .search-input {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+        opacity: 1 !important;
+      }
+
+      &:focus {
+        border-color: rgba(144, 177, 64, 0.5) !important;
+        box-shadow: 0 0 0 0.2rem rgba(144, 177, 64, 0.25) !important;
+      }
+    }
+
+    .icon-option {
+      color: rgba(255, 255, 255, 0.9) !important;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+      }
+
+      &.selected {
+        background-color: rgba(144, 177, 64, 0.2) !important;
+        color: rgba(144, 177, 64, 1) !important;
+      }
+    }
+
+    // Scrollbar styling for dark mode
+    .icon-options-container {
+      &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05) !important;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2) !important;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.3) !important;
+        }
+      }
+    }
+  }
+
+  // ArgonIconPicker in Profile Page
+  .profile-overview .argon-icon-picker :deep(.form-control),
+  .profile-overview .argon-icon-picker :deep(select) {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: $dark-version-border-color !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    option {
+      background-color: $dark-version-card-bg-color !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+  }
+
+  .profile-overview-loading {
+    background: linear-gradient(135deg, rgba(10, 22, 40, 0.98) 0%, rgba(17, 24, 39, 0.98) 100%) !important;
+  }
+
+  // .loading-container {
+  //   background: $dark-version-card-bg-color !important;
+  //   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
+  // }
+
+  .loading-text {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .loading-subtitle {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  // Profile Card Styles (ProfileCard.vue)
+  .profile-card-modern {
+    background: $dark-version-card-bg-color !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .profile-card-modern:hover {
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .profile-image {
+    border-color: $dark-version-card-bg-color !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .profile-name {
+    background: linear-gradient(135deg, rgba(144, 177, 64, 1) 0%, rgba(143, 182, 71, 1) 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+  }
+
+  .profile-position,
+  .profile-location {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .profile-position i,
+  .profile-location i {
+    color: rgba(144, 177, 64, 1) !important;
+  }
+
+  .profile-contact-section {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid $dark-version-border-color !important;
+  }
+
+  .contact-title {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .contact-title i {
+    color: rgba(144, 177, 64, 1) !important;
+  }
+
+  .contact-item {
+    background: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .contact-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .contact-text {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .contact-action {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .contact-action:hover {
+    color: rgba(144, 177, 64, 1) !important;
+  }
+
+  .profile-card-loading {
+    background: linear-gradient(135deg, rgba(10, 22, 40, 0.98) 0%, rgba(17, 24, 39, 0.98) 100%) !important;
+  }
+
+  .card-loading-text {
+    color: rgba(255, 255, 255, 0.9) !important;
   }
 
   // Navbar Dropdown Menu Styles
