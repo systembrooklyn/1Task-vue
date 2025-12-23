@@ -2253,6 +2253,13 @@ const updateOneTimeTask = async () => {
   overflow: hidden;
 }
 
+/* إصلاح موضع gmail-compose-container في RTL */
+[dir="rtl"] .gmail-compose-container,
+.rtl .gmail-compose-container {
+  right: auto !important;
+  left: 20px !important;
+}
+
 .gmail-compose-container.maximized {
   left: 20px;
   right: 20px;
@@ -2264,6 +2271,13 @@ const updateOneTimeTask = async () => {
 .gmail-compose-container.minimized {
   height: 40px;
   width: 300px;
+}
+
+/* إصلاح موضع minimized في RTL */
+[dir="rtl"] .gmail-compose-container.minimized,
+.rtl .gmail-compose-container.minimized {
+  right: auto !important;
+  left: 20px !important;
 }
 
 .gmail-header {
@@ -2586,6 +2600,7 @@ const updateOneTimeTask = async () => {
   position: absolute;
   bottom: 100%;
   left: 50%;
+  right: auto;
   transform: translateX(-50%);
   background: white;
   border: 1px solid #e9ecef;
@@ -2597,6 +2612,16 @@ const updateOneTimeTask = async () => {
   animation: toolbarDropdownSlideUp 0.2s ease;
   z-index: 99999;
   margin-bottom: 8px;
+  direction: ltr;
+  text-align: left;
+}
+
+/* إصلاح موضع القائمة المنسدلة في RTL */
+[dir="rtl"] .toolbar-dropdown,
+.rtl .toolbar-dropdown {
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
 }
 
 /* للأيقونات في النهاية - يفتح من اليمين */
@@ -2606,11 +2631,27 @@ const updateOneTimeTask = async () => {
   transform: none;
 }
 
+/* للأيقونات في النهاية - يفتح من اليمين في RTL */
+[dir="rtl"] .gmail-toolbar-icon-group:nth-last-child(-n + 2) .toolbar-dropdown,
+.rtl .gmail-toolbar-icon-group:nth-last-child(-n + 2) .toolbar-dropdown {
+  left: auto !important;
+  right: 0 !important;
+  transform: none !important;
+}
+
 /* للأيقونات في البداية - يفتح من اليسار */
 .gmail-toolbar-icon-group:nth-child(-n + 2) .toolbar-dropdown {
   left: 0;
   right: auto;
   transform: none;
+}
+
+/* للأيقونات في البداية - يفتح من اليمين في RTL */
+[dir="rtl"] .gmail-toolbar-icon-group:nth-child(-n + 2) .toolbar-dropdown,
+.rtl .gmail-toolbar-icon-group:nth-child(-n + 2) .toolbar-dropdown {
+  left: auto !important;
+  right: 0 !important;
+  transform: none !important;
 }
 
 @keyframes toolbarDropdownSlideUp {
@@ -2631,6 +2672,24 @@ const updateOneTimeTask = async () => {
 }
 
 @keyframes toolbarDropdownSlideUpCenter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* إصلاح Animation للأيقونات المتوسطة في RTL */
+[dir="rtl"] .gmail-toolbar-icon-group:nth-child(n + 3):nth-last-child(n + 3) .toolbar-dropdown,
+.rtl .gmail-toolbar-icon-group:nth-child(n + 3):nth-last-child(n + 3) .toolbar-dropdown {
+  animation: toolbarDropdownSlideUpCenterRTL 0.2s ease;
+}
+
+@keyframes toolbarDropdownSlideUpCenterRTL {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(10px);
@@ -2681,6 +2740,8 @@ const updateOneTimeTask = async () => {
   padding: 16px;
   max-height: 300px;
   overflow-y: auto;
+  direction: ltr;
+  text-align: left;
 }
 
 .toolbar-search-container {
@@ -2694,6 +2755,8 @@ const updateOneTimeTask = async () => {
   border-radius: 4px;
   font-size: 0.9rem;
   transition: border-color 0.2s ease;
+  direction: ltr;
+  text-align: left;
 }
 
 .toolbar-search-input:focus {
@@ -2708,6 +2771,8 @@ const updateOneTimeTask = async () => {
   border: 1px solid #e9ecef;
   border-radius: 4px;
   background: white;
+  direction: ltr;
+  text-align: left;
 }
 
 .toolbar-option-item {
@@ -2718,6 +2783,7 @@ const updateOneTimeTask = async () => {
   justify-content: space-between;
   align-items: center;
   transition: background-color 0.2s ease;
+  direction: ltr;
 }
 
 .toolbar-option-item:last-child {
@@ -2731,11 +2797,14 @@ const updateOneTimeTask = async () => {
 .toolbar-option-item.selected {
   background-color: #e8f5e8;
   border-left: 3px solid #a6c956;
+  direction: ltr;
 }
 
 .toolbar-option-text {
   color: #495057;
   font-size: 0.9rem;
+  direction: ltr;
+  text-align: left;
 }
 
 .toolbar-option-check {
@@ -3159,6 +3228,13 @@ const updateOneTimeTask = async () => {
     bottom: 0;
   }
 
+  /* إصلاح موضع gmail-compose-container في RTL للشاشات الصغيرة */
+  [dir="rtl"] .gmail-compose-container,
+  .rtl .gmail-compose-container {
+    right: auto !important;
+    left: 10px !important;
+  }
+
   .gmail-compose-container.maximized {
     top: 10px;
     left: 10px;
@@ -3171,6 +3247,13 @@ const updateOneTimeTask = async () => {
     right: 10px;
   }
 
+  /* إصلاح موضع minimized في RTL للشاشات الصغيرة */
+  [dir="rtl"] .gmail-compose-container.minimized,
+  .rtl .gmail-compose-container.minimized {
+    right: auto !important;
+    left: 10px !important;
+  }
+
   .gmail-content {
     padding: 12px;
     max-height: 400px;
@@ -3181,6 +3264,13 @@ const updateOneTimeTask = async () => {
   .gmail-compose-container {
     right: 5px;
     left: 5px;
+  }
+
+  /* إصلاح موضع gmail-compose-container في RTL للشاشات الصغيرة جداً */
+  [dir="rtl"] .gmail-compose-container,
+  .rtl .gmail-compose-container {
+    right: auto !important;
+    left: 5px !important;
   }
 
   .gmail-compose-container.maximized {
@@ -3699,6 +3789,13 @@ const updateOneTimeTask = async () => {
     width: 90%;
     max-width: 600px;
     right: 5%;
+  }
+
+  /* إصلاح موضع gmail-compose-container في RTL للشاشات المتوسطة */
+  [dir="rtl"] .gmail-compose-container,
+  .rtl .gmail-compose-container {
+    right: auto !important;
+    left: 5% !important;
   }
 
   .gmail-compose-container.maximized {
