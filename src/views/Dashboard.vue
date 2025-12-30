@@ -5,6 +5,7 @@ import { useRouter, useRoute } from "vue-router";
 import ShBar from "../components/charts/ShBar.vue";
 // import ShLine from "../components/charts/ShLine.vue";
 import AIAnalysisCard from "@/components/AIAnalysisCard.vue";
+import GeminiAnalysisCard from "@/components/GeminiAnalysisCard.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
 import ArgonMultipleSelect from "@/components/ArgonMultipleSelect.vue";
@@ -1617,6 +1618,15 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gemini AI Analysis Section -->
+      <div class="container-fluid mb-5">
+        <div class="row">
+          <div class="col-12">
+            <GeminiAnalysisCard :dashboard-data="dashboardData" />
           </div>
         </div>
       </div>

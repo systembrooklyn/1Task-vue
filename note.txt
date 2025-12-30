@@ -10,3 +10,5 @@ add more data (col):
 new table :
 
 - permassion for roles 
+
+VITE_GEMINI_API_KEY="AIzaSyD89iXRI1iIrxSxvz_jn0uucFi0N0jy6I0"
