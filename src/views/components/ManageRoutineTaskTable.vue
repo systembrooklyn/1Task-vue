@@ -309,6 +309,9 @@
                   searchPlaceholder="Search priorities..." required />
               </div>
 
+              <label class="form-label">{{ t("manageRoutineTasks.from") }}:</label>
+              <input v-model="selectedTask.from_time" type="time" class="form-control mb-3" />
+
               <label class="form-label">{{ t("manageRoutineTasks.to") }}:</label>
               <input v-model="selectedTask.to" type="time" class="form-control mb-3" />
 
