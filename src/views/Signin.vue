@@ -3,11 +3,11 @@ import { ref, computed, onBeforeMount, onBeforeUnmount, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
-import Navbar from "@/examples/PageLayout/Navbar.vue";
+import LandingNavbar from "@/components/landing/LandingNavbar.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
-import ArgonAlert from "@/components/ArgonAlert.vue"; // لإضافة تنبيه في حالة الخطأ
-import AppFooter from "@/examples/PageLayout/Footer.vue";
+import ArgonAlert from "@/components/ArgonAlert.vue";
+import FooterSection from "@/views/landing/sections/FooterSection.vue";
 import { loadPermissionsFromLocalStorage } from "@/utils/permissions.js";
 
 const store = useStore();
@@ -212,6 +212,7 @@ const translations = {
 };
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
+const darkMode = computed(() => store.state.darkMode);
 
 const t = (key) => {
   return translations[currentLanguage.value][key];
@@ -219,200 +220,310 @@ const t = (key) => {
 </script>
 
 <template>
-  <div class="container top-0 position-sticky z-index-sticky">
-    <div class="row">
-      <div class="col-12">
-        <navbar isBlur="blur  border-radius-lg my-3 py-2 start-0 end-0 mx-4 shadow" :darkMode="true"
-          isBtn="bg-gradient-success" style="display: none" />
-      </div>
-    </div>
-  </div>
-  <main class="mt-0 main-content">
-    <section class="hero-section">
-      <div class="page-header min-vh-100">
-        <div class="container">
-          <div class="row">
-            <!-- قسم النموذج -->
-            <div class="col-lg-6 col-md-7 d-flex flex-column mx-lg-0 mx-auto"
-              :class="currentLanguage === 'ar' ? 'order-2' : ''">
-              <div class="card card-plain">
-                <div class="pb-0 text-center">
-                  <h4 class="font-weight-bolder">{{ t("signIn") }}</h4>
-                  <p class="mb-0">{{ t("enterEmailAndPassword") }}</p>
-                </div>
-                <div class="card-body">
-                  <form role="form" @submit.prevent="signIn">
-                    <div class="mb-3">
-                      <argon-input v-model="email" id="email" type="email" :placeholder="t('email')" name="email"
-                        size="lg" />
-                    </div>
-                    <div class="mb-3 position-relative">
-                      <div class="position-relative">
-                        <argon-input v-model="password" id="password" :type="showPassword ? 'text' : 'password'"
-                          :placeholder="t('password')" name="password" size="lg" />
-                        <span @click="showPassword = !showPassword"
-                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
-                          <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'
-                            "></i>
-                        </span>
+  <div class="signin-page antialiased" :class="{ 'dark-version': darkMode }">
+    <LandingNavbar />
+    <main class="signin-main">
+      <section class="signin-hero hero-bg">
+        <div class="page-header min-vh-100">
+          <div class="container signin-container">
+            <div class="row align-items-center">
+              <!-- Form column -->
+              <div class="col-lg-6 col-md-7 d-flex flex-column mx-lg-0 mx-auto order-lg-1"
+                :class="currentLanguage === 'ar' ? 'order-2' : ''">
+                <div class="card signin-card card-plain animate-fade-in-up">
+                  <div class="card-header signin-card-header pb-0 text-center">
+                    <h1 class="signin-title font-weight-bolder mb-2">
+                      <span class="gradient-text">{{ t("signIn") }}</span>
+                    </h1>
+                    <p class="signin-subtitle mb-0">{{ t("enterEmailAndPassword") }}</p>
+                  </div>
+                  <div class="card-body">
+                    <form role="form" @submit.prevent="signIn">
+                      <div class="mb-3">
+                        <argon-input v-model="email" id="email" type="email" :placeholder="t('email')" name="email"
+                          size="lg" />
                       </div>
-                      <p v-if="passwordValid" class="text-success mt-2">
-                        {{ t("passwordValid") }}
-                      </p>
-                      <p v-if="!passwordValid" class="text-danger mt-2">
-                        {{ t("passwordRequirements") }}
-                      </p>
-                    </div>
-                    <p class="mx-auto mb-4 text-sm">
-                      <a href="javascript:;" @click="showForgotPasswordForm"
-                        class="text-success text-gradient font-weight-bold">
-                        {{ t("forgotPassword") }}
-                      </a>
-                    </p>
-                    <argon-alert v-if="showAlert" color="danger">
-                      {{ errorMessage }}
-                    </argon-alert>
-                    <div class="text-center">
-                      <argon-button class="mt-4 d-flex justify-content-center" variant="gradient" color="success"
-                        fullWidth size="lg" :disabled="!passwordValid">
-                        <span class="me-2 mx-2">{{ t("signIn") }}</span>
-                        <div v-if="isLoading" class="text-center">
-                          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      <div class="mb-3 position-relative">
+                        <div class="position-relative">
+                          <argon-input v-model="password" id="password" :type="showPassword ? 'text' : 'password'"
+                            :placeholder="t('password')" name="password" size="lg" />
+                          <span @click="showPassword = !showPassword"
+                            class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer signin-toggle-pwd">
+                            <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                          </span>
                         </div>
-                      </argon-button>
-                    </div>
-                  </form>
-                </div>
-                <div class="px-1 pt-0 text-center card-footer px-lg-2">
-                  <p class="mx-auto mb-4 text-sm">
-                    {{ t("dontHaveAccount") }}
-                    <a href="/signup" class="text-success text-gradient font-weight-bold">{{ t("signUp") }}</a>
-                  </p>
+                        <p v-if="passwordValid" class="text-success mt-2 mb-0 small">
+                          {{ t("passwordValid") }}
+                        </p>
+                        <p v-if="!passwordValid" class="text-danger mt-2 mb-0 small">
+                          {{ t("passwordRequirements") }}
+                        </p>
+                      </div>
+                      <p class="mx-auto mb-4 text-sm text-center">
+                        <a href="javascript:;" @click="showForgotPasswordForm" class="signin-link font-weight-bold">
+                          {{ t("forgotPassword") }}
+                        </a>
+                      </p>
+                      <argon-alert v-if="showAlert" color="danger">
+                        {{ errorMessage }}
+                      </argon-alert>
+                      <div class="text-center">
+                        <argon-button class="signin-btn-primary mt-4 d-flex align-items-center justify-content-center rounded-pill px-5"
+                          variant="gradient" color="success" fullWidth size="lg" :disabled="!passwordValid">
+                          <span class="me-2">{{ t("signIn") }}</span>
+                          <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </argon-button>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="card-footer signin-card-footer px-lg-2 text-center">
+                    <p class="mx-auto mb-0 text-sm">
+                      {{ t("dontHaveAccount") }}
+                      <a href="/signup" class="signin-link font-weight-bold">{{ t("signUp") }}</a>
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <!-- قسم الصورة والنص -->
-            <!-- <div
-              class="col-6 d-none d-lg-flex h-100 justify-content-center flex-column text-center my-auto top-0 position-absolute"
-              :class="currentLanguage === 'ar' ? 'start-0 ps-0' : 'end-0 pe-0'"
-            >
-            <div
-                class="position-relative bg-gradient-primary w-100 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-auto"
-                style="
-                  height: 480px;
-                  margin-left: -100px;
-                  max-height: 90vh;
-                "
-              >
-                <img 
-                  src="https://ik.imagekit.io/dimpx0s2v/Copy%20of%201task%20(1).gif"
-                  alt="Task Management Illustration" 
-                  class="position-absolute top-0 start-0 w-100 h-100 object-contain"
-                  style="
-                    z-index: 1; 
-                    opacity: 0.9; 
-                    object-fit: contain;
-                    background-position: center;
-                    background-repeat: no-repeat;
-                  "
-                />
-              </div>
-            </div> -->
 
-            <div class="col-lg-6 order-lg-2">
-              <div class="hero-image-wrapper">
-                <img src="https://ik.imagekit.io/ts7pphpbz3/Copy%20of%201task%20(8).gif" alt="Task Management Interface"
-                  class="hero-img rounded-3" loading="lazy" />
+              <!-- Illustration column -->
+              <div class="col-lg-6 order-lg-2">
+                <div class="hero-image-wrapper animate-fade-in-up">
+                  <img src="https://ik.imagekit.io/ts7pphpbz3/Copy%20of%201task%20(8).gif" alt="Task Management Interface"
+                    class="hero-img rounded-3" loading="lazy" />
+                </div>
               </div>
             </div>
-            <!-- نهاية قسم الصورة والنص -->
           </div>
         </div>
-      </div>
-    </section>
-  </main>
-
-
-
-  <AppFooter />
+      </section>
+    </main>
+    <FooterSection />
+  </div>
 </template>
 
-<style scoped>
-.form-container {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  /* ظل أعمق وأكثر وضوحًا */
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  /* حدود أكثر سمكًا وشفافية */
-  border-radius: 10px;
-  padding: 20px;
+<style lang="scss" scoped>
+@import "~@/assets/scss/argon-dashboard/variables/dark-version";
+
+/* Design tokens - match LandingPage */
+.signin-page {
+  --primary-50: #f7faef;
+  --primary-100: #ecf4dc;
+  --primary-500: #a6c95a;
+  --primary-600: #8ca843;
+  --primary-700: #73883a;
+  --text-light: #475569;
+  --text-dark: #0f172a;
+  --bg-light: #ffffff;
+  --bg-dark: #0f172a;
+  --border-light: #e2e8f0;
+  --border-dark: #1e293b;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
 }
 
-.hero-section {
-  background-image: url("https://ik.imagekit.io/ts7pphpbz3/background-gd-gradient-grey.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+.signin-page.dark-version {
+  --text-light: #{$dark-version-body-color};
+  --text-dark: rgba(255, 255, 255, 0.9);
+  --bg-light: #{$dark-version-card-bg-color};
+  --bg-dark: #{$dark-version-bg-color};
+  --border-light: #{$dark-version-border-color};
+  --border-dark: #{$dark-version-border-color};
 }
 
+.signin-page:not(.dark-version) {
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+}
+
+.signin-page.dark-version {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+/* Hero background - same as landing */
+.hero-bg {
+  background-image: radial-gradient(circle at top right, var(--primary-100) 0%, transparent 40%),
+    radial-gradient(circle at bottom left, var(--primary-100) 0%, transparent 40%);
+}
+
+.signin-page.dark-version .hero-bg {
+  background-image: radial-gradient(circle at top right, rgba(166, 201, 90, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at bottom left, rgba(166, 201, 90, 0.1) 0%, transparent 40%);
+}
+
+.signin-main {
+  padding-top: 0;
+}
+
+.signin-hero {
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+  min-height: 100vh;
+}
+
+.signin-container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Card */
+.signin-card {
+  background: var(--bg-light) !important;
+  border: 1px solid var(--border-light);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.signin-page.dark-version .signin-card {
+  background: var(--bg-light) !important;
+  border-color: var(--border-dark);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.signin-card-header {
+  background: transparent !important;
+  border-bottom: none !important;
+  padding-top: 1.5rem;
+}
+
+.signin-card-footer {
+  background: transparent !important;
+  border-top: 1px solid var(--border-light);
+  padding: 1rem 1.5rem;
+}
+
+.signin-page.dark-version .signin-card-footer {
+  border-top-color: var(--border-dark);
+}
+
+/* Typography */
+.signin-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.2;
+}
+
+.signin-page.dark-version .signin-title {
+  color: var(--text-dark);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary-500) 0%, #aef63b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.signin-subtitle {
+  font-size: 1rem;
+  color: var(--text-light);
+}
+
+/* Primary button - match landing CTA */
+.signin-btn-primary {
+  background: linear-gradient(135deg, #aef63b 0%, var(--primary-600) 100%) !important;
+  border: none !important;
+  color: #0f172a !important;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(140, 168, 67, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.signin-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(140, 168, 67, 0.4);
+}
+
+.signin-btn-primary:disabled {
+  opacity: 0.7;
+}
+
+/* Links */
+.signin-link {
+  color: var(--primary-600) !important;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.signin-link:hover {
+  opacity: 0.85;
+}
+
+.signin-page.dark-version .signin-link {
+  color: var(--primary-500) !important;
+}
+
+.signin-toggle-pwd {
+  color: var(--text-light);
+}
+
+/* Illustration */
 .hero-image-wrapper {
   position: relative;
   padding: 1rem;
-  background: white;
+  background: var(--bg-light);
   border-radius: 1rem;
   transform: rotate(2deg);
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .hero-image-wrapper::before {
   content: "";
   position: absolute;
   inset: -10px;
-  background: linear-gradient(45deg, #a7c858, #8aab3a);
+  background: linear-gradient(45deg, var(--primary-500) 30%, var(--primary-600) 70%);
   border-radius: 1rem;
   z-index: -1;
   transform: rotate(-2deg);
-}
-
-.hero-image-wrapper:hover .hero-img {
-  transform: perspective(1000px) rotateY(5deg) translateZ(20px);
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 4px rgba(167, 200, 88, 0.4);
-}
-
-.hero-image-wrapper {
-  position: relative;
-  padding: 1rem;
-  border-radius: 1rem;
-  transform: rotate(2deg);
-  transition: transform 0.3s ease;
+  filter: blur(12px);
+  opacity: 0.25;
+  transition: opacity 0.3s ease;
 }
 
 .hero-image-wrapper:hover {
   transform: rotate(3deg) scale(1.02);
 }
 
-.hero-image-wrapper::before {
-  content: "";
-  position: absolute;
-  inset: -10px;
-  background: linear-gradient(45deg, #a7c858 30%, #8aab3a 70%);
-  border-radius: 1rem;
-  z-index: -1;
-  transform: rotate(-2deg);
-  filter: blur(10px);
-  opacity: 0.3;
-  transition: opacity 0.3s ease;
-}
-
 .hero-image-wrapper:hover::before {
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
-/* RTL Adjustments */
-.rtl .featured-words {
-  justify-content: flex-end;
+.hero-img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.hero-image-wrapper:hover .hero-img {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(166, 201, 90, 0.3);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* RTL */
 .rtl .hero-image-wrapper {
   transform: rotate(-2deg);
 }
@@ -425,28 +536,11 @@ const t = (key) => {
   transform: rotate(2deg);
 }
 
-.hero-img {
-  width: 100%;
-  height: 500px;
-  object-fit: cover;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-}
-
-.hero-img {
-  width: 100%;
-  height: 500px;
-  object-fit: cover;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 768px) {
-  .featured-word {
-    font-size: 1.5rem;
-    padding: 0.5rem;
-  }
-
-  .hero-img {
-    height: 400px;
+/* Responsive */
+@media (max-width: 991.98px) {
+  .signin-hero {
+    padding-top: 5rem;
+    padding-bottom: 3rem;
   }
 
   .hero-image-wrapper {
@@ -454,13 +548,13 @@ const t = (key) => {
   }
 }
 
-@media (max-width: 992px) {
-  .hero-img {
-    height: 400px;
+@media (max-width: 767.98px) {
+  .signin-title {
+    font-size: 1.75rem;
   }
 
-  .hero-image-wrapper {
-    display: none;
+  .signin-subtitle {
+    font-size: 0.9375rem;
   }
 }
 </style>
