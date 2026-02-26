@@ -1,12 +1,16 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/i18n'
 import { activateDarkMode, deactivateDarkMode } from '@/assets/js/dark-mode'
 
 const store = useStore()
+const route = useRoute()
 const { t, locale } = useI18n()
+
+const isAuthPage = computed(() => ['/signin', '/signup'].includes(route.path))
 
 const mobileMenuOpen = ref(false)
 const isScrolled = ref(false)
@@ -70,8 +74,8 @@ const logoUrl = computed(() => {
         </div>
       </router-link>
 
-      <!-- Desktop Menu -->
-      <div class="d-none d-md-flex align-items-center navbar-nav-desktop">
+      <!-- Desktop Menu (hidden on Signin / Signup) -->
+      <div v-if="!isAuthPage" class="d-none d-md-flex align-items-center navbar-nav-desktop">
         <a href="#features" class="nav-link" :class="darkMode ? 'text-light' : 'text-dark'">
           {{ t('landing.features') || 'Features' }}
         </a>
@@ -121,23 +125,25 @@ const logoUrl = computed(() => {
     <transition name="mobile-menu">
       <div v-if="mobileMenuOpen" class="mobile-menu d-md-none"
         :class="darkMode ? 'bg-dark border-dark' : 'bg-white border-light'">
-        <a @click="mobileMenuOpen = false" href="#features" class="mobile-menu-link"
-          :class="darkMode ? 'text-light' : 'text-dark'">
-          {{ t('landing.features') || 'Features' }}
-        </a>
-        <a @click="mobileMenuOpen = false" href="#solution" class="mobile-menu-link"
-          :class="darkMode ? 'text-light' : 'text-dark'">
-          {{ t('landing.solutions') || 'Solutions' }}
-        </a>
-        <a @click="mobileMenuOpen = false" href="#testimonials" class="mobile-menu-link"
-          :class="darkMode ? 'text-light' : 'text-dark'">
-          {{ t('landing.testimonials') || 'Testimonials' }}
-        </a>
-        <a @click="mobileMenuOpen = false" href="#pricing" class="mobile-menu-link"
-          :class="darkMode ? 'text-light' : 'text-dark'">
-          {{ t('landing.pricing') || 'Pricing' }}
-        </a>
-        <hr :class="darkMode ? 'border-secondary' : 'border-light'" />
+        <template v-if="!isAuthPage">
+          <a @click="mobileMenuOpen = false" href="#features" class="mobile-menu-link"
+            :class="darkMode ? 'text-light' : 'text-dark'">
+            {{ t('landing.features') || 'Features' }}
+          </a>
+          <a @click="mobileMenuOpen = false" href="#solution" class="mobile-menu-link"
+            :class="darkMode ? 'text-light' : 'text-dark'">
+            {{ t('landing.solutions') || 'Solutions' }}
+          </a>
+          <a @click="mobileMenuOpen = false" href="#testimonials" class="mobile-menu-link"
+            :class="darkMode ? 'text-light' : 'text-dark'">
+            {{ t('landing.testimonials') || 'Testimonials' }}
+          </a>
+          <a @click="mobileMenuOpen = false" href="#pricing" class="mobile-menu-link"
+            :class="darkMode ? 'text-light' : 'text-dark'">
+            {{ t('landing.pricing') || 'Pricing' }}
+          </a>
+          <hr :class="darkMode ? 'border-secondary' : 'border-light'" />
+        </template>
         <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
           <button @click="changeLanguage(isRTL ? 'en' : 'ar')" class="btn btn-sm"
             :class="darkMode ? 'btn-outline-light' : 'btn-outline-dark'">
@@ -166,10 +172,23 @@ const logoUrl = computed(() => {
 <style scoped>
 .navbar-landing {
   z-index: 1050;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease, border-color 0.3s ease;
   top: 0;
   left: 0;
   right: 0;
+}
+
+/* Blur background on scroll (works on Signin/Signup and Landing) */
+.navbar-landing.glass-nav {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.navbar-landing.dark-version.glass-nav {
+  background: rgba(26, 26, 26, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo-container {

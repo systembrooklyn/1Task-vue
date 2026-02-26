@@ -10,8 +10,8 @@ import {
 import { useStore } from "vuex";
 import { useRouter } from "vue-router"; // استدعاء Vue Router
 
-// import Navbar from "@/examples/PageLayout/Navbar.vue";
-import AppFooter from "@/examples/PageLayout/Footer.vue";
+import LandingNavbar from "@/components/landing/LandingNavbar.vue";
+import FooterSection from "@/views/landing/sections/FooterSection.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonSelect from "@/components/ArgonSelect.vue";
 import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
@@ -179,6 +179,7 @@ const translations = {
 };
 
 const currentLanguage = computed(() => store.getters.currentLanguage);
+const darkMode = computed(() => store.state.darkMode);
 
 const t = (key) => {
   return translations[currentLanguage.value][key];
@@ -203,229 +204,399 @@ const industryOptions = computed(() => [
 </script>
 
 <template>
-  <main class="main-content mt-0">
-    <section class="hero-section">
-      >
-      <div class="page-header min-vh-100">
-        <div class="container">
-          <div class="row">
-            <!-- قسم النموذج -->
-            <div class=" col-lg-5 col-md-7 d-flex flex-column">
-              <div class="card card-plain">
-                <div class="text-center pb-0">
-                  <img
-                    src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?ik-obj-version=9sTuepUtU27Iw3.FfIbdKOdc7MYL4WM0&updatedAt=1737223784202"
-                    alt="Task Management"
-                    class=" mb-5 mx-auto w-50"
-                  />
-                  <h3>{{ t("newOrganization") }}</h3>
-                  <p class="mb-0">{{ t("enterDetails") }}</p>
-                </div>
-                <div class="card-body">
-                  <form role="form" @submit.prevent="submitForm">
-                    <!-- <argon-input
-                      id="name"
-                      type="text"
-                      :placeholder="t('name')"
-                      :aria-label="t('name')"
-                      v-model="name"
-                    /> -->
-                    <div class="row">
-                      <div class="col-6">
-                        <argon-input
-                          id="firstName"
-                          type="text"
-                          :placeholder="t('firstName')"
-                          :aria-label="t('firstName')"
-                          v-model="name"
-                        />
+  <div class="signup-page antialiased" :class="{ 'dark-version': darkMode }">
+    <LandingNavbar />
+    <main class="signup-main">
+      <section class="signup-hero hero-bg">
+        <div class="page-header min-vh-100">
+          <div class="container signup-container">
+            <div class="row align-items-center">
+              <!-- Form column -->
+              <div class="col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto order-lg-1"
+                :class="currentLanguage === 'ar' ? 'order-2' : ''">
+                <div class="card signup-card card-plain animate-fade-in-up">
+                  <div class="signup-card-header text-center pb-0">
+                    <img
+                      src="https://ik.imagekit.io/ts7pphpbz3/Subheading%20(1)%20(1).png?ik-obj-version=9sTuepUtU27Iw3.FfIbdKOdc7MYL4WM0&updatedAt=1737223784202"
+                      alt="Task Management"
+                      class="signup-logo mb-4 mx-auto w-50"
+                    />
+                    <h1 class="signup-title font-weight-bolder mb-2">
+                      <span class="gradient-text">{{ t("newOrganization") }}</span>
+                    </h1>
+                    <p class="signup-subtitle mb-0">{{ t("enterDetails") }}</p>
+                  </div>
+                  <div class="card-body">
+                    <form role="form" @submit.prevent="submitForm">
+                      <div class="row">
+                        <div class="col-6">
+                          <argon-input
+                            id="firstName"
+                            type="text"
+                            :placeholder="t('firstName')"
+                            :aria-label="t('firstName')"
+                            v-model="name"
+                          />
+                        </div>
+                        <div class="col-6">
+                          <argon-input
+                            id="lastName"
+                            type="text"
+                            :placeholder="t('lastName')"
+                            :aria-label="t('lastName')"
+                            v-model="lastName"
+                          />
+                        </div>
                       </div>
-                      <div class="col-6">
-                        <argon-input
-                      id="lastName"
-                      type="text"
-                      :placeholder="t('lastName')"
-                      :aria-label="t('lastName')"
-                      v-model="lastName"
+                      <argon-input
+                        id="companyName"
+                        type="text"
+                        :placeholder="t('companyName')"
+                        :aria-label="t('companyName')"
+                        v-model="companyName"
                       />
-                    </div>
-                    </div>
-                    <argon-input
-                      id="companyName"
-                      type="text"
-                      :placeholder="t('companyName')"
-                      :aria-label="t('companyName')"
-                      v-model="companyName"
-                    />
-                    <argon-input
-                      id="email"
-                      class="email"
-                      type="email"
-                      :placeholder="t('email')"
-                      :aria-label="t('email')"
-                      v-model="email"
-                    />
-                    <argon-input
-                      id="email"
-                      class="email"
-                      type="email"
-                      :placeholder="t('email')"
-                      :aria-label="t('email')"
-                      v-model="email"
-                    />
-                    <div class="position-relative mb-3">
-                      <div class="position-relative">
-                        <argon-input
-                          id="password"
-                          :type="showPassword ? 'text' : 'password'"
-                          :placeholder="t('password')"
-                          :aria-label="t('password')"
-                          v-model="password"
-                        />
-                        <span
-                          @click="showPassword = !showPassword"
-                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"
-                        >
-                          <i
-                            :class="
-                              showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'
-                            "
-                          ></i>
-                        </span>
+                      <argon-input
+                        id="email"
+                        class="email"
+                        type="email"
+                        :placeholder="t('email')"
+                        :aria-label="t('email')"
+                        v-model="email"
+                      />
+                      <div class="position-relative mb-3">
+                        <div class="position-relative">
+                          <argon-input
+                            id="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            :placeholder="t('password')"
+                            :aria-label="t('password')"
+                            v-model="password"
+                          />
+                          <span
+                            @click="showPassword = !showPassword"
+                            class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer signup-toggle-pwd"
+                          >
+                            <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                          </span>
+                        </div>
+                        <p v-if="passwordValid" class="text-success mt-2 mb-0 small">{{ t("passwordValid") }}</p>
+                        <p v-if="!passwordValid" class="text-danger mt-2 mb-0 small">{{ t("passwordRequirements") }}</p>
                       </div>
-                      <p v-if="passwordValid" class="text-success mt-2">
-                        {{ t("passwordValid") }}
-                      </p>
-                      <p v-if="!passwordValid" class="text-danger mt-2">
-                        {{ t("passwordRequirements") }}
-                      </p>
-                    </div>
-                    <div class="position-relative mb-3">
-                      <div class="position-relative">
-                        <argon-input
-                          id="confirmationPassword"
-                          :type="showPassword ? 'text' : 'password'"
-                          :placeholder="t('confirmationPassword')"
-                          :aria-label="t('confirmationPassword')"
-                          v-model="confirmPassword"
-                        />
-                        <span
-                          @click="showPassword = !showPassword"
-                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"
-                        >
-                          <i
-                            :class="
-                              showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'
-                            "
-                          ></i>
-                        </span>
+                      <div class="position-relative mb-3">
+                        <div class="position-relative">
+                          <argon-input
+                            id="confirmationPassword"
+                            :type="showPassword ? 'text' : 'password'"
+                            :placeholder="t('confirmationPassword')"
+                            :aria-label="t('confirmationPassword')"
+                            v-model="confirmPassword"
+                          />
+                          <span
+                            @click="showPassword = !showPassword"
+                            class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer signup-toggle-pwd"
+                          >
+                            <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                          </span>
+                        </div>
+                        <p v-if="passwordsMatch && confirmPassword" class="text-success mt-2 mb-0 small">{{ t("passwordsMatch") }}</p>
+                        <p v-if="!passwordsMatch && confirmPassword" class="text-danger mt-2 mb-0 small">{{ t("passwordsDoNotMatch") }}</p>
                       </div>
-
-                      <p
-                        v-if="passwordsMatch && confirmPassword"
-                        class="text-success mt-2"
-                      >
-                        {{ t("passwordsMatch") }}
-                      </p>
-                      <p
-                        v-if="!passwordsMatch && confirmPassword"
-                        class="text-danger mt-2"
-                      >
-                        {{ t("passwordsDoNotMatch") }}
-                      </p>
-
-                      <!-- رسالة تطابق أو عدم تطابق كلمة المرور -->
-                    </div>
-                    <argon-select
-                      id="company-size"
-                      v-model="selectedCompanySize"
-                      :options="companySizeOptions"
-                      :placeholder="t('companySize')"
-                      :aria-label="t('companySize')"
-                    />
-                    <!-- استخدام الـ argon-select للـ Industry -->
-                    <argon-select
-                      id="industry"
-                      v-model="selectedIndustry"
-                      :options="industryOptions"
-                      :placeholder="t('industry')"
-                      :aria-label="t('industry')"
-                    />
-                    <argon-checkbox checked>
-                      <label class="form-check-label" for="flexCheckDefault">
-                        {{ t("agreeTerms") }}
-                      </label>
-                    </argon-checkbox>
-                    <div class="text-center">
-                      <argon-button
-                        class="mt-4"
-                        variant="gradient"
-                        color="success"
-                        fullWidth
-                        size="lg"
-                        :disabled="
-                          !passwordValid ||
-                          !passwordsMatch ||
-                          companyName === ''
-                        "
-                        >{{ t("signUp") }}</argon-button
-                      >
-                    </div>
-                  </form>
+                      <argon-select
+                        id="company-size"
+                        v-model="selectedCompanySize"
+                        :options="companySizeOptions"
+                        :placeholder="t('companySize')"
+                        :aria-label="t('companySize')"
+                      />
+                      <argon-select
+                        id="industry"
+                        v-model="selectedIndustry"
+                        :options="industryOptions"
+                        :placeholder="t('industry')"
+                        :aria-label="t('industry')"
+                      />
+                      <argon-checkbox checked>
+                        <label class="form-check-label" for="flexCheckDefault">
+                          {{ t("agreeTerms") }}
+                        </label>
+                      </argon-checkbox>
+                      <div class="text-center">
+                        <argon-button
+                          class="signup-btn-primary mt-4 rounded-pill px-5"
+                          variant="gradient"
+                          color="success"
+                          fullWidth
+                          size="lg"
+                          :disabled="!passwordValid || !passwordsMatch || companyName === ''"
+                        >
+                          {{ t("signUp") }}
+                        </argon-button>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="card-footer signup-card-footer text-center px-lg-2 pt-0 px-1">
+                    <p class="mb-0 text-sm mx-auto">
+                      {{ t("alreadyHaveAccount") }}
+                      <a href="/signin" class="signup-link font-weight-bold">{{ t("signIn") }}</a>
+                    </p>
+                  </div>
                 </div>
-                <!-- <div class="card-footer text-center px-lg-2 pt-0 px-1">
-                  <p class="mb-4 text-sm mx-auto">
-                    {{ t("alreadyHaveAccount") }}
-                    <a
-                      href="javascript:;"
-                      class="text-success text-gradient font-weight-bold"
-                      >{{ t("signIn") }}</a
-                    >
-                  </p>
-                </div> -->
+              </div>
+
+              <!-- Illustration column -->
+              <div class="col-lg-6 order-lg-2">
+                <div class="hero-image-wrapper animate-fade-in-up">
+                  <img
+                    src="https://ik.imagekit.io/ts7pphpbz3/b3905bc5-dacf-4897-8f09-74fa2f122768.jpg"
+                    alt="Task Management Interface"
+                    class="hero-img rounded-3"
+                    loading="lazy"
+                  />
+                </div>
               </div>
             </div>
-            <!-- قسم الصورة والنص -->
-            <!-- Image Column -->
-          <div class="col-lg-6 order-lg-2">
-            <div class="hero-image-wrapper">
-              <img
-                src="https://ik.imagekit.io/ts7pphpbz3/b3905bc5-dacf-4897-8f09-74fa2f122768.jpg"
-                alt="Task Management Interface"
-                class="hero-img rounded-3"
-                loading="lazy"
-              />
-            </div>
-          </div>
-            <!-- نهاية قسم الصورة والنص -->
           </div>
         </div>
-      </div>
-    </section>
-  </main>
-  <app-footer />
+      </section>
+    </main>
+    <FooterSection />
+  </div>
 </template>
 
-<style>
+<style lang="scss" scoped>
+@import "~@/assets/scss/argon-dashboard/variables/dark-version";
+
 .email {
   pointer-events: none;
 }
 
-.hero-section {
-  background-image: url("https://ik.imagekit.io/ts7pphpbz3/background-gd-gradient-grey.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+/* Design tokens - match LandingPage / Signin */
+.signup-page {
+  --primary-50: #f7faef;
+  --primary-100: #ecf4dc;
+  --primary-500: #a6c95a;
+  --primary-600: #8ca843;
+  --primary-700: #73883a;
+  --text-light: #475569;
+  --text-dark: #0f172a;
+  --bg-light: #ffffff;
+  --bg-dark: #0f172a;
+  --border-light: #e2e8f0;
+  --border-dark: #1e293b;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
 }
 
-@media (max-width: 768px) {
-  .featured-word {
-    font-size: 1.5rem;
-    padding: 0.5rem;
-  }
+.signup-page.dark-version {
+  --text-light: #{$dark-version-body-color};
+  --text-dark: rgba(255, 255, 255, 0.9);
+  --bg-light: #{$dark-version-card-bg-color};
+  --bg-dark: #{$dark-version-bg-color};
+  --border-light: #{$dark-version-border-color};
+  --border-dark: #{$dark-version-border-color};
+}
 
-  .hero-img {
-    height: 400px;
+.signup-page:not(.dark-version) {
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+}
+
+.signup-page.dark-version {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+.hero-bg {
+  background-image: radial-gradient(circle at top right, var(--primary-100) 0%, transparent 40%),
+    radial-gradient(circle at bottom left, var(--primary-100) 0%, transparent 40%);
+}
+
+.signup-page.dark-version .hero-bg {
+  background-image: radial-gradient(circle at top right, rgba(166, 201, 90, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at bottom left, rgba(166, 201, 90, 0.1) 0%, transparent 40%);
+}
+
+.signup-main {
+  padding-top: 0;
+}
+
+.signup-hero {
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+  min-height: 100vh;
+}
+
+.signup-container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.signup-card {
+  background: var(--bg-light) !important;
+  border: 1px solid var(--border-light);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.signup-page.dark-version .signup-card {
+  background: var(--bg-light) !important;
+  border-color: var(--border-dark);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.signup-card-header {
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.signup-logo {
+  max-width: 50%;
+}
+
+.signup-card-footer {
+  background: transparent !important;
+  border-top: 1px solid var(--border-light);
+  padding: 1rem 1.5rem;
+}
+
+.signup-page.dark-version .signup-card-footer {
+  border-top-color: var(--border-dark);
+}
+
+.signup-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.2;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary-500) 0%, #aef63b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.signup-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-light);
+}
+
+.signup-btn-primary {
+  background: linear-gradient(135deg, #aef63b 0%, var(--primary-600) 100%) !important;
+  border: none !important;
+  color: #0f172a !important;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(140, 168, 67, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.signup-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(140, 168, 67, 0.4);
+}
+
+.signup-btn-primary:disabled {
+  opacity: 0.7;
+}
+
+.signup-link {
+  color: var(--primary-600) !important;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.signup-link:hover {
+  opacity: 0.85;
+}
+
+.signup-page.dark-version .signup-link {
+  color: var(--primary-500) !important;
+}
+
+.signup-toggle-pwd {
+  color: var(--text-light);
+}
+
+.hero-image-wrapper {
+  position: relative;
+  padding: 1rem;
+  background: var(--bg-light);
+  border-radius: 1rem;
+  transform: rotate(2deg);
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.hero-image-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  background: linear-gradient(45deg, var(--primary-500) 30%, var(--primary-600) 70%);
+  border-radius: 1rem;
+  z-index: -1;
+  transform: rotate(-2deg);
+  filter: blur(12px);
+  opacity: 0.25;
+  transition: opacity 0.3s ease;
+}
+
+.hero-image-wrapper:hover {
+  transform: rotate(3deg) scale(1.02);
+}
+
+.hero-image-wrapper:hover::before {
+  opacity: 0.4;
+}
+
+.hero-img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.3s ease;
+}
+
+.hero-image-wrapper:hover .hero-img {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(166, 201, 90, 0.3);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.rtl .hero-image-wrapper {
+  transform: rotate(-2deg);
+}
+
+.rtl .hero-image-wrapper:hover {
+  transform: rotate(-3deg) scale(1.02);
+}
+
+.rtl .hero-image-wrapper::before {
+  transform: rotate(2deg);
+}
+
+@media (max-width: 991.98px) {
+  .signup-hero {
+    padding-top: 5rem;
+    padding-bottom: 3rem;
   }
 
   .hero-image-wrapper {
@@ -433,4 +604,17 @@ const industryOptions = computed(() => [
   }
 }
 
+@media (max-width: 767.98px) {
+  .signup-title {
+    font-size: 1.5rem;
+  }
+
+  .signup-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .signup-logo {
+    max-width: 60%;
+  }
+}
 </style>
