@@ -55,13 +55,13 @@
           <ul class="list-group list-group-flush flex-grow-1">
             <li v-for="(feature, idx) in plan.features" :key="idx"
               class="list-group-item d-flex align-items-center px-0 py-2"
+              :class="{ 'feature-row-first': idx === 0 }"
               :style="{ 'background-color': 'var(--brand)' }">
-              <!-- <i class="fas fa-check text-success me-2"></i> -->
-              <span>{{ feature.name }}</span>
-              <span class="ms-auto fw-bold">
+              <span class="feature-label">{{ feature.name }}</span>
+              <span class="feature-value ms-auto fw-bold">
                 {{ feature.value }}
                 <span v-if="feature.name.toLowerCase().includes('storage')" class="text-sm"> MB</span>
-                <span v-if="feature.name.toLowerCase().includes('one time task')" class="text-sm"> / per month</span>
+                <span v-if="feature.name.toLowerCase().includes('one time task')" class="text-sm suffix-unit">/ month</span>
               </span>
             </li>
           </ul>
@@ -103,6 +103,10 @@ const props = defineProps({
     type: [Number, String],
     default: null,
   },
+  customButtonText: {
+    type: String,
+    default: null, // إذا لم يتم تمريره، يستخدم النص الافتراضي
+  },
 });
 
 const emit = defineEmits(["select"]);
@@ -138,9 +142,9 @@ const getButtonText = (plan) => {
     case 'expired':
       return 'Renew Plan';
     case 'available':
-      return 'Choose Plan';
+      return props.customButtonText || 'Choose Plan'; // ✅ استخدام custom text
     default:
-      return 'Choose Plan';
+      return props.customButtonText || 'Choose Plan';
   }
 };
 
@@ -443,6 +447,27 @@ function selectPlan(plan) {
 .list-group-item {
   border: none;
   padding: 0.5rem 0;
+}
+
+/* First feature row: single-line, clearer hierarchy */
+.feature-row-first {
+  padding: 0.6rem 0 !important;
+  margin: 0 -0.25rem;
+  border-radius: 0.5rem;
+  background: rgba(144, 177, 64, 0.08) !important;
+}
+.feature-row-first .feature-label {
+  color: #4b5563;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.feature-row-first .feature-value {
+  color: #111827;
+  white-space: nowrap;
+}
+.feature-row-first .feature-value .suffix-unit {
+  font-weight: 600;
+  opacity: 0.9;
 }
 
 /* Buttons visibility + polish */

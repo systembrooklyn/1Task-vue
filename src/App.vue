@@ -215,7 +215,7 @@ body.sidebar-expanded {
 /* Ensure main content takes full width when no sidebar */
 .main-content {
   transition: margin-left 0.3s ease;
-  padding-top: 80px !important;
+  /* padding-top: 80px !important; */
 }
 
 @media (max-width: 1199px) {

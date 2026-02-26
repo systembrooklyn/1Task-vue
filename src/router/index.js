@@ -77,10 +77,11 @@ const requiredPermission = (...requiredPermissions) => {
 const routes = [
   {
     path: "/",
-    name: "/",
-    component: () => import("../views/Start.vue"),
+    name: "Landing",
+    component: () => import("../views/landing/LandingPage.vue"),
     meta: { public: true },
   },
+
   {
     path: "/:companyName/dashboard-default",
     name: "Dashboard",

@@ -19,12 +19,12 @@ class GeminiAIService {
 
     // إذا لم يوجد، استخدم القيمة الافتراضية
     if (!apiKey) {
-      apiKey = "AIzaSyD89iXRI1iIrxSxvz_jn0uucFi0N0jy6I0";
+      apiKey = "AIzaSyA1Wa0vD0TL8bLhSTq4r8Zh3XlflF2k2WI";
     }
 
     console.log(
       "Gemini API Key loaded:",
-      apiKey ? `${apiKey.substring(0, 10)}...` : "NOT FOUND"
+      apiKey ? `${apiKey.substring(0, 10)}...` : "NOT FOUND",
     );
 
     if (!apiKey) {
@@ -209,7 +209,7 @@ Return ONLY valid JSON:
     const taskCompletionRate =
       DailyTasks?.total_reports > 0
         ? ((DailyTasks.done_reports / DailyTasks.total_reports) * 100).toFixed(
-            1
+            1,
           )
         : 0;
 
@@ -244,7 +244,7 @@ ${(DailyTasks?.DailyTaskDepts || [])
   * إجمالي المهام: ${dept.total_tasks || 0}
   * إجمالي التقارير: ${dept.total_reports || 0}
   * معدل الإنجاز: ${dept.total_reports > 0 ? ((dept.done_reports / dept.total_reports) * 100).toFixed(1) : 0}%
-`
+`,
   )
   .join("")}
 

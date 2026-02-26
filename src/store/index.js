@@ -585,11 +585,19 @@ export default createStore({
       commit("sidebarType", payload);
     },
     changeLanguage({ commit }, language) {
-      // setLocale يحدث store.state.isRTL تلقائياً، لذا نستخدمه فقط
-      if (typeof window !== 'undefined' && window.setLocale) {
-        window.setLocale(language);
-      } else {
-        // Fallback: تحديث store مباشرة إذا لم يكن setLocale متاحاً
+      // ✅ محاولة استخدام setLocale مباشرة إذا كان متاحاً
+      try {
+        // استيراد ديناميكي لـ setLocale
+        if (typeof window !== 'undefined' && window.setLocale) {
+          window.setLocale(language);
+          commit("SET_LANGUAGE", language); // ✅ تحديث store بعد setLocale
+        } else {
+          // Fallback: تحديث store مباشرة إذا لم يكن setLocale متاحاً
+          commit("SET_LANGUAGE", language);
+        }
+      } catch (error) {
+        console.warn("Error setting locale:", error);
+        // Fallback: تحديث store مباشرة في حالة الخطأ
         commit("SET_LANGUAGE", language);
       }
     },

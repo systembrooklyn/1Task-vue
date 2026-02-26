@@ -103,7 +103,7 @@ const toggleSidebar = () => {
   // Desktop only: toggle and save to localStorage
   collapsed.value = !collapsed.value;
   localStorage.setItem('sidebarCollapsed', String(collapsed.value));
-  
+
   // Update body class for CSS variable
   document.body.classList.toggle('sidebar-expanded', !collapsed.value);
 

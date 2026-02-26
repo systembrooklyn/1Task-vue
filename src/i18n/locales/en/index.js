@@ -12,6 +12,7 @@ import projects from "./projects";
 import components from "./components";
 import validation from "./validation";
 import profile from "./profile";
+import landing from "./landing";
 
 export default {
   common,
@@ -28,4 +29,5 @@ export default {
   components,
   validation,
   profile,
+  landing,
 };

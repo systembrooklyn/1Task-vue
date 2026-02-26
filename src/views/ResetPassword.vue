@@ -29,7 +29,7 @@ const passwordsMatch = ref(false);
 
 // دالة التحقق من قوة كلمة المرور
 const validatePassword = (password) => {
-  const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%*?&-_]{8,}$/;
+  const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_#-])[A-Za-z\d@$!%*?&_#-]{8,}$/;
   return regex.test(password);
 };
 
@@ -219,11 +219,11 @@ const translations = {
     send: "send",
     passwordRequirements:
       "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a number, and a special character.",
-      passwordValid: "Password is valid ✅",
-      confirmationPassword: "Confirm your Password *",
+    passwordValid: "Password is valid ✅",
+    confirmationPassword: "Confirm your Password *",
     passwordsMatch: "Passwords match ✅",
     passwordsDoNotMatch: "Passwords do not match",
-    },
+  },
   ar: {
     confirmationPassword: "تأكيد كلمة المرور *",
     passwordsMatch: "كلمات المرور متطابقة ✅",
@@ -277,44 +277,41 @@ const t = (key) => {
         <div class="container">
           <div class="row">
             <!-- قسم النموذج -->
-            <div
-              class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto"
-              :class="currentLanguage === 'ar' ? 'order-2' : ''"
-            >
+            <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto"
+              :class="currentLanguage === 'ar' ? 'order-2' : ''">
               <div class="card card-plain">
-                <div
-                  class="pb-0 card-header"
-                  :class="currentLanguage === 'ar' ? 'text-end' : 'text-start'"
-                >
+                <div class="pb-0 card-header" :class="currentLanguage === 'ar' ? 'text-end' : 'text-start'">
                   <h4 class="font-weight-bolder">{{ t("updatePassword") }}</h4>
                   <p class="mb-0">{{ t("enterPassword") }}</p>
                 </div>
                 <div class="card-body">
                   <form role="form" @submit.prevent="updatePassword">
                     <div class="mb-3 position-relative">
-                  <div class="position-relative">
-                    <argon-input v-model="password" id="password" :type="showPassword ? 'text' : 'password'"
-                      :placeholder="t('password')" name="password" size="lg" required />
-                    <span @click="showPassword = !showPassword"
-                      class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
-                      <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
-                    </span>
-                  </div>
-                  <p v-if="passwordValid" class="text-success mt-2">{{ t("passwordValid") }}</p>
-                  <p v-if="!passwordValid" class="text-danger mt-2">{{ t("passwordRequirements") }}</p>
-                </div>
-                <div class="mb-3 position-relative">
-                  <div class="position-relative">
-                    <argon-input v-model="confirmPassword" id="password" :type="showPassword ? 'text' : 'password'"
-                      :placeholder="t('confirmationPassword')" name="password" size="lg" />
-                    <span @click="showPassword = !showPassword"
-                      class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
-                      <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
-                    </span>
-                  </div>
-                  <p v-if="passwordsMatch && confirmPassword" class="text-success mt-2"> {{ t("passwordsMatch") }}</p>
-                  <p v-if="!passwordsMatch && confirmPassword" class="text-danger mt-2"> {{ t("passwordsDoNotMatch") }}</p>
-                </div>
+                      <div class="position-relative">
+                        <argon-input v-model="password" id="password" :type="showPassword ? 'text' : 'password'"
+                          :placeholder="t('password')" name="password" size="lg" required />
+                        <span @click="showPassword = !showPassword"
+                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
+                          <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                        </span>
+                      </div>
+                      <p v-if="passwordValid" class="text-success mt-2">{{ t("passwordValid") }}</p>
+                      <p v-if="!passwordValid" class="text-danger mt-2">{{ t("passwordRequirements") }}</p>
+                    </div>
+                    <div class="mb-3 position-relative">
+                      <div class="position-relative">
+                        <argon-input v-model="confirmPassword" id="password" :type="showPassword ? 'text' : 'password'"
+                          :placeholder="t('confirmationPassword')" name="password" size="lg" />
+                        <span @click="showPassword = !showPassword"
+                          class="position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer">
+                          <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                        </span>
+                      </div>
+                      <p v-if="passwordsMatch && confirmPassword" class="text-success mt-2"> {{ t("passwordsMatch") }}
+                      </p>
+                      <p v-if="!passwordsMatch && confirmPassword" class="text-danger mt-2"> {{ t("passwordsDoNotMatch")
+                        }}</p>
+                    </div>
                     <argon-alert v-if="showAlert" color="danger">
                       {{ errorMessage }}
                     </argon-alert>
@@ -323,14 +320,8 @@ const t = (key) => {
                     </argon-alert>
 
                     <div class="text-center">
-                      <argon-button
-                        class="mt-4"
-                        variant="gradient"
-                        color="success"
-                        fullWidth
-                        size="lg"
-                        :disabled="!passwordValid"
-                      >{{ t("send") }}</argon-button>
+                      <argon-button class="mt-4" variant="gradient" color="success" fullWidth size="lg"
+                        :disabled="!passwordValid">{{ t("send") }}</argon-button>
                     </div>
                   </form>
                 </div>
@@ -340,15 +331,13 @@ const t = (key) => {
           <!-- قسم الصورة والنص -->
           <div
             class="col-6 d-none d-lg-flex h-100 justify-content-center flex-column text-center my-auto top-0 position-absolute"
-            :class="currentLanguage === 'ar' ? 'start-0 ps-0' : 'end-0 pe-0'"
-          >
+            :class="currentLanguage === 'ar' ? 'start-0 ps-0' : 'end-0 pe-0'">
             <div
               class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
               style="
                 background-image: url(&quot;https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg&quot;);
                 background-size: cover;
-              "
-            >
+              ">
               <span class="mask bg-gradient-success opacity-6"></span>
               <h4 class="mt-5 text-white font-weight-bolder position-relative">
                 {{ t("attentionIsNewCurrency") }}

@@ -145,7 +145,7 @@ watch(pageTime, () => {
 
 // دالة للتحقق من كلمة المرور
 const validatePassword = (password) => {
-  const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%*?&-_]{8,}$/;
+  const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_#-])[A-Za-z\d@$!%*?&_#-]{8,}$/;
   return regex.test(password);
 };
 
