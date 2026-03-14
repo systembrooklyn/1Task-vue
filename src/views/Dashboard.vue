@@ -122,7 +122,7 @@ const quickOneTimeTask = ref({
   department_id: null          // Optional
 });
 
-// Fetch and save dashboard data
+// Fetch and save dashboard data (with full-screen loading - first load / retry)
 const fetchAndSaveDashboardData = async () => {
   try {
     isLoading.value = true;
@@ -147,6 +147,23 @@ const fetchAndSaveDashboardData = async () => {
   }
 };
 
+// Silent refresh: update data without showing full-screen loading
+const refreshDashboardDataSilently = async () => {
+  try {
+    const freshData = await store.dispatch("fetchDashboardData");
+    if (freshData) {
+      dashboardData.value = {
+        ...freshData,
+        lastUpdated: new Date().toLocaleString()
+      };
+      localStorage.setItem('dashboardData', JSON.stringify(dashboardData.value));
+    }
+  } catch (error) {
+    console.error('Error silently refreshing dashboard data:', error);
+    // لا نغيّر isLoading أو hasError هنا حتى لا نؤثر على واجهة المستخدم
+  }
+};
+
 // Watch for store changes and update local data
 watch(() => store.getters.dashboardData, (newData) => {
   if (newData) {
@@ -161,7 +178,7 @@ watch(() => store.getters.dashboardData, (newData) => {
 // Auto-refresh functionality
 const startAutoRefresh = () => {
   refreshInterval.value = setInterval(() => {
-    fetchAndSaveDashboardData();
+    refreshDashboardDataSilently();
   }, 300000); // Refresh every 5 minutes
 };
 
@@ -282,7 +299,7 @@ const projects = computed(() => store.getters.projects || []);
 const employeeOptions = computed(() => {
   return dataFromApi.value.map((employee) => ({
     value: employee.id,
-    label: employee.name,
+    label: `${employee.first_name ?? employee.name ?? ""} ${employee.last_name ?? ""}`.trim(),
   }));
 });
 
@@ -1940,7 +1957,7 @@ onMounted(async () => {
             <div class="row mb-2">
 
               <!-- Department -->
-              <div class="col-md-6 ">
+              <div class="col-md-6">
                 <!-- <label class="form-label small text-muted mb-1">{{ t('department') }}</label> -->
                 <ArgonSelect v-model="quickRoutineTask.dept_id" :options="formattedDepartments"
                   :placeholder="t('dashboard.selectDepartment')" :searchable="true" />
@@ -1978,7 +1995,7 @@ onMounted(async () => {
               <i class="fas fa-times me-1"></i>
               {{ t('dashboard.cancel') }}
             </ArgonButton>
-            <ArgonButton color="success" size="sm" @click="submitQuickRoutineTask" :disabled="isSubmittingRoutine">
+            <ArgonButton color="light" size="sm" @click="submitQuickRoutineTask" :disabled="isSubmittingRoutine">
               <span v-if="isSubmittingRoutine" class="spinner-border spinner-border-sm" role="status"
                 aria-hidden="true"></span>
               {{ isSubmittingRoutine ? t('dashboard.saving') : t('dashboard.create') }}
@@ -2255,7 +2272,7 @@ onMounted(async () => {
               <i class="fas fa-times me-1"></i>
               {{ t('dashboard.cancel') }}
             </ArgonButton>
-            <ArgonButton color="success" size="sm" @click="submitQuickOneTimeTask" :disabled="isSubmittingOneTime">
+            <ArgonButton color="light" size="sm" @click="submitQuickOneTimeTask" :disabled="isSubmittingOneTime">
               <span v-if="isSubmittingOneTime" class="spinner-border spinner-border-sm" role="status"
                 aria-hidden="true"></span>
               {{ isSubmittingOneTime ? t('dashboard.saving') : t('dashboard.create') }}
