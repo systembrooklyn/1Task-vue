@@ -107,8 +107,11 @@ const logoUrl = computed(() => {
           </span>
         </button>
 
-        <router-link to="/signup" class="btn btn-sm rounded-pill px-4 navbar-cta-button">
+        <router-link v-if="$route.path !== '/signup'" to="/signup" class="btn btn-sm rounded-pill px-4 navbar-cta-button">
           {{ t('landing.getStarted') || 'Get Started' }}
+        </router-link>
+        <router-link v-if="$route.path !== '/signin'" to="/signin" class="btn btn-sm rounded-pill px-4 navbar-cta-button">
+          {{ t('landing.signIn') || 'Sign In' }}
         </router-link>
       </div>
 

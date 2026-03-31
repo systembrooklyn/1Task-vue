@@ -6,6 +6,7 @@ export default {
   pricing: "الأسعار",
   getStarted: "البدء",
   signIn: "تسجيل الدخول",
+  signUp: "إنشاء حساب",
   darkMode: "الوضع الداكن",
   lightMode: "الوضع الفاتح",
 

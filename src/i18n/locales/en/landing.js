@@ -6,6 +6,7 @@ export default {
   pricing: "Pricing",
   getStarted: "Get Started",
   signIn: "Sign In",
+  signUp: "Sign Up",
   darkMode: "Dark Mode",
   lightMode: "Light Mode",
 

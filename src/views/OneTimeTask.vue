@@ -23,11 +23,12 @@ import ArgonTagsInput from "@/components/ArgonTagsInput.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonTextarea from "@/components/ArgonTextarea.vue";
 import CheckboxMultiSelect from "@/components/CheckboxMultiSelect.vue";
+import { nextTick } from "vue";
 
 // import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import OneTimeTaskTable from "@/views/components/OneTimeTaskTable.vue";
 
-const refreshInterval = ref(null); // Will store our setInterval ID
+// const refreshInterval = ref(null); // Will store our setInterval ID
 
 const refreshIntervalId = ref(null); // تغيير اسم المتغير ليكون أوضح
 
@@ -63,27 +64,27 @@ const route = useRoute();
 const router = useRouter();
 
 // عند تحميل الصفحة لأول مرة، حفظ الصلاحيات في localStorage
-onBeforeMount(async () => {
-  if (!permissions.value || Object.keys(permissions.value).length === 0) {
-    const extractedPermissions = extractPermissionsFromAPI(
-      userData.value?.roles,
-    );
-    permissions.value = extractedPermissions;
-    savePermissionsToLocalStorage(permissions.value, userData.value?.id);
-  }
-  await store.dispatch("getCompanyUsers");
-  await store.dispatch("fetchProjects");
-  // if (canCreateProject.value) {
-  // }
-  // await store.dispatch("fetchDepartments");
-  // --- بداية التغييرات ---
-  // جلب المهام لأول مرة
-  await refreshTasks();
+// onBeforeMount(async () => {
+//   if (!permissions.value || Object.keys(permissions.value).length === 0) {
+//     const extractedPermissions = extractPermissionsFromAPI(
+//       userData.value?.roles,
+//     );
+//     permissions.value = extractedPermissions;
+//     savePermissionsToLocalStorage(permissions.value, userData.value?.id);
+//   }
+//   await store.dispatch("getCompanyUsers");
+//   await store.dispatch("fetchProjects");
+//   // if (canCreateProject.value) {
+//   // }
+//   // await store.dispatch("fetchDepartments");
+//   // --- بداية التغييرات ---
+//   // جلب المهام لأول مرة
+//   await refreshTasks();
 
-  // بدء التحديث الدوري كل 30 ثانية
-  refreshIntervalId.value = setInterval(refreshTasks, 30000); // 30000 مللي ثانية = 30 ثانية
-  // --- نهاية التغييرات ---
-});
+//   // بدء التحديث الدوري كل 30 ثانية
+//   refreshIntervalId.value = setInterval(refreshTasks, 30000); // 30000 مللي ثانية = 30 ثانية
+//   // --- نهاية التغييرات ---
+// });
 
 // --- بداية التغييرات ---
 // إيقاف التحديث الدوري عند إلغاء تحميل المكون لمنع تسرب الذاكرة
@@ -217,30 +218,76 @@ const prioritiesOptions = [
 ];
 
 // تهيئة أولية للبيانات المفلترة
-onBeforeMount(() => {
-  filteredProjects.value = formattedProjects.value || [];
-  filteredPriorities.value = prioritiesOptions;
-  console.log("Initial setup - Projects:", filteredProjects.value);
-  console.log("Initial setup - Priorities:", filteredPriorities.value);
-  // Apply initial priority from query if present
-  const pr = route.query.priority;
-  if (pr && ["low", "normal", "high", "urgent"].includes(pr)) {
-    selectedPriority.value = pr;
+// onBeforeMount(() => {
+//   filteredProjects.value = formattedProjects.value || [];
+//   filteredPriorities.value = prioritiesOptions;
+//   console.log("Initial setup - Projects:", filteredProjects.value);
+//   console.log("Initial setup - Priorities:", filteredPriorities.value);
+//   // Apply initial priority from query if present
+//   const pr = route.query.priority;
+//   if (pr && ["low", "normal", "high", "urgent"].includes(pr)) {
+//     selectedPriority.value = pr;
+//   }
+//   // Load any known filters from query
+//   Object.keys(activeQuery).forEach((k) => {
+//     if (route.query[k]) activeQuery[k] = String(route.query[k]);
+//   });
+//   // Map due query to dropdown
+//   const due = route.query.due;
+//   if (due && ["soon", "overdue", "noDueDate"].includes(due)) {
+//     selectedDeadLine.value = due === "noDueDate" ? "noDueDate" : due;
+//   }
+//   // Focus tab if status passed in query
+//   if (route.query.status) {
+//     // Tabs labels are capitalized (Inbox, Own, Archive, Started, Review, Done)
+//     activeTab.value = String(route.query.status);
+//   }
+// });
+
+onBeforeMount(async () => {
+  // 1. تهيئة الـ UI واللغة
+  body.classList.remove("bg-gray-100");
+  const isRTL = store.getters.currentLanguage === "ar";
+  document.querySelector("html").setAttribute("lang", store.getters.currentLanguage);
+  document.querySelector("html").setAttribute("dir", isRTL ? "rtl" : "ltr");
+  document.querySelector("#app").classList.toggle("rtl", isRTL);
+  store.state.hideConfigButton = false;
+  store.state.showNavbar = true;
+  store.state.showSidenav = true;
+  store.state.showFooter = true;
+  body.classList.add("bg-gray-100");
+
+  // 2. تهيئة الصلاحيات
+  if (!permissions.value || Object.keys(permissions.value).length === 0) {
+    const extractedPermissions = extractPermissionsFromAPI(userData.value?.roles);
+    permissions.value = extractedPermissions;
+    savePermissionsToLocalStorage(permissions.value, userData.value?.id);
   }
-  // Load any known filters from query
-  Object.keys(activeQuery).forEach((k) => {
-    if (route.query[k]) activeQuery[k] = String(route.query[k]);
-  });
-  // Map due query to dropdown
-  const due = route.query.due;
-  if (due && ["soon", "overdue", "noDueDate"].includes(due)) {
-    selectedDeadLine.value = due === "noDueDate" ? "noDueDate" : due;
+
+  // 3. جلب البيانات الأساسية (بدون تجميد الـ UI)
+  isPageLoading.value = true;
+  
+  try {
+    // تشغيل جلب الموظفين، المشاريع، والتاسكات في نفس اللحظة (بالتوازي)
+    await Promise.all([
+      store.dispatch("getCompanyUsers"),
+      store.dispatch("fetchProjects"),
+      refreshTasks() // نقلناها هنا
+    ]);
+  } catch (error) {
+    console.error("Error loading initial data:", error);
+  } finally {
+    isPageLoading.value = false;
   }
-  // Focus tab if status passed in query
-  if (route.query.status) {
-    // Tabs labels are capitalized (Inbox, Own, Archive, Started, Review, Done)
-    activeTab.value = String(route.query.status);
-  }
+});
+
+onMounted(() => {
+  // بدء التحديث الدوري كل 30 ثانية (تأكد إن مفيش Interval تاني شغال)
+  if (refreshIntervalId.value) clearInterval(refreshIntervalId.value);
+  
+  refreshIntervalId.value = setInterval(() => {
+    refreshTasks();
+  }, 30000); 
 });
 
 // Keep route query synced with selectedPriority filter for shareable/refreshable state
@@ -526,96 +573,96 @@ const toggleMaximize = () => {
 };
 
 // عند تركيب المكوّن
-onMounted(() => {
-  // استدعِ نفس دالة الـrefreshTasks أو أي دالة XHR ثانية
-  refreshInterval.value = setInterval(() => {
-    refreshTasks();
-  }, 10 * 1000); // 60000 مللي ثانية = 1 دقيقة
-});
+// onMounted(() => {
+//   // استدعِ نفس دالة الـrefreshTasks أو أي دالة XHR ثانية
+//   refreshInterval.value = setInterval(() => {
+//     refreshTasks();
+//   }, 10 * 1000); // 60000 مللي ثانية = 1 دقيقة
+// });
 
-onBeforeMount(async () => {
-  body.classList.remove("bg-gray-100");
-  const isRTL = store.getters.currentLanguage === "ar";
-  document
-    .querySelector("html")
-    .setAttribute("lang", store.getters.currentLanguage);
-  document.querySelector("html").setAttribute("dir", isRTL ? "rtl" : "ltr");
-  document.querySelector("#app").classList.toggle("rtl", isRTL);
-  store.state.hideConfigButton = false;
-  store.state.showNavbar = true;
-  store.state.showSidenav = true;
-  store.state.showFooter = true;
-  body.classList.add("bg-gray-100");
+// onBeforeMount(async () => {
+//   body.classList.remove("bg-gray-100");
+//   const isRTL = store.getters.currentLanguage === "ar";
+//   document
+//     .querySelector("html")
+//     .setAttribute("lang", store.getters.currentLanguage);
+//   document.querySelector("html").setAttribute("dir", isRTL ? "rtl" : "ltr");
+//   document.querySelector("#app").classList.toggle("rtl", isRTL);
+//   store.state.hideConfigButton = false;
+//   store.state.showNavbar = true;
+//   store.state.showSidenav = true;
+//   store.state.showFooter = true;
+//   body.classList.add("bg-gray-100");
 
-  try {
-    isPageLoading.value = true;
-    // Example of calling your Vuex action:
-    const response = await store.dispatch("fetchOneTimeTasks");
-    console.log("response:", response);
-    if (response.status === 200) {
-      oneTimeTasks.value = store.getters.oneTimeTasks;
-      const nowTsInit = Date.now();
-      const freshMsInit = 2 * 60 * 1000; // اعتبرها جديدة خلال دقيقتين بعد الإنشاء
-      oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => {
-        const createdTs = task.created_at
-          ? new Date(task.created_at).getTime()
-          : 0;
-        const isFreshlyCreated = nowTsInit - createdTs <= freshMsInit;
-        return {
-          ...task,
-          hasNewUpdate:
-            task.read_comments !== true ||
-            isFreshlyCreated ||
-            (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
-        };
-      });
-      const nowTsRefresh = Date.now();
-      const freshMsRefresh = 2 * 60 * 1000; // اعتبرها جديدة خلال دقيقتين بعد الإنشاء
-      oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => {
-        const createdTs = task.created_at
-          ? new Date(task.created_at).getTime()
-          : 0;
-        const isFreshlyCreated = nowTsRefresh - createdTs <= freshMsRefresh;
-        return {
-          ...task,
-          hasNewUpdate:
-            task.read_comments !== true ||
-            isFreshlyCreated ||
-            (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
-        };
-      });
+//   try {
+//     isPageLoading.value = true;
+//     // Example of calling your Vuex action:
+//     const response = await store.dispatch("fetchOneTimeTasks");
+//     console.log("response:", response);
+//     if (response.status === 200) {
+//       oneTimeTasks.value = store.getters.oneTimeTasks;
+//       const nowTsInit = Date.now();
+//       const freshMsInit = 2 * 60 * 1000; // اعتبرها جديدة خلال دقيقتين بعد الإنشاء
+//       oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => {
+//         const createdTs = task.created_at
+//           ? new Date(task.created_at).getTime()
+//           : 0;
+//         const isFreshlyCreated = nowTsInit - createdTs <= freshMsInit;
+//         return {
+//           ...task,
+//           hasNewUpdate:
+//             task.read_comments !== true ||
+//             isFreshlyCreated ||
+//             (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
+//         };
+//       });
+//       const nowTsRefresh = Date.now();
+//       const freshMsRefresh = 2 * 60 * 1000; // اعتبرها جديدة خلال دقيقتين بعد الإنشاء
+//       oneTimeTasks.value = store.getters.oneTimeTasks.map((task) => {
+//         const createdTs = task.created_at
+//           ? new Date(task.created_at).getTime()
+//           : 0;
+//         const isFreshlyCreated = nowTsRefresh - createdTs <= freshMsRefresh;
+//         return {
+//           ...task,
+//           hasNewUpdate:
+//             task.read_comments !== true ||
+//             isFreshlyCreated ||
+//             (task.comments_count > 0 && !isTaskCommentSeen(task.id)),
+//         };
+//       });
 
-      // استخدام دالة الترتيب الموحدة
-      oneTimeTasks.value = sortTasksForTab(
-        oneTimeTasks.value,
-        activeTab.value,
-        currentUserId.value,
-      );
+//       // استخدام دالة الترتيب الموحدة
+//       oneTimeTasks.value = sortTasksForTab(
+//         oneTimeTasks.value,
+//         activeTab.value,
+//         currentUserId.value,
+//       );
 
-      // طباعة التاسكات مرتبة للتحقق من الترتيب
-      console.log(
-        "التاسكات بعد الترتيب:",
-        oneTimeTasks.value.map((task) => ({
-          name: task.oneTimeTaskName,
-          priority: task.priority,
-          hasUpdate: task.hasNewUpdate || task.comments_count > 0,
-          commentsCount: task.comments_count,
-          lastUpdate: task.updated_at || task.created_at,
-        })),
-      );
-    }
+//       // طباعة التاسكات مرتبة للتحقق من الترتيب
+//       console.log(
+//         "التاسكات بعد الترتيب:",
+//         oneTimeTasks.value.map((task) => ({
+//           name: task.oneTimeTaskName,
+//           priority: task.priority,
+//           hasUpdate: task.hasNewUpdate || task.comments_count > 0,
+//           commentsCount: task.comments_count,
+//           lastUpdate: task.updated_at || task.created_at,
+//         })),
+//       );
+//     }
 
-    console.log("oneTimeTasks:", oneTimeTasks.value);
-  } catch (error) {
-    console.error("Error fetching tasks:", error);
-  } finally {
-    isPageLoading.value = false;
-  }
+//     console.log("oneTimeTasks:", oneTimeTasks.value);
+//   } catch (error) {
+//     console.error("Error fetching tasks:", error);
+//   } finally {
+//     isPageLoading.value = false;
+//   }
 
-  if (refreshInterval.value) {
-    clearInterval(refreshInterval.value);
-  }
-});
+//   if (refreshInterval.value) {
+//     clearInterval(refreshInterval.value);
+//   }
+// });
 
 // جلب وتجديد المهام
 const refreshTasks = async () => {
@@ -1237,8 +1284,9 @@ const hasSelectedPeople = computed(() => {
 });
 
 // دالة لتوسيع قسم الأشخاص
-const expandPeopleSection = () => {
+const expandPeopleSection = async () => {
   console.log("expandPeopleSection called"); // للتأكد من استدعاء الدالة
+  await nextTick();
   showCompactPeople.value = true; // لإظهار gmail-people-section
   showAssigneeInput.value = true;
   showSupervisorInput.value = true;
@@ -1672,8 +1720,8 @@ const updateOneTimeTask = async () => {
         <div class="gmail-content" v-show="!isMinimized" @click="onContentClick">
           <div class="modal-content-scroll">
             <!-- شريط الأشخاص المضغوط (مثل Gmail) -->
-            <div class="gmail-compact-people-bar mb-2">
-              <div class="gmail-compact-content" @click="expandPeopleSection">
+            <div class="gmail-compact-people-bar mb-2" @click.stop>
+              <div class="gmail-compact-content" @click.stop="expandPeopleSection">
                 <!-- <span class="gmail-compact-label">{{ t('people') }}</span> -->
                 <div class="gmail-compact-tags">
                   <!-- إذا كان هناك أشخاص مختارين، اعرضهم -->
